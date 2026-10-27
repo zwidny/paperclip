@@ -88,7 +88,7 @@ function ModelSourceTile({
       aria-checked={selected}
       onClick={onSelect}
       className={cn(
-        "flex min-w-0 flex-1 cursor-pointer flex-col items-center gap-1.5 self-stretch rounded-md border p-3",
+        "flex min-w-0 flex-1 cursor-pointer flex-col items-center justify-center gap-1.5 self-stretch rounded-md border p-3",
         // Longer while the row is settling back to its default. Dropping the
         // selection is the last thing that happens on the way out, and at the
         // interaction duration it landed as a colour swap after everything else
@@ -188,7 +188,7 @@ export function ModelSourceTiles({
     <div
       role="radiogroup"
       aria-label={label}
-      className={cn("flex items-start gap-3", collapsed && "justify-center")}
+      className={cn("flex items-stretch gap-3", collapsed && "justify-center")}
       onKeyDown={(event) => {
         // Collapsed, the row is a statement rather than a choice; arrow keys
         // would move a selection that is no longer being asked for.

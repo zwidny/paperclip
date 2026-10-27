@@ -37,6 +37,7 @@ import {
   selectVendCredential,
 } from "./codex-auth-cache.js";
 import { resolveCodexExecutionEngineForRun, testCodexAcpEnvironment } from "./acp.js";
+import { prepareCodexRuntimeConfig } from "./runtime-config.js";
 import { ADAPTER_AUTH_MISSING_CHECK_CODE } from "./auth-check.js";
 import { checkCodexCliVersionForModel, codexHelloProbeModelRejectionCheck } from "./cli-version.js";
 
@@ -457,6 +458,25 @@ export async function testEnvironment(
         });
       }
 
+      // A custom OpenAI-compatible endpoint is a [model_providers.*] table in
+      // config.toml, not a CLI flag. The run path merges it into the managed
+      // CODEX_HOME; the probe has to do the same, or it would exercise the
+      // default provider and reject a model the endpoint actually serves.
+      // Local only: a remote sandbox home is prepared by the runtime.
+      let providerProbeHome: string | null = null;
+      const codexProvidersRaw = env.PAPERCLIP_CODEX_PROVIDERS ?? process.env.PAPERCLIP_CODEX_PROVIDERS;
+      if (!targetIsRemote && codexProvidersRaw && !env.CODEX_HOME) {
+        providerProbeHome = await fs.mkdtemp(
+          path.join(os.tmpdir(), `paperclip-codex-provider-probe-${runId}-`),
+        );
+        try {
+          await prepareCodexRuntimeConfig({ env, codexHome: providerProbeHome });
+        } catch (error) {
+          await fs.rm(providerProbeHome, { recursive: true, force: true }).catch(() => {});
+          throw error;
+        }
+        env.CODEX_HOME = providerProbeHome;
+      }
       // Codex CLI (>= 0.122) ignores the OPENAI_API_KEY env var and only reads
       // credentials from $CODEX_HOME/auth.json. When we have a key available,
       // wrap the probe with a shell that materializes a per-run auth.json so
@@ -464,7 +484,9 @@ export async function testEnvironment(
       // the command line) to avoid leaking it into process listings.
       // Managed connections already contain their exact auth and provider config.
       // Replacing that home with a native-key probe would test another provider.
-      const probeApiKey = config.managedAiConnection ? null : isNonEmpty(configOpenAiKey)
+      // A custom provider authenticates through its own `env_key`, so the
+      // OpenAI-key wrapper would replace the provider home and defeat it.
+      const probeApiKey = config.managedAiConnection || codexProvidersRaw ? null : isNonEmpty(configOpenAiKey)
         ? configOpenAiKey
         : isNonEmpty(hostOpenAiKey)
           ? hostOpenAiKey
@@ -573,6 +595,9 @@ export async function testEnvironment(
         }
       } finally {
         await preparedProbe.cleanup();
+        if (providerProbeHome) {
+          await fs.rm(providerProbeHome, { recursive: true, force: true }).catch(() => {});
+        }
       }
     }
   }

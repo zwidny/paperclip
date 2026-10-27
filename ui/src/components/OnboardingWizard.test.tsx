@@ -74,8 +74,11 @@ const mockGoalsApi = vi.hoisted(() => ({
   list: vi.fn(async () => []),
 }));
 const mockAgentsApi = vi.hoisted(() => ({
-  get: vi.fn(),
   create: vi.fn(async (_company: string, input: Record<string, unknown>) => ({ ...input, id: input.setupId, pauseReason: "setup" })),
+  // No default implementation: a lookup that returns undefined reads as
+  // inconclusive and leaves a persisted setup id in place. Tests that exercise
+  // a dead setup record resolve a terminated agent explicitly.
+  get: vi.fn(),
   update: vi.fn(async (_id: string, input: Record<string, unknown>) => input),
   adapterModels: vi.fn(async () => [] as Array<{ id: string; label: string }>),
   testEnvironment: vi.fn(
@@ -432,6 +435,7 @@ describe("OnboardingWizard restore-gate (stale localStorage across accounts)", (
     managedApi.loginResult.mockReset().mockResolvedValue({ connectionId: "subscription-account", grantId: "subscription-grant" });
     mockAgentsApi.list.mockReset().mockResolvedValue([]);
     mockAgentsApi.create.mockReset().mockImplementation(async (_company, input) => ({ ...input, id: input.setupId, pauseReason: "setup" }));
+    mockAgentsApi.get.mockReset();
     mockAgentsApi.hire.mockResolvedValue({ agent: { id: "agent-1" }, approval: null });
     mockCompaniesApi.create.mockResolvedValue({
       id: "created",
@@ -480,9 +484,9 @@ describe("OnboardingWizard restore-gate (stale localStorage across accounts)", (
       const root = await openProviderChoices();
       try {
         const sources = [...document.body.querySelectorAll("button[aria-checked]")];
-        expect(sources).toHaveLength(2);
+        expect(sources).toHaveLength(3);
         expect(sources.map(source => source.textContent)).toEqual([
-          expect.stringContaining("Claude"), expect.stringContaining("OpenAI"),
+          expect.stringContaining("Claude"), expect.stringContaining("OpenAI"), expect.stringContaining("OpenAI compatible"),
         ]);
         expect(document.body.textContent).not.toContain("GitHub Copilot");
         expect(document.body.textContent).not.toContain("Windows");
@@ -495,8 +499,9 @@ describe("OnboardingWizard restore-gate (stale localStorage across accounts)", (
       const root = await openProviderChoices();
       try {
         const sources = [...document.body.querySelectorAll("button[aria-checked]")];
-        expect(sources).toHaveLength(1);
+        expect(sources).toHaveLength(2);
         expect(sources[0]?.textContent).toContain("OpenAI");
+        expect(sources[1]?.textContent).toContain("OpenAI compatible");
       } finally { await act(async () => root.unmount()); }
     });
 
@@ -534,7 +539,7 @@ describe("OnboardingWizard restore-gate (stale localStorage across accounts)", (
         adapterType: "paperclip_runner", onboardingCopilot: true, runner: "paperclip", model: "copilot-model",
       } : {});
       try {
-        expect(document.body.querySelectorAll("button[aria-checked]")).toHaveLength(0);
+        expect(document.body.querySelectorAll("button[aria-checked]")).toHaveLength(1);
         expect(document.body.textContent).toContain("Claude and Codex are unavailable on this instance.");
         expect(document.body.textContent).toContain("choose New Agent on the Agents page");
         const next = [...document.body.querySelectorAll("button")].find(button => isArcPrimary(button.textContent?.trim() ?? ""));
@@ -2635,9 +2640,10 @@ describe("OnboardingWizard restore-gate (stale localStorage across accounts)", (
       const labels = [...document.body.querySelectorAll("button[aria-checked]")].map(
         (tile) => tile.textContent ?? "",
       );
-      expect(labels.length, "both recommended sources should render").toBe(2);
+      expect(labels.length, "the two recommended sources plus the compatible endpoint should render").toBe(3);
       expect(labels.some((l) => l.includes("Claude"))).toBe(true);
       expect(labels.some((l) => l.includes("OpenAI"))).toBe(true);
+      expect(labels.some((l) => l.includes("OpenAI compatible"))).toBe(true);
       // The negative half is the one that fails on the unwired version: the
       // registry label is the adapter type, and it must not reach the tile.
       expect(labels.join(" ")).not.toContain("claude_local");
@@ -2869,6 +2875,29 @@ describe("OnboardingWizard restore-gate (stale localStorage across accounts)", (
       const { root } = await openStep4({ adapterType: "claude_local", setupAgentId: setupId });
       await pickSource(/Claude/);
       expect(mockAgentsApi.create).toHaveBeenCalledWith("company-new", expect.objectContaining({ setupId }));
+      await act(async () => root.unmount());
+    });
+
+    it("drops a persisted setup id whose agent was terminated instead of stranding Connect", async () => {
+      const staleId = "00000000-0000-4000-8000-000000000082";
+      mockAgentsApi.get.mockResolvedValue({
+        id: staleId,
+        companyId: "company-new",
+        name: "Ada",
+        status: "terminated",
+        pauseReason: null,
+        lifecycleState: "terminated",
+        adapterType: "claude_local",
+        adapterConfig: {},
+      });
+      const { root } = await openStep4({ adapterType: "claude_local", setupAgentId: staleId });
+      await pickSource(/Claude/);
+      expect(mockAgentsApi.create).toHaveBeenCalledTimes(1);
+      const input = mockAgentsApi.create.mock.calls[0][1] as { setupId?: string };
+      // The server refuses the dead id with "Agent setup is no longer
+      // available"; the wizard must allocate a fresh one and continue.
+      expect(input.setupId).toBeTruthy();
+      expect(input.setupId).not.toBe(staleId);
       await act(async () => root.unmount());
     });
 
@@ -4910,7 +4939,7 @@ describe("OnboardingWizard restore-gate (stale localStorage across accounts)", (
       const { root } = await openStep4({ adapterType: "gemini_local" });
       try {
         const sources = [...document.body.querySelectorAll("button[aria-checked]")];
-        expect(sources).toHaveLength(2);
+        expect(sources).toHaveLength(3);
         expect(sources.some(source => /Gemini|Google|gemini_local/.test(source.textContent ?? ""))).toBe(false);
         expect(document.body.querySelector('button[aria-checked="true"]')).toBeNull();
         expect(managedApi.startLocalLogin).not.toHaveBeenCalled();
@@ -4981,6 +5010,104 @@ describe("OnboardingWizard restore-gate (stale localStorage across accounts)", (
       expect(document.body.textContent).toContain(
         "Sign in to Claude then come back and enter authorization code",
       );
+
+      await act(async () => root.unmount());
+    });
+  });
+
+  describe("OpenAI compatible source", () => {
+    it("hires OpenCode with a provider table and a key reference, never the key", async () => {
+      mockAdapterRegistry.list = [{ type: "claude_local" }, { type: "codex_local" }];
+      mockAdaptersApi.list.mockResolvedValue(
+        ["claude_local", "codex_local", "opencode_local"].map((type) =>
+          setupAdapterInfo({ type, loaded: true, disabled: false, supportedRunners: ["paperclip", "legacy"], defaultRunner: "legacy" }),
+        ),
+      );
+      mockCompaniesApi.create.mockResolvedValue({ id: "company-new", issuePrefix: "INI" });
+      window.localStorage.setItem(
+        ONBOARDING_STORAGE_KEY,
+        JSON.stringify({ step: 1, companyName: "Initech" }),
+      );
+      mockDialog.onboardingOptions = {};
+      mockCompany.companies = [];
+      mockCompany.loading = false;
+      mockCompaniesApi.list.mockResolvedValue([]);
+      mockSecretsApi.listMyUserSecrets.mockResolvedValue([]);
+      mockSecretsApi.createUserSecretDefinition.mockResolvedValue({ id: "def-1" });
+      mockSecretsApi.createMyUserSecret.mockResolvedValue({ id: "secret-abc" });
+      mockAdapterBuild.buildAdapterConfig.mockImplementation(
+        (values?: { model?: string }) => ({ model: values?.model }),
+      );
+
+      const { root, queryClient } = render();
+      await renderWizardView(root, queryClient);
+      await flushReact();
+
+      const clickByText = async (match: (text: string) => boolean) => {
+        const el = [...document.body.querySelectorAll("button")].find((b) =>
+          match(b.textContent?.trim() ?? ""),
+        )!;
+        await act(async () => {
+          el.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        });
+        await flushReact();
+      };
+
+      await clickByText((t) => t.startsWith("Continue"));
+      const agentField = document.body.querySelector(
+        "#onboarding-agent-name",
+      ) as HTMLInputElement;
+      await act(async () => {
+        setControlledValue(agentField, "Ada");
+      });
+      await flushReact();
+      await clickByText((t) => isArcPrimary(t));
+
+      // The compatible source, not one of the named providers.
+      await clickByText((t) => t.includes("OpenAI compatible"));
+
+      const baseUrl = document.body.querySelector(
+        'input[aria-label="Base URL"]',
+      ) as HTMLInputElement;
+      const modelName = document.body.querySelector(
+        'input[aria-label="Model"]',
+      ) as HTMLInputElement;
+      expect(baseUrl, "the endpoint fields should open with the card").toBeTruthy();
+      expect(modelName).toBeTruthy();
+
+      await act(async () => {
+        setControlledValue(baseUrl, "https://api.deepseek.com/v1");
+        setControlledValue(modelName, "deepseek-chat");
+      });
+      await flushReact();
+      for (let i = 0; i < 5; i += 1) await flushReact();
+
+      const keyField = document.body.querySelector(
+        'input[type="password"]',
+      ) as HTMLInputElement;
+      await act(async () => {
+        setControlledValue(keyField, "sk-deepseek-key");
+      });
+      await flushReact();
+      for (let i = 0; i < 5; i += 1) await flushReact();
+
+      await clickByText((t) => isArcPrimary(t));
+
+      const hireBody = (mockAgentsApi.hire.mock.calls.at(-1) as unknown[])[1] as {
+        adapterType: string;
+        adapterConfig: { model?: string; env?: Record<string, unknown> };
+      };
+      expect(hireBody.adapterType).toBe("opencode_local");
+      expect(hireBody.adapterConfig.model).toBe("custom/deepseek-chat");
+      const providers = JSON.parse(
+        String(hireBody.adapterConfig.env?.PAPERCLIP_OPENCODE_PROVIDERS),
+      );
+      expect(providers.custom.options.baseURL).toBe("https://api.deepseek.com/v1");
+      // The key travels as a placeholder; the reference is what the adapter
+      // resolves. The literal must not appear anywhere in the hire.
+      expect(providers.custom.options.apiKey).toBe("{env:OPENAI_COMPATIBLE_API_KEY}");
+      expect(hireBody.adapterConfig.env?.OPENAI_COMPATIBLE_API_KEY).toBeTruthy();
+      expect(JSON.stringify(hireBody)).not.toContain("sk-deepseek-key");
 
       await act(async () => root.unmount());
     });

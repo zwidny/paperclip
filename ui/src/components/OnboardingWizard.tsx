@@ -110,6 +110,16 @@ import { buildFixedClaudeOAuthBinding, CLAUDE_OAUTH_TOKEN_ENV_KEY } from "./envi
 import { defaultCreateValues } from "./agent-config-defaults";
 import { onboardingDraftStorage, restoreOnboardingState } from "../lib/onboarding-state";
 import {
+  OPENAI_COMPATIBLE_API_KEY_ENV_KEY,
+  OPENAI_COMPATIBLE_HARNESSES,
+  OPENAI_COMPATIBLE_SOURCE_ID,
+  isOpenAICompatibleEndpointComplete,
+  isOpenAICompatibleHarness,
+  openAICompatibleModelId,
+  openAICompatibleProviderEnv,
+  type OpenAICompatibleHarness,
+} from "../lib/openai-compatible";
+import {
   buildOnboardingIssuePayload,
   buildOnboardingProjectPayload,
   selectDefaultCompanyGoalId,
@@ -150,6 +160,7 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
+  Cpu,
   Loader2,
   ChevronDown,
 } from "lucide-react";
@@ -259,6 +270,9 @@ const MODEL_SOURCE_INLINE_MARKS: Record<string, ComponentType<{ className?: stri
 const API_KEY_ENV_KEYS: Record<string, string> = {
   claude_local: ANTHROPIC_API_KEY_ENV_KEY,
   codex_local: "OPENAI_API_KEY",
+  // The OpenAI-compatible source stores its key under its own name, so it can
+  // sit beside a real OpenAI key without the two overwriting each other.
+  [OPENAI_COMPATIBLE_SOURCE_ID]: OPENAI_COMPATIBLE_API_KEY_ENV_KEY,
 };
 
 function apiKeyEnvKeyFor(adapterType: string): string {
@@ -656,6 +670,21 @@ function OnboardingWizardInner({
    * `localStorage`, and a provider key does not belong there.
    */
   const [apiKey, setApiKey] = useState("");
+  /**
+   * The "OpenAI compatible" source: a real harness pointed at an endpoint that
+   * is not the vendor's own. `openAiCompatible` is the tile; `compatibleHarness`
+   * is the adapter it drives, and `adapterType` is kept in step with it so every
+   * existing hire/test path keeps reading the field it already reads.
+   */
+  const [openAiCompatible, setOpenAiCompatible] = useState(false);
+  const [compatibleHarness, setCompatibleHarness] =
+    useState<OpenAICompatibleHarness>("opencode_local");
+  const [compatibleBaseUrl, setCompatibleBaseUrl] = useState("");
+  const [compatibleModelName, setCompatibleModelName] = useState("");
+  /** The key env var for the source actually selected on this step. */
+  const activeApiKeyEnvKey = apiKeyEnvKeyFor(
+    openAiCompatible ? OPENAI_COMPATIBLE_SOURCE_ID : adapterType,
+  );
   // The owner's stored Claude subscription login, read right before the hire
   // (see handleGiveHeartbeat). Onboarding applies it with no extra control,
   // so nothing else reads this state yet.
@@ -668,7 +697,7 @@ function OnboardingWizardInner({
   );
   const savedKeys = useSavedProviderKeys(
     createdCompanyId,
-    apiKeyEnvKeyFor(adapterType),
+    activeApiKeyEnvKey,
     effectiveOnboardingOpen && step === 4,
   );
   // The chooser is absent in onboarding. Prefer the user's explicit default;
@@ -676,11 +705,11 @@ function OnboardingWizardInner({
   const savedSubscription = savedKeys.subscriptions.find((option) => option.aiConnection?.mode === "responsible_user")
     ?? (savedKeys.subscriptions.length === 1 ? savedKeys.subscriptions[0] : undefined);
   const [selectedSavedKey, setSelectedSavedKey] = useState<{ companyId: string; envKey: string; id: string } | null>(null);
-  const selectedApiKeyId = selectedSavedKey?.companyId === createdCompanyId && selectedSavedKey?.envKey === apiKeyEnvKeyFor(adapterType)
+  const selectedApiKeyId = selectedSavedKey?.companyId === createdCompanyId && selectedSavedKey?.envKey === activeApiKeyEnvKey
     ? selectedSavedKey.id
     : savedKeys.options[0]?.id;
   const selectedApiKey = savedKeys.options.find((option) => option.id === selectedApiKeyId);
-  const credentialMode = credentialModeChoice ?? (
+  const credentialMode = openAiCompatible ? "api" : credentialModeChoice ?? (
     (savedKeys.subscriptions.length > 0 || (adapterType === "claude_local" && savedKeys.storedLogin.data))
       ? "subscription" : savedKeys.options.length || adapterType === "opencode_local" ? "api" : "subscription"
   );
@@ -741,7 +770,7 @@ function OnboardingWizardInner({
   const apiKeySecretRef = useRef<{ key: string; companyId: string; envKey: string; grantId?: string; binding?: Awaited<ReturnType<typeof storeProviderApiKey>>["binding"]; aiConnection?: AiConnectionBinding } | null>(null);
   const managedSubscriptionRef = useRef<{ companyId: string; binding: AiConnectionBinding; grantId?: string; sessionId?: string } | null>(null);
   const defaultSelectionsRef = useRef(new Map<string, { pending: Promise<unknown>; queued: number; revision: number; grantId?: string | null }>());
-  const managedProvider = aiProviderForAdapter(adapterType);
+  const managedProvider = openAiCompatible ? undefined : aiProviderForAdapter(adapterType);
   const managedSubscriptionProvider = managedProvider === "anthropic" || managedProvider === "openai" || managedProvider === "xai" ? managedProvider : undefined;
   function managedBindingForStep(): AiConnectionBinding | undefined {
     if (credentialMode === "api" && gatewayConnection?.companyId === createdCompanyId && gatewayConnection.adapterType === adapterType) return gatewayConnection.binding;
@@ -753,10 +782,10 @@ function OnboardingWizardInner({
       const savedEnv = restoredSetup?.companyId === createdCompanyId
         && agentHarnessType(restoredSetup.adapterType, restoredSetup.adapterConfig) === agentHarnessType(adapterType, {})
         ? restoredSetup.adapterConfig.env as Record<string, unknown> | undefined : undefined;
-      if (savedEnv?.[credentialMode === "api" ? apiKeyEnvKeyFor(adapterType) : "CODEX_HOME"]) return undefined;
+      if (savedEnv?.[credentialMode === "api" ? activeApiKeyEnvKey : "CODEX_HOME"]) return undefined;
     }
     if (credentialMode === "api") return selectedApiKey?.aiConnection ?? (
-      !selectedApiKey && apiKeySecretRef.current?.companyId === createdCompanyId && apiKeySecretRef.current.envKey === apiKeyEnvKeyFor(adapterType)
+      !selectedApiKey && apiKeySecretRef.current?.companyId === createdCompanyId && apiKeySecretRef.current.envKey === activeApiKeyEnvKey
         ? apiKeySecretRef.current.aiConnection : undefined);
     return savedSubscription?.aiConnection ?? (managedSubscriptionRef.current?.companyId === createdCompanyId && managedSubscriptionRef.current.binding.provider === managedProvider ? managedSubscriptionRef.current.binding : undefined);
   }
@@ -1240,9 +1269,26 @@ function OnboardingWizardInner({
    * A source chosen from the visible row. Read off the row rather than off
    * `adapterType` alone, because a restored draft can name an adapter this step
    * no longer offers — a selection the customer cannot see.
+   *
+   * The compatible source is answered only once the endpoint is usable: a base
+   * URL, a model, and a key. A tile lit with an empty endpoint would let Connect
+   * hire against a provider config the adapter could never resolve.
    */
-  const sourceSelected =
-    sourcePicked && recommendedAdapters.some((opt) => opt.type === adapterType);
+  const openAiCompatibleReady =
+    openAiCompatible &&
+    isOpenAICompatibleEndpointComplete({
+      baseUrl: compatibleBaseUrl,
+      model: compatibleModelName,
+    }) &&
+    Boolean(selectedApiKey || apiKey.trim());
+  const sourceSelected = sourcePicked && (openAiCompatible
+    ? openAiCompatibleReady
+    : recommendedAdapters.some((opt) => opt.type === adapterType));
+
+  /** Whether the harness behind the compatible source can run on this instance. */
+  const openAiCompatibleAvailable = OPENAI_COMPATIBLE_HARNESSES.some(
+    (harness) => !disabledTypes.has(harness.id),
+  );
 
   /**
    * Whether the connect step may advance.
@@ -1263,7 +1309,7 @@ function OnboardingWizardInner({
    */
   const restoredApiCredential = restoredSetup?.companyId === createdCompanyId
     && agentHarnessType(restoredSetup.adapterType, restoredSetup.adapterConfig) === agentHarnessType(adapterType)
-    && !selectedSavedKey && (restoredSetup.adapterConfig.env as Record<string, unknown> | undefined)?.[apiKeyEnvKeyFor(adapterType)];
+    && !selectedSavedKey && (restoredSetup.adapterConfig.env as Record<string, unknown> | undefined)?.[activeApiKeyEnvKey];
   const connectStepReady = Boolean(setupPrepared || createdAgentId) && sourceSelected && !adapterEnvLoading && !savedKeys.loading && runnerDiscoveryReady && connectionModelReady;
 
   useEffect(() => {
@@ -1272,10 +1318,37 @@ function OnboardingWizardInner({
       || (!sourceSelected && setupNameConflict === JSON.stringify([createdCompanyId, agentName.trim().toLowerCase()]))) return;
     const companyId = createdCompanyId;
     preparingSetup.current.add(companyId);
-    const id = setupAgentId ?? crypto.randomUUID();
-    let restoring = Boolean(setupAgentId);
+    let restoring = false;
     void (async () => {
-      if (!setupAgentId) {
+      // A draft can outlive its setup record: the agent may have been
+      // terminated or deleted from another tab. Reusing that id is refused by
+      // the server ("Agent setup is no longer available"), which used to
+      // strand the step on Connect. Drop the stale id and start a fresh setup
+      // instead of failing the whole step.
+      let reusableSetupId = setupAgentId;
+      if (reusableSetupId) {
+        // Only a positively-identified dead record is dropped: a failed lookup
+        // is inconclusive, and creating a second setup on a transient read
+        // error would leave the first one orphaned.
+        let staleSetup = false;
+        try {
+          const existing = await agentsApi.get(reusableSetupId, companyId);
+          if (existing) {
+            staleSetup = existing.companyId !== companyId
+              || existing.status !== "paused"
+              || existing.pauseReason !== "setup"
+              || ["terminated", "rejected", "deleting"].includes(existing.lifecycleState ?? "");
+          }
+        } catch (error) {
+          if (error instanceof ApiError && error.status === 404) staleSetup = true;
+        }
+        if (staleSetup) {
+          reusableSetupId = null;
+          if (stillTheSameCompany(companyId)) setSetupAgentId(null);
+        }
+      }
+      restoring = Boolean(reusableSetupId);
+      if (!reusableSetupId) {
         // Only a persisted setup ID identifies an unfinished record for reuse.
         const sameName = (await agentsApi.list(companyId)).filter(agent =>
           agent.status !== "terminated" && agent.pauseReason !== "setup"
@@ -1289,6 +1362,7 @@ function OnboardingWizardInner({
           return null;
         }
       }
+      const id = reusableSetupId ?? crypto.randomUUID();
       const provisionalAdapter = disabledTypes.has("process") ? recommendedAdapters[0]?.type : "process";
       if (!sourceSelected && !provisionalAdapter) throw new Error("No agent adapters are available on this instance.");
       const createAdapter = sourceSelected ? adapterType : provisionalAdapter!;
@@ -1332,7 +1406,7 @@ function OnboardingWizardInner({
               ? agent.adapterType === "paperclip_runner" ? "paperclip" : "legacy" : "auto");
             const binding = agent.runtimeConfig?.aiConnection as AiConnectionBinding | undefined;
             if (binding) setCredentialMode(binding.method === "api_key" ? "api" : "subscription");
-            else if ((config.env as Record<string, unknown> | undefined)?.[apiKeyEnvKeyFor(adapterType)]) setCredentialMode("api");
+            else if ((config.env as Record<string, unknown> | undefined)?.[activeApiKeyEnvKey]) setCredentialMode("api");
             else if ((config.env as Record<string, unknown> | undefined)?.[CLAUDE_OAUTH_TOKEN_ENV_KEY]
               || (config.env as Record<string, unknown> | undefined)?.CODEX_HOME) setCredentialMode("subscription");
           }
@@ -1397,7 +1471,8 @@ function OnboardingWizardInner({
     third — so the column slides once, when there is a reason for it to.
   */
   const connectCollapsed =
-    connectPhase !== "idle" && connectPhase !== "unwindRow" && sourceSelected;
+    connectPhase !== "idle" && connectPhase !== "unwindRow" &&
+    (sourceSelected || (openAiCompatible && sourcePicked));
   const connectProgress = sourceSelected && !setupPrepared && !createdAgentId && !setupError ? "Creating your agent…" : adapterEnvLoading ? "Testing connection…" : loading ? "Connecting…" : null;
   const hasSavedSubscription = Boolean(savedSubscription || savedKeys.storedLogin.data ||
     (credentialMode !== "api" && managedBindingForStep()));
@@ -1423,12 +1498,14 @@ function OnboardingWizardInner({
    * the step was visited.
    */
   const connectCardMounted = connectCardSpace || connectPhase === "unwindRoom";
-  const connectLinkSpace =
+  const connectLinkSpace = !openAiCompatible && (
     connectPhase === "idle" ||
     connectPhase === "collapsing" ||
     connectPhase === "unwindRoom" ||
-    connectPhase === "unwindRow";
-  const connectLinkVisible = connectPhase === "idle" || connectPhase === "unwindRow";
+    connectPhase === "unwindRow"
+  );
+  const connectLinkVisible =
+    !openAiCompatible && (connectPhase === "idle" || connectPhase === "unwindRow");
 
   /**
    * When "Connecting" started, and whether the login behind it has finished.
@@ -1540,7 +1617,9 @@ function OnboardingWizardInner({
    * rather than offering — see `FooterNav`, where the label cross-fades over an
    * easing width so those changes read as one control rather than four.
    */
-  const connectSourceLabel = CONNECT_SOURCE_NAMES[adapterType] ?? adapterType;
+  const connectSourceLabel = openAiCompatible
+    ? "OpenAI compatible"
+    : CONNECT_SOURCE_NAMES[adapterType] ?? adapterType;
   const connectCta: { label: string; icon: FooterPrimaryIcon; disabled: boolean } =
     setupError ? { label: "Retry", icon: "arrow", disabled: false }
       : retryLogin ? { label: "Retry sign-in", icon: "arrow", disabled: false } : connectProgress
@@ -1675,6 +1754,10 @@ function OnboardingWizardInner({
     // external adapter is indistinguishable from a disabled one - and snapping
     // would replace the customer's choice with a built-in and persist it.
     if (!adapterRegistryLoaded) return;
+    // The compatible source drives a harness the row does not list, so the
+    // "is this adapter visible?" test below would always snap it away. Its own
+    // availability is the harness list's concern.
+    if (openAiCompatible) return;
     const visible = [...recommendedAdapters, ...moreAdapters].filter(
       (a) => !a.comingSoon,
     );
@@ -1705,7 +1788,7 @@ function OnboardingWizardInner({
       return;
     }
     setModel("");
-  }, [adapterRegistryLoaded, recommendedAdapters, moreAdapters, adapterType]);
+  }, [adapterRegistryLoaded, recommendedAdapters, moreAdapters, adapterType, openAiCompatible]);
 
   const COMMAND_PLACEHOLDERS: Record<string, string> = {
     claude_local: "claude",
@@ -1735,7 +1818,7 @@ function OnboardingWizardInner({
     setAdapterEnvResult(null);
     adapterEnvResultAppliedStoredLoginRef.current = false;
     if (adapterEnvErrorSelectionRef.current !== adapterSetupSelectionRef.current) setAdapterEnvError(null);
-  }, [step, adapterType, runner, model, command, args, url, credentialMode, apiKey, selectedSavedKey, selectedApiKey?.id, savedSubscription?.id, createdCompanyId, gatewayConnection, resolvedLoginEnvironmentId, runner === "auto" ? runnerDiscovery.data?.find(item => item.type === adapterType)?.defaultRunner : undefined]);
+  }, [step, adapterType, runner, model, command, args, url, credentialMode, apiKey, selectedSavedKey, selectedApiKey?.id, savedSubscription?.id, createdCompanyId, gatewayConnection, resolvedLoginEnvironmentId, openAiCompatible, compatibleBaseUrl, compatibleHarness, runner === "auto" ? runnerDiscovery.data?.find(item => item.type === adapterType)?.defaultRunner : undefined]);
 
   /**
    * Leaving the step puts the row back to a question.
@@ -1762,7 +1845,24 @@ function OnboardingWizardInner({
     setConnectCredentialStored(false);
   }, [step]);
 
-  const selectedModel = (adapterModels ?? []).find((m) => m.id === model);
+  // The compatible source drives a real adapter, so `adapterType` follows the
+  // harness picker rather than staying on whatever the row last held. Without
+  // this, switching harness would leave the hire on the previous adapter while
+  // the card showed the new endpoint.
+  useEffect(() => {
+    if (!openAiCompatible) return;
+    setAdapterType(compatibleHarness);
+  }, [openAiCompatible, compatibleHarness]);
+
+  // The adapter reads its model from the same field every other source uses.
+  // Keep it derived from the two inputs rather than asking the customer to type
+  // a provider-qualified id.
+  useEffect(() => {
+    if (!openAiCompatible) return;
+    setModel(openAICompatibleModelId(compatibleHarness, compatibleModelName));
+  }, [openAiCompatible, compatibleHarness, compatibleModelName]);
+
+
   const hasAnthropicApiKeyOverrideCheck =
     adapterEnvResult?.checks.some(
       (check) =>
@@ -1993,7 +2093,7 @@ function OnboardingWizardInner({
    */
   async function storeApiKeyUserSecret(companyId: string, isCurrent = () => true): Promise<boolean> {
     const key = apiKey.trim();
-    const envKey = apiKeyEnvKeyFor(adapterType);
+    const envKey = activeApiKeyEnvKey;
     const stored = apiKeySecretRef.current?.key === key && apiKeySecretRef.current.companyId === companyId && apiKeySecretRef.current.envKey === envKey
       ? apiKeySecretRef.current : null;
     if (stored?.binding) return true;
@@ -2143,17 +2243,38 @@ function OnboardingWizardInner({
     // configuration with no credential — which the hire then blocks on — rather
     // than one that quietly falls back to embedding the value.
     if (!managedBindingForStep() && credentialMode === "api" && (bindApiKey || selectedApiKey)
-      && (!((savedConfig.env as Record<string, unknown> | undefined)?.[apiKeyEnvKeyFor(adapterType)])
+      && (!((savedConfig.env as Record<string, unknown> | undefined)?.[activeApiKeyEnvKey])
         || selectedSavedKey || apiKey.trim())) {
       const env =
         typeof config.env === "object" && config.env !== null && !Array.isArray(config.env)
           ? { ...(config.env as Record<string, unknown>) }
           : {};
-      env[apiKeyEnvKeyFor(adapterType)] = selectedApiKey?.binding ?? apiKeySecretRef.current?.binding;
+      env[activeApiKeyEnvKey] = selectedApiKey?.binding ?? apiKeySecretRef.current?.binding;
       config.env = env;
     }
     if (credentialMode === "subscription" && savedSubscription?.binding && !(savedConfig.env as Record<string, unknown> | undefined)?.CODEX_HOME) {
       config.env = { ...((config.env as object) ?? {}), CODEX_HOME: savedSubscription.binding };
+    }
+    if (openAiCompatible) {
+      const compatibleModelId = openAICompatibleModelId(compatibleHarness, compatibleModelName);
+      if (compatibleModelId) (config as Record<string, unknown>).model = compatibleModelId;
+      // The endpoint itself is a provider table the harness reads from env. It
+      // carries an `{env:…}` placeholder, never the key: the reference above is
+      // what the adapter resolves, server-side, when it builds the runtime
+      // config. Writing the JSON here means the same config is probed and
+      // hired, so a passing test cannot describe a provider the hire lacks.
+      const providerEnv = openAICompatibleProviderEnv(compatibleHarness, {
+        baseUrl: compatibleBaseUrl,
+        model: compatibleModelName,
+      });
+      if (providerEnv) {
+        const env =
+          typeof config.env === "object" && config.env !== null && !Array.isArray(config.env)
+            ? { ...(config.env as Record<string, unknown>) }
+            : {};
+        env[providerEnv.envKey] = providerEnv.value;
+        config.env = env;
+      }
     }
     return config;
   }
@@ -2422,28 +2543,34 @@ function OnboardingWizardInner({
           );
           return;
         }
-        if (adapterModelsError) {
-          setError(
-            adapterModelsError instanceof Error
-              ? adapterModelsError.message
-              : "Failed to load OpenCode models."
-          );
-          return;
-        }
-        if (adapterModelsLoading || adapterModelsFetching) {
-          setError(
-            "OpenCode models are still loading. Please wait and try again."
-          );
-          return;
-        }
-        const discoveredModels = adapterModels ?? [];
-        if (!discoveredModels.some((entry) => entry.id === selectedModelId)) {
-          setError(
-            discoveredModels.length === 0
-              ? "No OpenCode models discovered. Run `opencode models` and authenticate providers."
-              : `Configured OpenCode model is unavailable: ${selectedModelId}`
-          );
-          return;
+        // A compatible endpoint's model is whatever the server actually
+        // exposes, and its discovery listing may not carry the custom provider
+        // until the config is in place. The customer names it directly, so the
+        // catalog checks below would reject a model that is about to work.
+        if (!openAiCompatible) {
+          if (adapterModelsError) {
+            setError(
+              adapterModelsError instanceof Error
+                ? adapterModelsError.message
+                : "Failed to load OpenCode models."
+            );
+            return;
+          }
+          if (adapterModelsLoading || adapterModelsFetching) {
+            setError(
+              "OpenCode models are still loading. Please wait and try again."
+            );
+            return;
+          }
+          const discoveredModels = adapterModels ?? [];
+          if (!discoveredModels.some((entry) => entry.id === selectedModelId)) {
+            setError(
+              discoveredModels.length === 0
+                ? "No OpenCode models discovered. Run `opencode models` and authenticate providers."
+                : `Configured OpenCode model is unavailable: ${selectedModelId}`
+            );
+            return;
+          }
         }
       }
 
@@ -3087,19 +3214,44 @@ function OnboardingWizardInner({
               {step === 4 && (
                 <motion.div key="step-4" {...stepContentMotion} exit={stepHandoff ? stepContentMotion.exit : undefined} className="space-y-8">
                   <div>
+                    {/* Sources come from `recommendedAdapters`, not a list
+                        written here — that filter is `recommended` in the
+                        display registry, so a third tile appears the day
+                        someone marks one rather than the day someone
+                        remembers to edit this file.
+
+                        The last tile is the one exception: a compatible
+                        endpoint is not an adapter of its own, so it cannot be
+                        marked `recommended` in the registry. Picking it drives
+                        one of the harnesses it wraps, chosen in the card.
+
+                        Picking one starts the sign-in now. The row is the
+                        question, and answering it is what opens the card. */}
                     <ModelSourceTiles
                       label="Model source"
-                      sources={recommendedAdapters.map((opt) => ({
-                        id: opt.type,
-                        label: CONNECT_SOURCE_NAMES[opt.type] ?? opt.label,
-                        icon: <ModelSourceMark type={opt.type} Fallback={opt.icon} />,
-                      }))}
+                      sources={[
+                        ...recommendedAdapters.map((opt) => ({
+                          id: opt.type,
+                          label: CONNECT_SOURCE_NAMES[opt.type] ?? opt.label,
+                          icon: <ModelSourceMark type={opt.type} Fallback={opt.icon} />,
+                        })),
+                        ...(openAiCompatibleAvailable ? [{
+                          id: OPENAI_COMPATIBLE_SOURCE_ID,
+                          label: "OpenAI compatible",
+                          icon: <ModelSourceMark type={OPENAI_COMPATIBLE_SOURCE_ID} Fallback={Cpu} />,
+                          // Always key-based: a compatible endpoint has no
+                          // subscription login to offer.
+                          credentialMode: "api" as const,
+                        }] : []),
+                      ]}
                       mode={credentialMode}
                       selectedId={
-                        sourcePicked &&
-                        recommendedAdapters.some((opt) => opt.type === adapterType)
-                          ? adapterType
-                          : null
+                        openAiCompatible && sourcePicked
+                          ? OPENAI_COMPATIBLE_SOURCE_ID
+                          : sourcePicked &&
+                            recommendedAdapters.some((opt) => opt.type === adapterType)
+                            ? adapterType
+                            : null
                       }
                       collapsed={connectCollapsed}
                       settling={connectPhase === "unwindRow"}
@@ -3107,6 +3259,13 @@ function OnboardingWizardInner({
                         if (connectPhase !== "idle") return;
                         autoConnectStartedRef.current = false;
                         setSourcePicked(true);
+                        if (id === OPENAI_COMPATIBLE_SOURCE_ID) {
+                          setOpenAiCompatible(true);
+                          setAdapterType(compatibleHarness);
+                          setConnectPhase("collapsing");
+                          return;
+                        }
+                        setOpenAiCompatible(false);
                         setAdapterType(id);
                         if (id !== adapterType) setRunner("auto");
                         if (id !== adapterType) {
@@ -3197,14 +3356,57 @@ function OnboardingWizardInner({
                       </p>
                     ) : credentialMode === "api" ? (
                       <OnboardingLoginCard
-                        instruction={hasGatewaySelection || connectionModels ? "Choose a model for your saved connection" : savedKeys.options.length ? "Choose a saved API key or enter a new one" : `Provide your ${
-                          CONNECT_SOURCE_NAMES[adapterType] ?? adapterType
-                        } API key to connect`}
+                        instruction={openAiCompatible
+                          ? "Point Paperclip at any OpenAI-compatible endpoint"
+                          : hasGatewaySelection || connectionModels ? "Choose a model for your saved connection" : savedKeys.options.length ? "Choose a saved API key or enter a new one" : `Provide your ${
+                            CONNECT_SOURCE_NAMES[adapterType] ?? adapterType
+                          } API key to connect`}
                       >
+                        {openAiCompatible && (
+                          <div className="space-y-2 text-sm">
+                            {OPENAI_COMPATIBLE_HARNESSES.length > 1 ? (
+                              <label className="block space-y-1">
+                                <span className="text-muted-foreground">Harness</span>
+                                <select
+                                  aria-label="OpenAI compatible harness"
+                                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                  value={compatibleHarness}
+                                  onChange={(event) => {
+                                    const next = event.target.value;
+                                    if (isOpenAICompatibleHarness(next)) setCompatibleHarness(next);
+                                  }}
+                                >
+                                  {OPENAI_COMPATIBLE_HARNESSES.map((harness) => (
+                                    <option key={harness.id} value={harness.id}>{harness.label}</option>
+                                  ))}
+                                </select>
+                              </label>
+                            ) : (
+                              <p className="text-muted-foreground">
+                                Runs on {OPENAI_COMPATIBLE_HARNESSES[0]?.label ?? compatibleHarness}.
+                              </p>
+                            )}
+                            <OnboardingCardField
+                              label="Base URL"
+                              placeholder="https://api.deepseek.com/v1"
+                              value={compatibleBaseUrl}
+                              onChange={setCompatibleBaseUrl}
+                              onSubmit={() => {}}
+                              autoFocus
+                            />
+                            <OnboardingCardField
+                              label="Model"
+                              placeholder="deepseek-chat"
+                              value={compatibleModelName}
+                              onChange={setCompatibleModelName}
+                              onSubmit={() => {}}
+                            />
+                          </div>
+                        )}
                         {!hasGatewaySelection && <SavedProviderKeySelect {...savedKeys} disabled={loading || adapterEnvLoading} value={selectedApiKey?.id ?? ""} onChange={(id) => {
                           setGatewayConnection(undefined);
                           if (connectionModels) setModel("");
-                          setSelectedSavedKey(createdCompanyId ? { companyId: createdCompanyId, envKey: apiKeyEnvKeyFor(adapterType), id } : null);
+                          setSelectedSavedKey(createdCompanyId ? { companyId: createdCompanyId, envKey: activeApiKeyEnvKey, id } : null);
                           setApiKey("");
                         }} />}
                         {!selectedApiKey && !hasGatewaySelection && !connectionModels && <OnboardingCardField
@@ -3213,11 +3415,12 @@ function OnboardingWizardInner({
                           masked
                           // The card is the answer to the tile just pressed, so
                           // the field is unambiguously the next thing. Carried
-                          // over from the key field this card replaced.
-                          autoFocus
+                          // over from the key field this card replaced. The
+                          // compatible card opens on its Base URL instead.
+                          autoFocus={!openAiCompatible}
                           value={apiKey}
                           onChange={(value) => {
-                            setSelectedSavedKey(createdCompanyId ? { companyId: createdCompanyId, envKey: apiKeyEnvKeyFor(adapterType), id: "" } : null);
+                            setSelectedSavedKey(createdCompanyId ? { companyId: createdCompanyId, envKey: activeApiKeyEnvKey, id: "" } : null);
                             setApiKey(value);
                           }}
                           onSubmit={() => handleConnectStepPrimary()}

@@ -3388,7 +3388,7 @@ function OnboardingWizardInner({
                             )}
                             <OnboardingCardField
                               label="Base URL"
-                              placeholder="https://api.deepseek.com/v1"
+                              placeholder="https://api.deepseek.com"
                               value={compatibleBaseUrl}
                               onChange={setCompatibleBaseUrl}
                               onSubmit={() => {}}

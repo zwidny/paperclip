@@ -25,7 +25,7 @@ export const OPENAI_COMPATIBLE_API_KEY_ENV_KEY = "OPENAI_COMPATIBLE_API_KEY";
 
 /**
  * The provider id used inside the generated config. Fixed rather than derived
- * from the base URL: provider ids end up in model ids (`custom/deepseek-chat`)
+ * from the base URL: provider ids end up in model ids (`custom/deepseek-flash`)
  * and must be stable across a re-connect, or a saved model would stop resolving.
  */
 export const OPENAI_COMPATIBLE_PROVIDER_ID = "custom";

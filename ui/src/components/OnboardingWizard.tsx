@@ -3396,7 +3396,7 @@ function OnboardingWizardInner({
                             />
                             <OnboardingCardField
                               label="Model"
-                              placeholder="deepseek-chat"
+                              placeholder="deepseek-flash"
                               value={compatibleModelName}
                               onChange={setCompatibleModelName}
                               onSubmit={() => {}}

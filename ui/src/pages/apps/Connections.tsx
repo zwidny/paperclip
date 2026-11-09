@@ -2,6 +2,7 @@ import { useAuthorizationWindow } from "@/hooks/useAuthorizationWindow";
 import { isRetiredComposioConnection, RETIRED_COMPOSIO_MESSAGE } from "@paperclipai/shared";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { TFunction } from "i18next";
 import { AppWindow, Cloud, Loader2, ShieldAlert, ShieldCheck, ShieldQuestion, Trash2 } from "lucide-react";
 import type {
   ToolApplication,
@@ -46,6 +47,7 @@ import {
   type AppGalleryDisplayEntry,
 } from "./app-definition-display";
 import { useReviewCount } from "./useReviewCount";
+import { useTranslation } from "../../i18n";
 import { connectionNameForCredentialPolicy, connectionTypeLabel } from "./connection-identity";
 import {
   ConnectionOwnerIdentity,
@@ -59,8 +61,18 @@ const BROWSE_HREF = "/apps";
 
 type StatusFilter = "all" | "attention";
 
+type AppStatusKey = "healthy" | "needsAttention" | "paused" | "notConnected" | "retired";
+
+const APP_STATUS_LABEL: Record<AppStatusKey, string> = {
+  healthy: "Healthy",
+  needsAttention: "Needs attention",
+  paused: "Paused",
+  notConnected: "Not connected",
+  retired: "Retired",
+};
+
 type AppStatus = {
-  label: "Healthy" | "Needs attention" | "Paused" | "Not connected" | "Retired";
+  labelKey: AppStatusKey;
   tone: "connected" | "attention" | "paused" | "not_connected";
 };
 
@@ -84,27 +96,33 @@ type AppRow = {
  * pill's `attention` tone and the row highlight are now the *same* predicate.
  */
 function statusFor(application: ToolApplication, connections: ToolConnection[]): AppStatus {
-  if (connections.some(isRetiredComposioConnection)) return { label: "Retired", tone: "attention" };
+  if (connections.some(isRetiredComposioConnection)) return { labelKey: "retired", tone: "attention" };
   if (connections.length === 0) {
-    return { label: "Not connected", tone: "not_connected" };
+    return { labelKey: "notConnected", tone: "not_connected" };
   }
   if (
     application.status === "disabled" ||
     application.status === "archived" ||
     connections.every((connection) => connection.enabled === false || connection.status === "disabled")
   ) {
-    return { label: "Paused", tone: "paused" };
+    return { labelKey: "paused", tone: "paused" };
   }
   if (connections.some((connection) => isAttentionHealthStatus(connection.healthStatus))) {
-    return { label: "Needs attention", tone: "attention" };
+    return { labelKey: "needsAttention", tone: "attention" };
   }
-  return { label: "Healthy", tone: "connected" };
+  return { labelKey: "healthy", tone: "connected" };
 }
 
 /** The single health-derived predicate that drives highlight, pill, banner, filter (F6). */
 function rowNeedsAttention(row: AppRow): boolean {
   return row.status.tone === "attention";
 }
+
+const CONNECTION_TYPE_KEYS: Record<ReturnType<typeof connectionTypeLabel>, string> = {
+  Personal: "personal",
+  "Dedicated agent": "dedicatedAgent",
+  Organization: "organization",
+};
 
 const STATUS_CLASS: Record<AppStatus["tone"], string> = {
   connected: "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
@@ -120,6 +138,7 @@ export function Connections() {
   const { selectedCompany, selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const reviewCount = useReviewCount();
+  const { t } = useTranslation();
   const [filter, setFilter] = useState<StatusFilter>("all");
   const [connectionToDelete, setConnectionToDelete] = useState<{
     id: string;
@@ -130,11 +149,11 @@ export function Connections() {
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Connectors", href: "/apps" },
-      { label: "Connections" },
+      { label: t("nav.connectors", { defaultValue: "Connectors" }), href: "/apps" },
+      { label: t("connectionsPage.breadcrumb", { defaultValue: "Connections" }) },
     ]);
     return () => setBreadcrumbs([]);
-  }, [setBreadcrumbs]);
+  }, [setBreadcrumbs, t]);
 
   const galleryQuery = useQuery({
     queryKey: queryKeys.apps.gallery(selectedCompanyId ?? "__none__"),
@@ -178,7 +197,7 @@ export function Connections() {
     },
     onError: (error) => {
       authorization.cancel();
-      pushToast({ title: "Couldn’t reach Paperclip Cloud", body: describeError(error).body, tone: "error" });
+      pushToast({ title: t("connectionsPage.toast.cloudUnreachable", { defaultValue: "Couldn’t reach Paperclip Cloud" }), body: describeError(error).body, tone: "error" });
     },
   });
 
@@ -195,17 +214,24 @@ export function Connections() {
       queryClient.invalidateQueries({ queryKey: queryKeys.tools.applications(selectedCompanyId!) });
       queryClient.invalidateQueries({ queryKey: queryKeys.apps.attention(selectedCompanyId!) });
       pushToast({
-        title: "Connection deleted",
+        title: t("connectionsPage.toast.deletedTitle", { defaultValue: "Connection deleted" }),
         body: target.remainingConnectionCount > 0
-          ? `${target.appName} still has ${target.remainingConnectionCount} active ${target.remainingConnectionCount === 1 ? "connection" : "connections"} available to agents.`
-          : `${target.appName} is no longer available to agents and its credentials are deleted. Connecting it again needs a new sign-in or key.`,
+          ? t("connectionsPage.toast.deletedRemaining", {
+              app: target.appName,
+              count: target.remainingConnectionCount,
+              defaultValue: "{{app}} still has {{count}} active connection available to agents.",
+            })
+          : t("connectionsPage.toast.deletedLast", {
+              app: target.appName,
+              defaultValue: "{{app}} is no longer available to agents and its credentials are deleted. Connecting it again needs a new sign-in or key.",
+            }),
         tone: "success",
       });
       setConnectionToDelete(null);
     },
     onError: (error) =>
       pushToast({
-        title: "Couldn't delete the connection",
+        title: t("connectionsPage.toast.deleteFailedTitle", { defaultValue: "Couldn't delete the connection" }),
         body: describeError(error).body,
         tone: "error",
       }),
@@ -312,7 +338,11 @@ export function Connections() {
   const visibleRows = filter === "attention" ? rowsNeedingAttention : rows;
 
   if (!selectedCompanyId) {
-    return <div className="p-6 text-sm text-muted-foreground">Select an organization to manage apps.</div>;
+    return (
+      <div className="p-6 text-sm text-muted-foreground">
+        {t("connectionsPage.selectOrganization", { defaultValue: "Select an organization to manage apps." })}
+      </div>
+    );
   }
 
   const loading = applicationsQuery.isLoading || connectionsQuery.isLoading || galleryQuery.isLoading
@@ -345,17 +375,17 @@ export function Connections() {
         <div className="space-y-5">
           <header className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">Connections</h1>
+              <h1 className="text-2xl font-bold tracking-tight">{t("connectionsPage.title", { defaultValue: "Connections" })}</h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                The tools you’ve connected, and whether they’re working.
+                {t("connectionsPage.description", { defaultValue: "The tools you’ve connected, and whether they’re working." })}
               </p>
             </div>
-            <Button onClick={() => navigate(BROWSE_HREF)}>Connect an app</Button>
+            <Button onClick={() => navigate(BROWSE_HREF)}>{t("connectionsPage.connectApp", { defaultValue: "Connect an app" })}</Button>
           </header>
 
           <div className="flex flex-wrap items-center gap-2">
             <FilterChip active={filter === "all"} onClick={() => setFilter("all")}>
-              All ({rows.length})
+              {t("connectionsPage.filterAll", { count: rows.length, defaultValue: "All ({{count}})" })}
             </FilterChip>
             <FilterChip
               active={filter === "attention"}
@@ -363,7 +393,7 @@ export function Connections() {
               disabled={rowsNeedingAttention.length === 0}
               onClick={() => setFilter("attention")}
             >
-              Needs attention ({rowsNeedingAttention.length})
+              {t("connectionsPage.filterAttention", { count: rowsNeedingAttention.length, defaultValue: "Needs attention ({{count}})" })}
             </FilterChip>
           </div>
 
@@ -376,13 +406,13 @@ export function Connections() {
               <ShieldQuestion className="h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-semibold text-amber-900 dark:text-amber-100">
-                  {reviewCount} {reviewCount === 1 ? "action is" : "actions are"} waiting for your OK
+                  {t("connectionsPage.reviewWaiting", { count: reviewCount, defaultValue: "{{count}} action is waiting for your OK" })}
                 </div>
                 <div className="truncate text-xs text-amber-700 dark:text-amber-300">
-                  Your agents paused to check with you before making a change.
+                  {t("connectionsPage.reviewHint", { defaultValue: "Your agents paused to check with you before making a change." })}
                 </div>
               </div>
-              <span className="shrink-0 text-xs font-semibold text-amber-800 dark:text-amber-200">Review →</span>
+              <span className="shrink-0 text-xs font-semibold text-amber-800 dark:text-amber-200">{t("connectionsPage.reviewCta", { defaultValue: "Review →" })}</span>
             </button>
           )}
 
@@ -395,13 +425,13 @@ export function Connections() {
               <ShieldAlert className="h-5 w-5 shrink-0 text-red-600 dark:text-red-400" />
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-semibold text-red-900 dark:text-red-100">
-                  {rowsNeedingAttention.length} {rowsNeedingAttention.length === 1 ? "connection needs" : "connections need"} attention
+                  {t("connectionsPage.attentionBanner", { count: rowsNeedingAttention.length, defaultValue: "{{count}} connection needs attention" })}
                 </div>
                 <div className="truncate text-xs text-red-700 dark:text-red-300">
-                  {floatSummary(rowsNeedingAttention)}
+                  {floatSummary(rowsNeedingAttention, t)}
                 </div>
               </div>
-              <span className="shrink-0 text-xs font-semibold text-red-800 dark:text-red-200">Fix →</span>
+              <span className="shrink-0 text-xs font-semibold text-red-800 dark:text-red-200">{t("connectionsPage.fixCta", { defaultValue: "Fix →" })}</span>
             </button>
           )}
 
@@ -409,12 +439,12 @@ export function Connections() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/40 text-left text-(length:--text-micro) font-semibold uppercase tracking-wide text-muted-foreground">
-                  <th className="px-4 py-2.5">Connection</th>
-                  <th className="px-4 py-2.5">Type</th>
-                  <th className="px-4 py-2.5">Connected by</th>
-                  <th className="px-4 py-2.5">Status</th>
-                  <th className="px-4 py-2.5">Actions</th>
-                  <th className="px-4 py-2.5">Last used</th>
+                  <th className="px-4 py-2.5">{t("connectionsPage.columnConnection", { defaultValue: "Connection" })}</th>
+                  <th className="px-4 py-2.5">{t("connectionsPage.columnType", { defaultValue: "Type" })}</th>
+                  <th className="px-4 py-2.5">{t("connectionsPage.columnConnectedBy", { defaultValue: "Connected by" })}</th>
+                  <th className="px-4 py-2.5">{t("connectionsPage.columnStatus", { defaultValue: "Status" })}</th>
+                  <th className="px-4 py-2.5">{t("connectionsPage.columnActions", { defaultValue: "Actions" })}</th>
+                  <th className="px-4 py-2.5">{t("connectionsPage.columnLastUsed", { defaultValue: "Last used" })}</th>
                   <th className="px-4 py-2.5" />
                 </tr>
               </thead>
@@ -426,12 +456,12 @@ export function Connections() {
                     connection && isRetiredComposioConnection(connection) ? RETIRED_COMPOSIO_MESSAGE :
                     status.tone === "attention"
                       ? connection?.authKind === "oauth"
-                        ? "Reconnect required — sign in again to restore access."
-                        : "The key stopped working — reconnect to fix."
+                        ? t("connectionsPage.hint.reconnectRequired", { defaultValue: "Reconnect required — sign in again to restore access." })
+                        : t("connectionsPage.hint.keyStopped", { defaultValue: "The key stopped working — reconnect to fix." })
                       : status.tone === "paused"
-                        ? "Paused — agents can’t use it right now."
+                        ? t("connectionsPage.hint.paused", { defaultValue: "Paused — agents can’t use it right now." })
                         : status.tone === "not_connected"
-                          ? "Connect it so agents can use it."
+                          ? t("connectionsPage.hint.notConnected", { defaultValue: "Connect it so agents can use it." })
                           : row.displayName !== application.name
                             ? application.name
                             : null;
@@ -439,11 +469,12 @@ export function Connections() {
                     ? `/apps/${connection.id}/permissions`
                     : `/apps/app/${application.id}/permissions`;
                   const actionLabel = !connection
-                    ? "Connect"
-                    : connection && isRetiredComposioConnection(connection) ? "Review"
-                    : status.tone === "attention"
-                      ? "Reconnect"
-                      : "Permissions";
+                    ? t("connectionsPage.action.connect", { defaultValue: "Connect" })
+                    : connection && isRetiredComposioConnection(connection)
+                      ? t("connectionsPage.action.review", { defaultValue: "Review" })
+                      : status.tone === "attention"
+                        ? t("connectionsPage.action.reconnect", { defaultValue: "Reconnect" })
+                        : t("connectionsPage.action.permissions", { defaultValue: "Permissions" });
                   return (
                     <tr
                       key={connection?.id ?? application.id}
@@ -475,7 +506,11 @@ export function Connections() {
                       </td>
                       <td className="px-4 py-3">
                         <span className="text-xs font-medium text-foreground">
-                          {connection ? connectionTypeLabel(connection.credentialPolicy) : "—"}
+                          {connection
+                            ? t(`connectionsPage.type.${CONNECTION_TYPE_KEYS[connectionTypeLabel(connection.credentialPolicy)]}`, {
+                                defaultValue: connectionTypeLabel(connection.credentialPolicy),
+                              })
+                            : "—"}
                         </span>
                       </td>
                       <td className="px-4 py-3">
@@ -488,11 +523,15 @@ export function Connections() {
                             STATUS_CLASS[status.tone],
                           )}
                         >
-                          {status.label}
+                          {t(`connectionsPage.status.${status.labelKey}`, {
+                            defaultValue: APP_STATUS_LABEL[status.labelKey],
+                          })}
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="text-xs text-muted-foreground">{row.actionCount} on</span>
+                        <span className="text-xs text-muted-foreground">
+                          {t("connectionsPage.actionsOn", { count: row.actionCount, defaultValue: "{{count}} on" })}
+                        </span>
                       </td>
                       <td className="px-4 py-3">
                         <span className="text-xs text-muted-foreground">
@@ -516,7 +555,7 @@ export function Connections() {
                               variant="ghost"
                               size="icon-sm"
                               className="text-muted-foreground hover:text-destructive"
-                              aria-label={`Delete ${row.displayName} connection`}
+                              aria-label={t("connectionsPage.deleteAria", { name: row.displayName, defaultValue: "Delete {{name}} connection" })}
                               onClick={(event) => {
                                 event.stopPropagation();
                                 setConnectionToDelete({
@@ -541,7 +580,9 @@ export function Connections() {
 
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-xs text-muted-foreground">
-              Apps you connect become available to every agent unless you change “Who can use it”.
+              {t("connectionsPage.footerNote", {
+                defaultValue: "Apps you connect become available to every agent unless you change “Who can use it”.",
+              })}
             </p>
           </div>
         </div>
@@ -556,16 +597,27 @@ export function Connections() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Delete {connectionToDelete?.appName ?? "this"} connection?
+              {t("connectionsPage.deleteTitle", {
+                name: connectionToDelete?.appName ?? t("connectionsPage.thisApp", { defaultValue: "this" }),
+                defaultValue: "Delete {{name}} connection?",
+              })}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {connectionToDelete && connectionToDelete.remainingConnectionCount > 0
-                ? `This connection's saved credentials are deleted and agents lose access through it immediately. Agents can still use ${connectionToDelete.appName} through ${connectionToDelete.remainingConnectionCount} other active ${connectionToDelete.remainingConnectionCount === 1 ? "connection" : "connections"}.`
-                : "The saved credentials are deleted and agents lose access immediately. Connecting it again later needs a new sign-in or key."}
+                ? t("connectionsPage.deleteDescriptionRemaining", {
+                    app: connectionToDelete.appName,
+                    count: connectionToDelete.remainingConnectionCount,
+                    defaultValue:
+                      "This connection's saved credentials are deleted and agents lose access through it immediately. Agents can still use {{app}} through {{count}} other active connection.",
+                  })
+                : t("connectionsPage.deleteDescriptionLast", {
+                    defaultValue:
+                      "The saved credentials are deleted and agents lose access immediately. Connecting it again later needs a new sign-in or key.",
+                  })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteConnection.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleteConnection.isPending}>{t("common.cancel", { defaultValue: "Cancel" })}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               disabled={!connectionToDelete || deleteConnection.isPending}
@@ -575,7 +627,9 @@ export function Connections() {
               }}
             >
               {deleteConnection.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              {deleteConnection.isPending ? "Deleting..." : "Delete connection"}
+              {deleteConnection.isPending
+                ? t("connectionsPage.deleting", { defaultValue: "Deleting..." })
+                : t("connectionsPage.deleteConnection", { defaultValue: "Delete connection" })}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -595,14 +649,20 @@ function CloudConnectorEnrollmentBanner({
   busy: boolean;
   onEnable: () => void;
 }) {
+  const { t } = useTranslation();
   if (status?.configured) {
     return (
       <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card px-4 py-3">
         <ShieldCheck className="h-5 w-5 text-primary" />
         <div className="min-w-0 flex-1">
-          <div className="text-sm font-semibold text-foreground">Paperclip-managed sign-in is ready</div>
+          <div className="text-sm font-semibold text-foreground">
+            {t("connectionsPage.cloud.readyTitle", { defaultValue: "Paperclip-managed sign-in is ready" })}
+          </div>
           <div className="truncate text-xs text-muted-foreground">
-            Provider authorization uses {status.brokerBaseUrl}; credentials stay in this instance.
+            {t("connectionsPage.cloud.readyDescription", {
+              url: status.brokerBaseUrl,
+              defaultValue: "Provider authorization uses {{url}}; credentials stay in this instance.",
+            })}
           </div>
         </div>
       </div>
@@ -612,7 +672,11 @@ function CloudConnectorEnrollmentBanner({
     return (
       <div className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3">
         <Cloud className="h-5 w-5 text-muted-foreground" />
-        <div className="text-sm text-muted-foreground">Paperclip Cloud enrollment status is unavailable.</div>
+        <div className="text-sm text-muted-foreground">
+          {t("connectionsPage.cloud.unavailable", {
+            defaultValue: "Paperclip Cloud enrollment status is unavailable.",
+          })}
+        </div>
       </div>
     );
   }
@@ -621,15 +685,22 @@ function CloudConnectorEnrollmentBanner({
       <Cloud className="h-5 w-5 text-muted-foreground" />
       <div className="min-w-0 flex-1">
         <div className="text-sm font-semibold text-foreground">
-          {status?.status === "pending" ? "Finish Paperclip Cloud enrollment" : "Enable Paperclip-managed sign-in"}
+          {status?.status === "pending"
+            ? t("connectionsPage.cloud.finishEnrollment", { defaultValue: "Finish Paperclip Cloud enrollment" })
+            : t("connectionsPage.cloud.enableTitle", { defaultValue: "Enable Paperclip-managed sign-in" })}
         </div>
         <div className="text-xs text-muted-foreground">
-          Confirm this server’s exact address before Cloud can return encrypted Google credentials to it.
+          {t("connectionsPage.cloud.enableDescription", {
+            defaultValue:
+              "Confirm this server’s exact address before Cloud can return encrypted Google credentials to it.",
+          })}
         </div>
       </div>
       <Button variant="outline" size="sm" disabled={busy} onClick={onEnable}>
         {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-        {status?.status === "pending" ? "Continue enrollment" : "Enable"}
+        {status?.status === "pending"
+          ? t("connectionsPage.cloud.continueEnrollment", { defaultValue: "Continue enrollment" })
+          : t("connectionsPage.cloud.enable", { defaultValue: "Enable" })}
       </Button>
     </div>
   );
@@ -676,19 +747,26 @@ function enabledActionCount(profile: ToolProfileWithDetails): number {
   return count;
 }
 
-function floatSummary(rows: AppRow[]): string {
+function floatSummary(rows: AppRow[], t: TFunction): string {
   const names = rows.map((row) => humanizeConnectionDisplayName(row.application.name));
-  if (names.length <= 2) return names.join(" and ");
-  return `${names.slice(0, 2).join(", ")} and ${names.length - 2} more`;
+  if (names.length <= 2) {
+    return names.join(` ${t("connectionsPage.listAnd", { defaultValue: "and" })} `);
+  }
+  return t("connectionsPage.listMore", {
+    names: names.slice(0, 2).join(", "),
+    count: names.length - 2,
+    defaultValue: "{{names}} and {{count}} more",
+  });
 }
 
 function EmptyConnections({ onBrowse }: { onBrowse: () => void }) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">Connections</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{t("connectionsPage.title", { defaultValue: "Connections" })}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          The tools you’ve connected, and whether they’re working.
+          {t("connectionsPage.description", { defaultValue: "The tools you’ve connected, and whether they’re working." })}
         </p>
       </header>
 
@@ -696,13 +774,16 @@ function EmptyConnections({ onBrowse }: { onBrowse: () => void }) {
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted">
           <AppWindow className="h-6 w-6 text-muted-foreground" />
         </div>
-        <p className="mt-4 text-sm font-medium text-foreground">No connections yet.</p>
+        <p className="mt-4 text-sm font-medium text-foreground">
+          {t("connectionsPage.emptyTitle", { defaultValue: "No connections yet." })}
+        </p>
         <p className="mt-1 text-sm text-muted-foreground">
-          Add one from <span className="font-medium text-foreground">Apps</span> to give your agents
-          the tools they need.
+          {t("connectionsPage.emptyPrefix", { defaultValue: "Add one from" })}{" "}
+          <span className="font-medium text-foreground">{t("connectionsPage.emptyApps", { defaultValue: "Apps" })}</span>{" "}
+          {t("connectionsPage.emptySuffix", { defaultValue: "to give your agents the tools they need." })}
         </p>
         <Button className="mt-6" onClick={onBrowse}>
-          Browse apps
+          {t("connectionsPage.browseApps", { defaultValue: "Browse apps" })}
         </Button>
       </div>
     </div>

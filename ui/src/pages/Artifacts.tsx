@@ -20,6 +20,7 @@ import { useSearchParams, Link } from "@/lib/router";
 import { ArtifactsToolbar, ARTIFACT_KIND_FILTERS } from "@/components/artifacts/ArtifactsToolbar";
 import { ArtifactSingleTile, ArtifactStackTile, ArtifactTileGrid, ArtifactsV1Filters, artifactsV1View, subjectFromCompanyArtifact, type ArtifactsV1View } from "@/components/artifacts/v1";
 import { useArtifactsV1Enabled } from "@/hooks/useArtifactsV1Enabled";
+import { useTranslation } from "../i18n";
 export { ARTIFACT_KIND_FILTERS, ARTIFACT_GROUP_OPTIONS, artifactGroupByLabel } from "@/components/artifacts/ArtifactsToolbar";
 
 const ARTIFACTS_PAGE_SIZE = 30;
@@ -39,6 +40,7 @@ function parseKind(value: string | null): ArtifactKindFilter {
 }
 
 export function Artifacts() {
+  const { t } = useTranslation();
   const { selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -219,16 +221,16 @@ export function Artifacts() {
   useEffect(() => {
     if (viewingSelectedStack && selectedGroup) {
       setBreadcrumbs([
-        { label: "Artifacts", href: "/artifacts" },
+        { label: t("nav.artifacts", { defaultValue: "Artifacts" }), href: "/artifacts" },
         { label: `${selectedGroup.issue.identifier} · ${selectedGroup.title}` },
       ]);
     } else {
-      setBreadcrumbs([{ label: "Artifacts" }]);
+      setBreadcrumbs([{ label: t("nav.artifacts", { defaultValue: "Artifacts" }) }]);
     }
   }, [setBreadcrumbs, viewingSelectedStack, selectedGroup]);
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={Package} message="Select an organization to view artifacts." />;
+    return <EmptyState icon={Package} message={t("artifacts.selectOrganization", { defaultValue: "Select an organization to view artifacts." })} />;
   }
 
   const showGroupCards = viewingStackList;
@@ -236,12 +238,12 @@ export function Artifacts() {
 
   const emptyMessage = showGroupCards
     ? searching
-      ? "No artifact stacks match this search."
-      : "No artifact stacks yet."
+      ? t("artifacts.noStacksSearch", { defaultValue: "No artifact stacks match this search." })
+      : t("artifacts.noStacks", { defaultValue: "No artifact stacks yet." })
     : searching
-      ? "No artifacts match this search."
+      ? t("artifacts.noMatchSearch", { defaultValue: "No artifacts match this search." })
       : viewingSelectedStack
-        ? "No artifacts in this stack match the current filters."
+        ? t("artifacts.noStackFilter", { defaultValue: "No artifacts in this stack match the current filters." })
         : kind === "all"
           ? "No artifacts yet. Outputs attached to tasks will appear here."
           : "No artifacts of this type yet.";
@@ -319,7 +321,7 @@ export function Artifacts() {
                 ))}
           </ArtifactTileGrid>
           <div ref={loadMoreRef} className="flex min-h-10 items-center justify-center pb-2 text-xs text-muted-foreground">
-            {isFetchingNextPage ? "Loading more artifacts..." : hasNextPage ? null : isFetching ? "Updating artifacts..." : null}
+            {isFetchingNextPage ? t("artifacts.loadingMore", { defaultValue: "Loading more artifacts..." }) : hasNextPage ? null : isFetching ? t("artifacts.updating", { defaultValue: "Updating artifacts..." }) : null}
           </div>
         </>
       ) : (
@@ -335,11 +337,11 @@ export function Artifacts() {
           </div>
           <div ref={loadMoreRef} className="flex min-h-10 items-center justify-center pb-2 text-xs text-muted-foreground">
             {isFetchingNextPage
-              ? "Loading more artifacts..."
+              ? t("artifacts.loadingMore", { defaultValue: "Loading more artifacts..." })
               : hasNextPage
                 ? null
                 : isFetching
-                  ? "Updating artifacts..."
+                  ? t("artifacts.updating", { defaultValue: "Updating artifacts..." })
                   : null}
           </div>
         </>

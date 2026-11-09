@@ -26,6 +26,7 @@ import { GatewayActivityPanel } from "./panels/GatewayActivityPanel";
 import { GatewayAdvancedPanel } from "./panels/GatewayAdvancedPanel";
 import { CopyableGatewayUrl } from "./CopyableGatewayUrl";
 import { describeError } from "@/api/errors";
+import { useTranslation } from "../../../i18n";
 
 export function GatewayDetail() {
   const { gatewayId = "", tab } = useParams<{ gatewayId: string; tab?: string }>();
@@ -34,6 +35,7 @@ export function GatewayDetail() {
   const { pushToast } = useToast();
   const { selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
+  const { t } = useTranslation();
   const [snippetOpen, setSnippetOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [createdTokens, setCreatedTokens] = useState<ToolMcpGatewayTokenCreated[]>([]);
@@ -105,12 +107,12 @@ export function GatewayDetail() {
   useEffect(() => {
     if (!gateway) return;
     setBreadcrumbs([
-      { label: "Connectors", href: "/apps" },
-      { label: "Gateways", href: "/apps/gateways" },
+      { label: t("nav.connectors", { defaultValue: "Connectors" }), href: "/apps" },
+      { label: t("gatewaysList.breadcrumbGateways", { defaultValue: "Gateways" }), href: "/apps/gateways" },
       { label: gateway.name },
     ]);
     return () => setBreadcrumbs([]);
-  }, [setBreadcrumbs, gateway]);
+  }, [setBreadcrumbs, gateway, t]);
 
   const toggleMutation = useMutation({
     mutationFn: () =>
@@ -119,25 +121,27 @@ export function GatewayDetail() {
       }),
     onSuccess: async (updated) => {
       pushToast({
-        title: updated.status === "active" ? "Gateway on" : "Gateway off",
+        title: updated.status === "active"
+          ? t("gatewaysList.toast.onTitle", { defaultValue: "Gateway on" })
+          : t("gatewaysList.toast.offTitle", { defaultValue: "Gateway off" }),
         body:
           updated.status === "active"
-            ? `${updated.name} is exposing its tools again.`
-            : `${updated.name} is off — every client goes silent.`,
+            ? t("gatewaysList.toast.onBody", { name: updated.name, defaultValue: "{{name}} is exposing its tools again." })
+            : t("gatewaysList.toast.offBody", { name: updated.name, defaultValue: "{{name}} is off — every client goes silent." }),
         tone: "success",
       });
       await queryClient.invalidateQueries({ queryKey: gatewaysQueryKey(selectedCompanyId!) });
     },
     onError: (error) =>
       pushToast({
-        title: "Couldn't update the gateway",
+        title: t("gatewaysList.toast.errorTitle", { defaultValue: "Couldn't update the gateway" }),
         body: describeError(error).body,
         tone: "error",
       }),
   });
 
   if (!selectedCompanyId) {
-    return <div className="p-6 text-sm text-muted-foreground">Select an organization to manage gateways.</div>;
+    return <div className="p-6 text-sm text-muted-foreground">{t("gatewaysList.selectOrganization", { defaultValue: "Select an organization to manage gateways." })}</div>;
   }
   if (!activeTab) {
     return <Navigate replace to={gatewayTabHref(gatewayId, "overview")} />;
@@ -165,9 +169,9 @@ export function GatewayDetail() {
   if (!gateway) {
     return (
       <div className="max-w-3xl p-6">
-        <p className="text-sm text-muted-foreground">We couldn’t find that gateway.</p>
+        <p className="text-sm text-muted-foreground">{t("gatewayDetail.notFound", { defaultValue: "We couldn’t find that gateway." })}</p>
         <Button className="mt-4" variant="outline" onClick={() => navigate("/apps/gateways")}>
-          Back to gateways
+          {t("gatewayDetail.backToGateways", { defaultValue: "Back to gateways" })}
         </Button>
       </div>
     );
@@ -179,7 +183,7 @@ export function GatewayDetail() {
         <div className="min-w-0">
           <div className="text-xs text-muted-foreground">
             <Link to="/apps/gateways" className="hover:underline">
-              Apps · Gateways
+              {t("gatewayDetail.breadcrumbAppsGateways", { defaultValue: "Apps · Gateways" })}
             </Link>
           </div>
           <h1 className="mt-1 text-2xl font-bold tracking-tight">{gateway.name}</h1>
@@ -188,16 +192,16 @@ export function GatewayDetail() {
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={() => setEditing(true)}>
             <Pencil className="mr-1.5 h-4 w-4" />
-            Edit
+            {t("gatewayDetail.edit", { defaultValue: "Edit" })}
           </Button>
           <Button onClick={() => setSnippetOpen(true)}>
             <Send className="mr-1.5 h-4 w-4" />
-            Client snippets
+            {t("gateways.clientSnippets", { defaultValue: "Client snippets" })}
           </Button>
         </div>
       </div>
 
-      <nav className="flex items-center gap-6 overflow-x-auto border-b border-border text-sm" aria-label="Gateway tabs">
+      <nav className="flex items-center gap-6 overflow-x-auto border-b border-border text-sm" aria-label={t("gatewayDetail.tabsAria", { defaultValue: "Gateway tabs" })}>
         {GATEWAY_TABS.map((item) => {
           const isActive = item.key === activeTab;
           return (

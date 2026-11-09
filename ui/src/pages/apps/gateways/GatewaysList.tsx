@@ -1,7 +1,8 @@
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { TFunction } from "i18next";
 import { Plus, Search } from "lucide-react";
-import type { ToolMcpGatewayWithTokens } from "@paperclipai/shared";
+import type { ToolMcpGatewayWithTokens, ToolProfileWithDetails } from "@paperclipai/shared";
 import { useNavigate } from "@/lib/router";
 import { useCompany } from "@/context/CompanyContext";
 import { useBreadcrumbs } from "@/context/BreadcrumbContext";
@@ -15,20 +16,70 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ToggleSwitch } from "@/components/ui/toggle-switch";
-import { RelativeTime } from "@/pages/tools/shared";
+import { ErrorState, RelativeTime } from "@/pages/tools/shared";
+import { useTranslation } from "../../../i18n";
 import { CopyableGatewayUrl } from "./CopyableGatewayUrl";
 import { NewGatewayDialog, gatewaysQueryKey } from "./NewGatewayDialog";
 import { gatewayTabHref } from "./gateway-tabs";
 import {
   activeTokenCount,
-  allowedToolsLabel,
   deriveGatewayApps,
   expiringTokenCount,
-  formatScope,
   isGatewayOn,
   latestTokenActivity,
 } from "./gateway-helpers";
 import { describeError } from "@/api/errors";
+
+function shortScopeId(value: string): string {
+  return value.length > 12 ? `${value.slice(0, 8)}…` : value;
+}
+
+function gatewayScopeLabel(
+  gateway: ToolMcpGatewayWithTokens,
+  projectNames: Map<string, string>,
+  agentNames: Map<string, string>,
+  t: TFunction,
+): string {
+  if (gateway.contextScopeType !== "none" && gateway.contextScopeId) {
+    if (gateway.contextScopeType === "project") {
+      return t("gatewaysList.scope.project", {
+        name: projectNames.get(gateway.contextScopeId) ?? shortScopeId(gateway.contextScopeId),
+        defaultValue: "Project · {{name}}",
+      });
+    }
+    if (gateway.contextScopeType === "agent") {
+      return t("gatewaysList.scope.agent", {
+        name: agentNames.get(gateway.contextScopeId) ?? shortScopeId(gateway.contextScopeId),
+        defaultValue: "Agent · {{name}}",
+      });
+    }
+    return `${gateway.contextScopeType} · ${shortScopeId(gateway.contextScopeId)}`;
+  }
+  if (gateway.projectId) {
+    return t("gatewaysList.scope.project", {
+      name: projectNames.get(gateway.projectId) ?? shortScopeId(gateway.projectId),
+      defaultValue: "Project · {{name}}",
+    });
+  }
+  if (gateway.agentId) {
+    return t("gatewaysList.scope.agent", {
+      name: agentNames.get(gateway.agentId) ?? shortScopeId(gateway.agentId),
+      defaultValue: "Agent · {{name}}",
+    });
+  }
+  return t("gatewaysList.scope.organization", { defaultValue: "Organization" });
+}
+
+function gatewayToolsLabel(profile: ToolProfileWithDetails | undefined, t: TFunction): string {
+  if (!profile) return t("gatewaysList.tools.unavailable", { defaultValue: "Profile unavailable" });
+  const { accessMode, allowedToolCount, totalToolCount, excludedToolCount } = profile.summary;
+  const count =
+    accessMode === "all_except"
+      ? Math.max(totalToolCount - excludedToolCount, 0)
+      : allowedToolCount;
+  if (count === 0) return t("gatewaysList.tools.none", { defaultValue: "No tools allowed" });
+  return t("gatewaysList.tools.count", { count, defaultValue: "{{count}} tool" });
+}
 
 export function GatewaysList() {
   const navigate = useNavigate();
@@ -36,16 +87,17 @@ export function GatewaysList() {
   const { pushToast } = useToast();
   const { selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Connectors", href: "/apps" },
-      { label: "Gateways" },
+      { label: t("nav.connectors", { defaultValue: "Connectors" }), href: "/apps" },
+      { label: t("gatewaysList.breadcrumbGateways", { defaultValue: "Gateways" }) },
     ]);
     return () => setBreadcrumbs([]);
-  }, [setBreadcrumbs]);
+  }, [setBreadcrumbs, t]);
 
   const gatewaysQuery = useQuery({
     queryKey: gatewaysQueryKey(selectedCompanyId ?? "__none__"),
@@ -99,32 +151,44 @@ export function GatewaysList() {
       }),
     onSuccess: async (gateway) => {
       pushToast({
-        title: gateway.status === "active" ? "Gateway on" : "Gateway off",
+        title: gateway.status === "active"
+          ? t("gatewaysList.toast.onTitle", { defaultValue: "Gateway on" })
+          : t("gatewaysList.toast.offTitle", { defaultValue: "Gateway off" }),
         body:
           gateway.status === "active"
-            ? `${gateway.name} is exposing its tools again.`
-            : `${gateway.name} is off — every client goes silent.`,
+            ? t("gatewaysList.toast.onBody", {
+                name: gateway.name,
+                defaultValue: "{{name}} is exposing its tools again.",
+              })
+            : t("gatewaysList.toast.offBody", {
+                name: gateway.name,
+                defaultValue: "{{name}} is off — every client goes silent.",
+              }),
         tone: "success",
       });
       await queryClient.invalidateQueries({ queryKey: gatewaysQueryKey(selectedCompanyId!) });
     },
     onError: (error) =>
       pushToast({
-        title: "Couldn't update the gateway",
+        title: t("gatewaysList.toast.errorTitle", { defaultValue: "Couldn't update the gateway" }),
         body: describeError(error).body,
         tone: "error",
       }),
   });
 
   if (!selectedCompanyId) {
-    return <div className="p-6 text-sm text-muted-foreground">Select an organization to manage gateways.</div>;
+    return (
+      <div className="p-6 text-sm text-muted-foreground">
+        {t("gatewaysList.selectOrganization", { defaultValue: "Select an organization to manage gateways." })}
+      </div>
+    );
   }
 
   const gateways = gatewaysQuery.data?.gateways ?? [];
   const term = search.trim().toLowerCase();
   const filtered = term
     ? gateways.filter((gateway) => {
-        const scope = formatScope(gateway, projectNames, agentNames).toLowerCase();
+        const scope = gatewayScopeLabel(gateway, projectNames, agentNames, t).toLowerCase();
         return (
           gateway.name.toLowerCase().includes(term) ||
           gateway.displaySlug.toLowerCase().includes(term) ||
@@ -136,10 +200,12 @@ export function GatewaysList() {
   return (
     <div className="max-w-5xl space-y-5">
       <header className="space-y-1">
-        <h1 className="text-2xl font-bold tracking-tight">Apps</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{t("gatewaysList.title", { defaultValue: "Apps" })}</h1>
         <p className="text-sm text-muted-foreground">
-          A gateway is one safe MCP endpoint that exposes only the apps you assign. Hand it to a client
-          like Cursor or Claude Desktop.
+          {t("gatewaysList.description", {
+            defaultValue:
+              "A gateway is one safe MCP endpoint that exposes only the apps you assign. Hand it to a client like Cursor or Claude Desktop.",
+          })}
         </p>
       </header>
 
@@ -159,20 +225,20 @@ export function GatewaysList() {
         <EmptyGateways onCreate={() => setCreating(true)} />
       ) : (
         <div className="space-y-4 pt-1">
-          <div data-canonical-toolbar="gateways" role="toolbar" aria-label="Gateway controls" className="flex flex-wrap items-center justify-between gap-3">
+          <div data-canonical-toolbar="gateways" role="toolbar" aria-label={t("gatewaysList.controls", { defaultValue: "Gateway controls" })} className="flex flex-wrap items-center justify-between gap-3">
             <div className="relative w-full max-w-sm">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search by name, app, or owner"
+                placeholder={t("gatewaysList.searchPlaceholder", { defaultValue: "Search by name, app, or owner" })}
                 className="pl-9"
-                aria-label="Search gateways"
+                aria-label={t("gatewaysList.searchAria", { defaultValue: "Search gateways" })}
               />
             </div>
             <Button data-toolbar-primary className="ml-auto" onClick={() => setCreating(true)}>
               <Plus className="mr-1.5 h-4 w-4" />
-              New gateway
+              {t("gatewaysList.newGateway", { defaultValue: "New gateway" })}
             </Button>
           </div>
 
@@ -187,9 +253,9 @@ export function GatewaysList() {
               return {
                 gateway,
                 profile,
-                scope: formatScope(gateway, projectNames, agentNames),
-                appsLabel: `${apps.length} ${apps.length === 1 ? "app" : "apps"}${
-                  profile ? ` · ${allowedToolsLabel(profile)}` : ""
+                scope: gatewayScopeLabel(gateway, projectNames, agentNames, t),
+                appsLabel: `${t("gatewaysList.appCount", { count: apps.length, defaultValue: "{{count}} app" })}${
+                  profile ? ` · ${gatewayToolsLabel(profile, t)}` : ""
                 }`,
                 active: activeTokenCount(gateway),
                 expiring: expiringTokenCount(gateway),
@@ -203,12 +269,16 @@ export function GatewaysList() {
                 disabled={toggleMutation.isPending}
                 onClick={(event) => event.stopPropagation()}
                 onCheckedChange={() => toggleMutation.mutate({ gateway })}
-                aria-label={`Turn ${gateway.name} ${isGatewayOn(gateway) ? "off" : "on"}`}
+                aria-label={
+                  isGatewayOn(gateway)
+                    ? t("gatewaysList.turnOff", { name: gateway.name, defaultValue: "Turn {{name}} off" })
+                    : t("gatewaysList.turnOn", { name: gateway.name, defaultValue: "Turn {{name}} on" })
+                }
               />
             );
             const empty = (
               <div className="px-4 py-8 text-center text-sm text-muted-foreground">
-                No gateways match “{search.trim()}”.
+                {t("gatewaysList.emptySearch", { term: search.trim(), defaultValue: "No gateways match “{{term}}”." })}
               </div>
             );
             return (
@@ -218,12 +288,12 @@ export function GatewaysList() {
                   <table className="w-full min-w-(--sz-40rem) text-sm">
                     <thead>
                       <tr className="border-b border-border bg-muted/40 text-left text-(length:--text-micro) font-semibold uppercase tracking-wide text-muted-foreground">
-                        <th className="whitespace-nowrap px-4 py-2.5">Gateway</th>
-                        <th className="whitespace-nowrap px-4 py-2.5">Scope</th>
-                        <th className="whitespace-nowrap px-4 py-2.5">Apps</th>
-                        <th className="whitespace-nowrap px-4 py-2.5">Tokens</th>
-                        <th className="whitespace-nowrap px-4 py-2.5">Last used</th>
-                        <th className="whitespace-nowrap px-4 py-2.5 text-right">On</th>
+                        <th className="whitespace-nowrap px-4 py-2.5">{t("gatewaysList.columnGateway", { defaultValue: "Gateway" })}</th>
+                        <th className="whitespace-nowrap px-4 py-2.5">{t("gatewaysList.columnScope", { defaultValue: "Scope" })}</th>
+                        <th className="whitespace-nowrap px-4 py-2.5">{t("gatewaysList.columnApps", { defaultValue: "Apps" })}</th>
+                        <th className="whitespace-nowrap px-4 py-2.5">{t("gatewaysList.columnTokens", { defaultValue: "Tokens" })}</th>
+                        <th className="whitespace-nowrap px-4 py-2.5">{t("gatewaysList.columnLastUsed", { defaultValue: "Last used" })}</th>
+                        <th className="whitespace-nowrap px-4 py-2.5 text-right">{t("gatewaysList.columnOn", { defaultValue: "On" })}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -240,7 +310,10 @@ export function GatewaysList() {
                           <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">{scope}</td>
                           <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">{appsLabel}</td>
                           <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
-                            {active} active{expiring > 0 ? ` · ${expiring} expiring` : ""}
+                            {t("gatewaysList.activeCount", { count: active, defaultValue: "{{count}} active" })}
+                            {expiring > 0
+                              ? ` · ${t("gatewaysList.expiringCount", { count: expiring, defaultValue: "{{count}} expiring" })}`
+                              : ""}
                           </td>
                           <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
                             {lastUsed ? <RelativeTime value={lastUsed} /> : "—"}
@@ -275,14 +348,18 @@ export function GatewaysList() {
                         <div className="shrink-0">{toggle(gateway)}</div>
                       </div>
                       <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                        <MobileField label="Scope" value={scope} />
-                        <MobileField label="Apps" value={appsLabel} />
+                        <MobileField label={t("gatewaysList.columnScope", { defaultValue: "Scope" })} value={scope} />
+                        <MobileField label={t("gatewaysList.columnApps", { defaultValue: "Apps" })} value={appsLabel} />
                         <MobileField
-                          label="Tokens"
-                          value={`${active} active${expiring > 0 ? ` · ${expiring} expiring` : ""}`}
+                          label={t("gatewaysList.columnTokens", { defaultValue: "Tokens" })}
+                          value={`${t("gatewaysList.activeCount", { count: active, defaultValue: "{{count}} active" })}${
+                            expiring > 0
+                              ? ` · ${t("gatewaysList.expiringCount", { count: expiring, defaultValue: "{{count}} expiring" })}`
+                              : ""
+                          }`}
                         />
                         <MobileField
-                          label="Last used"
+                          label={t("gatewaysList.columnLastUsed", { defaultValue: "Last used" })}
                           value={lastUsed ? <RelativeTime value={lastUsed} /> : "—"}
                         />
                       </dl>
@@ -297,10 +374,14 @@ export function GatewaysList() {
           })()}
 
           <div className="rounded-lg border border-border bg-muted/30 px-4 py-3">
-            <div className="text-sm font-semibold text-foreground">Why a gateway?</div>
+            <div className="text-sm font-semibold text-foreground">
+              {t("gatewaysList.whyTitle", { defaultValue: "Why a gateway?" })}
+            </div>
             <p className="mt-1 text-sm text-muted-foreground">
-              You pick which apps go through it, who can use it, and how. Revoke the token, the whole
-              gateway goes silent — no app-by-app cleanup.
+              {t("gatewaysList.whyDescription", {
+                defaultValue:
+                  "You pick which apps go through it, who can use it, and how. Revoke the token, the whole gateway goes silent — no app-by-app cleanup.",
+              })}
             </p>
           </div>
         </div>
@@ -327,16 +408,21 @@ function MobileField({ label, value }: { label: string; value: ReactNode }) {
 }
 
 function EmptyGateways({ onCreate }: { onCreate: () => void }) {
+  const { t } = useTranslation();
   return (
     <div className="rounded-2xl border border-dashed border-border p-12 text-center">
-      <h2 className="text-lg font-semibold text-foreground">No gateways yet</h2>
+      <h2 className="text-lg font-semibold text-foreground">
+        {t("gatewaysList.emptyTitle", { defaultValue: "No gateways yet" })}
+      </h2>
       <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
-        Group your connected apps into one safe endpoint you can hand to a client, then revoke it in one
-        move.
+        {t("gatewaysList.emptyDescription", {
+          defaultValue:
+            "Group your connected apps into one safe endpoint you can hand to a client, then revoke it in one move.",
+        })}
       </p>
       <Button className="mt-5" onClick={onCreate}>
         <Plus className="mr-1.5 h-4 w-4" />
-        New gateway
+        {t("gatewaysList.newGateway", { defaultValue: "New gateway" })}
       </Button>
     </div>
   );

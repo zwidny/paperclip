@@ -8,6 +8,7 @@ import { AI_PROVIDERS, type AiConnectionSummary } from "./model";
 import { describeError } from "@/api/errors";
 import { AiDefaultCrown } from "./AiConnectionDefault";
 import { isOwnAiAccount } from "./useAiConnectionDefaults";
+import { useTranslation } from "../../i18n";
 
 /** AI-only account controls; identity, access and navigation belong to AppDetail. */
 export function AiConnectionAccountControls({
@@ -23,6 +24,7 @@ export function AiConnectionAccountControls({
   onRevoke: () => void | Promise<void>;
   revocationDetails?: ReactNode;
 }) {
+  const { t } = useTranslation();
   const [revoking, setRevoking] = useState(false);
   const [revokePending, setRevokePending] = useState(false);
   const [revokeError, setRevokeError] = useState<string>();
@@ -31,7 +33,7 @@ export function AiConnectionAccountControls({
   const activeDefault = account.isDefault && available;
   const providerName = AI_PROVIDERS[account.provider].name;
   return (
-    <section className="space-y-4" aria-label="AI account settings">
+    <section className="space-y-4" aria-label={t("aiConnections.account.aria", { defaultValue: "AI account settings" })}>
       {eligibleForDefault && (
         <div className={cn(
           "flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3",
@@ -43,17 +45,17 @@ export function AiConnectionAccountControls({
           </div>
           {!account.isDefault && (!readOnly && account.canSetDefault ? (
             <Button variant="outline" size="sm" disabled={!available || Boolean(account.unavailableReason) || defaultPending} onClick={onMakeDefault}>Set as default for {providerName}</Button>
-          ) : <span className="text-xs text-muted-foreground">Not default</span>)}
+          ) : <span className="text-xs text-muted-foreground">{t("aiConnections.account.notDefault", { defaultValue: "Not default" })}</span>)}
         </div>
       )}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0 text-sm">
-          <p className="break-words text-xs text-muted-foreground">{account.method === "subscription" ? "Subscription" : "API key"}{account.accountLabel ? ` · ${account.accountLabel}` : ""}</p>
+          <p className="break-words text-xs text-muted-foreground">{account.method === "subscription" ? t("aiConnections.account.subscription", { defaultValue: "Subscription" }) : t("onboarding.connect.apiKey", { defaultValue: "API key" })}{account.accountLabel ? ` · ${account.accountLabel}` : ""}</p>
         </div>
         {!readOnly && grant.capabilities?.canRevoke && (
           <div className="flex flex-wrap items-center gap-2">
-            {<Button variant="outline" size="sm" onClick={onReconnect}><RefreshCw className="size-4" aria-hidden />Reconnect</Button>}
-            {account.status !== "revoked" && <Button variant="ghost" size="sm" className="text-destructive" onClick={() => setRevoking(true)}><Unplug className="size-4" aria-hidden />Revoke identity</Button>}
+            {<Button variant="outline" size="sm" onClick={onReconnect}><RefreshCw className="size-4" aria-hidden />{t("aiConnections.account.reconnect", { defaultValue: "Reconnect" })}</Button>}
+            {account.status !== "revoked" && <Button variant="ghost" size="sm" className="text-destructive" onClick={() => setRevoking(true)}><Unplug className="size-4" aria-hidden />{t("aiConnections.account.revoke", { defaultValue: "Revoke identity" })}</Button>}
           </div>
         )}
       </div>

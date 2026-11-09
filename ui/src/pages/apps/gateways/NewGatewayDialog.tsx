@@ -16,6 +16,7 @@ import { useToast } from "@/context/ToastContext";
 import { queryKeys } from "@/lib/queryKeys";
 import { allowedToolsLabel } from "./gateway-helpers";
 import { describeError } from "@/api/errors";
+import { useTranslation } from "../../../i18n";
 
 export const gatewaysQueryKey = (companyId: string) => ["tools", "gateways", companyId] as const;
 
@@ -37,6 +38,7 @@ export function NewGatewayDialog({
 }) {
   const queryClient = useQueryClient();
   const { pushToast } = useToast();
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [profileId, setProfileId] = useState("");
@@ -64,7 +66,11 @@ export function NewGatewayDialog({
         contextScopeType: "company" satisfies ToolMcpGatewayContextScopeType,
       }),
     onSuccess: async (gateway) => {
-      pushToast({ title: "Gateway created", body: gateway.name, tone: "success" });
+      pushToast({
+        title: t("gatewayNew.toast.createdTitle", { defaultValue: "Gateway created" }),
+        body: gateway.name,
+        tone: "success",
+      });
       await queryClient.invalidateQueries({ queryKey: gatewaysQueryKey(companyId) });
       setName("");
       setDescription("");
@@ -73,7 +79,7 @@ export function NewGatewayDialog({
     },
     onError: (error) => {
       pushToast({
-        title: "Gateway was not created",
+        title: t("gatewayNew.toast.notCreatedTitle", { defaultValue: "Gateway was not created" }),
         body: describeError(error).body,
         tone: "error",
       });
@@ -93,25 +99,27 @@ export function NewGatewayDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>New gateway</DialogTitle>
+          <DialogTitle>{t("gatewaysList.newGateway", { defaultValue: "New gateway" })}</DialogTitle>
           <DialogDescription>
-            One safe MCP endpoint that exposes only the apps in its access profile. Hand it to a client
-            like Cursor or Claude Desktop.
+            {t("gatewayNew.description", {
+              defaultValue:
+                "One safe MCP endpoint that exposes only the apps in its access profile. Hand it to a client like Cursor or Claude Desktop.",
+            })}
           </DialogDescription>
         </DialogHeader>
         <form className="space-y-4" onSubmit={submit}>
           <label className="block space-y-1.5">
-            <span className="text-xs font-medium text-muted-foreground">Name</span>
+            <span className="text-xs font-medium text-muted-foreground">{t("gatewayNew.name", { defaultValue: "Name" })}</span>
             <Input
               value={name}
               onChange={(event) => setName(event.target.value)}
-              placeholder="CTO agents"
+              placeholder={t("gatewayNew.namePlaceholder", { defaultValue: "CTO agents" })}
               required
               autoFocus
             />
           </label>
           <label className="block space-y-1.5">
-            <span className="text-xs font-medium text-muted-foreground">Access profile</span>
+            <span className="text-xs font-medium text-muted-foreground">{t("gatewayNew.accessProfile", { defaultValue: "Access profile" })}</span>
             <select
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               value={profileId}
@@ -120,7 +128,9 @@ export function NewGatewayDialog({
               disabled={noProfiles}
             >
               <option value="" disabled>
-                {profilesLoading ? "Loading profiles…" : "Choose a profile"}
+                {profilesLoading
+                  ? t("gatewayNew.loadingProfiles", { defaultValue: "Loading profiles…" })
+                  : t("gatewayNew.chooseProfile", { defaultValue: "Choose a profile" })}
               </option>
               {activeProfiles.map((profile) => (
                 <option key={profile.id} value={profile.id}>
@@ -129,32 +139,40 @@ export function NewGatewayDialog({
               ))}
             </select>
             <span className="text-xs text-muted-foreground">
-              The profile decides which tools this gateway allows. You can change it later.
+              {t("gatewayNew.profileHint", {
+                defaultValue: "The profile decides which tools this gateway allows. You can change it later.",
+              })}
             </span>
           </label>
           <label className="block space-y-1.5">
-            <span className="text-xs font-medium text-muted-foreground">Description (optional)</span>
+            <span className="text-xs font-medium text-muted-foreground">{t("gatewayNew.descriptionLabel", { defaultValue: "Description (optional)" })}</span>
             <textarea
               className="min-h-16 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               value={description}
               onChange={(event) => setDescription(event.target.value)}
-              placeholder="Who this endpoint is for and when it should be rotated."
+              placeholder={t("gatewayNew.descriptionPlaceholder", {
+                defaultValue: "Who this endpoint is for and when it should be rotated.",
+              })}
             />
           </label>
           {noProfiles ? (
             <p className="text-xs text-destructive">
-              Create an access profile under Advanced before adding a gateway.
+              {t("gatewayNew.noProfiles", {
+                defaultValue: "Create an access profile under Advanced before adding a gateway.",
+              })}
             </p>
           ) : null}
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t("common.cancel", { defaultValue: "Cancel" })}
             </Button>
             <Button
               type="submit"
               disabled={createMutation.isPending || noProfiles || !name.trim() || !profileId}
             >
-              {createMutation.isPending ? "Creating…" : "Create gateway"}
+              {createMutation.isPending
+                ? t("gatewayNew.creating", { defaultValue: "Creating…" })
+                : t("gatewayNew.createGateway", { defaultValue: "Create gateway" })}
             </Button>
           </DialogFooter>
         </form>

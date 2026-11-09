@@ -31,6 +31,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { useToast } from "@/context/ToastContext";
 import { copyTextToClipboard } from "@/lib/clipboard";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "../../../i18n";
 import {
   defaultGatewayTokenName,
   formatHydratedSnippetConfig,
@@ -76,6 +77,7 @@ export function ConnectClientDialog({
 }) {
   const queryClient = useQueryClient();
   const { pushToast } = useToast();
+  const { t } = useTranslation();
   const snippets = useMemo(() => orderedSnippets(gateway.clientSnippets ?? []), [gateway.clientSnippets]);
   const endpoint = useMemo(() => {
     const origin = typeof window !== "undefined" ? window.location.origin : "";
@@ -92,7 +94,7 @@ export function ConnectClientDialog({
   );
   const tokenGroups = useMemo<SearchableSelectGroup<string, TokenOption>[]>(() => [{
     id: "tokens",
-    label: "Available this session",
+    label: t("gatewayClient.availableThisSession", { defaultValue: "Available this session" }),
     options: availableTokens.map((token) => ({
       key: token.id,
       value: token.id,
@@ -101,7 +103,7 @@ export function ConnectClientDialog({
       searchText: `${token.name} ${token.clientLabel} ${token.tokenPrefix}`,
       token,
     })),
-  }], [availableTokens]);
+  }], [availableTokens, t]);
 
   const [active, setActive] = useState<PanelKey>(snippets[0]?.client ?? "raw_url");
   const [selectedTokenId, setSelectedTokenId] = useState("");
@@ -130,14 +132,16 @@ export function ConnectClientDialog({
       onTokenCreated(token);
       setSelectedTokenId(token.id);
       pushToast({
-        title: "Token issued",
-        body: "The copy buttons now include its full Authorization header.",
+        title: t("gatewayClient.toast.issuedTitle", { defaultValue: "Token issued" }),
+        body: t("gatewayClient.toast.issuedBody", {
+          defaultValue: "The copy buttons now include its full Authorization header.",
+        }),
         tone: "success",
       });
       await queryClient.invalidateQueries({ queryKey: gatewaysQueryKey(gateway.companyId) });
     },
     onError: (error) => pushToast({
-      title: "Token was not issued",
+      title: t("gatewayClient.toast.notIssuedTitle", { defaultValue: "Token was not issued" }),
       body: describeError(error).body,
       tone: "error",
     }),
@@ -146,10 +150,10 @@ export function ConnectClientDialog({
   async function copyText(value: string, label: string) {
     try {
       await copyTextToClipboard(value);
-      pushToast({ title: "Copied", body: label, tone: "success" });
+      pushToast({ title: t("gatewayClient.toast.copiedTitle", { defaultValue: "Copied" }), body: label, tone: "success" });
     } catch (error) {
       pushToast({
-        title: "Copy failed",
+        title: t("gatewayClient.toast.copyFailedTitle", { defaultValue: "Copy failed" }),
         body: describeError(error).body,
         tone: "error",
       });
@@ -181,37 +185,43 @@ export function ConnectClientDialog({
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            Client snippets
+            {t("gatewayClient.title", { defaultValue: "Client snippets" })}
             <Tooltip>
               <TooltipTrigger asChild>
-                <button type="button" aria-label="About client snippets" className="text-muted-foreground hover:text-foreground">
+                <button type="button" aria-label={t("gatewayClient.aboutAria", { defaultValue: "About client snippets" })} className="text-muted-foreground hover:text-foreground">
                   <HelpCircle className="h-4 w-4" />
                 </button>
               </TooltipTrigger>
               <TooltipContent className="max-w-xs text-xs">
-                Give this MCP gateway configuration to your tool. It does not give it access to Paperclip or
-                skills; it only gateways calls between the client and the tools exposed here.
+                {t("gatewayClient.aboutTooltip", {
+                  defaultValue:
+                    "Give this MCP gateway configuration to your tool. It does not give it access to Paperclip or skills; it only gateways calls between the client and the tools exposed here.",
+                })}
               </TooltipContent>
             </Tooltip>
           </DialogTitle>
           <DialogDescription>
-            Choose a client and copy a complete, authenticated configuration.
+            {t("gatewayClient.description", {
+              defaultValue: "Choose a client and copy a complete, authenticated configuration.",
+            })}
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-wrap items-center gap-2 border-b border-border pb-3">
-          <span className="text-xs font-medium text-muted-foreground">Authorization</span>
+          <span className="text-xs font-medium text-muted-foreground">{t("gatewayClient.authorization", { defaultValue: "Authorization" })}</span>
           {availableTokens.length > 0 ? (
             <SearchableSelect<string, TokenOption>
               value={selectedTokenId}
               groups={tokenGroups}
               onValueChange={setSelectedTokenId}
-              placeholder="Issue a token"
-              searchPlaceholder="Search tokens…"
-              emptyMessage="No copyable tokens."
+              placeholder={t("gatewayClient.issueToken", { defaultValue: "Issue a token" })}
+              searchPlaceholder={t("gatewayClient.searchTokens", { defaultValue: "Search tokens…" })}
+              emptyMessage={t("gatewayClient.emptyTokens", { defaultValue: "No copyable tokens." })}
               contentWidth="auto"
               triggerClassName="h-8 w-auto max-w-xs rounded-full px-3"
-              renderValue={(option) => option ? `${option.label} · ${maskedTokenLabel(option.token)}` : "Issue a token"}
+              renderValue={(option) => option
+                ? `${option.label} · ${maskedTokenLabel(option.token)}`
+                : t("gatewayClient.issueToken", { defaultValue: "Issue a token" })}
               renderOption={(option) => (
                 <span className="flex min-w-0 flex-col">
                   <span className="truncate">{option.label}</span>
@@ -221,7 +231,7 @@ export function ConnectClientDialog({
                 </span>
               )}
               createItem={{
-                render: () => <span>+ Issue a new token</span>,
+                render: () => <span>+ {t("gatewayClient.issueNewToken", { defaultValue: "Issue a new token" })}</span>,
                 onSelect: issueToken,
               }}
             />
@@ -234,7 +244,9 @@ export function ConnectClientDialog({
               disabled={issueTokenMutation.isPending}
               onClick={issueToken}
             >
-              {issueTokenMutation.isPending ? "Issuing…" : "Issue a token"}
+              {issueTokenMutation.isPending
+                ? t("gatewayClient.issuing", { defaultValue: "Issuing…" })
+                : t("gatewayClient.issueToken", { defaultValue: "Issue a token" })}
             </Button>
           )}
           {selectedToken ? (
@@ -242,24 +254,30 @@ export function ConnectClientDialog({
               type="button"
               variant="ghost"
               size="sm"
-              onClick={() => void copyText(`Authorization: Bearer ${selectedToken.token}`, "Authorization header")}
+              onClick={() => void copyText(
+                `Authorization: Bearer ${selectedToken.token}`,
+                t("gatewayClient.authorizationHeader", { defaultValue: "Authorization header" }),
+              )}
             >
               <Copy className="mr-1 h-3.5 w-3.5" />
-              Copy header
+              {t("gatewayClient.copyHeader", { defaultValue: "Copy header" })}
             </Button>
           ) : null}
         </div>
 
         {!selectedToken ? (
           <p className="text-xs text-muted-foreground">
-            Issue a token before copying a snippet; the full <code>Authorization: Bearer …</code> header is
-            required. Existing token secrets cannot be retrieved again, so only tokens issued in this page
-            session can fill a snippet.
+            {t("gatewayClient.noTokenPrefix", { defaultValue: "Issue a token before copying a snippet; the full" })}{" "}
+            <code>Authorization: Bearer …</code>{" "}
+            {t("gatewayClient.noTokenSuffix", {
+              defaultValue:
+                "header is required. Existing token secrets cannot be retrieved again, so only tokens issued in this page session can fill a snippet.",
+            })}
           </p>
         ) : null}
 
         <div className="grid gap-4 sm:grid-cols-(--gtc-10)">
-          <nav className="flex gap-1 overflow-x-auto sm:flex-col" aria-label="Clients">
+          <nav className="flex gap-1 overflow-x-auto sm:flex-col" aria-label={t("gatewayClient.clientsAria", { defaultValue: "Clients" })}>
             {snippets.map((snippet) => {
               const Icon = CLIENT_ICONS[snippet.client];
               return (
@@ -290,7 +308,7 @@ export function ConnectClientDialog({
               )}
             >
               <LinkIcon className="h-4 w-4 shrink-0" />
-              Raw URL
+              {t("gatewayClient.rawUrl", { defaultValue: "Raw URL" })}
             </button>
           </nav>
 
@@ -298,19 +316,19 @@ export function ConnectClientDialog({
             {active === "raw_url" ? (
               <div className="space-y-3">
                 <div className="space-y-1.5">
-                  <div className="text-sm font-medium text-foreground">Endpoint URL</div>
+                  <div className="text-sm font-medium text-foreground">{t("gatewayClient.endpointUrl", { defaultValue: "Endpoint URL" })}</div>
                   <div className="flex items-center gap-2">
                     <code className="min-w-0 flex-1 truncate rounded-md bg-muted px-3 py-2 font-mono text-xs text-muted-foreground">
                       {endpoint}
                     </code>
-                    <Button variant="outline" size="sm" onClick={() => void copyText(endpoint, "Endpoint URL")}>
+                    <Button variant="outline" size="sm" onClick={() => void copyText(endpoint, t("gatewayClient.endpointUrl", { defaultValue: "Endpoint URL" }))}>
                       <Copy className="mr-1 h-3.5 w-3.5" />
-                      Copy
+                      {t("gatewayClient.copy", { defaultValue: "Copy" })}
                     </Button>
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <div className="text-sm font-medium text-foreground">Authorization header</div>
+                  <div className="text-sm font-medium text-foreground">{t("gatewayClient.authorizationHeader", { defaultValue: "Authorization header" })}</div>
                   <code className="block truncate rounded-md bg-muted px-3 py-2 font-mono text-xs text-muted-foreground">
                     {selectedToken ? `Authorization: Bearer ${maskedTokenLabel(selectedToken)}` : "Authorization: Bearer pcgw_•••"}
                   </code>
@@ -324,10 +342,13 @@ export function ConnectClientDialog({
                     variant="outline"
                     size="sm"
                     disabled={!copyConfigText}
-                    onClick={() => copyConfigText && void copyText(copyConfigText, `${activeSnippet.label} config`)}
+                    onClick={() => copyConfigText && void copyText(
+                      copyConfigText,
+                      t("gatewayClient.configLabel", { label: activeSnippet.label, defaultValue: "{{label}} config" }),
+                    )}
                   >
                     <Copy className="mr-1 h-3.5 w-3.5" />
-                    Copy
+                    {t("gatewayClient.copy", { defaultValue: "Copy" })}
                   </Button>
                 </div>
                 <pre className="max-h-64 overflow-auto whitespace-pre-wrap break-words rounded-md bg-muted p-3 font-mono text-xs text-muted-foreground">
@@ -340,12 +361,14 @@ export function ConnectClientDialog({
                 ) : null}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">No client snippets available for this gateway.</p>
+              <p className="text-sm text-muted-foreground">{t("gatewayClient.noSnippets", { defaultValue: "No client snippets available for this gateway." })}</p>
             )}
 
             <p className="text-xs text-muted-foreground">
-              Treat the token like a password. Anyone holding it can call the tools this gateway allows. Revoke
-              it if it leaks.
+              {t("gatewayClient.tokenWarning", {
+                defaultValue:
+                  "Treat the token like a password. Anyone holding it can call the tools this gateway allows. Revoke it if it leaks.",
+              })}
             </p>
           </div>
         </div>
@@ -353,7 +376,7 @@ export function ConnectClientDialog({
         <DialogFooter>
           <Button onClick={() => onOpenChange(false)}>
             <Check className="mr-1.5 h-4 w-4" />
-            Done
+            {t("common.done", { defaultValue: "Done" })}
           </Button>
         </DialogFooter>
       </DialogContent>

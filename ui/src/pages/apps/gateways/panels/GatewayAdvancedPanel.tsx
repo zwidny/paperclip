@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/context/ToastContext";
 import { copyTextToClipboard } from "@/lib/clipboard";
+import { useTranslation } from "../../../../i18n";
 import { gatewaysQueryKey } from "../NewGatewayDialog";
 import { describeError } from "@/api/errors";
 
@@ -26,6 +27,7 @@ export function GatewayAdvancedPanel({
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { pushToast } = useToast();
+  const { t } = useTranslation();
   const [confirming, setConfirming] = useState(false);
   const [confirmName, setConfirmName] = useState("");
 
@@ -52,13 +54,20 @@ export function GatewayAdvancedPanel({
   const archiveMutation = useMutation({
     mutationFn: () => toolsApi.updateGateway(companyId, gateway.id, { status: "archived" }),
     onSuccess: async () => {
-      pushToast({ title: "Gateway archived", body: `${gateway.name} is no longer reachable.`, tone: "success" });
+      pushToast({
+        title: t("gatewayAdvanced.toast.archivedTitle", { defaultValue: "Gateway archived" }),
+        body: t("gatewayAdvanced.toast.archivedBody", {
+          name: gateway.name,
+          defaultValue: "{{name}} is no longer reachable.",
+        }),
+        tone: "success",
+      });
       await queryClient.invalidateQueries({ queryKey: gatewaysQueryKey(companyId) });
       navigate("/apps/gateways");
     },
     onError: (error) =>
       pushToast({
-        title: "Couldn't archive the gateway",
+        title: t("gatewayAdvanced.toast.archiveFailedTitle", { defaultValue: "Couldn't archive the gateway" }),
         body: describeError(error).body,
         tone: "error",
       }),
@@ -67,39 +76,43 @@ export function GatewayAdvancedPanel({
   async function copy(value: string, label: string) {
     try {
       await copyTextToClipboard(value);
-      pushToast({ title: "Copied", body: label, tone: "success" });
+      pushToast({ title: t("gatewayAdvanced.toast.copiedTitle", { defaultValue: "Copied" }), body: label, tone: "success" });
     } catch {
-      pushToast({ title: "Copy failed", body: "Clipboard access is unavailable.", tone: "error" });
+      pushToast({
+        title: t("gatewayAdvanced.toast.copyFailedTitle", { defaultValue: "Copy failed" }),
+        body: t("gatewayAdvanced.toast.clipboardUnavailable", { defaultValue: "Clipboard access is unavailable." }),
+        tone: "error",
+      });
     }
   }
 
   return (
     <div className="space-y-5">
       <section className="space-y-2">
-        <h3 className="text-sm font-semibold text-foreground">Transport</h3>
+        <h3 className="text-sm font-semibold text-foreground">{t("gatewayAdvanced.transport", { defaultValue: "Transport" })}</h3>
         <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
-          <Row label="Transport" value="streamable_http" />
-          <Row label="Authentication" value="bearer" />
-          <Row label="Protocol version" value="2025-03-26" />
-          <Row label="Public ID" value={gateway.gatewayPublicId} mono />
+          <Row label={t("gatewayAdvanced.transportLabel", { defaultValue: "Transport" })} value="streamable_http" />
+          <Row label={t("gatewayAdvanced.authentication", { defaultValue: "Authentication" })} value="bearer" />
+          <Row label={t("gatewayAdvanced.protocolVersion", { defaultValue: "Protocol version" })} value="2025-03-26" />
+          <Row label={t("gatewayAdvanced.publicId", { defaultValue: "Public ID" })} value={gateway.gatewayPublicId} mono />
         </dl>
         <div className="flex items-center gap-2">
           <code className="min-w-0 flex-1 truncate rounded-md bg-muted px-3 py-2 font-mono text-xs text-muted-foreground">
             {endpoint}
           </code>
-          <Button variant="outline" size="sm" onClick={() => void copy(endpoint, "Endpoint URL")}>
+          <Button variant="outline" size="sm" onClick={() => void copy(endpoint, t("gatewayAdvanced.endpointUrl", { defaultValue: "Endpoint URL" }))}>
             <Copy className="mr-1 h-3.5 w-3.5" />
-            Copy
+            {t("gatewayAdvanced.copy", { defaultValue: "Copy" })}
           </Button>
         </div>
       </section>
 
       <section className="space-y-2">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-foreground">Raw configuration</h3>
-          <Button variant="outline" size="sm" onClick={() => void copy(rawConfig, "Gateway config JSON")}>
+          <h3 className="text-sm font-semibold text-foreground">{t("gatewayAdvanced.rawConfiguration", { defaultValue: "Raw configuration" })}</h3>
+          <Button variant="outline" size="sm" onClick={() => void copy(rawConfig, t("gatewayAdvanced.configJson", { defaultValue: "Gateway config JSON" }))}>
             <Copy className="mr-1 h-3.5 w-3.5" />
-            Copy JSON
+            {t("gatewayAdvanced.copyJson", { defaultValue: "Copy JSON" })}
           </Button>
         </div>
         <pre className="max-h-96 overflow-auto whitespace-pre-wrap break-words rounded-md bg-muted p-3 font-mono text-xs text-muted-foreground">
@@ -108,10 +121,12 @@ export function GatewayAdvancedPanel({
       </section>
 
       <section className="space-y-2 rounded-lg border border-destructive/40 p-4">
-        <h3 className="text-sm font-semibold text-destructive">Danger zone</h3>
+        <h3 className="text-sm font-semibold text-destructive">{t("gatewayAdvanced.dangerZone", { defaultValue: "Danger zone" })}</h3>
         <p className="text-sm text-muted-foreground">
-          Archiving takes the gateway offline for every client. Existing tokens stop working. Type the
-          gateway name to confirm.
+          {t("gatewayAdvanced.archiveDescription", {
+            defaultValue:
+              "Archiving takes the gateway offline for every client. Existing tokens stop working. Type the gateway name to confirm.",
+          })}
         </p>
         {confirming ? (
           <div className="space-y-2">
@@ -119,7 +134,7 @@ export function GatewayAdvancedPanel({
               value={confirmName}
               onChange={(e) => setConfirmName(e.target.value)}
               placeholder={gateway.name}
-              aria-label="Type the gateway name to confirm archive"
+              aria-label={t("gatewayAdvanced.confirmAria", { defaultValue: "Type the gateway name to confirm archive" })}
             />
             <div className="flex gap-2">
               <Button
@@ -128,16 +143,18 @@ export function GatewayAdvancedPanel({
                 disabled={confirmName.trim() !== gateway.name || archiveMutation.isPending}
                 onClick={() => archiveMutation.mutate()}
               >
-                {archiveMutation.isPending ? "Archiving…" : "Archive gateway"}
+                {archiveMutation.isPending
+                  ? t("gatewayAdvanced.archiving", { defaultValue: "Archiving…" })
+                  : t("gatewayAdvanced.archiveGateway", { defaultValue: "Archive gateway" })}
               </Button>
               <Button variant="ghost" size="sm" onClick={() => { setConfirming(false); setConfirmName(""); }}>
-                Cancel
+                {t("common.cancel", { defaultValue: "Cancel" })}
               </Button>
             </div>
           </div>
         ) : (
           <Button variant="outline" size="sm" className="text-destructive" onClick={() => setConfirming(true)}>
-            Archive gateway
+            {t("gatewayAdvanced.archiveGateway", { defaultValue: "Archive gateway" })}
           </Button>
         )}
       </section>

@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogFooter, DialogTitle } from "@/components/u
 import { agentAvatarUrl } from "@/lib/agent-avatar-url";
 import { Link } from "@/lib/router";
 import { GitHubAppBranding, gitHubBotMention } from "./GitHubAppIdentity";
+import { useTranslation } from "../../../i18n";
 
 export type GitHubConnectionCompleteLocationState = {
   githubConnectionComplete?: {
@@ -33,6 +34,7 @@ export function GitHubConnectionComplete({
   onClose: () => void;
   onCloseAutoFocus?: () => void;
 }) {
+  const { t } = useTranslation();
   const repositories = useQuery({
     queryKey: ["github-connected-repositories", endpoint.id],
     queryFn: () => githubChatApi.repositories(endpoint.id, { limit: 1 }),
@@ -56,7 +58,7 @@ export function GitHubConnectionComplete({
           <header className="space-y-5">
             <div className="flex items-center gap-3">
               <CheckCircle2 className="size-6 shrink-0 text-(--status-task-done)" />
-              <DialogTitle className="text-xl leading-normal">GitHub connected</DialogTitle>
+              <DialogTitle className="text-xl leading-normal">{t("githubConnectionComplete.title", { defaultValue: "GitHub connected" })}</DialogTitle>
             </div>
             <div className="flex items-center gap-3">
               <AgentAvatar agent={avatar} size={48} />
@@ -77,14 +79,14 @@ export function GitHubConnectionComplete({
                   </>}
                 </p>
                 <Link to={`/apps/chat/${endpoint.id}/access`} className="inline-block text-xs text-muted-foreground underline underline-offset-4">
-                  {repositoriesView.kind === "error" ? "Repository access unavailable" : count === undefined ? "Repository access" : count === 0 ? "No repositories enabled" : `${count} ${count === 1 ? "repository" : "repositories"} enabled`}
+                  {repositoriesView.kind === "error" ? t("githubConnectionComplete.repositoryAccessUnavailable", { defaultValue: "Repository access unavailable" }) : count === undefined ? t("githubConnectionComplete.repositoryAccess", { defaultValue: "Repository access" }) : count === 0 ? t("githubConnectionComplete.noRepositories", { defaultValue: "No repositories enabled" }) : t("githubConnectionComplete.repositoriesEnabled", { count, defaultValue_one: "{{count}} repository enabled", defaultValue_other: "{{count}} repositories enabled" })}
                 </Link>
               </div>
             </div>
           </header>
           {incomplete.length > 0 && (
             <section className="space-y-2">
-              <h2 className="text-sm font-medium">Before your first review</h2>
+              <h2 className="text-sm font-medium">{t("githubConnectionComplete.beforeFirstReview", { defaultValue: "Before your first review" })}</h2>
               {incomplete.map((check) => (
                 <p key={check.key} className="text-sm text-muted-foreground">{check.detail}</p>
               ))}
@@ -92,17 +94,17 @@ export function GitHubConnectionComplete({
           )}
           <section className="space-y-3">
             <div className="space-y-1">
-              <h2 className="text-base font-semibold">Try your bot</h2>
+              <h2 className="text-base font-semibold">{t("githubConnectionComplete.tryYourBot", { defaultValue: "Try your bot" })}</h2>
               <p className="text-sm text-muted-foreground">
                 {count === 0
-                  ? "Enable a repository in Access to try your bot."
-                  : "Post this on a pull request in an enabled repository."}
+                  ? t("githubConnectionComplete.enableRepository", { defaultValue: "Enable a repository in Access to try your bot." })
+                  : t("githubConnectionComplete.postOnPullRequest", { defaultValue: "Post this on a pull request in an enabled repository." })}
               </p>
             </div>
             <CopyText
               text={mention}
-              ariaLabel="Copy mention"
-              title="Copy mention"
+              ariaLabel={t("githubConnectionComplete.copyMention", { defaultValue: "Copy mention" })}
+              title={t("githubConnectionComplete.copyMention", { defaultValue: "Copy mention" })}
               containerClassName="w-full"
               className="flex w-full items-center gap-3 rounded-md border border-border bg-muted/30 p-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
@@ -115,7 +117,7 @@ export function GitHubConnectionComplete({
             avatarUrl={agentAvatarUrl(resolveAgentAppearance(avatar.appearance, endpoint.assignedAgentId), 512, 1, "rest")}
           />
           <DialogFooter>
-            <Button onClick={onClose}>Done</Button>
+            <Button onClick={onClose}>{t("common.done", { defaultValue: "Done" })}</Button>
           </DialogFooter>
         </div>
       </DialogContent>

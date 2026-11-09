@@ -6,6 +6,7 @@ import { QueryErrorState, useQueryView } from "@/components/QueryView";
 import { queryKeys } from "@/lib/queryKeys";
 import { useCompany } from "@/context/CompanyContext";
 import { ToolsAccess } from "./ToolsAccess";
+import { useTranslation } from "../../i18n";
 
 /**
  * Admin gate for the Advanced door (PAP-10862, plan D8). The developer surface
@@ -18,6 +19,7 @@ import { ToolsAccess } from "./ToolsAccess";
  * denial card is only for a loaded answer (or a real 403).
  */
 export function AdvancedToolsRoute() {
+  const { t } = useTranslation();
   const { selectedCompanyId } = useCompany();
   const boardAccess = useQuery({
     queryKey: queryKeys.access.currentBoardAccess,
@@ -26,7 +28,7 @@ export function AdvancedToolsRoute() {
   const view = useQueryView(boardAccess);
 
   if (boardAccess.isLoading || view.kind === "reconnecting") {
-    return <div className="mx-auto max-w-xl py-10 text-sm text-muted-foreground">Loading…</div>;
+    return <div className="mx-auto max-w-xl py-10 text-sm text-muted-foreground">{t("advancedToolsRoute.loading", { defaultValue: "Loading…" })}</div>;
   }
   if (view.kind === "error" && view.errorKind !== "forbidden") {
     return (
@@ -57,13 +59,12 @@ export function AdvancedToolsRoute() {
         <div className="flex flex-col gap-3 rounded-lg border border-border bg-card p-6">
           <div className="flex items-center gap-2 text-foreground">
             <ShieldAlert className="h-5 w-5 text-muted-foreground" />
-            <h1 className="text-lg font-semibold">Advanced setup requires editing access</h1>
+            <h1 className="text-lg font-semibold">{t("advancedToolsRoute.title", { defaultValue: "Advanced setup requires editing access" })}</h1>
           </div>
           <p className="text-sm text-muted-foreground">
-            This area lets company editors wire up tools that aren't in the gallery. Ask a company editor if you
-            need a new app connected, or head back to{" "}
+            {t("advancedToolsRoute.bodyPrefix", { defaultValue: "This area lets company editors wire up tools that aren't in the gallery. Ask a company editor if you need a new app connected, or head back to" })}{" "}
             <Link to="/apps" className="font-medium text-primary hover:underline">
-              your apps
+              {t("advancedToolsRoute.yourApps", { defaultValue: "your apps" })}
             </Link>
             .
           </p>

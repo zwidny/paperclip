@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { CheckCircle2, KeyRound, Loader2, ShieldCheck } from "lucide-react";
+import type { TFunction } from "i18next";
 import type {
   ConnectToolAppResult,
   McpJsonImportDraft,
@@ -25,6 +26,8 @@ import {
 import { endpointHost } from "@/pages/apps/generic-mcp-connect";
 import { McpConfigHelpDialog } from "./McpConfigHelpDialog";
 import { describeError } from "@/api/errors";
+import { ErrorState } from "./shared";
+import { useTranslation } from "../../i18n";
 
 const SAMPLE_CONFIG = `{
   "mcpServers": {
@@ -38,15 +41,22 @@ const SAMPLE_CONFIG = `{
 /** Turn an env/header key (e.g. `GITHUB_TOKEN`) into a friendly field label. */
 function humanizeKey(raw: string): string {
   const cleaned = raw.replace(/[_-]+/g, " ").trim().toLowerCase();
-  if (!cleaned) return "Key";
+  if (!cleaned) return "";
   return cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
 }
 
-function draftSummary(draft: McpJsonImportDraft): string {
+function draftSummary(draft: McpJsonImportDraft, t: TFunction): string {
   const keyCount = draft.credentialFields.length || draft.credentialRefs.length;
-  const where = draft.transport === "local_stdio" ? "Runs in your workspace" : "Connects over the web";
-  if (keyCount === 0) return `${where}  ·  no keys needed`;
-  return `${where}  ·  needs ${keyCount} ${keyCount === 1 ? "key" : "keys"}`;
+  const where = draft.transport === "local_stdio"
+    ? t("toolsPaste.runsInWorkspace", { defaultValue: "Runs in your workspace" })
+    : t("toolsPaste.connectsOverWeb", { defaultValue: "Connects over the web" });
+  if (keyCount === 0) {
+    return `${where}  ·  ${t("toolsPaste.noKeysNeeded", { defaultValue: "no keys needed" })}`;
+  }
+  return `${where}  ·  ${t("toolsPaste.needsKeys", {
+    count: keyCount,
+    defaultValue: keyCount === 1 ? "needs {{count}} key" : "needs {{count}} keys",
+  })}`;
 }
 
 /**
@@ -102,6 +112,7 @@ function askFirstLevelsFrom(result: ConnectToolAppResult): string[] {
  * of the two M8 screens where "MCP" vocabulary is allowed (PAP-10827 vocab map).
  */
 export function PasteConfigTab({ companyId }: { companyId: string }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [draftText, setDraftText] = useState("");
   const [preview, setPreview] = useState<McpJsonImportPreview | null>(null);
@@ -188,7 +199,13 @@ export function PasteConfigTab({ companyId }: { companyId: string }) {
   const connectMutation = useMutation({
     mutationFn: (draft: McpJsonImportDraft) => {
       const url = draftConnectUrl(draft);
-      if (!url) throw new Error("Only remote HTTP drafts can be checked and activated from pasted config.");
+      if (!url) {
+        throw new Error(
+          t("toolsPaste.remoteOnlyError", {
+            defaultValue: "Only remote HTTP drafts can be checked and activated from pasted config.",
+          }),
+        );
+      }
       return toolsApi.connectApp(companyId, {
         link: url,
         name: connectionNames[draft.name]?.trim() || draft.name,
@@ -205,7 +222,10 @@ export function PasteConfigTab({ companyId }: { companyId: string }) {
           authorization.cancel();
           setOAuthPhase("error");
           setOAuthError(
-            "This server requires OAuth client details from its provider settings. Continue in setup to add them.",
+            t("toolsPaste.manualClientRequired", {
+              defaultValue:
+                "This server requires OAuth client details from its provider settings. Continue in setup to add them.",
+            }),
           );
           return;
         }
@@ -241,7 +261,11 @@ export function PasteConfigTab({ companyId }: { companyId: string }) {
         access: "all_agents",
       });
     },
-    onSuccess: () => setActivatedName(connectResult?.application.name ?? "Imported app"),
+    onSuccess: () =>
+      setActivatedName(
+        connectResult?.application.name ??
+          t("toolsPaste.importedApp", { defaultValue: "Imported app" }),
+      ),
   });
 
   const drafts = preview?.drafts ?? [];
@@ -254,9 +278,12 @@ export function PasteConfigTab({ companyId }: { companyId: string }) {
       JSON.parse(trimmed);
       return null;
     } catch {
-      return "That doesn't look like valid JSON yet — paste the whole snippet, including the outer braces.";
+      return t("toolsPaste.invalidJson", {
+        defaultValue:
+          "That doesn't look like valid JSON yet — paste the whole snippet, including the outer braces.",
+      });
     }
-  }, [draftText]);
+  }, [draftText, t]);
 
   if (connectResult?.auth?.kind === "oauth") {
     const connectionUrl = typeof connectResult.connection.config?.url === "string"
@@ -291,16 +318,19 @@ export function PasteConfigTab({ companyId }: { companyId: string }) {
     <div className="space-y-5">
       <div className="flex max-w-2xl items-start gap-1.5">
         <p className="text-sm text-muted-foreground">
-          Paste the MCP config snippet from the tool's README and we'll turn it into a friendly setup.
+          {t("toolsPaste.description", {
+            defaultValue:
+              "Paste the MCP config snippet from the tool's README and we'll turn it into a friendly setup.",
+          })}
         </p>
         <McpConfigHelpDialog />
       </div>
       <p className="text-xs text-muted-foreground">
-        Just a URL?{" "}
+        {t("toolsPaste.justUrl", { defaultValue: "Just a URL? " })}
         <Link to="/apps" className="text-primary hover:underline">
-          Browse planned app connections
-        </Link>{" "}
-        instead.
+          {t("toolsPaste.browsePlannedConnections", { defaultValue: "Browse planned app connections" })}
+        </Link>
+        {t("toolsPaste.insteadSuffix", { defaultValue: " instead." })}
       </p>
 
       <div className="space-y-2">
@@ -321,7 +351,9 @@ export function PasteConfigTab({ companyId }: { companyId: string }) {
           <p className="text-xs text-amber-600">{localParseError}</p>
         ) : (
           <p className="text-xs text-muted-foreground">
-            Paste an MCP config — the snippet a README tells you to copy.
+            {t("toolsPaste.pasteHint", {
+              defaultValue: "Paste an MCP config — the snippet a README tells you to copy.",
+            })}
           </p>
         )}
       </div>
@@ -331,10 +363,14 @@ export function PasteConfigTab({ companyId }: { companyId: string }) {
           onClick={() => importMutation.mutate(draftText)}
           disabled={!canSubmit || Boolean(localParseError)}
         >
-          {importMutation.isPending ? "Checking…" : "Check config"}
+          {importMutation.isPending
+            ? t("toolsPaste.checking", { defaultValue: "Checking…" })
+            : t("toolsPaste.checkConfig", { defaultValue: "Check config" })}
         </Button>
         <span className="text-xs text-muted-foreground">
-          We'll read it and show what we found before anything is saved.
+          {t("toolsPaste.checkNote", {
+            defaultValue: "We'll read it and show what we found before anything is saved.",
+          })}
         </span>
       </div>
 
@@ -343,13 +379,22 @@ export function PasteConfigTab({ companyId }: { companyId: string }) {
       {preview ? (
         drafts.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border p-6 text-sm text-muted-foreground">
-            We couldn't find an app in that config. Double-check you pasted the whole snippet.
+            {t("toolsPaste.noDrafts", {
+              defaultValue:
+                "We couldn't find an app in that config. Double-check you pasted the whole snippet.",
+            })}
           </div>
         ) : (
           <div className="space-y-3">
             <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
               <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-              We found {drafts.length} {drafts.length === 1 ? "app" : "apps"} in that config
+              {t("toolsPaste.foundApps", {
+                count: drafts.length,
+                defaultValue:
+                  drafts.length === 1
+                    ? "We found {{count}} app in that config"
+                    : "We found {{count}} apps in that config",
+              })}
             </h3>
             {drafts.map((draft, index) => {
               const url = draftConnectUrl(draft);
@@ -374,13 +419,17 @@ export function PasteConfigTab({ companyId }: { companyId: string }) {
             })}
             {drafts.some((d) => draftConnectUrl(d)) ? (
               <p className="text-xs text-muted-foreground">
-                Checking a remote app creates a draft connection, stores any header replacements as Paperclip secrets,
-                and runs health/catalog discovery before activation.
+                {t("toolsPaste.remoteNote", {
+                  defaultValue:
+                    "Checking a remote app creates a draft connection, stores any header replacements as Paperclip secrets, and runs health/catalog discovery before activation.",
+                })}
               </p>
             ) : (
               <p className="text-xs text-muted-foreground">
-                We humanized the field names from the config. These run-in-your-workspace tools stay as drafts until an
-                admin maps them to an approved template.
+                {t("toolsPaste.stdioNote", {
+                  defaultValue:
+                    "We humanized the field names from the config. These run-in-your-workspace tools stay as drafts until an admin maps them to an approved template.",
+                })}
               </p>
             )}
           </div>
@@ -429,24 +478,25 @@ function DraftCard({
   canCheck: boolean;
   onCheck?: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="rounded-lg border border-border bg-card p-4">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <div className="font-semibold text-foreground">{draft.name}</div>
-          <div className="text-xs text-muted-foreground">{draftSummary(draft)}</div>
+          <div className="text-xs text-muted-foreground">{draftSummary(draft, t)}</div>
         </div>
         {onCheck ? (
           <Button size="sm" className="shrink-0" onClick={onCheck} disabled={checking || !canCheck}>
             {checking ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : null}
-            Check actions
+            {t("toolsPaste.checkActions", { defaultValue: "Check actions" })}
           </Button>
         ) : null}
       </div>
 
       {onCheck ? (
         <label className="mt-4 block max-w-sm space-y-1 text-xs font-medium text-foreground">
-          Connection name
+          {t("toolDialogs.connectionName", { defaultValue: "Connection name" })}
           <Input
             value={connectionName}
             onChange={(event) => onConnectionNameChange(event.target.value)}
@@ -462,7 +512,8 @@ function DraftCard({
             <div key={`${field.configPath}-${field.key}`} className="space-y-1">
               <div className="flex items-center gap-1.5 text-xs font-medium text-foreground">
                 <KeyRound className="h-3.5 w-3.5 text-muted-foreground" />
-                {humanizeKey(field.label || field.key)}
+                {humanizeKey(field.label || field.key) ||
+                  t("toolsPaste.keyLabel", { defaultValue: "Key" })}
               </div>
               <div className="flex items-center gap-2">
                 <code className="rounded border border-border bg-muted/40 px-2 py-1 font-mono text-(length:--text-micro) text-muted-foreground">
@@ -472,7 +523,7 @@ function DraftCard({
                   type="password"
                   value={credentialValues[credentialValueKey(draft, field.configPath)] ?? ""}
                   onChange={(event) => onCredentialChange(field.configPath, event.target.value)}
-                  placeholder="Paste replacement value"
+                  placeholder={t("toolsPaste.pasteReplacement", { defaultValue: "Paste replacement value" })}
                   className="h-8 max-w-sm text-xs"
                 />
               </div>
@@ -481,10 +532,15 @@ function DraftCard({
         </div>
       ) : draft.credentialRefs.length > 0 ? (
         <p className="mt-3 text-xs text-muted-foreground">
-          Keys from this config stay draft-only until an admin maps them to an approved template.
+          {t("toolsPaste.keysDraftOnly", {
+            defaultValue:
+              "Keys from this config stay draft-only until an admin maps them to an approved template.",
+          })}
         </p>
       ) : (
-        <p className="mt-3 text-xs text-muted-foreground">No keys needed for this one.</p>
+        <p className="mt-3 text-xs text-muted-foreground">
+          {t("toolsPaste.noKeysNeededForOne", { defaultValue: "No keys needed for this one." })}
+        </p>
       )}
 
       {draft.warnings.length > 0 ? (
@@ -517,6 +573,7 @@ function CatalogReview({
   activatedName: string | null;
   onFinish: () => void;
 }) {
+  const { t } = useTranslation();
   const askFirstLevels = askFirstLevelsFrom(result);
   const enabledCount = Object.values(enabled).filter(Boolean).length;
   const total = result.actions.readOnly.length + result.actions.canMakeChanges.length;
@@ -526,19 +583,29 @@ function CatalogReview({
         <div>
           <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <ShieldCheck className="h-4 w-4 text-emerald-600" />
-            Review actions for {result.application.name}
+            {t("toolsPaste.reviewActions", {
+              defaultValue: "Review actions for {{name}}",
+              name: result.application.name,
+            })}
           </h3>
           <p className="mt-1 text-xs text-muted-foreground">
-            Health and catalog checks passed. Every discovered action starts allowed; you can narrow access after activation.
+            {t("toolsPaste.reviewNote", {
+              defaultValue:
+                "Health and catalog checks passed. Every discovered action starts allowed; you can narrow access after activation.",
+            })}
           </p>
         </div>
         <Button size="sm" onClick={onFinish} disabled={finishing || enabledCount === 0 || Boolean(activatedName)}>
           {finishing ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : null}
-          Activate {enabledCount} of {total}
+          {t("toolsPaste.activateCount", {
+            defaultValue: "Activate {{enabled}} of {{total}}",
+            enabled: enabledCount,
+            total,
+          })}
         </Button>
       </div>
       <ActionGroup
-        title="Read-only"
+        title={t("toolsPaste.readOnly", { defaultValue: "Read-only" })}
         actions={result.actions.readOnly}
         enabled={enabled}
         onToggle={onToggle}
@@ -546,7 +613,7 @@ function CatalogReview({
         askFirstLevels={askFirstLevels}
       />
       <ActionGroup
-        title="Can make changes"
+        title={t("toolsPaste.canMakeChanges", { defaultValue: "Can make changes" })}
         actions={result.actions.canMakeChanges}
         enabled={enabled}
         onToggle={onToggle}
@@ -554,7 +621,12 @@ function CatalogReview({
         askFirstLevels={askFirstLevels}
       />
       {activatedName ? (
-        <p className="text-xs font-medium text-emerald-700">{activatedName} is active for all agents.</p>
+        <p className="text-xs font-medium text-emerald-700">
+          {t("toolsPaste.activatedForAllAgents", {
+            defaultValue: "{{name}} is active for all agents.",
+            name: activatedName,
+          })}
+        </p>
       ) : null}
     </div>
   );
@@ -575,6 +647,7 @@ function ActionGroup({
   onBulk: (on: boolean) => void;
   askFirstLevels: string[];
 }) {
+  const { t } = useTranslation();
   if (actions.length === 0) return null;
   return (
     <div className="space-y-1">
@@ -582,10 +655,10 @@ function ActionGroup({
         <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{title}</div>
         <div className="flex gap-2">
           <Button type="button" size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => onBulk(true)}>
-            Turn all on
+            {t("toolsPaste.turnAllOn", { defaultValue: "Turn all on" })}
           </Button>
           <Button type="button" size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => onBulk(false)}>
-            Turn all off
+            {t("toolsPaste.turnAllOff", { defaultValue: "Turn all off" })}
           </Button>
         </div>
       </div>
@@ -597,7 +670,9 @@ function ActionGroup({
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-medium text-foreground">{action.title || action.toolName}</div>
                 <div className="truncate text-xs text-muted-foreground">
-                  {askFirstLevels.includes(action.riskLevel) ? "Ask first when enabled" : action.riskLevel}
+                  {askFirstLevels.includes(action.riskLevel)
+                    ? t("toolsPaste.askFirstWhenEnabled", { defaultValue: "Ask first when enabled" })
+                    : action.riskLevel}
                 </div>
               </div>
               <ToggleSwitch checked={on} onCheckedChange={(next) => onToggle(action.catalogEntryId, next)} />

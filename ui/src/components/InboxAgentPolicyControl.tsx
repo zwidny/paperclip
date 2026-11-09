@@ -11,24 +11,27 @@ import { isAgentTaskTarget } from "@/lib/company-members";
 import { AgentMultiSelect } from "@/components/AgentMultiSelect";
 import { Button } from "@/components/ui/button";
 import { RadioCardGroup, type RadioCardOption } from "@/components/ui/radio-card";
+import { t as translate, useTranslation } from "../i18n";
 
-const MODE_OPTIONS: RadioCardOption[] = [
-  {
-    value: "open",
-    title: "Any of my agents",
-    description: "Let any agent you manage archive tasks out of your inbox.",
-  },
-  {
-    value: "allowlist",
-    title: "Only chosen agents",
-    description: "Restrict inbox tidying to the agents you pick below.",
-  },
-  {
-    value: "disabled",
-    title: "Off",
-    description: "Agents can never archive tasks from your inbox.",
-  },
-];
+function modeOptions(): RadioCardOption[] {
+  return [
+    {
+      value: "open",
+      title: translate("inboxAgentPolicy.mode.open.title", { defaultValue: "Any of my agents" }),
+      description: translate("inboxAgentPolicy.mode.open.description", { defaultValue: "Let any agent you manage archive tasks out of your inbox." }),
+    },
+    {
+      value: "allowlist",
+      title: translate("inboxAgentPolicy.mode.allowlist.title", { defaultValue: "Only chosen agents" }),
+      description: translate("inboxAgentPolicy.mode.allowlist.description", { defaultValue: "Restrict inbox tidying to the agents you pick below." }),
+    },
+    {
+      value: "disabled",
+      title: translate("inboxAgentPolicy.mode.disabled.title", { defaultValue: "Off" }),
+      description: translate("inboxAgentPolicy.mode.disabled.description", { defaultValue: "Agents can never archive tasks from your inbox." }),
+    },
+  ];
+}
 
 function policyKey(mode: InboxAgentPolicyMode, allowedAgentIds: string[]): string {
   return `${mode}:${[...allowedAgentIds].sort().join(",")}`;
@@ -47,6 +50,7 @@ interface Draft {
  * "Archived by …" attribution live elsewhere (inbox rows / properties pane).
  */
 export function InboxAgentPolicyControl({ companyId }: { companyId: string | null | undefined }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [draft, setDraft] = useState<Draft | null>(null);
   const lastServerKeyRef = useRef<string | null>(null);
@@ -126,33 +130,32 @@ export function InboxAgentPolicyControl({ companyId }: { companyId: string | nul
   }
 
   if (policyQuery.isLoading || policyView.kind === "reconnecting" || !draft) {
-    return <div className="text-sm text-muted-foreground">Loading inbox agent policy…</div>;
+    return <div className="text-sm text-muted-foreground">{t("inboxAgentPolicy.loading", { defaultValue: "Loading inbox agent policy…" })}</div>;
   }
 
   return (
-    <section className="space-y-4" aria-label="Let agents tidy my inbox">
+    <section className="space-y-4" aria-label={t("inboxAgentPolicy.title", { defaultValue: "Let agents tidy my inbox" })}>
       <div className="space-y-1">
         <div className="flex items-center gap-2">
           <Inbox className="h-5 w-5 text-muted-foreground" />
-          <h2 className="text-base font-semibold">Let agents tidy my inbox</h2>
+          <h2 className="text-base font-semibold">{t("inboxAgentPolicy.title", { defaultValue: "Let agents tidy my inbox" })}</h2>
         </div>
         <p className="max-w-2xl text-sm text-muted-foreground">
-          Choose whether the agents you manage may archive tasks out of your inbox on your behalf. You can
-          undo any archive, and every agent archive is attributed in the task&apos;s properties.
+          {t("inboxAgentPolicy.description", { defaultValue: "Choose whether the agents you manage may archive tasks out of your inbox on your behalf. You can undo any archive, and every agent archive is attributed in the task's properties." })}
         </p>
       </div>
 
       <RadioCardGroup
-        ariaLabel="Inbox agent archiving policy"
+        ariaLabel={t("inboxAgentPolicy.policyAria", { defaultValue: "Inbox agent archiving policy" })}
         value={draft.mode}
         onValueChange={(value) => setDraft((current) => (current ? { ...current, mode: value as InboxAgentPolicyMode } : current))}
-        options={MODE_OPTIONS}
+        options={modeOptions()}
         className="max-w-2xl"
       />
 
       {draft.mode === "allowlist" ? (
         <div className="max-w-2xl space-y-2">
-          <div className="text-sm font-medium">Agents allowed to tidy my inbox</div>
+          <div className="text-sm font-medium">{t("inboxAgentPolicy.allowedAgents", { defaultValue: "Agents allowed to tidy my inbox" })}</div>
           <AgentMultiSelect
             agents={agentOptions}
             selectedAgentIds={selectedAgentIds}
@@ -163,12 +166,12 @@ export function InboxAgentPolicyControl({ companyId }: { companyId: string | nul
             }
             triggerLabel={
               selectedAgentIds.size === 0
-                ? "Select agents"
-                : `${selectedAgentIds.size} ${selectedAgentIds.size === 1 ? "agent" : "agents"} selected`
+                ? t("inboxAgentPolicy.selectAgents", { defaultValue: "Select agents" })
+                : t("inboxAgentPolicy.selectedCount", { defaultValue: "{{count}} agent selected", count: selectedAgentIds.size })
             }
             triggerFullWidth={false}
             showSelectionPreview={false}
-            emptyMessage="You don’t manage any agents yet."
+            emptyMessage={t("inboxAgentPolicy.noAgents", { defaultValue: "You don’t manage any agents yet." })}
           />
         </div>
       ) : null}
@@ -181,7 +184,7 @@ export function InboxAgentPolicyControl({ companyId }: { companyId: string | nul
 
       <div className="flex max-w-2xl items-center justify-end gap-3">
         {updateMutation.isSuccess && !isDirty ? (
-          <span className="text-xs text-muted-foreground" role="status">Saved</span>
+          <span className="text-xs text-muted-foreground" role="status">{t("inboxAgentPolicy.saved", { defaultValue: "Saved" })}</span>
         ) : null}
         <Button
           type="button"
@@ -189,7 +192,7 @@ export function InboxAgentPolicyControl({ companyId }: { companyId: string | nul
           onClick={() => draft && updateMutation.mutate(draft)}
         >
           {updateMutation.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <Save className="size-4" />}
-          {updateMutation.isPending ? "Saving…" : "Save"}
+          {updateMutation.isPending ? t("common.saving", { defaultValue: "Saving…" }) : t("common.save", { defaultValue: "Save" })}
         </Button>
       </div>
     </section>

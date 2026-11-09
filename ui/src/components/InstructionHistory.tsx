@@ -5,6 +5,7 @@ import { agentsApi } from "../api/agents";
 import { describeError } from "../api/errors";
 import { Button } from "./ui/button";
 import { QueryErrorState, useQueryView } from "./QueryView";
+import { useTranslation } from "../i18n";
 
 export function InstructionHistory({
   agentId,
@@ -23,6 +24,7 @@ export function InstructionHistory({
 }) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
+  const { t } = useTranslation();
   const history = useInfiniteQuery({
     queryKey: ["instruction-history", agentId, path, currentRevisionId],
     queryFn: ({ pageParam }) =>
@@ -69,7 +71,7 @@ export function InstructionHistory({
         aria-expanded={open}
         onClick={() => setOpen(!open)}
       >
-        History
+        {t("instructionHistory.history", { defaultValue: "History" })}
       </Button>
       {open && (
         <div className="space-y-3">
@@ -95,7 +97,7 @@ export function InstructionHistory({
             <p role="alert" className="text-sm text-destructive">{describeError(restore.error).body}</p>
           )}
           {(historyView.kind === "loading" || historyView.kind === "reconnecting") && (
-            <p role="status" className="text-sm text-muted-foreground">Loading revisions…</p>
+            <p role="status" className="text-sm text-muted-foreground">{t("instructionHistory.loading", { defaultValue: "Loading revisions…" })}</p>
           )}
           {history.data?.pages
             .flatMap((page) => page.revisions)
@@ -123,24 +125,24 @@ export function InstructionHistory({
               disabled={history.isFetchingNextPage}
               onClick={() => void history.fetchNextPage()}
             >
-              Older revisions
+              {t("instructionHistory.olderRevisions", { defaultValue: "Older revisions" })}
             </Button>
           )}
           {diff.data && (
             <>
-              <p className="text-sm text-muted-foreground">Selected revision</p>
+              <p className="text-sm text-muted-foreground">{t("instructionHistory.selectedRevision", { defaultValue: "Selected revision" })}</p>
               <pre className="whitespace-pre-wrap break-words rounded-md border border-border p-3 font-mono text-sm">
                 {diff.data.from.content}
               </pre>
               <p className="text-sm text-muted-foreground">
-                Changes from selected revision to current
+                {t("instructionHistory.changesFromSelected", { defaultValue: "Changes from selected revision to current" })}
               </p>
               <pre className="whitespace-pre-wrap break-words rounded-md border border-border p-3 font-mono text-sm">
-                {diff.data.removed && `Removed:\n${diff.data.removed}\n`}
-                {diff.data.added && `Added:\n${diff.data.added}`}
+                {diff.data.removed && `${t("instructionHistory.removed", { defaultValue: "Removed:" })}\n${diff.data.removed}\n`}
+                {diff.data.added && `${t("instructionHistory.added", { defaultValue: "Added:" })}\n${diff.data.added}`}
                 {!diff.data.removed &&
                   !diff.data.added &&
-                  "No content changes."}
+                  t("instructionHistory.noContentChanges", { defaultValue: "No content changes." })}
               </pre>
               <Button
                 type="button"
@@ -151,11 +153,11 @@ export function InstructionHistory({
                 }
                 onClick={() => restore.mutate()}
               >
-                Restore as new revision
+                {t("instructionHistory.restore", { defaultValue: "Restore as new revision" })}
               </Button>
               {disabled && (
                 <p className="text-sm text-muted-foreground">
-                  Save or cancel your edits before restoring.
+                  {t("instructionHistory.saveOrCancel", { defaultValue: "Save or cancel your edits before restoring." })}
                 </p>
               )}
             </>

@@ -35,11 +35,13 @@ import { useHiddenSettings } from "@/hooks/useHiddenSettings";
 import { useCloudInstance } from "@/hooks/useCloudInstance";
 import { InvitesSection } from "@/components/access/InvitesSection";
 import { describeError } from "@/api/errors";
+import { useTranslation } from "../i18n";
 
 const reassignmentIssueStatuses = "backlog,todo,in_progress,in_review,blocked,failed,timed_out";
 type EditableMemberStatus = "pending" | "active" | "suspended";
 
 export function CompanyAccess() {
+  const { t } = useTranslation();
   const { selectedCompany, selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const { pushToast } = useToast();
@@ -248,16 +250,16 @@ export function CompanyAccess() {
   }, [removingMember]);
 
   if (!selectedCompanyId) {
-    return <div className="text-sm text-muted-foreground">Select an organization to manage access.</div>;
+    return <div className="text-sm text-muted-foreground">{t("access.selectOrganization", { defaultValue: "Select an organization to manage access." })}</div>;
   }
 
   if (membersQuery.isLoading || membersView.kind === "reconnecting") {
-    return <div className="text-sm text-muted-foreground">Loading organization access…</div>;
+    return <div className="text-sm text-muted-foreground">{t("access.loading", { defaultValue: "Loading organization access…" })}</div>;
   }
 
   if (membersView.kind === "error") {
     if (membersView.errorKind === "forbidden") {
-      return <div className="text-sm text-destructive">You do not have permission to manage organization members.</div>;
+      return <div className="text-sm text-destructive">{t("companyAccess.permissionDeniedMembers", { defaultValue: "You do not have permission to manage organization members." })}</div>;
     }
     return (
       <QueryErrorState
@@ -290,11 +292,11 @@ export function CompanyAccess() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-5 w-5 text-muted-foreground" />
-          <h1 className="text-lg font-semibold">Organization Members</h1>
+          <h1 className="text-lg font-semibold">{t("access.membersTitle", { defaultValue: "Organization Members" })}</h1>
         </div>
         {cloudInviteUrl && (
           <Button asChild>
-            <a href={cloudInviteUrl}><UserPlus />Invite people</a>
+            <a href={cloudInviteUrl}><UserPlus />{t("access.invitePeople", { defaultValue: "Invite people" })}</a>
           </Button>
         )}
       </div>
@@ -324,7 +326,7 @@ export function CompanyAccess() {
           <div className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <h3 className="text-sm font-semibold">Pending human joins</h3>
+                <h3 className="text-sm font-semibold">{t("access.pendingJoins", { defaultValue: "Pending human joins" })}</h3>
                 <p className="text-sm text-muted-foreground">
                   Review pending join requests before they become active organization members.
                 </p>
@@ -368,11 +370,11 @@ export function CompanyAccess() {
           <table className="w-full min-w-(--sz-44rem) text-left text-sm">
             <thead>
               <tr className="border-b border-border text-muted-foreground">
-                <th className="px-3 py-2 font-medium">Name</th>
-                <th className="px-3 py-2 font-medium">Email</th>
-                <th className="px-3 py-2 font-medium">Role</th>
-                <th className="px-3 py-2 font-medium">Status</th>
-                <th className="px-3 py-2 text-right font-medium">Action</th>
+                <th className="px-3 py-2 font-medium">{t("access.name", { defaultValue: "Name" })}</th>
+                <th className="px-3 py-2 font-medium">{t("access.email", { defaultValue: "Email" })}</th>
+                <th className="px-3 py-2 font-medium">{t("access.role", { defaultValue: "Role" })}</th>
+                <th className="px-3 py-2 font-medium">{t("access.status", { defaultValue: "Status" })}</th>
+                <th className="px-3 py-2 text-right font-medium">{t("access.action", { defaultValue: "Action" })}</th>
               </tr>
             </thead>
             <tbody>
@@ -443,7 +445,7 @@ export function CompanyAccess() {
       <Dialog open={!!editingMember} onOpenChange={(open) => !open && setEditingMemberId(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Edit member</DialogTitle>
+            <DialogTitle>{t("access.editMember", { defaultValue: "Edit member" })}</DialogTitle>
             <DialogDescription>
               Update organization role and membership status for {editingMember?.user?.name || editingMember?.user?.email || editingMember?.principalId}.
             </DialogDescription>
@@ -452,7 +454,7 @@ export function CompanyAccess() {
             <div className="space-y-5">
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="space-y-2 text-sm">
-                  <span className="font-medium">Organization role</span>
+                  <span className="font-medium">{t("access.orgRole", { defaultValue: "Organization role" })}</span>
                   <select
                     className="w-full rounded-md border border-border bg-background px-3 py-2"
                     value={draftRole ?? ""}
@@ -460,7 +462,7 @@ export function CompanyAccess() {
                       setDraftRole((event.target.value || null) as CompanyMember["membershipRole"])
                     }
                   >
-                    <option value="">Unset</option>
+                    <option value="">{t("access.unset", { defaultValue: "Unset" })}</option>
                     {Object.entries(HUMAN_COMPANY_MEMBERSHIP_ROLE_LABELS).map(([value, label]) => (
                       <option key={value} value={value}>
                         {label}
@@ -469,7 +471,7 @@ export function CompanyAccess() {
                   </select>
                 </label>
                 <label className="space-y-2 text-sm">
-                  <span className="font-medium">Membership status</span>
+                  <span className="font-medium">{t("access.membershipStatus", { defaultValue: "Membership status" })}</span>
                   <select
                     className="w-full rounded-md border border-border bg-background px-3 py-2"
                     value={draftStatus}
@@ -477,9 +479,9 @@ export function CompanyAccess() {
                       setDraftStatus(event.target.value as EditableMemberStatus)
                     }
                   >
-                    <option value="active">Active</option>
-                    <option value="pending">Pending</option>
-                    <option value="suspended">Suspended</option>
+                    <option value="active">{t("access.active", { defaultValue: "Active" })}</option>
+                    <option value="pending">{t("access.pending", { defaultValue: "Pending" })}</option>
+                    <option value="suspended">{t("access.suspended", { defaultValue: "Suspended" })}</option>
                   </select>
                 </label>
               </div>
@@ -509,7 +511,7 @@ export function CompanyAccess() {
       <Dialog open={!!removingMember} onOpenChange={(open) => !open && setRemovingMemberId(null)}>
         <DialogContent className="max-w-xl">
           <DialogHeader>
-            <DialogTitle>Remove member</DialogTitle>
+            <DialogTitle>{t("access.removeMember", { defaultValue: "Remove member" })}</DialogTitle>
             <DialogDescription>
               Archive {memberDisplayName(removingMember)} and move active assignments before hiding this user from assignment fields.
             </DialogDescription>
@@ -528,15 +530,15 @@ export function CompanyAccess() {
 
               {assignedIssues.length > 0 ? (
                 <div className="space-y-2">
-                  <div className="text-sm font-medium">Task reassignment</div>
+                  <div className="text-sm font-medium">{t("access.taskReassignment", { defaultValue: "Task reassignment" })}</div>
                   <select
                     className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
                     value={reassignmentTarget}
                     onChange={(event) => setReassignmentTarget(event.target.value)}
                   >
-                    <option value="__unassigned">Leave unassigned</option>
+                    <option value="__unassigned">{t("access.leaveUnassigned", { defaultValue: "Leave unassigned" })}</option>
                     {activeReassignmentUsers.length > 0 ? (
-                      <optgroup label="Humans">
+                      <optgroup label={t("access.humans", { defaultValue: "Humans" })}>
                         {activeReassignmentUsers.map((member) => (
                           <option key={member.id} value={`user:${member.principalId}`}>
                             {memberDisplayName(member)}
@@ -545,7 +547,7 @@ export function CompanyAccess() {
                       </optgroup>
                     ) : null}
                     {activeReassignmentAgents.length > 0 ? (
-                      <optgroup label="Agents">
+                      <optgroup label={t("access.agents", { defaultValue: "Agents" })}>
                         {activeReassignmentAgents.map((agent) => (
                           <option key={agent.id} value={`agent:${agent.id}`}>
                             {agent.name} ({agent.role})
@@ -603,6 +605,7 @@ export function CompanyAccess() {
 }
 
 export function CompanyAccessLegacyRoute() {
+  const { t } = useTranslation();
   const { selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const { slots, isLoading, errorMessage } = usePluginSlots({
@@ -624,7 +627,7 @@ export function CompanyAccessLegacyRoute() {
   }
 
   if (isLoading) {
-    return <div className="text-sm text-muted-foreground">Checking for advanced permission extensions...</div>;
+    return <div className="text-sm text-muted-foreground">{t("access.checkingAdvanced", { defaultValue: "Checking for advanced permission extensions..." })}</div>;
   }
 
   return (
@@ -632,7 +635,7 @@ export function CompanyAccessLegacyRoute() {
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-muted-foreground" />
-          <h1 className="text-lg font-semibold">Advanced Permissions</h1>
+          <h1 className="text-lg font-semibold">{t("access.advancedTitle", { defaultValue: "Advanced Permissions" })}</h1>
         </div>
         <p className="text-sm text-muted-foreground">
           Advanced access, scoped assignment, and explicit grant controls are provided by installed organization settings extensions.
@@ -641,7 +644,7 @@ export function CompanyAccessLegacyRoute() {
 
       <div className="space-y-4 rounded-xl border border-border px-5 py-5">
         <div className="space-y-2">
-          <h2 className="text-sm font-semibold">Advanced permissions unavailable</h2>
+          <h2 className="text-sm font-semibold">{t("access.advancedUnavailable", { defaultValue: "Advanced permissions unavailable" })}</h2>
           <p className="text-sm text-muted-foreground">
             Core Paperclip keeps enforcing organization boundaries and any existing restrictive policy data, but editing advanced permissions requires an installed extension.
           </p>
@@ -651,10 +654,10 @@ export function CompanyAccessLegacyRoute() {
         </div>
         <div className="flex flex-wrap gap-2">
           <Button asChild>
-            <Link to="/company/settings/members">Open Members</Link>
+            <Link to="/company/settings/members">{t("access.openMembers", { defaultValue: "Open Members" })}</Link>
           </Button>
           <Button asChild variant="outline">
-            <Link to="/company/settings/members?tab=invites">Open Invites</Link>
+            <Link to="/company/settings/members?tab=invites">{t("access.openInvites", { defaultValue: "Open Invites" })}</Link>
           </Button>
         </div>
       </div>
@@ -707,6 +710,7 @@ function PendingJoinRequestCard({
   onApprove: () => void;
   onReject: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="py-3">
       <div className="flex flex-wrap items-start justify-between gap-4">

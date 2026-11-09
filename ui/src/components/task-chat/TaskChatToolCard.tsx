@@ -13,6 +13,7 @@ import { toolTaxonomy } from "./tool-taxonomy";
 import { useTaskChatShimmer } from "./TaskChatShimmer";
 import { TaskChatDiffCounts, TaskChatDiffView } from "./TaskChatDiffView";
 import { useTaskReferenceLabel, withTaskReference } from "./task-reference";
+import { useTranslation } from "../../i18n";
 
 const STATUS_ICON = {
   pending: { Icon: Loader2, spin: false, tone: "text-muted-foreground" },
@@ -48,6 +49,7 @@ function TaskReferenceToolTarget({ taskRefId, target }: { taskRefId: string; tar
  * height-capped diff of that one edit.
  */
 export function TaskChatToolCard({ item }: { item: TaskChatToolItem }) {
+  const { t } = useTranslation();
   const { Icon, spin, tone } = STATUS_ICON[item.status];
   const shimmer = useTaskChatShimmer(item.id);
   const RowIcon = toolTaxonomy(item.rawName ?? item.name).icon;
@@ -122,7 +124,7 @@ export function TaskChatToolCard({ item }: { item: TaskChatToolItem }) {
           />
           {item.status === "interrupted" ? (
             <span className="text-(length:--text-micro) text-muted-foreground">
-              Interrupted
+              {t("taskChat.toolInterrupted", { defaultValue: "Interrupted" })}
             </span>
           ) : null}
         </span>
@@ -151,7 +153,7 @@ export function TaskChatToolCard({ item }: { item: TaskChatToolItem }) {
             data-testid="task-chat-tool-change-summary"
           >
             <div className="flex min-w-0 items-center gap-2 text-(length:--text-micro) text-muted-foreground">
-              <span className="shrink-0">Changed</span>
+              <span className="shrink-0">{t("taskChat.toolChanged", { defaultValue: "Changed" })}</span>
               {item.diff.path ? (
                 <span className="min-w-0 truncate font-mono text-foreground">
                   {item.diff.path}

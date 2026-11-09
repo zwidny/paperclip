@@ -1,3 +1,4 @@
+import type { TFunction } from "i18next";
 import { Brain, CirclePause, Gauge, Layers3 } from "lucide-react";
 import type { TaskChatActivityPhaseItem } from "./task-chat-model";
 import {
@@ -25,8 +26,12 @@ const labels: Record<ToolFamily, string> = {
   other: "Used tools",
 };
 
+function translated(t: TFunction | undefined, key: string, english: string): string {
+  return t ? t(`completedActivity.${key}`, { defaultValue: english }) : english;
+}
+
 /** Describe observed activities, never infer success from a finished group. */
-export function completedActivitySummary(items: Activity[]) {
+export function completedActivitySummary(items: Activity[], t?: TFunction) {
   const categories = new Map<
     string,
     { label: string; icon: ToolIcon; order: number }
@@ -121,7 +126,7 @@ export function completedActivitySummary(items: Activity[]) {
               workspace_file: "Referenced files",
               resource: "Added resources",
             } as Record<string, string>
-          )[family] ?? "Used tools";
+          )[family] ?? translated(t, "usedTools", "Used tools");
         add(label, p.icon, order);
       }
     }
@@ -131,12 +136,12 @@ export function completedActivitySummary(items: Activity[]) {
       ?? notices.find((notice) => notice.severity === "warning")
       ?? notices[0]!;
     const label = notices.length === 1
-      ? strongest.summary || "Received a provider update"
+      ? strongest.summary || translated(t, "receivedProviderUpdate", "Received a provider update")
       : strongest.severity === "error"
-        ? "Provider error reported"
+        ? translated(t, "providerErrorReported", "Provider error reported")
         : strongest.severity === "warning"
-          ? "Provider warning reported"
-          : "Received provider updates";
+          ? translated(t, "providerWarningReported", "Provider warning reported")
+          : translated(t, "receivedProviderUpdates", "Received provider updates");
     // One notice category leaves room for actual work. Keep warnings and errors
     // visible when the compact label truncates other activity categories.
     add(label, strongest.icon, strongest.severity === "info" ? notices[0]!.order : -1);
@@ -149,10 +154,10 @@ export function completedActivitySummary(items: Activity[]) {
     const succeeded = completedFamilies.has(tool.family);
     const label =
       tool.family === "read" && !succeeded
-        ? "Checked files"
+        ? translated(t, "checkedFiles", "Checked files")
         : tool.family === "edit" && !succeeded
-          ? "Worked on files"
-          : labels[tool.family];
+          ? translated(t, "workedOnFiles", "Worked on files")
+          : translated(t, `family.${tool.family}`, labels[tool.family]);
     add(label, tool.icon, tool.order);
   }
   if (!categories.size) {
@@ -176,7 +181,7 @@ export function completedActivitySummary(items: Activity[]) {
   return {
     label:
       values.length > 3
-        ? `${join(values.slice(0, 2).map((v) => v.label))}, and more`
+        ? `${join(values.slice(0, 2).map((v) => v.label))}, ${translated(t, "andMore", "and more")}`
         : fullLabel,
     fullLabel,
     icon: values.length === 1 ? values[0].icon : Layers3,

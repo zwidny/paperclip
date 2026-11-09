@@ -26,6 +26,7 @@ import {
   paperclipRunnerFinalResponse,
   paperclipRunnerTimelineItems,
 } from "./transcript-adapter";
+import { useTranslation } from "../../i18n";
 
 function currentActivityStatusItems(
   items: readonly TaskChatItem[],
@@ -79,6 +80,7 @@ function RunnerTurnStatus({
   continuedAfterSteering?: boolean;
   waitingLabel?: string | null;
 }) {
+  const { t } = useTranslation();
   const terminal = isTerminalRunStatus(status);
   useSecondTick(!terminal && startedAtMs != null);
   const elapsedMs =
@@ -91,7 +93,11 @@ function RunnerTurnStatus({
   const elapsed = formatCompactDuration(elapsedMs);
 
   const failed = terminalStatusFailed(status);
-  const label = terminal ? (failed ? "Stopped" : "Worked") : waitingLabel ?? "Working";
+  const label = terminal
+    ? failed
+      ? t("taskChat.pillStopped", { defaultValue: "Stopped" })
+      : t("taskChat.pillWorked", { defaultValue: "Worked" })
+    : waitingLabel ?? t("taskChat.pillWorking", { defaultValue: "Working" });
   const suffix = terminal
     ? elapsed ? ` ${failed ? "after" : "for"} ${elapsed}` : ""
     : waitingLabel ? elapsed ? ` · ${elapsed}` : "" : ` for ${elapsed ?? "0s"}`;
@@ -104,17 +110,18 @@ function RunnerTurnStatus({
       aria-live="polite"
       aria-atomic="true"
     >
-      {continuedAfterSteering ? <span data-conversation-meta="">Continued after steering · </span> : null}
+      {continuedAfterSteering ? <span data-conversation-meta="">{t("taskChat.continuedAfterSteering", { defaultValue: "Continued after steering · " })}</span> : null}
       {label}<span data-conversation-meta="">{suffix}</span>
     </span>
   );
 }
 
 function RunnerCurrentActivityTail({ status, waitingLabel }: { status: string; waitingLabel?: string | null }) {
+  const { t } = useTranslation();
   const shimmer = useTaskChatShimmer("working");
   if (isTerminalRunStatus(status)) return null;
   return <div className="mt-2 flex min-h-8 min-w-0 items-center gap-2 px-1 py-1 text-xs text-muted-foreground" data-testid="task-chat-current-activity" data-turn-position="tail">
-    <span className={cn(!waitingLabel && shimmer && "shimmer-text shimmer-text-muted")} aria-live="polite" data-testid="task-chat-current-activity-label">{waitingLabel ?? "Thinking"}</span>
+    <span className={cn(!waitingLabel && shimmer && "shimmer-text shimmer-text-muted")} aria-live="polite" data-testid="task-chat-current-activity-label">{waitingLabel ?? t("taskChat.thinking", { defaultValue: "Thinking" })}</span>
   </div>;
 }
 
@@ -197,6 +204,7 @@ export function TaskChatRunnerTurn({
     decision: TaskChatRuntimeRequestDecision,
   ) => void | Promise<void>;
 }) {
+  const { t } = useTranslation();
   const { failures: mcpStartupFailures, rest: turnItems } = partitionRunHealthItems(items);
   const terminal = isTerminalRunStatus(status);
   const waitingLabel = runnerWaitingLabel({ runId, status, execution, preparationLabel, startedAtMs });
@@ -266,7 +274,7 @@ export function TaskChatRunnerTurn({
           role="status"
           data-testid="task-chat-activity-unavailable"
         >
-          Live runner activity is temporarily unavailable. Retrying…
+          {t("taskChatRunnerTurn.activityUnavailable", { defaultValue: "Live runner activity is temporarily unavailable. Retrying…" })}
         </div>
       ) : null}
       {timelineRows.length > 0 ? (

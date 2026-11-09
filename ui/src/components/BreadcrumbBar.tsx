@@ -17,6 +17,7 @@ import { Fragment, useMemo, type ReactNode } from "react";
 import { PluginSlotOutlet, usePluginSlots } from "@/plugins/slots";
 import { PluginLauncherOutlet, usePluginLaunchers } from "@/plugins/launchers";
 import { cn } from "../lib/utils";
+import { useTranslation } from "../i18n";
 import { useCoordinatorPresentation } from "./coordinator/CoordinatorPresentation";
 
 type GlobalToolbarContext = { companyId: string | null; companyPrefix: string | null };
@@ -54,6 +55,7 @@ function GlobalToolbar({
 }
 
 export function BreadcrumbBar({ taskDetailLayout = false, showPropertiesToggle = taskDetailLayout }: { taskDetailLayout?: boolean; showPropertiesToggle?: boolean }) {
+  const { t } = useTranslation();
   const coordinatorEnabled = useCoordinatorPresentation();
   const {
     breadcrumbs,
@@ -116,7 +118,7 @@ export function BreadcrumbBar({ taskDetailLayout = false, showPropertiesToggle =
       size="icon-sm"
       className="mr-2 shrink-0"
       onClick={toggleSidebar}
-      aria-label="Open sidebar"
+      aria-label={t("breadcrumbBar.openSidebar", { defaultValue: "Open sidebar" })}
     >
       <Menu className="h-5 w-5" />
     </Button>

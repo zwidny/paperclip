@@ -6,6 +6,7 @@ import { QueryErrorState, useQueryView } from "@/components/QueryView";
 import { queryKeys } from "@/lib/queryKeys";
 import { AgentMultiSelect } from "@/components/AgentMultiSelect";
 import { RadioCardGroup } from "@/components/ui/radio-card";
+import { useTranslation } from "../i18n";
 
 export function EmailConnectionAccess({
   companyId,
@@ -16,6 +17,7 @@ export function EmailConnectionAccess({
   connectionId: string;
   agents: Agent[];
 }) {
+  const { t } = useTranslation();
   const cache = useQueryClient();
   const grants = useQuery({
     queryKey: queryKeys.tools.connectionGrants(connectionId),
@@ -48,17 +50,17 @@ export function EmailConnectionAccess({
       />
     );
   if (grants.isLoading || installs.isLoading || grantsView.kind === "reconnecting" || installsView.kind === "reconnecting")
-    return <p className="text-sm text-muted-foreground">Loading access…</p>;
+    return <p className="text-sm text-muted-foreground">{t("emailConnectionAccess.loading", { defaultValue: "Loading access…" })}</p>;
   const active = grants.data?.grants.filter((g) => g.status === "active") ?? [];
   const everyone = active.some((g) => g.kind === "organization");
   const personal = active.find((g) => g.kind === "user");
   const humanLabel = everyone
-    ? "Any human in the organization"
+    ? t("emailConnectionAccess.humansAny", { defaultValue: "Any human in the organization" })
     : personal
       ? personal.subjectUserId === grants.data?.currentUserId
-        ? "Just me"
-        : "Only the credential owner"
-      : "Access revoked";
+        ? t("emailConnectionAccess.humansJustMe", { defaultValue: "Just me" })
+        : t("emailConnectionAccess.humansOwner", { defaultValue: "Only the credential owner" })
+      : t("emailConnectionAccess.humansRevoked", { defaultValue: "Access revoked" });
   const allAgents =
     installs.data?.installs.some((i) => i.targetType === "company") ?? false;
   const selected = new Set(
@@ -71,22 +73,22 @@ export function EmailConnectionAccess({
     <div className="space-y-8">
       <section className="space-y-3">
         <h2 className="text-sm font-semibold">
-          Which humans can use this credential?
+          {t("emailConnectionAccess.humansHeading", { defaultValue: "Which humans can use this credential?" })}
         </h2>
         <p className="text-sm">{humanLabel}</p>
       </section>
       <section className="space-y-4">
         <h2 className="text-sm font-semibold">
-          Which agents can use this connection?
+          {t("emailConnectionAccess.agentsHeading", { defaultValue: "Which agents can use this connection?" })}
         </h2>
         <RadioCardGroup
-          ariaLabel="Which agents can use this connection"
+          ariaLabel={t("emailConnectionAccess.agentsAria", { defaultValue: "Which agents can use this connection" })}
           value={allAgents ? "all" : "selected"}
           disabled={disabled}
           className="sm:grid-cols-2"
           options={[
-            { value: "selected", title: "Just agents I pick" },
-            { value: "all", title: "Any agent" },
+            { value: "selected", title: t("emailConnectionAccess.agentsPick", { defaultValue: "Just agents I pick" }) },
+            { value: "all", title: t("emailConnectionAccess.agentsAny", { defaultValue: "Any agent" }) },
           ]}
           onValueChange={(value) =>
             save.mutate(
@@ -115,7 +117,7 @@ export function EmailConnectionAccess({
           />
         )}
         <p className="text-xs text-muted-foreground">
-          Removing an assigned agent stops receiving and sending from its inbox.
+          {t("emailConnectionAccess.removalNote", { defaultValue: "Removing an assigned agent stops receiving and sending from its inbox." })}
         </p>
         {save.error && (
           <p role="alert" className="text-sm text-destructive">

@@ -6,10 +6,12 @@ import { buildDocumentAnnotationHash } from "@/lib/document-annotation-hash";
 import { useCoordinatorPresentation } from "@/components/coordinator/CoordinatorPresentation";
 import { useTaskChatShimmer } from "./TaskChatShimmer";
 import type { TaskChatProviderActivityItem } from "./task-chat-model";
+import type { TFunction } from "i18next";
+import { useTranslation } from "../../i18n";
 
 const PLAN_PREVIEW_LINE_COUNT = 3;
 
-export function planPreviewContent(markdown: string) {
+export function planPreviewContent(markdown: string, t?: TFunction) {
   const lines = markdown
     .split("\n")
     .map((line) => line.trim())
@@ -17,7 +19,7 @@ export function planPreviewContent(markdown: string) {
   const headingIndex = lines.findIndex((line) => /^#\s+/.test(line));
   const title = headingIndex >= 0
     ? lines[headingIndex]!.replace(/^#\s+/, "").trim()
-    : "Plan";
+    : planFallbackTitle(t);
   const preview = lines
     // Section headings ("## Steps") are structure, not plan content.
     .filter((line, index) => index !== headingIndex && !/^#{1,6}\s+/.test(line) && !/^(```|~~~|---+$|\*\*\*+$|___+$)/.test(line))
@@ -56,7 +58,11 @@ export interface TaskChatPlanPreviewCardProps {
   className?: string;
 }
 
-function livePlanContent(activity: TaskChatProviderActivityItem) {
+function planFallbackTitle(t?: TFunction): string {
+  return t ? t("taskChat.planTitle", { defaultValue: "Plan" }) : "Plan";
+}
+
+function livePlanContent(activity: TaskChatProviderActivityItem, t?: TFunction) {
   // A proposed-plan document streams as markdown; a checklist streams as steps.
   if (activity.output?.trim()) {
     const fromMarkdown = planPreviewContent(activity.output);
@@ -64,7 +70,7 @@ function livePlanContent(activity: TaskChatProviderActivityItem) {
   }
   const title = activity.title.trim() && activity.title.trim().toLowerCase() !== "plan"
     ? activity.title.trim()
-    : "Plan";
+    : planFallbackTitle(t);
   const preview = activity.steps
     .map((step) => step.label.trim())
     .filter(Boolean)
@@ -92,14 +98,15 @@ export function TaskChatPlanPreviewCard({
   testId = "task-chat-plan-preview",
   className,
 }: TaskChatPlanPreviewCardProps) {
+  const { t } = useTranslation();
   const coordinator = useCoordinatorPresentation();
   const shimmer = useTaskChatShimmer(source.kind === "live" ? source.activity.id : "saved-plan");
   const revision = planRevision(source);
   const content = source.kind === "saved" && source.document
-    ? planPreviewContent(source.document.body)
+    ? planPreviewContent(source.document.body, t)
     : source.kind === "saved"
-      ? { title: source.fallbackTitle?.trim() || "Plan", preview: [] as string[] }
-      : livePlanContent(source.activity);
+      ? { title: source.fallbackTitle?.trim() || planFallbackTitle(t), preview: [] as string[] }
+      : livePlanContent(source.activity, t);
   const live = source.kind === "live";
   if (coordinator) {
     const document = source.kind === "saved" ? source.document : null;
@@ -109,19 +116,28 @@ export function TaskChatPlanPreviewCard({
       : href;
     const compactClassName = cn("inline-flex max-w-full items-center gap-2 rounded-lg border border-border bg-muted/25 px-3 py-2.5 text-sm text-muted-foreground",
       targetHref && "transition-colors hover:bg-muted/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", className);
-    const compactBody = <><FileText className="size-4 shrink-0" aria-hidden /><span className="shrink-0">{live ? "Writing" : "Open"}</span>{" "}
+    const openLabel = t("taskChat.openItem", { defaultValue: "Open" });
+    const compactBody = <><FileText className="size-4 shrink-0" aria-hidden /><span className="shrink-0">{live
+      ? t("taskChat.writing", { defaultValue: "Writing" })
+      : openLabel}</span>{" "}
       <span className={cn("min-w-0 truncate text-foreground", targetHref && "underline underline-offset-4", live && shimmer && "shimmer-text shimmer-text-muted")}>{content.title}</span>
-      {targetHref ? <span className="hidden shrink-0 sm:inline">{" "}in the sidebar</span> : null}</>;
+      {targetHref ? <span className="hidden shrink-0 sm:inline">{" "}{t("taskChat.inSidebar", { defaultValue: "in the sidebar" })}</span> : null}</>;
     return targetHref ? <SidebarDocumentLink href={targetHref} testId={testId}
-      ariaLabel={ariaLabel ?? `Open ${content.title}${revision == null ? "" : ` revision ${revision}`} in task sidebar`} className={className}>
-      <span className="shrink-0">Open</span>{" "}<span className="min-w-0 truncate text-foreground underline underline-offset-4">{content.title}</span>
-      <span className="hidden shrink-0 sm:inline">{" "}in the sidebar</span>
+      ariaLabel={ariaLabel ?? t("taskChat.openPlanInSidebarAria", {
+        defaultValue: "Open {{title}}{{revision}} in task sidebar",
+        title: content.title,
+        revision: revision == null
+          ? ""
+          : t("taskChat.planRevisionSuffix", { defaultValue: " revision {{revision}}", revision }),
+      })} className={className}>
+      <span className="shrink-0">{openLabel}</span>{" "}<span className="min-w-0 truncate text-foreground underline underline-offset-4">{content.title}</span>
+      <span className="hidden shrink-0 sm:inline">{" "}{t("taskChat.inSidebar", { defaultValue: "in the sidebar" })}</span>
     </SidebarDocumentLink>
-      : <section data-testid={testId} aria-label={ariaLabel ?? "Writing plan"} className={compactClassName}>{compactBody}</section>;
+      : <section data-testid={testId} aria-label={ariaLabel ?? t("taskChat.writingPlan", { defaultValue: "Writing plan" })} className={compactClassName}>{compactBody}</section>;
   }
   const headerDetail = revision == null
     ? null
-    : `rev ${revision}`;
+    : t("taskChat.revLabel", { defaultValue: "rev {{revision}}", revision });
   const body = (
     <>
       <div className="flex items-center gap-2 border-b border-border/70 px-3 py-2.5 text-sm text-muted-foreground">
@@ -130,7 +146,9 @@ export function TaskChatPlanPreviewCard({
           className={cn("h-4 w-4 shrink-0", live && "text-(--status-agent-running)")}
         />
         <span className={cn("font-medium", live && shimmer && "shimmer-text shimmer-text-muted")} data-testid={live ? "task-chat-plan-streaming-status" : undefined}>
-          {live ? "Writing plan" : "Plan"}
+          {live
+            ? t("taskChat.writingPlan", { defaultValue: "Writing plan" })
+            : planFallbackTitle(t)}
         </span>
         {headerDetail ? (
           <span
@@ -159,7 +177,11 @@ export function TaskChatPlanPreviewCard({
           </ul>
         ) : (
           <p className="mt-1 text-sm text-muted-foreground">
-            {live ? "Waiting for the first plan step…" : "Open the synchronized plan to review it."}
+            {live
+              ? t("taskChat.waitingFirstPlanStep", { defaultValue: "Waiting for the first plan step…" })
+              : t("taskChat.openSynchronizedPlan", {
+                defaultValue: "Open the synchronized plan to review it.",
+              })}
           </p>
         )}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-linear-to-b from-transparent to-card/95" />
@@ -177,7 +199,12 @@ export function TaskChatPlanPreviewCard({
       <a
         href={href}
         data-testid={testId}
-        aria-label={ariaLabel ?? `Open Plan${revision == null ? "" : ` revision ${revision}`}`}
+        aria-label={ariaLabel ?? t("taskChat.openPlanAriaLabel", {
+          defaultValue: "Open Plan{{revision}}",
+          revision: revision == null
+            ? ""
+            : t("taskChat.planRevisionSuffix", { defaultValue: " revision {{revision}}", revision }),
+        })}
         className={sharedClassName}
       >
         {body}
@@ -187,7 +214,7 @@ export function TaskChatPlanPreviewCard({
 
   return (
     <section
-      aria-label={ariaLabel ?? "Streaming Plan preview"}
+      aria-label={ariaLabel ?? t("taskChat.streamingPlanPreview", { defaultValue: "Streaming Plan preview" })}
       data-testid={testId}
       className={sharedClassName}
     >

@@ -9,6 +9,7 @@ import { TaskChatThinking } from "./TaskChatThinking";
 import { TaskChatProtocolCard } from "./TaskChatProtocolCard";
 import { buildTurnTimelineRows } from "./transcript-adapter";
 import { visibleTranscriptPlaceholder } from "./TaskChatShimmer";
+import { useTranslation } from "../../i18n";
 
 /**
  * Live body for legacy runner transcripts. The adapter drops debug plumbing;
@@ -36,6 +37,7 @@ export function TaskChatLiveTail({
     decision: TaskChatRuntimeRequestDecision,
   ) => void | Promise<void>;
 }) {
+  const { t } = useTranslation();
   const visibleItems = excludeFinal
     ? items.filter((item) => item.kind !== "message" || item.interstitial)
     : items;

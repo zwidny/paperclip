@@ -10,12 +10,14 @@ import { SourceTrustBadge } from "@/components/SourceTrustBadge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Link } from "@/lib/router";
+import { useTranslation } from "../../i18n";
 
 /** Read-only current content and revision browsing, with no editor or restore path. */
 export function CaseDocumentPreview({ caseIdentifier, document: documentRef }: {
   caseIdentifier: string;
   document: CaseDocumentRef | CaseTaskDocumentRef;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const taskRef = "sourceKind" in documentRef ? documentRef : null;
@@ -32,22 +34,22 @@ export function CaseDocumentPreview({ caseIdentifier, document: documentRef }: {
       <Button variant="ghost" aria-label={documentRef.document.title ?? documentRef.key} className="h-auto w-full justify-start gap-3 rounded-none px-0 py-3 text-left font-normal whitespace-normal">
         <FileText aria-hidden className="size-4 shrink-0 text-muted-foreground" />
         <span className="min-w-0 flex-1">{documentRef.document.title ?? documentRef.key}</span>
-        {taskRef && <span className="shrink-0 font-mono text-xs text-muted-foreground">{taskRef.taskIdentifier ?? "Task"}</span>}
+        {taskRef && <span className="shrink-0 font-mono text-xs text-muted-foreground">{taskRef.taskIdentifier ?? t("caseDocumentPreview.taskFallback", { defaultValue: "Task" })}</span>}
       </Button>
     </DialogTrigger>
     <DialogContent className="max-h-(--pct-80) overflow-y-auto sm:max-w-3xl">
       <DialogHeader>
         <DialogTitle>{title}</DialogTitle>
         <DialogDescription>
-          {taskRef ? <Link to={`/issues/${taskRef.taskIdentifier ?? taskRef.taskId}#document-${encodeURIComponent(taskRef.key)}`} className="hover:underline">{taskRef.taskIdentifier ?? "Task document"}</Link> : `${caseIdentifier} · Saved on case`}
-          {document?.latestRevisionNumber != null ? ` · Revision ${document.latestRevisionNumber}` : ""}
+          {taskRef ? <Link to={`/issues/${taskRef.taskIdentifier ?? taskRef.taskId}#document-${encodeURIComponent(taskRef.key)}`} className="hover:underline">{taskRef.taskIdentifier ?? t("caseDocumentPreview.taskDocument", { defaultValue: "Task document" })}</Link> : `${caseIdentifier} ${t("caseDocumentPreview.savedOnCaseSuffix", { defaultValue: "· Saved on case" })}`}
+          {document?.latestRevisionNumber != null ? ` ${t("caseDocumentPreview.revisionSuffix", { defaultValue: "· Revision {{number}}", number: document.latestRevisionNumber })}` : ""}
         </DialogDescription>
       </DialogHeader>
-      {current.isLoading ? <p className="text-sm text-muted-foreground">Loading document…</p> : (currentView.kind === "error") ? <p role="alert" className="text-sm text-destructive">This document couldn’t be loaded.</p> : document ? <div className="space-y-6">
+      {current.isLoading ? <p className="text-sm text-muted-foreground">{t("caseDocumentPreview.loadingDocument", { defaultValue: "Loading document…" })}</p> : (currentView.kind === "error") ? <p role="alert" className="text-sm text-destructive">{t("caseDocumentPreview.loadFailed", { defaultValue: "This document couldn’t be loaded." })}</p> : document ? <div className="space-y-6">
         <SourceTrustBadge sourceTrust={document.sourceTrust} artifactLabel="document" />
-        {document.body ? <MarkdownBody linkIssueReferences linkCaseReferences>{document.body}</MarkdownBody> : <p className="text-sm text-muted-foreground">This document is empty.</p>}
+        {document.body ? <MarkdownBody linkIssueReferences linkCaseReferences>{document.body}</MarkdownBody> : <p className="text-sm text-muted-foreground">{t("caseDocumentPreview.emptyDocument", { defaultValue: "This document is empty." })}</p>}
         <details open={historyOpen} onToggle={event => setHistoryOpen(event.currentTarget.open)} className="space-y-3">
-          <summary className="w-fit cursor-pointer text-sm text-muted-foreground hover:text-foreground">Revision history</summary>
+          <summary className="w-fit cursor-pointer text-sm text-muted-foreground hover:text-foreground">{t("caseDocumentPreview.revisionHistory", { defaultValue: "Revision history" })}</summary>
           {historyOpen && <CaseRevisionRail caseIdentifier={caseIdentifier} documentKey={documentRef.key} taskId={taskRef?.taskId} />}
         </details>
       </div> : null}

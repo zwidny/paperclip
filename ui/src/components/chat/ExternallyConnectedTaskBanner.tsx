@@ -39,6 +39,7 @@ import {
   type BoardSendRejection,
   type RetainedBoardSend,
 } from "./board-send-draft";
+import { t as translate, useTranslation } from "../../i18n";
 
 import { LegacyBoardSendNotice } from "./LegacyBoardSendNotice";
 
@@ -120,6 +121,19 @@ const filePhaseLabels: Record<ChatFileTransferPhase, string> = {
   conflict: "File delivery needs review",
 };
 
+function publicationFeedbackFor(state: ChatPublicationState): PublicationFeedback {
+  const feedback = publicationFeedback[state];
+  return {
+    title: translate(`externalTaskBanner.publication.${state}.title`, { defaultValue: feedback.title }),
+    body: translate(`externalTaskBanner.publication.${state}.body`, { defaultValue: feedback.body }),
+    tone: feedback.tone,
+  };
+}
+
+function filePhaseLabel(phase: ChatFileTransferPhase): string {
+  return translate(`externalTaskBanner.filePhase.${phase}`, { defaultValue: filePhaseLabels[phase] });
+}
+
 export function useIssueChatBinding(companyId: string, issueId: string) {
   const { enabled, githubEnabled } = useChatConnectorsEnabled();
   const queryEnabled = (enabled || githubEnabled) && Boolean(companyId && issueId) && !issueId.startsWith("chat:");
@@ -166,6 +180,7 @@ function ConnectedTaskComposer({
   binding,
   draftOwner,
 }: ConnectedTaskProps & { binding: ExternalChannelBindingSummary; draftOwner: string }) {
+  const { t } = useTranslation();
   const readOwner = useDraftOwnerReader();
   const { pushToast } = useToast();
   const queryClient = useQueryClient();
@@ -219,7 +234,7 @@ function ConnectedTaskComposer({
     try {
       if (sessionStorage.getItem(legacyStorageKey) !== null) {
         setUnownedRequest(true);
-        setStorageError("An earlier update has an unknown sender. Open Activity to check its delivery before starting a new update.");
+        setStorageError(t("externalTaskBanner.unknownSender", { defaultValue: "An earlier update has an unknown sender. Open Activity to check its delivery before starting a new update." }));
         setComposing(true);
         return;
       }
@@ -238,7 +253,7 @@ function ConnectedTaskComposer({
       setStorageError(null);
     } catch {
       setStorageError(
-        "Saved delivery identity could not be read. Check Activity and restore browser storage before starting another send.",
+        t("externalTaskBanner.storageReadFailed", { defaultValue: "Saved delivery identity could not be read. Check Activity and restore browser storage before starting another send." }),
       );
       setComposing(true);
     }
@@ -280,7 +295,7 @@ function ConnectedTaskComposer({
     setUploadError(null);
     setComposing(false);
     invalidateTask();
-    pushToast(publicationFeedback.published);
+    pushToast(publicationFeedbackFor("published"));
   }, [invalidateTask, pushToast, storageKey]);
   // Keep the first returned ID as the anchor. A batch's blocking row may
   // change as text and files finish; no read is allowed to submit another send.
@@ -329,7 +344,7 @@ function ConnectedTaskComposer({
       endpointId: string;
       conversationId: string;
     }) => {
-      if (readOwner() !== draftOwner) throw new DOMException("Your account changed. Reopen this task to send from your current account.", "AbortError");
+      if (readOwner() !== draftOwner) throw new DOMException(t("externalTaskBanner.accountChanged", { defaultValue: "Your account changed. Reopen this task to send from your current account." }), "AbortError");
       return chatEndpointsApi.publishBoardMessage(
         input.endpointId,
         input.conversationId,
@@ -340,7 +355,7 @@ function ConnectedTaskComposer({
     },
     onSuccess: (result) => {
       invalidateTask();
-      const feedback = publicationFeedback[result.state];
+      const feedback = publicationFeedbackFor(result.state);
       setPublication(result.state === "published" ? null : result);
       if (result.state === "published") {
         finishPublication();
@@ -366,7 +381,7 @@ function ConnectedTaskComposer({
       pushToast({
         ...feedback,
         action: {
-          label: "View activity",
+          label: t("externalTaskBanner.viewActivity", { defaultValue: "View activity" }),
           href: `/apps/chat/${binding!.endpointId}/activity`,
         },
       });
@@ -380,7 +395,7 @@ function ConnectedTaskComposer({
           writeBoardSendDraft(storageKey, saved);
         } catch {
           setStorageError(
-            "The rejected send could not be saved. Restore browser storage, then retry this same request to recover its receipt.",
+            t("externalTaskBanner.rejectedNotSaved", { defaultValue: "The rejected send could not be saved. Restore browser storage, then retry this same request to recover its receipt." }),
           );
           return;
         }
@@ -389,8 +404,8 @@ function ConnectedTaskComposer({
         setUnconfirmedRequest(false);
         invalidateTask();
         pushToast({
-          title: "Update was not sent",
-          body: "A selected file already belongs to another comment. Edit the rejected send to correct the selection.",
+          title: t("externalTaskBanner.updateNotSent", { defaultValue: "Update was not sent" }),
+          body: t("externalTaskBanner.updateNotSentBody", { defaultValue: "A selected file already belongs to another comment. Edit the rejected send to correct the selection." }),
           tone: "error",
         });
         return;
@@ -399,8 +414,8 @@ function ConnectedTaskComposer({
       // identity; the inline notice covers them.
       if (classifySendFailure(error) === "pending") return;
       pushToast({
-        title: "Couldn't confirm channel delivery",
-        body: `${describeError(error).body} Your draft is kept; retrying here reuses the same request identity.`,
+        title: t("externalTaskBanner.deliveryNotConfirmed", { defaultValue: "Couldn't confirm channel delivery" }),
+        body: `${describeError(error).body} ${t("externalTaskBanner.draftKept", { defaultValue: "Your draft is kept; retrying here reuses the same request identity." })}`,
         tone: "error",
       });
     },
@@ -468,7 +483,7 @@ function ConnectedTaskComposer({
     } catch (error) {
       if (mounted.current) {
         setUploadError(
-          `${describeError(error).body} No channel message was sent. Check task files before retrying the upload.`,
+          `${describeError(error).body} ${t("externalTaskBanner.uploadNotConfirmedSuffix", { defaultValue: "No channel message was sent. Check task files before retrying the upload." })}`,
         );
       }
     } finally {
@@ -514,7 +529,7 @@ function ConnectedTaskComposer({
             ?.name ??
           taskAttachments.find((attachment) => attachment.id === id)
             ?.originalFilename ??
-          "Selected task file (details unavailable)",
+          t("externalTaskBanner.selectedTaskFile", { defaultValue: "Selected task file (details unavailable)" }),
       }))
     : taskAttachments.filter(
         (attachment) =>
@@ -531,24 +546,24 @@ function ConnectedTaskComposer({
     canDismissBoardSendBatch(batch) && batch!.published < batch!.total;
   const currentFeedback = mixedTerminal
     ? {
-        title: "Delivery settled with mixed outcomes",
-        body: "Not every part was confirmed delivered. Review the outcomes below; dismissing this receipt does not resend anything.",
+        title: t("externalTaskBanner.mixedOutcomesTitle", { defaultValue: "Delivery settled with mixed outcomes" }),
+        body: t("externalTaskBanner.mixedOutcomesBody", { defaultValue: "Not every part was confirmed delivered. Review the outcomes below; dismissing this receipt does not resend anything." }),
         tone: "info" as const,
       }
     : currentPublication?.state === "cancelled" &&
         (batch?.awaitingConsent ?? 0) > 0
       ? {
-          title: "Waiting for remaining file consent",
-          body: "Some parts have settled. The remaining file cards still need the recipient's response; this send stays locked until the whole batch is resolved.",
+          title: t("externalTaskBanner.waitingConsentTitle", { defaultValue: "Waiting for remaining file consent" }),
+          body: t("externalTaskBanner.waitingConsentBody", { defaultValue: "Some parts have settled. The remaining file cards still need the recipient's response; this send stays locked until the whole batch is resolved." }),
           tone: "info" as const,
         }
       : currentPublication
-        ? publicationFeedback[currentPublication.state]
+        ? publicationFeedbackFor(currentPublication.state)
         : null;
   const activityPath = `/apps/chat/${binding.endpointId}/activity`;
   return (
     <section
-      aria-label="External conversation"
+      aria-label={t("externalTaskBanner.sectionAria", { defaultValue: "External conversation" })}
       className={cn("task-context-notice space-y-3", className)}
     >
       <div className="flex flex-wrap items-center gap-3">
@@ -556,12 +571,12 @@ function ConnectedTaskComposer({
           <Radio className="h-4 w-4 shrink-0 text-muted-foreground" />
           <div className="min-w-0 flex-1">
             <p className="font-medium">
-              Connected to {providerNames[binding.provider]}
+              {t("externalTaskBanner.connectedTo", { provider: providerNames[binding.provider], defaultValue: "Connected to {{provider}}" })}
             </p>
             <p className="truncate text-xs text-muted-foreground">
               {binding.externalLabel} · {binding.provider === "slack"
-                ? "Messages you send here and agent replies are also posted to Slack."
-                : "Agent assignment is fixed for this external task."}
+                ? t("externalTaskBanner.slackMirror", { defaultValue: "Messages you send here and agent replies are also posted to Slack." })
+                : t("externalTaskBanner.assignmentFixed", { defaultValue: "Agent assignment is fixed for this external task." })}
             </p>
           </div>
         </div>
@@ -569,7 +584,7 @@ function ConnectedTaskComposer({
           {binding.externalUrl && (
             <Button asChild size="sm" variant="outline">
               <a href={binding.externalUrl} target="_blank" rel="noreferrer">
-                Open {providerNames[binding.provider]} <ExternalLink />
+                {t("externalTaskBanner.openProvider", { provider: providerNames[binding.provider], defaultValue: "Open {{provider}}" })} <ExternalLink />
               </a>
             </Button>
           )}
@@ -578,11 +593,11 @@ function ConnectedTaskComposer({
             variant="outline"
             onClick={() => setComposing((value) => !value)}
           >
-            Send to channel
+            {t("externalTaskBanner.sendToChannel", { defaultValue: "Send to channel" })}
           </Button>
           <Button asChild size="sm" variant="ghost">
             <Link to={`/apps/chat/${binding.endpointId}/conversations`}>
-              Connection
+              {t("externalTaskBanner.connection", { defaultValue: "Connection" })}
             </Link>
           </Button>
         </div>
@@ -593,7 +608,7 @@ function ConnectedTaskComposer({
             className="text-xs font-medium"
             htmlFor="external-board-update"
           >
-            Board update
+            {t("externalTaskBanner.boardUpdate", { defaultValue: "Board update" })}
           </label>
           <Textarea
             id="external-board-update"
@@ -611,11 +626,11 @@ function ConnectedTaskComposer({
               idempotencyKey.current = null;
               publish.reset();
             }}
-            placeholder="Write only what should be visible in the provider conversation."
+            placeholder={t("externalTaskBanner.updatePlaceholder", { defaultValue: "Write only what should be visible in the provider conversation." })}
           />
           {selectedAttachmentIds.length > 0 && !body.trim() && (
             <p className="text-xs text-muted-foreground">
-              Add a message to send with your files.
+              {t("externalTaskBanner.addMessageWithFiles", { defaultValue: "Add a message to send with your files." })}
             </p>
           )}
           <div className="flex flex-wrap items-center gap-2">
@@ -623,7 +638,7 @@ function ConnectedTaskComposer({
               ref={fileInput}
               type="file"
               className="hidden"
-              aria-label="Attach file to channel update"
+              aria-label={t("externalTaskBanner.attachFileAria", { defaultValue: "Attach file to channel update" })}
               disabled={uploadDisabled}
               onChange={(event) => {
                 const file = event.target.files?.[0];
@@ -639,10 +654,10 @@ function ConnectedTaskComposer({
               onClick={() => fileInput.current?.click()}
             >
               <Paperclip />
-              {uploading ? "Uploading…" : "Attach file"}
+              {uploading ? t("externalTaskBanner.uploading", { defaultValue: "Uploading…" }) : t("externalTaskBanner.attachFile", { defaultValue: "Attach file" })}
             </Button>
             <p className="text-xs text-muted-foreground">
-              Files stay on this task until you send them to the channel.
+              {t("externalTaskBanner.filesStayOnTask", { defaultValue: "Files stay on this task until you send them to the channel." })}
             </p>
           </div>
           {uploadError && (
@@ -652,9 +667,7 @@ function ConnectedTaskComposer({
           )}
           {selectionNotice && (
             <p role="status" className="text-xs text-muted-foreground">
-              A file already attached to another comment was removed from this
-              selection. Attach a new copy or share the task link; your message
-              is unchanged.
+              {t("externalTaskBanner.selectionNotice", { defaultValue: "A file already attached to another comment was removed from this selection. Attach a new copy or share the task link; your message is unchanged." })}
             </p>
           )}
           {visibleAttachments.length > 0 && (
@@ -671,23 +684,23 @@ function ConnectedTaskComposer({
             >
               <legend className="px-1 text-xs font-medium">
                 {showingRetainedFiles
-                  ? "Files in this send"
-                  : "Include task files"}
+                  ? t("externalTaskBanner.filesInThisSend", { defaultValue: "Files in this send" })
+                  : t("externalTaskBanner.includeTaskFiles", { defaultValue: "Include task files" })}
               </legend>
               <p className="text-xs text-muted-foreground">
                 {binding.provider === "github"
-                  ? "GitHub Apps cannot upload file bytes in comments. Checked files stay on the Paperclip task; GitHub receives an authenticated task link when this Board has a public URL, or a private-task notice otherwise."
+                  ? t("externalTaskBanner.githubFileHint", { defaultValue: "GitHub Apps cannot upload file bytes in comments. Checked files stay on the Paperclip task; GitHub receives an authenticated task link when this Board has a public URL, or a private-task notice otherwise." })
                   : binding.provider === "microsoft-teams" &&
                       !showingRetainedFiles
-                    ? "In personal Teams chats, recipients accept each file before upload. Channels and group chats receive supported images directly; other files stay on the task, with a task link or private-task notice."
+                    ? t("externalTaskBanner.teamsFileHint", { defaultValue: "In personal Teams chats, recipients accept each file before upload. Channels and group chats receive supported images directly; other files stay on the task, with a task link or private-task notice." })
                     : showingRetainedFiles
-                      ? "These are the files selected for this send. Selection is locked until delivery is resolved."
-                      : "Only checked files will be published to the external conversation."}
+                      ? t("externalTaskBanner.retainedFilesHint", { defaultValue: "These are the files selected for this send. Selection is locked until delivery is resolved." })
+                      : t("externalTaskBanner.checkedFilesHint", { defaultValue: "Only checked files will be published to the external conversation." })}
               </p>
               <div className="space-y-2">
                 {visibleAttachments.map((attachment) => {
                   const label =
-                    attachment.originalFilename ?? "Unnamed attachment";
+                    attachment.originalFilename ?? t("externalTaskBanner.unnamedAttachment", { defaultValue: "Unnamed attachment" });
                   return (
                     <label
                       className="flex items-center gap-2 text-xs"
@@ -717,14 +730,14 @@ function ConnectedTaskComposer({
           {storageError && (
             <p role="alert" className="text-xs text-destructive">
               {storageError}{" "}
-              <Link className="underline underline-offset-4" to={activityPath}>Open Activity</Link>
+              <Link className="underline underline-offset-4" to={activityPath}>{t("externalTaskBanner.openActivity", { defaultValue: "Open Activity" })}</Link>
             </p>
           )}
           {unownedRequest && <LegacyBoardSendNotice onDiscard={() => {
             if (readOwner() !== draftOwner) return;
             try { clearBoardSendDraft(legacyStorageKey); }
             catch {
-              setStorageError("Saved delivery record could not be discarded. Restore browser storage, then try again.");
+              setStorageError(t("externalTaskBanner.discardFailed", { defaultValue: "Saved delivery record could not be discarded. Restore browser storage, then try again." }));
               return;
             }
             loadedStorageKey.current = null;
@@ -736,11 +749,9 @@ function ConnectedTaskComposer({
               role="alert"
               className="space-y-1 rounded-md border border-border bg-background p-3 text-xs"
             >
-              <p className="font-medium">Update was not sent</p>
+              <p className="font-medium">{t("externalTaskBanner.updateNotSent", { defaultValue: "Update was not sent" })}</p>
               <p className="text-muted-foreground">
-                A selected file already belongs to another comment. This request
-                was rejected before any channel message was queued. Your exact
-                draft is kept.
+                {t("externalTaskBanner.updateRejectedBody", { defaultValue: "A selected file already belongs to another comment. This request was rejected before any channel message was queued. Your exact draft is kept." })}
               </p>
               <Button
                 size="sm"
@@ -752,7 +763,7 @@ function ConnectedTaskComposer({
                     clearBoardSendDraft(storageKey);
                   } catch {
                     setStorageError(
-                      "Saved rejection could not be cleared. Restore browser storage before editing this send.",
+                      t("externalTaskBanner.rejectionClearFailed", { defaultValue: "Saved rejection could not be cleared. Restore browser storage before editing this send." }),
                     );
                     return;
                   }
@@ -775,7 +786,7 @@ function ConnectedTaskComposer({
                   publish.reset();
                 }}
               >
-                Edit rejected send
+                {t("externalTaskBanner.editRejectedSend", { defaultValue: "Edit rejected send" })}
               </Button>
             </div>
           )}
@@ -790,23 +801,23 @@ function ConnectedTaskComposer({
               >
                 <p className="font-medium">
                   {resendStalled
-                    ? "Couldn’t send this update yet."
+                    ? t("externalTaskBanner.resendStalledTitle", { defaultValue: "Couldn’t send this update yet." })
                     : resendWaiting || autoResend.resending
-                      ? "Sending when reconnected…"
-                      : "Delivery result not confirmed"}
+                      ? t("externalTaskBanner.resendWaitingTitle", { defaultValue: "Sending when reconnected…" })
+                      : t("externalTaskBanner.deliveryResultNotConfirmed", { defaultValue: "Delivery result not confirmed" })}
                 </p>
                 <p className="text-muted-foreground">
                   {resendStalled
-                    ? "Your exact draft and request identity are kept. Automatic resends stopped; choose Resend now to try again without creating a duplicate."
+                    ? t("externalTaskBanner.deliveryResultStalledBody", { defaultValue: "Your exact draft and request identity are kept. Automatic resends stopped; choose Resend now to try again without creating a duplicate." })
                     : resendWaiting || autoResend.resending
-                      ? "Your exact draft and request identity are kept. It resends on its own without creating a duplicate."
-                      : "Your exact draft and request identity are kept. Retry safely to learn the authoritative publication state without creating a duplicate."}
+                      ? t("externalTaskBanner.deliveryResultResendingBody", { defaultValue: "Your exact draft and request identity are kept. It resends on its own without creating a duplicate." })
+                      : t("externalTaskBanner.deliveryResultNotConfirmedBody", { defaultValue: "Your exact draft and request identity are kept. Retry safely to learn the authoritative publication state without creating a duplicate." })}
                 </p>
                 <Link
                   className="inline-block font-medium underline underline-offset-4"
                   to={activityPath}
                 >
-                  Open Activity
+                  {t("externalTaskBanner.openActivity", { defaultValue: "Open Activity" })}
                 </Link>
               </div>
             )}
@@ -829,52 +840,51 @@ function ConnectedTaskComposer({
                   batch.cancelled !== undefined &&
                   batch.awaitingConsent !== undefined
                     ? [
-                        `${batch.published} published`,
+                        t("externalTaskBanner.publishedCount", { count: batch.published, defaultValue: "{{count}} published" }),
                         ...(batch.awaitingConsent
-                          ? [`${batch.awaitingConsent} awaiting consent`]
+                          ? [t("externalTaskBanner.awaitingConsentCount", { count: batch.awaitingConsent, defaultValue: "{{count}} awaiting consent" })]
                           : []),
                         ...(batch.declined
-                          ? [`${batch.declined} declined`]
+                          ? [t("externalTaskBanner.declinedCount", { count: batch.declined, defaultValue: "{{count}} declined" })]
                           : []),
-                        ...(batch.expired ? [`${batch.expired} expired`] : []),
+                        ...(batch.expired ? [t("externalTaskBanner.expiredCount", { count: batch.expired, defaultValue: "{{count}} expired" })] : []),
                         ...(batch.cancelled
-                          ? [`${batch.cancelled} cancelled`]
+                          ? [t("externalTaskBanner.cancelledCount", { count: batch.cancelled, defaultValue: "{{count}} cancelled" })]
                           : []),
                       ].join(" · ")
-                    : `${batch.published} of ${batch.total} parts published.`}
+                    : t("externalTaskBanner.partsPublished", { published: batch.published, total: batch.total, defaultValue: "{{published}} of {{total}} parts published." })}
                 </p>
               )}
               {batch?.parts?.some((part) => part.fileTransfer) && (
                 <ul
                   className="space-y-1 text-muted-foreground"
-                  aria-label="File delivery outcomes"
+                  aria-label={t("externalTaskBanner.fileOutcomesAria", { defaultValue: "File delivery outcomes" })}
                 >
                   {batch.parts
                     .filter((part) => part.fileTransfer)
                     .map((part) => (
                       <li key={part.id}>
                         {part.fileTransfer!.filename} —{" "}
-                        {filePhaseLabels[part.fileTransfer!.phase]}
+                        {filePhaseLabel(part.fileTransfer!.phase)}
                       </li>
                     ))}
                 </ul>
               )}
               {publicationStatusView.kind === "error" && (
                 <p role="alert" className="text-muted-foreground">
-                  Delivery status could not be refreshed. Your draft is kept;
-                  Paperclip will check again without sending another update.
+                  {t("externalTaskBanner.statusRefreshFailed", { defaultValue: "Delivery status could not be refreshed. Your draft is kept; Paperclip will check again without sending another update." })}
                 </p>
               )}
               {currentPublication.redactedError && (
                 <p className="text-muted-foreground">
-                  Provider detail: {currentPublication.redactedError}
+                  {t("externalTaskBanner.providerDetail", { detail: currentPublication.redactedError, defaultValue: "Provider detail: {{detail}}" })}
                 </p>
               )}
               <Link
                 className="inline-block font-medium underline underline-offset-4"
                 to={activityPath}
               >
-                Open Activity
+                {t("externalTaskBanner.openActivity", { defaultValue: "Open Activity" })}
               </Link>
               {dismissible && (
                 <Button
@@ -887,7 +897,7 @@ function ConnectedTaskComposer({
                         clearBoardSendDraft(storageKey);
                       } catch {
                         setStorageError(
-                          "Saved delivery identity could not be cleared. Restore browser storage before starting another send.",
+                          t("externalTaskBanner.storageClearFailed", { defaultValue: "Saved delivery identity could not be cleared. Restore browser storage before starting another send." }),
                         );
                         return;
                       }
@@ -904,7 +914,7 @@ function ConnectedTaskComposer({
                     publish.reset();
                   }}
                 >
-                  Dismiss delivery receipt
+                  {t("externalTaskBanner.dismissReceipt", { defaultValue: "Dismiss delivery receipt" })}
                 </Button>
               )}
             </div>
@@ -912,8 +922,8 @@ function ConnectedTaskComposer({
           <div className="flex items-center justify-between gap-3">
             <p className="text-xs text-muted-foreground">
               {binding.provider === "slack"
-                ? "Your message is posted to Slack with your name and starts the agent."
-                : "Ordinary board comments remain Paperclip-only."}
+                ? t("externalTaskBanner.slackSendHint", { defaultValue: "Your message is posted to Slack with your name and starts the agent." })
+                : t("externalTaskBanner.boardCommentsHint", { defaultValue: "Ordinary board comments remain Paperclip-only." })}
             </p>
             <Button
               size="sm"
@@ -947,7 +957,7 @@ function ConnectedTaskComposer({
                     id,
                     name:
                       taskAttachments.find((attachment) => attachment.id === id)
-                        ?.originalFilename ?? "Unnamed attachment",
+                        ?.originalFilename ?? t("externalTaskBanner.unnamedAttachment", { defaultValue: "Unnamed attachment" }),
                   })),
                   body: body.trim(),
                   idempotencyKey: idempotencyKey.current,
@@ -958,7 +968,7 @@ function ConnectedTaskComposer({
                   writeBoardSendDraft(storageKey, input);
                 } catch {
                   setStorageError(
-                    "Browser storage could not preserve this delivery identity. No update was sent. Restore browser storage, then reload to try again.",
+                    t("externalTaskBanner.storagePreserveFailed", { defaultValue: "Browser storage could not preserve this delivery identity. No update was sent. Restore browser storage, then reload to try again." }),
                   );
                   return;
                 }
@@ -972,12 +982,12 @@ function ConnectedTaskComposer({
               }}
             >
               {publish.isPending
-                ? "Sending…"
+                ? t("externalTaskBanner.sending", { defaultValue: "Sending…" })
                 : resendWaiting
-                  ? "Resend now"
+                  ? t("externalTaskBanner.resendNow", { defaultValue: "Resend now" })
                   : !rejection && (publish.isError || unconfirmedRequest)
-                  ? "Retry safely"
-                  : "Send to channel"}
+                  ? t("externalTaskBanner.retrySafely", { defaultValue: "Retry safely" })
+                  : t("externalTaskBanner.sendToChannel", { defaultValue: "Send to channel" })}
             </Button>
           </div>
         </div>

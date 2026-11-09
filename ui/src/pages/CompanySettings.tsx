@@ -31,6 +31,7 @@ import {
   ToggleField,
 } from "../components/agent-config-primitives";
 import { InstanceGeneralSettings } from "./InstanceGeneralSettings";
+import { LanguageSwitcher } from "../components/LanguageSwitcher";
 
 export function CompanySettings() {
   const {
@@ -253,6 +254,7 @@ export function CompanySettings() {
               onChange={(e) => setDescription(e.target.value)}
             />
           </Field>
+          <LanguageSwitcher className="max-w-sm" />
         </div>
       </div>
 

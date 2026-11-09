@@ -22,6 +22,7 @@ import { queryKeys } from "@/lib/queryKeys";
 import { Link } from "@/lib/router";
 import { cn, formatDate, relativeTime } from "@/lib/utils";
 import { taskStatusIconProps } from "@/lib/task-status-presentation";
+import { useTranslation } from "../../i18n";
 
 /**
  * The agent-scoped side panels shown beside an agent chat: every task the
@@ -36,11 +37,11 @@ const ARTIFACT_MAX_PAGES = 5;
 
 export type AgentTaskSortField = "updated" | "created" | "status" | "title";
 
-const SORT_OPTIONS: ReadonlyArray<[AgentTaskSortField, string]> = [
-  ["updated", "Last updated"],
-  ["created", "Created"],
-  ["status", "Status"],
-  ["title", "Title"],
+const SORT_OPTIONS: ReadonlyArray<[AgentTaskSortField, string, string]> = [
+  ["updated", "agentWorkPanels.sortLastUpdated", "Last updated"],
+  ["created", "agentWorkPanels.sortCreated", "Created"],
+  ["status", "agentWorkPanels.sortStatus", "Status"],
+  ["title", "agentWorkPanels.sortTitle", "Title"],
 ];
 
 export function sortAgentTasks(
@@ -115,6 +116,7 @@ export function AgentTasksPanel({
   /** The conversation issue itself, which is not one of the agent's tasks. */
   excludeIssueId?: string;
 }) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState<IssueFilterState>(defaultIssueFilterState);
   const [sortField, setSortField] = useState<AgentTaskSortField>("updated");
@@ -152,15 +154,15 @@ export function AgentTasksPanel({
   const capped = (tasksQuery.data?.length ?? 0) >= AGENT_TASK_LIMIT;
 
   return (
-    <section className="flex flex-col gap-3" aria-label="Agent tasks">
+    <section className="flex flex-col gap-3" aria-label={t("agentWorkPanels.tasksAria", { defaultValue: "Agent tasks" })}>
       <div className="flex items-center gap-1">
         <div className="relative min-w-0 flex-1">
           <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search tasks"
-            aria-label="Search tasks"
+            placeholder={t("tasks.search.label", { defaultValue: "Search tasks" })}
+            aria-label={t("tasks.search.label", { defaultValue: "Search tasks" })}
             className="h-8 pl-7 text-sm"
           />
         </div>
@@ -176,13 +178,13 @@ export function AgentTasksPanel({
         />
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="icon" className="h-8 w-8 shrink-0" title="Sort" aria-label="Sort tasks">
+            <Button variant="outline" size="icon" className="h-8 w-8 shrink-0" title={t("routinesPage.sort", { defaultValue: "Sort" })} aria-label={t("agentWorkPanels.sortTasksAria", { defaultValue: "Sort tasks" })}>
               <ArrowUpDown className="h-3.5 w-3.5" />
             </Button>
           </PopoverTrigger>
           <PopoverContent align="end" className="w-48 p-0">
             <div className="space-y-0.5 p-2">
-              {SORT_OPTIONS.map(([field, label]) => (
+              {SORT_OPTIONS.map(([field, labelKey, labelDefault]) => (
                 <button
                   key={field}
                   type="button"
@@ -198,7 +200,7 @@ export function AgentTasksPanel({
                     }
                   }}
                 >
-                  <span>{label}</span>
+                  <span>{t(labelKey, { defaultValue: labelDefault })}</span>
                   {sortField === field ? (
                     <span className="text-xs text-muted-foreground">{sortDir === "asc" ? "↑" : "↓"}</span>
                   ) : null}
@@ -210,7 +212,7 @@ export function AgentTasksPanel({
       </div>
 
       {tasksView.kind === "loading" || tasksView.kind === "reconnecting" ? (
-        <PanelMessage>Loading tasks…</PanelMessage>
+        <PanelMessage>{t("agentWorkPanels.loadingTasks", { defaultValue: "Loading tasks…" })}</PanelMessage>
       ) : tasksView.kind === "error" ? (
         <div className="py-4">
           <QueryErrorState
@@ -221,19 +223,19 @@ export function AgentTasksPanel({
           />
         </div>
       ) : total === 0 ? (
-        <PanelMessage>This agent hasn't worked on any tasks yet.</PanelMessage>
+        <PanelMessage>{t("agentWorkPanels.noTasksYet", { defaultValue: "This agent hasn't worked on any tasks yet." })}</PanelMessage>
       ) : visible.length === 0 ? (
         <PanelMessage>
           {capped
-            ? `No tasks match these filters among the ${AGENT_TASK_LIMIT} most recently updated.`
-            : "No tasks match these filters."}
+            ? t("agentWorkPanels.noTasksMatchCapped", { defaultValue: "No tasks match these filters among the {{limit}} most recently updated.", limit: AGENT_TASK_LIMIT })
+            : t("agentWorkPanels.noTasksMatch", { defaultValue: "No tasks match these filters." })}
         </PanelMessage>
       ) : (
         <div className="flex flex-col gap-2">
           {visible.map((task) => <AgentTaskCard key={task.id} task={task} />)}
           {capped ? (
             <p className="px-1 text-xs text-muted-foreground">
-              Showing the {AGENT_TASK_LIMIT} most recently updated tasks.
+              {t("agentWorkPanels.showingRecentTasks", { defaultValue: "Showing the {{limit}} most recently updated tasks.", limit: AGENT_TASK_LIMIT })}
             </p>
           ) : null}
         </div>
@@ -254,6 +256,7 @@ function ArtifactKindIcon({ artifact }: { artifact: CompanyArtifact }) {
 }
 
 export function AgentArtifactCard({ artifact }: { artifact: CompanyArtifact }) {
+  const { t } = useTranslation();
   return (
     <Link
       // design-allow(card-pattern): navigation <Link> card; Card renders a div and would break anchor semantics
@@ -271,7 +274,7 @@ export function AgentArtifactCard({ artifact }: { artifact: CompanyArtifact }) {
         </span>
       </div>
       <div className="flex items-center gap-1.5 pl-6 text-xs text-muted-foreground">
-        <span>Updated {formatDate(artifact.updatedAt)}</span>
+        <span>{t("agentWorkPanels.updatedAt", { defaultValue: "Updated {{date}}", date: formatDate(artifact.updatedAt) })}</span>
         <span aria-hidden>·</span>
         <span className="font-mono">{artifact.issue.identifier}</span>
       </div>
@@ -297,6 +300,7 @@ async function listAgentArtifacts(companyId: string, agentId: string) {
 }
 
 export function AgentArtifactsPanel({ companyId, agentId }: { companyId: string; agentId: string }) {
+  const { t } = useTranslation();
   const artifactsQuery = useQuery({
     queryKey: queryKeys.artifacts.byAgent(companyId, agentId),
     queryFn: () => listAgentArtifacts(companyId, agentId),
@@ -304,7 +308,7 @@ export function AgentArtifactsPanel({ companyId, agentId }: { companyId: string;
 
   const artifactsView = useQueryView(artifactsQuery);
 
-  if (artifactsView.kind === "loading" || artifactsView.kind === "reconnecting") return <PanelMessage>Loading artifacts…</PanelMessage>;
+  if (artifactsView.kind === "loading" || artifactsView.kind === "reconnecting") return <PanelMessage>{t("agentWorkPanels.loadingArtifacts", { defaultValue: "Loading artifacts…" })}</PanelMessage>;
   if (artifactsView.kind === "error") {
     return (
       <div className="py-4">
@@ -320,12 +324,12 @@ export function AgentArtifactsPanel({ companyId, agentId }: { companyId: string;
   const loaded = artifactsQuery.data;
   if (!loaded) return null;
   const { artifacts, truncated } = loaded;
-  if (artifacts.length === 0) return <PanelMessage>This agent hasn't produced any artifacts yet.</PanelMessage>;
+  if (artifacts.length === 0) return <PanelMessage>{t("agentWorkPanels.noArtifactsYet", { defaultValue: "This agent hasn't produced any artifacts yet." })}</PanelMessage>;
   return (
-    <section className="flex flex-col gap-2" aria-label="Agent artifacts">
+    <section className="flex flex-col gap-2" aria-label={t("agentWorkPanels.artifactsAria", { defaultValue: "Agent artifacts" })}>
       {artifacts.map((artifact) => <AgentArtifactCard key={artifact.id} artifact={artifact} />)}
       {truncated ? (
-        <p className="px-1 text-xs text-muted-foreground">Showing this agent's {artifacts.length} most recent artifacts.</p>
+        <p className="px-1 text-xs text-muted-foreground">{t("agentWorkPanels.showingRecentArtifacts", { defaultValue: "Showing this agent's {{count}} most recent artifacts.", count: artifacts.length })}</p>
       ) : null}
     </section>
   );

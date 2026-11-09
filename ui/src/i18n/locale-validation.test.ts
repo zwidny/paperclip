@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { t } from ".";
 import en from "./locales/en.json";
-import { localeMessages } from "./locales";
+import { loadAllLocaleMessages } from "./locales";
 import { validateLocaleMessages } from "./locale-validation";
 
 describe("locale validation", () => {
@@ -11,12 +11,13 @@ describe("locale validation", () => {
     expect(t("app.missing")).toBe("app.missing");
   });
 
-  it("accepts registered locale files", () => {
+  it("accepts registered locale files", async () => {
+    const localeMessages = await loadAllLocaleMessages();
     expect(Object.keys(localeMessages)).toContain("en");
     for (const [locale, messages] of Object.entries(localeMessages)) {
       expect(validateLocaleMessages(messages), locale).toEqual([]);
     }
-  });
+  }, 120_000);
 
   it("rejects missing and extra nested keys", () => {
     expect(
@@ -47,7 +48,9 @@ describe("locale validation", () => {
           },
         },
       }),
-    ).toEqual(expect.arrayContaining(["app.noCompanies.title must be a string"]));
+    ).toEqual(
+      expect.arrayContaining(["app.noCompanies.title must be a string"]),
+    );
   });
 
   it("requires interpolation placeholders to match English", () => {
@@ -55,7 +58,9 @@ describe("locale validation", () => {
       message: "Invite {{name}} to {{company}}",
     };
 
-    expect(validateLocaleMessages({ message: "Invite {{name}}" }, reference)).toEqual([
+    expect(
+      validateLocaleMessages({ message: "Invite {{name}}" }, reference),
+    ).toEqual([
       'message interpolation placeholders must match English exactly: expected ["company","name"], received ["name"]',
     ]);
   });
@@ -95,8 +100,11 @@ describe("locale validation", () => {
   });
 
   it("caps localized string length relative to English", () => {
-    expect(validateLocaleMessages({ message: "x".repeat(200) }, { message: "Short" })).toEqual([
-      "message is too long: 200 characters exceeds 133",
-    ]);
+    expect(
+      validateLocaleMessages(
+        { message: "x".repeat(200) },
+        { message: "Short" },
+      ),
+    ).toEqual(["message is too long: 200 characters exceeds 133"]);
   });
 });

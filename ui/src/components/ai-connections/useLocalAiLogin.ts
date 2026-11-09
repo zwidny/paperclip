@@ -2,9 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import type { AiConnectionLoginIntent, LocalAiLoginAttempt, LocalAiLoginStatus } from "@paperclipai/shared";
 import { aiConnectionsApi } from "@/api/ai-connections";
 import { describeError } from "@/api/errors";
+import { useTranslation } from "../../i18n";
 
 /** Every authentication host uses the same local credential check and login lifecycle. */
 export function useLocalAiLogin(companyId: string | null, intent: AiConnectionLoginIntent, enabled: boolean) {
+  const { t } = useTranslation();
   const isolated = true;
   const active = Boolean(companyId && enabled);
   const [attempt, setAttempt] = useState<LocalAiLoginAttempt | null>(null);
@@ -108,7 +110,7 @@ export function useLocalAiLogin(companyId: string | null, intent: AiConnectionLo
       try {
         await aiConnectionsApi.submitLocalLoginCode(companyId, attempt.sessionId, browserCode);
       } catch (cause) {
-        setError("Could not submit the authorization code. Start sign-in again.");
+        setError(t("localAiLogin.submitFailed", { defaultValue: "Could not submit the authorization code. Start sign-in again." }));
         throw cause;
       }
     },

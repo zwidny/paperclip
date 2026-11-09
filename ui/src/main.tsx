@@ -25,6 +25,7 @@ import { PluginLauncherProvider } from "./plugins/launchers";
 import { startChunkLoadRecovery } from "./lib/chunk-load-recovery";
 import { startPerfMeasureReaper } from "./lib/perf-measure-reaper";
 import { getOrCreatePaperclipReactRoot } from "./lib/react-root";
+import { localeReady } from "./i18n";
 import { startServiceWorkerUpdates } from "./lib/service-worker-updates";
 import { connectivity } from "./lib/connectivity";
 import { bindConnectivity, createAppQueryClient } from "./lib/query-client";
@@ -110,7 +111,7 @@ function CompanyVoiceCalls({ children }: { children: React.ReactNode }) {
 const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error("Paperclip root element is missing");
 
-getOrCreatePaperclipReactRoot(window, rootElement).render(
+void localeReady.then(() => getOrCreatePaperclipReactRoot(window, rootElement).render(
   <StrictMode>
     <AppErrorBoundary>
       <QueryClientProvider client={queryClient}>
@@ -146,4 +147,4 @@ getOrCreatePaperclipReactRoot(window, rootElement).render(
       </QueryClientProvider>
     </AppErrorBoundary>
   </StrictMode>
-);
+));

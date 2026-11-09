@@ -71,6 +71,7 @@ import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { useLocation, useNavigate, useParams } from "@/lib/router";
 import { useDialog } from "../context/DialogContext";
+import { useTranslation } from "../i18n";
 import { useCompany } from "../context/CompanyContext";
 import { ApiError } from "../api/client";
 import { companiesApi } from "../api/companies";
@@ -461,6 +462,7 @@ function OnboardingWizardInner({
     onboardingRouteDismissed: routeDismissed,
     setOnboardingRouteDismissed: setRouteDismissed,
   } = useDialog();
+  const { t } = useTranslation();
   const { companies, setSelectedCompanyId, loading: companiesLoading } = useCompany();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -3100,12 +3102,12 @@ function OnboardingWizardInner({
                       title={
                         <motion.span key={step} {...titleSwapMotion} className="inline-block">
                           {step === 1
-                            ? "What is the name of your organization?"
+                            ? t("onboarding.company.title", { defaultValue: "What is the name of your organization?" })
                             : step === 3
-                              ? "Create your first agent"
+                              ? t("onboarding.agent.title", { defaultValue: "Create your first agent" })
                               : step === 4
-                                ? "Connect a model"
-                                : "Let's get started..."}
+                                ? t("onboarding.connect.title", { defaultValue: "Connect a model" })
+                                : t("onboarding.review.title", { defaultValue: "Let's get started..." })}
                         </motion.span>
                       }
                     />
@@ -3127,8 +3129,11 @@ function OnboardingWizardInner({
                       <p className="pt-2 text-base leading-relaxed text-muted-foreground">
                         <motion.span key={step} {...titleSwapMotion} className="inline-block">
                           {step === 4
-                            ? "Paperclip works with your subscription or API keys."
-                            : `${agentName.trim() || "Your first agent"} is ready to work!`}
+                            ? t("onboarding.connect.lede", { defaultValue: "Paperclip works with your subscription or API keys." })
+                            : t("onboarding.review.lede", {
+                              defaultValue: "{{name}} is ready to work!",
+                              name: agentName.trim() || t("onboarding.review.defaultName", { defaultValue: "Your first agent" }),
+                            })}
                         </motion.span>
                       </p>
                     </motion.div>
@@ -3154,11 +3159,11 @@ function OnboardingWizardInner({
               {step === 1 && (
                 <motion.div key="step-1" {...stepContentMotion} exit={stepHandoff ? stepContentMotion.exit : undefined} className="mx-auto flex w-full flex-col gap-9">
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="onboarding-company-name">Name</Label>
+                    <Label htmlFor="onboarding-company-name">{t("onboarding.company.nameLabel", { defaultValue: "Name" })}</Label>
                     <Input
                       id="onboarding-company-name"
                       className="h-(--sz-44px) rounded-lg border-transparent bg-muted shadow-none dark:bg-muted"
-                      placeholder="e.g. Northwind Labs"
+                      placeholder={t("onboarding.company.namePlaceholder", { defaultValue: "e.g. Northwind Labs" })}
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
                       onKeyDown={(e) => {
@@ -3182,7 +3187,7 @@ function OnboardingWizardInner({
               {step === 3 && (
                 <motion.div key="step-3" {...stepContentMotion} exit={stepHandoff ? stepContentMotion.exit : undefined} className="mx-auto flex w-full flex-col gap-9">
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="onboarding-agent-name">Agent name</Label>
+                    <Label htmlFor="onboarding-agent-name">{t("onboarding.agent.nameLabel", { defaultValue: "Agent name" })}</Label>
                     {/*
                       Filled, not outlined, and the column's full width — the
                       same field the naming step before the hand-off draws.
@@ -3195,7 +3200,7 @@ function OnboardingWizardInner({
                     <Input
                       id="onboarding-agent-name"
                       className="h-(--sz-44px) rounded-lg border-transparent bg-muted shadow-none dark:bg-muted"
-                      placeholder="e.g. Chief of staff"
+                      placeholder={t("onboarding.agent.namePlaceholder", { defaultValue: "e.g. Chief of staff" })}
                       value={agentName}
                       onChange={(e) => setAgentName(e.target.value)}
                       onKeyDown={(e) => {
@@ -3228,7 +3233,7 @@ function OnboardingWizardInner({
                         Picking one starts the sign-in now. The row is the
                         question, and answering it is what opens the card. */}
                     <ModelSourceTiles
-                      label="Model source"
+                      label={t("onboarding.connect.sourceLabel", { defaultValue: "Model source" })}
                       sources={[
                         ...recommendedAdapters.map((opt) => ({
                           id: opt.type,
@@ -3237,7 +3242,7 @@ function OnboardingWizardInner({
                         })),
                         ...(openAiCompatibleAvailable ? [{
                           id: OPENAI_COMPATIBLE_SOURCE_ID,
-                          label: "OpenAI compatible",
+                          label: t("onboarding.connect.sources.compatible", { defaultValue: "OpenAI compatible" }),
                           icon: <ModelSourceMark type={OPENAI_COMPATIBLE_SOURCE_ID} Fallback={Cpu} />,
                           // Always key-based: a compatible endpoint has no
                           // subscription login to offer.
@@ -3278,8 +3283,9 @@ function OnboardingWizardInner({
 
                     {adapterRegistryLoaded && recommendedAdapters.length === 0 && (
                       <p role="status" className="text-sm text-muted-foreground">
-                        Claude and Codex are unavailable on this instance. Ask an administrator to enable one,
-                        or exit setup and choose New Agent on the Agents page to use another provider.
+                        {t("onboarding.connect.sourcesUnavailable", {
+                          defaultValue: "Claude and Codex are unavailable on this instance. Ask an administrator to enable one, or exit setup and choose New Agent on the Agents page to use another provider.",
+                        })}
                       </p>
                     )}
 

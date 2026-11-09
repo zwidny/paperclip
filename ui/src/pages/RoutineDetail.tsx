@@ -75,6 +75,7 @@ import type {
   RoutineEnvConfig,
   RoutineVariable,
 } from "@paperclipai/shared";
+import { useTranslation } from "../i18n";
 
 export function buildRoutineProjectOptions(
   projects: ReadonlyArray<{ id: string; name: string; description?: string | null; archivedAt?: Date | string | null }>,
@@ -97,6 +98,17 @@ const SECTION_TITLES: Record<RoutineSectionKey, string> = {
   runs: "Runs",
   activity: "Activity",
   history: "Version history",
+};
+
+const SECTION_TITLE_KEYS: Record<RoutineSectionKey, string> = {
+  overview: "routineDetail.sectionOverview",
+  triggers: "routineDetail.sectionTriggers",
+  variables: "routineDetail.sectionVariables",
+  secrets: "routineDetail.sectionSecrets",
+  delivery: "routineDetail.sectionDelivery",
+  runs: "routineDetail.sectionRuns",
+  activity: "routineDetail.sectionActivity",
+  history: "routineDetail.sectionHistory",
 };
 
 function autoResizeTextarea(element: HTMLTextAreaElement | null) {
@@ -124,6 +136,7 @@ function buildRoutineMutationPayload(input: RoutineEditDraft) {
 }
 
 export function RoutineDetail() {
+  const { t } = useTranslation();
   const { routineId, section: sectionParam } = useParams<{ routineId: string; section?: string }>();
   const [searchParams] = useSearchParams();
   const triggerSetup = sectionParam === "triggers" && searchParams.has("triggerSetup");
@@ -239,7 +252,7 @@ export function RoutineDetail() {
   });
   const createSecret = useMutation({
     mutationFn: (input: { name: string; value: string }) => {
-      if (!selectedCompanyId) throw new Error("Select an organization to create secrets");
+      if (!selectedCompanyId) throw new Error(t("routineDetail.selectOrganizationForSecrets", { defaultValue: "Select an organization to create secrets" }));
       return secretsApi.create(selectedCompanyId, input);
     },
     onSuccess: () => {
@@ -270,39 +283,41 @@ export function RoutineDetail() {
   const dirtyFields = useMemo<RoutineHistoryDirtyFieldDescriptor[]>(() => {
     if (!routineDefaults) return [];
     const result: RoutineHistoryDirtyFieldDescriptor[] = [];
-    if (editDraft.title !== routineDefaults.title) result.push({ key: "title", label: "the title" });
+    if (editDraft.title !== routineDefaults.title) {
+      result.push({ key: "title", label: t("routineDetail.dirtyTitle", { defaultValue: "the title" }) });
+    }
     if (editDraft.description !== routineDefaults.description) {
-      result.push({ key: "description", label: "the description" });
+      result.push({ key: "description", label: t("routineDetail.dirtyDescription", { defaultValue: "the description" }) });
     }
     if (editDraft.projectId !== routineDefaults.projectId) {
-      result.push({ key: "projectId", label: "the project" });
+      result.push({ key: "projectId", label: t("routineDetail.dirtyProject", { defaultValue: "the project" }) });
     }
     if (editDraft.assigneeAgentId !== routineDefaults.assigneeAgentId) {
-      result.push({ key: "assigneeAgentId", label: "the default agent" });
+      result.push({ key: "assigneeAgentId", label: t("routineDetail.dirtyDefaultAgent", { defaultValue: "the default agent" }) });
     }
     if (editDraft.priority !== routineDefaults.priority) {
-      result.push({ key: "priority", label: "the priority" });
+      result.push({ key: "priority", label: t("routineDetail.dirtyPriority", { defaultValue: "the priority" }) });
     }
     if (editDraft.concurrencyPolicy !== routineDefaults.concurrencyPolicy) {
-      result.push({ key: "concurrencyPolicy", label: "the concurrency policy" });
+      result.push({ key: "concurrencyPolicy", label: t("routineDetail.dirtyConcurrency", { defaultValue: "the concurrency policy" }) });
     }
     if (editDraft.catchUpPolicy !== routineDefaults.catchUpPolicy) {
-      result.push({ key: "catchUpPolicy", label: "the catch-up policy" });
+      result.push({ key: "catchUpPolicy", label: t("routineDetail.dirtyCatchUp", { defaultValue: "the catch-up policy" }) });
     }
     if (editDraft.activityGatePolicy !== routineDefaults.activityGatePolicy) {
-      result.push({ key: "activityGatePolicy", label: "the advanced run policy" });
+      result.push({ key: "activityGatePolicy", label: t("routineDetail.dirtyRunPolicy", { defaultValue: "the advanced run policy" }) });
     }
     if (editDraft.activityGateScope !== routineDefaults.activityGateScope) {
-      result.push({ key: "activityGateScope", label: "the activity gate scope" });
+      result.push({ key: "activityGateScope", label: t("routineDetail.dirtyActivityGateScope", { defaultValue: "the activity gate scope" }) });
     }
     if (JSON.stringify(editDraft.variables) !== JSON.stringify(routineDefaults.variables)) {
-      result.push({ key: "variables", label: "the variables" });
+      result.push({ key: "variables", label: t("routineDetail.dirtyVariables", { defaultValue: "the variables" }) });
     }
     if (JSON.stringify(editDraft.env ?? null) !== JSON.stringify(routineDefaults.env ?? null)) {
-      result.push({ key: "env", label: "the secrets" });
+      result.push({ key: "env", label: t("routineDetail.dirtySecrets", { defaultValue: "the secrets" }) });
     }
     return result;
-  }, [editDraft, routineDefaults]);
+  }, [editDraft, routineDefaults, t]);
   const isEditDirty = dirtyFields.length > 0;
 
   const sectionDirtyFields = useCallback(
@@ -335,14 +350,19 @@ export function RoutineDetail() {
 
   useEffect(() => {
     if (!routine) return;
-    if (!triggerSetup) setBreadcrumbs([{ label: "Routines", href: "/routines" }, { label: routine.title }]);
+    if (!triggerSetup) {
+      setBreadcrumbs([
+        { label: t("nav.routines", { defaultValue: "Routines" }), href: "/routines" },
+        { label: routine.title },
+      ]);
+    }
     if (!routineDefaults) return;
     const changedRoutine = hydratedRoutineIdRef.current !== routine.id;
     if (changedRoutine || !isEditDirty) {
       setEditDraft(routineDefaults);
       hydratedRoutineIdRef.current = routine.id;
     }
-  }, [routine, routineDefaults, isEditDirty, setBreadcrumbs, triggerSetup]);
+  }, [routine, routineDefaults, isEditDirty, setBreadcrumbs, triggerSetup, t]);
 
   useEffect(() => {
     autoResizeTextarea(titleInputRef.current);
@@ -356,7 +376,10 @@ export function RoutineDetail() {
     async (label: string, value: string) => {
       try {
         await copyTextToClipboard(value);
-        pushToast({ title: `${label} copied`, tone: "success" });
+        pushToast({
+          title: t("routineDetail.copiedTitle", { label, defaultValue: "{{label}} copied" }),
+          tone: "success",
+        });
       } catch (copyError) {
         pushToast({
           title: `Failed to copy ${label.toLowerCase()}`,
@@ -365,7 +388,7 @@ export function RoutineDetail() {
         });
       }
     },
-    [pushToast],
+    [pushToast, t],
   );
 
   const saveRoutine = useMutation({
@@ -390,14 +413,14 @@ export function RoutineDetail() {
       if (mutationError instanceof ApiError && mutationError.status === 409) {
         setSaveConflict(true);
         pushToast({
-          title: "Routine changed",
-          body: "Someone else updated this routine. Reload to see the latest revision.",
+          title: t("routineDetail.changedTitle", { defaultValue: "Routine changed" }),
+          body: t("routineDetail.changedBody", { defaultValue: "Someone else updated this routine. Reload to see the latest revision." }),
           tone: "warn",
         });
         return;
       }
       pushToast({
-        title: "Failed to save routine",
+        title: t("routineDetail.saveFailedTitle", { defaultValue: "Failed to save routine" }),
         body: describeError(mutationError, { action: "save the routine" }).body,
         tone: "error",
       });
@@ -419,7 +442,7 @@ export function RoutineDetail() {
           : {}),
       }),
     onSuccess: async () => {
-      pushToast({ title: "Routine run started", tone: "success" });
+      pushToast({ title: t("routineDetail.runStartedTitle", { defaultValue: "Routine run started" }), tone: "success" });
       setRunVariablesOpen(false);
       navigateToSection("runs");
       await Promise.all([
@@ -432,7 +455,7 @@ export function RoutineDetail() {
     },
     onError: (runError) => {
       pushToast({
-        title: "Routine run failed",
+        title: t("routinesPage.runFailedTitle", { defaultValue: "Routine run failed" }),
         body: describeError(runError, { action: "start the routine run" }).body,
         tone: "error",
       });
@@ -443,8 +466,10 @@ export function RoutineDetail() {
     mutationFn: (status: string) => routinesApi.update(routineId!, { status }),
     onSuccess: async (_data, status) => {
       pushToast({
-        title: "Routine saved",
-        body: status === "paused" ? "Automation paused." : "Automation enabled.",
+        title: t("routineDetail.savedTitle", { defaultValue: "Routine saved" }),
+        body: status === "paused"
+          ? t("routineDetail.automationPausedBody", { defaultValue: "Automation paused." })
+          : t("routineDetail.automationEnabledBody", { defaultValue: "Automation enabled." }),
         tone: "success",
       });
       await Promise.all([
@@ -454,7 +479,7 @@ export function RoutineDetail() {
     },
     onError: (statusError) => {
       pushToast({
-        title: "Failed to update routine",
+        title: t("routinesPage.updateFailedTitle", { defaultValue: "Failed to update routine" }),
         body: describeError(statusError, { action: "update the routine" }).body,
         tone: "error",
       });
@@ -479,11 +504,15 @@ export function RoutineDetail() {
     onSuccess: async (result) => {
       if (result.secretMaterial) {
         setSecretMessage({
-          title: "Webhook trigger created",
+          title: t("routineDetail.webhookTriggerCreated", { defaultValue: "Webhook trigger created" }),
           entries: [{ webhookUrl: result.secretMaterial.webhookUrl, webhookSecret: result.secretMaterial.webhookSecret }],
         });
       } else {
-        pushToast({ title: "Trigger added", body: "The routine schedule was saved.", tone: "success" });
+        pushToast({
+          title: t("routineDetail.triggerAddedTitle", { defaultValue: "Trigger added" }),
+          body: t("routineDetail.triggerAddedBody", { defaultValue: "The routine schedule was saved." }),
+          tone: "success",
+        });
       }
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.routines.detail(routineId!) }),
@@ -493,7 +522,7 @@ export function RoutineDetail() {
     },
     onError: (triggerError) => {
       pushToast({
-        title: "Failed to add trigger",
+        title: t("routineDetail.addTriggerFailedTitle", { defaultValue: "Failed to add trigger" }),
         body: describeError(triggerError, { action: "create the trigger" }).body,
         tone: "error",
       });
@@ -503,7 +532,11 @@ export function RoutineDetail() {
   const updateTrigger = useMutation({
     mutationFn: ({ id, patch }: { id: string; patch: Record<string, unknown> }) => routinesApi.updateTrigger(id, patch),
     onSuccess: async () => {
-      pushToast({ title: "Trigger saved", body: "The routine cadence update was saved.", tone: "success" });
+      pushToast({
+        title: t("routineDetail.triggerSavedTitle", { defaultValue: "Trigger saved" }),
+        body: t("routineDetail.triggerSavedBody", { defaultValue: "The routine cadence update was saved." }),
+        tone: "success",
+      });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.routines.detail(routineId!) }),
         queryClient.invalidateQueries({ queryKey: queryKeys.routines.list(selectedCompanyId!) }),
@@ -512,7 +545,7 @@ export function RoutineDetail() {
     },
     onError: (triggerError) => {
       pushToast({
-        title: "Failed to update trigger",
+        title: t("routineDetail.updateTriggerFailedTitle", { defaultValue: "Failed to update trigger" }),
         body: describeError(triggerError, { action: "update the trigger" }).body,
         tone: "error",
       });
@@ -522,7 +555,7 @@ export function RoutineDetail() {
   const deleteTrigger = useMutation({
     mutationFn: (id: string) => routinesApi.deleteTrigger(id),
     onSuccess: async () => {
-      pushToast({ title: "Trigger deleted", tone: "success" });
+      pushToast({ title: t("routineDetail.triggerDeletedTitle", { defaultValue: "Trigger deleted" }), tone: "success" });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.routines.detail(routineId!) }),
         queryClient.invalidateQueries({ queryKey: queryKeys.routines.list(selectedCompanyId!) }),
@@ -531,7 +564,7 @@ export function RoutineDetail() {
     },
     onError: (triggerError) => {
       pushToast({
-        title: "Failed to delete trigger",
+        title: t("routineDetail.deleteTriggerFailedTitle", { defaultValue: "Failed to delete trigger" }),
         body: describeError(triggerError, { action: "delete the trigger" }).body,
         tone: "error",
       });
@@ -542,7 +575,7 @@ export function RoutineDetail() {
     mutationFn: (id: string): Promise<RotateRoutineTriggerResponse> => routinesApi.rotateTriggerSecret(id),
     onSuccess: async (result) => {
       setSecretMessage({
-        title: "Webhook secret rotated",
+        title: t("routineDetail.webhookSecretRotated", { defaultValue: "Webhook secret rotated" }),
         entries: [{ webhookUrl: result.secretMaterial.webhookUrl, webhookSecret: result.secretMaterial.webhookSecret }],
       });
       await Promise.all([
@@ -552,7 +585,7 @@ export function RoutineDetail() {
     },
     onError: (triggerError) => {
       pushToast({
-        title: "Failed to rotate webhook secret",
+        title: t("routineDetail.rotateSecretFailedTitle", { defaultValue: "Failed to rotate webhook secret" }),
         body: describeError(triggerError, { action: "rotate the webhook secret" }).body,
         tone: "error",
       });
@@ -617,15 +650,15 @@ export function RoutineDetail() {
       setSecretMessage({
         title:
           response.secretMaterials.length === 1
-            ? "Webhook trigger restored"
-            : `${response.secretMaterials.length} webhook triggers restored`,
+            ? t("routineDetail.webhookTriggerRestored_one", { count: response.secretMaterials.length, defaultValue: "Webhook trigger restored" })
+            : t("routineDetail.webhookTriggerRestored_other", { count: response.secretMaterials.length, defaultValue: "{{count}} webhook triggers restored" }),
         entries: response.secretMaterials.map((recreated) => ({
           webhookUrl: recreated.webhookUrl,
           webhookSecret: recreated.webhookSecret,
         })),
       });
     }
-  }, [navigateToSection]);
+  }, [navigateToSection, t]);
 
   const onHistoryRestored = useCallback(
     (response: RestoreRoutineRevisionResponse) => {
@@ -661,7 +694,7 @@ export function RoutineDetail() {
   );
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={Repeat} message="Select an organization to view routines." />;
+    return <EmptyState icon={Repeat} message={t("routinesPage.selectOrganization", { defaultValue: "Select an organization to view routines." })} />;
   }
 
   const legacyTab = new URLSearchParams(window.location.search).get("tab");
@@ -706,12 +739,12 @@ export function RoutineDetail() {
   const automationToggleDisabled = updateRoutineStatus.isPending || routine.status === "archived";
   const automationLabel =
     routine.status === "archived"
-      ? "Archived"
+      ? t("routineDetail.automationArchived", { defaultValue: "Archived" })
       : !routine.assigneeAgentId
-        ? "Draft"
+        ? t("routineDetail.automationDraft", { defaultValue: "Draft" })
         : automationEnabled
-          ? "Active"
-          : "Paused";
+          ? t("routineDetail.automationActive", { defaultValue: "Active" })
+          : t("routineDetail.automationPaused", { defaultValue: "Paused" });
   const automationLabelClassName =
     routine.status === "archived"
       ? "text-muted-foreground"
@@ -741,8 +774,8 @@ export function RoutineDetail() {
     onToggleAutomation: () => {
       if (!automationEnabled && !routine.assigneeAgentId) {
         pushToast({
-          title: "Default agent required",
-          body: "Set a default agent before enabling routine automation.",
+          title: t("routinesPage.defaultAgentRequiredTitle", { defaultValue: "Default agent required" }),
+          body: t("routinesPage.defaultAgentRequiredBody", { defaultValue: "Set a default agent before enabling routine automation." }),
           tone: "warn",
         });
         return;
@@ -796,7 +829,7 @@ export function RoutineDetail() {
         href="#routine-section"
         className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-20 focus:rounded focus:bg-background focus:px-3 focus:py-1.5 focus:text-sm"
       >
-        Skip to section
+        {t("routineDetail.skipToSection", { defaultValue: "Skip to section" })}
       </a>
 
       {/* The global shell owns routine navigation. This surface keeps one
@@ -828,7 +861,7 @@ export function RoutineDetail() {
                 ref={titleInputRef}
                 data-autosize-title
                 className="min-w-0 flex-1 resize-none overflow-hidden bg-transparent text-base font-semibold leading-7 outline-none placeholder:text-muted-foreground/50"
-                placeholder="Routine title"
+                placeholder={t("routinesPage.routineTitlePlaceholder", { defaultValue: "Routine title" })}
                 rows={1}
                 value={editDraft.title}
                 onChange={(event) => {
@@ -860,7 +893,7 @@ export function RoutineDetail() {
                 size="sm"
                 onClick={() => navigate(routineDetailHref(routine.id))}
               >
-                Back to overview
+                {t("routineDetail.backToOverview", { defaultValue: "Back to overview" })}
               </Button>
             ) : (
               <Button
@@ -869,7 +902,7 @@ export function RoutineDetail() {
                 onClick={() => navigate(routineDetailHref(routine.id, "history"))}
               >
                 <History className="h-3.5 w-3.5" />
-                History
+                {t("routineDetail.history", { defaultValue: "History" })}
               </Button>
             )}
             {section === "overview" ? (
@@ -883,12 +916,12 @@ export function RoutineDetail() {
                   }}
                 >
                   <X className="h-3.5 w-3.5" />
-                  Cancel editing
+                  {t("routineDetail.cancelEditing", { defaultValue: "Cancel editing" })}
                 </Button>
               ) : (
                 <Button variant="outline" size="sm" onClick={() => setOverviewEditing(true)}>
                   <Pencil className="h-3.5 w-3.5" />
-                  Edit routine
+                  {t("routineDetail.editRoutine", { defaultValue: "Edit routine" })}
                 </Button>
               )
             ) : null}
@@ -899,7 +932,9 @@ export function RoutineDetail() {
                 checked={automationEnabled}
                 onCheckedChange={contextValue.onToggleAutomation}
                 disabled={automationToggleDisabled}
-                aria-label={automationEnabled ? "Pause automatic triggers" : "Enable automatic triggers"}
+                aria-label={automationEnabled
+                  ? t("routineDetail.pauseAutomaticTriggers", { defaultValue: "Pause automatic triggers" })
+                  : t("routineDetail.enableAutomaticTriggers", { defaultValue: "Enable automatic triggers" })}
               />
               <span className={`text-sm font-medium ${automationLabelClassName}`}>{automationLabel}</span>
             </div>
@@ -922,7 +957,7 @@ export function RoutineDetail() {
             }
           >
             <RoutineSectionHeading
-              title={SECTION_TITLES[section]}
+              title={t(SECTION_TITLE_KEYS[section], { defaultValue: SECTION_TITLES[section] })}
               copyText={section === "overview"
                 ? routineOverviewCopyText({
                     editing: overviewEditing,

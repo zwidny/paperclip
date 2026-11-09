@@ -14,6 +14,7 @@ import { toolsApi } from "@/api/tools";
 import { Button } from "@/components/ui/button";
 import { MarkdownBody } from "@/components/MarkdownBody";
 import { describeError } from "@/api/errors";
+import { useTranslation } from "../../i18n";
 
 /**
  * "Ask first" review queue (M1b float / M9 card, PAP-10859).
@@ -29,7 +30,7 @@ import { describeError } from "@/api/errors";
 export function ReviewQueueCard({
   connectionId,
   emptyState = "hidden",
-  heading = "Waiting for your OK",
+  heading,
   plain = false,
 }: {
   connectionId?: string;
@@ -38,6 +39,7 @@ export function ReviewQueueCard({
   plain?: boolean;
 }) {
   const { selectedCompanyId } = useCompany();
+  const { t } = useTranslation();
 
   const query = useQuery({
     queryKey: queryKeys.tools.actionRequests(selectedCompanyId ?? "__none__", "pending"),
@@ -60,7 +62,7 @@ export function ReviewQueueCard({
     if (emptyState === "hidden") return null;
     return (
       <div className={plain ? "py-5 text-sm text-muted-foreground" : "rounded-xl border border-border bg-card p-5 text-sm text-muted-foreground"}>
-        Nothing is waiting for your OK right now.
+        {t("reviewQueueCard.empty", { defaultValue: "Nothing is waiting for your OK right now." })}
       </div>
     );
   }
@@ -69,7 +71,7 @@ export function ReviewQueueCard({
     <section className="space-y-3">
       <div className="flex items-center gap-2">
         <ShieldQuestion className="h-4 w-4 text-muted-foreground" />
-        <h2 className="text-sm font-bold text-foreground">{heading}</h2>
+        <h2 className="text-sm font-bold text-foreground">{heading ?? t("reviewQueueCard.heading", { defaultValue: "Waiting for your OK" })}</h2>
         <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
           {items.length}
         </span>
@@ -95,6 +97,7 @@ function ReviewRow({
   const queryClient = useQueryClient();
   const { pushToast } = useToast();
   const [resolving, setResolving] = useState<null | "allow" | "always" | "decline">(null);
+  const { t } = useTranslation();
 
   const interactionQuery = useQuery({
     queryKey: queryKeys.issues.interactions(item.request.issueId ?? "__none__"),
@@ -114,12 +117,12 @@ function ReviewRow({
     mutationFn: () => toolsApi.approveActionRequest(companyId, item.request.id),
     onMutate: () => setResolving("allow"),
     onSuccess: () => {
-      pushToast({ title: "Allowed once", body: `${actionLabel(item)} can run this time.`, tone: "success" });
+      pushToast({ title: t("reviewQueueCard.allowedOnce", { defaultValue: "Allowed once" }), body: t("reviewQueueCard.allowedOnceBody", { defaultValue: "{{action}} can run this time.", action: actionLabel(item, t) }), tone: "success" });
       invalidate();
     },
     onError: (error) => {
       invalidate();
-      failToast(pushToast, error);
+      failToast(pushToast, error, t);
     },
     onSettled: () => setResolving(null),
   });
@@ -131,8 +134,8 @@ function ReviewRow({
     onMutate: () => setResolving("always"),
     onSuccess: () => {
       pushToast({
-        title: "Always allowed",
-        body: `${actionLabel(item)} won’t ask again.`,
+        title: t("reviewQueueCard.alwaysAllowed", { defaultValue: "Always allowed" }),
+        body: t("reviewQueueCard.alwaysAllowedBody", { defaultValue: "{{action}} won’t ask again.", action: actionLabel(item, t) }),
         tone: "success",
       });
       invalidate();
@@ -140,7 +143,7 @@ function ReviewRow({
     },
     onError: (error) => {
       invalidate();
-      failToast(pushToast, error);
+      failToast(pushToast, error, t);
     },
     onSettled: () => setResolving(null),
   });
@@ -149,12 +152,12 @@ function ReviewRow({
     mutationFn: () => toolsApi.declineActionRequest(companyId, item.request.id),
     onMutate: () => setResolving("decline"),
     onSuccess: () => {
-      pushToast({ title: "Declined", body: `${actionLabel(item)} won’t run.`, tone: "info" });
+      pushToast({ title: t("reviewQueueCard.declined", { defaultValue: "Declined" }), body: t("reviewQueueCard.declinedBody", { defaultValue: "{{action}} won’t run.", action: actionLabel(item, t) }), tone: "info" });
       invalidate();
     },
     onError: (error) => {
       invalidate();
-      failToast(pushToast, error);
+      failToast(pushToast, error, t);
     },
     onSettled: () => setResolving(null),
   });
@@ -177,13 +180,13 @@ function ReviewRow({
   return (
     <div className={plain ? "py-3" : "rounded-xl border border-border bg-card p-4"}>
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm">
-        <span className="font-bold text-foreground">{actionLabel(item)}</span>
+        <span className="font-bold text-foreground">{actionLabel(item, t)}</span>
         {item.applicationName && (
           <span className="text-muted-foreground">
-            in {humanizeConnectionDisplayName(item.applicationName)}
+            {t("reviewQueueCard.inConnection", { defaultValue: "in {{name}}", name: humanizeConnectionDisplayName(item.applicationName) })}
           </span>
         )}
-        <span className="text-xs text-muted-foreground">· asked {timeAgo(item.request.createdAt)}</span>
+        <span className="text-xs text-muted-foreground">{t("reviewQueueCard.asked", { defaultValue: "· asked {{time}}", time: timeAgo(item.request.createdAt) })}</span>
       </div>
 
       {preview ? (
@@ -192,40 +195,41 @@ function ReviewRow({
         </div>
       ) : (
         <p className="mt-1 text-sm text-muted-foreground">
-          An agent wants to run this action. Your connection policy requires approval first.
+          {t("reviewQueueCard.approvalRequired", { defaultValue: "An agent wants to run this action. Your connection policy requires approval first." })}
         </p>
       )}
 
-      {item.requestedByAgentId && item.connectionId && !item.request.approvalId ? <p className="mt-2 text-xs text-muted-foreground">Always allow lets this agent use this action with different arguments on this connection, within the current project when present.</p> : null}
+      {item.requestedByAgentId && item.connectionId && !item.request.approvalId ? <p className="mt-2 text-xs text-muted-foreground">{t("reviewQueueCard.alwaysAllowNote", { defaultValue: "Always allow lets this agent use this action with different arguments on this connection, within the current project when present." })}</p> : null}
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <Button size="sm" onClick={() => allowOnce.mutate()} disabled={busy}>
           {resolving === "allow" ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Check className="mr-1.5 h-3.5 w-3.5" />}
-          Allow once
+          {t("reviewQueueCard.allowOnce", { defaultValue: "Allow once" })}
         </Button>
         {item.requestedByAgentId && item.connectionId && !item.request.approvalId ? <Button size="sm" variant="outline" onClick={() => alwaysAllow.mutate()} disabled={busy}>
           {resolving === "always" ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : null}
-          Always allow
+          {t("reviewQueueCard.alwaysAllow", { defaultValue: "Always allow" })}
         </Button> : null}
         <Button size="sm" variant="ghost" onClick={() => decline.mutate()} disabled={busy}>
           {resolving === "decline" ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <X className="mr-1.5 h-3.5 w-3.5" />}
-          Decline
+          {t("reviewQueueCard.decline", { defaultValue: "Decline" })}
         </Button>
       </div>
     </div>
   );
 }
 
-function actionLabel(item: ToolActionRequestListItem): string {
-  if (!item.toolTitle && !item.toolName) return "This action";
+function actionLabel(item: ToolActionRequestListItem, t: (key: string, options?: { defaultValue?: string }) => string): string {
+  if (!item.toolTitle && !item.toolName) return t("reviewQueueCard.actionFallback", { defaultValue: "This action" });
   return humanizeConnectionDisplayName(item.toolName ?? "", { title: item.toolTitle });
 }
 
 function failToast(
   pushToast: ReturnType<typeof useToast>["pushToast"],
   error: unknown,
+  t: (key: string, options?: { defaultValue?: string }) => string,
 ) {
   pushToast({
-    title: "Couldn’t save that",
+    title: t("reviewQueueCard.saveFailed", { defaultValue: "Couldn’t save that" }),
     body: describeError(error).body,
     tone: "error",
   });

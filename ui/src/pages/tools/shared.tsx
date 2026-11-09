@@ -9,10 +9,13 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { QueryErrorState } from "@/components/QueryView";
 import { StatusBadge } from "@/components/StatusBadge";
+import { ApiError } from "@/api/client";
+import { t as translate, useTranslation } from "../../i18n";
 
 /** Risk classification badge for a catalog tool. */
 export function RiskBadge({ risk }: { risk: ToolRiskLevel | null | undefined }) {
-  if (!risk) return <Badge variant="outline">unknown</Badge>;
+  const { t } = useTranslation();
+  if (!risk) return <Badge variant="outline">{t("toolsShared.unknownRisk", { defaultValue: "unknown" })}</Badge>;
   const variant =
     risk === "high" || risk === "critical"
       ? "destructive"
@@ -32,11 +35,12 @@ export function CapabilityBadges({
   isWrite?: boolean;
   isDestructive?: boolean;
 }) {
+  const { t } = useTranslation();
   return (
     <span className="inline-flex flex-wrap gap-1">
-      {isReadOnly ? <Badge variant="outline">read-only</Badge> : null}
-      {isWrite ? <Badge variant="secondary">write</Badge> : null}
-      {isDestructive ? <Badge variant="destructive">destructive</Badge> : null}
+      {isReadOnly ? <Badge variant="outline">{t("toolsShared.readOnly", { defaultValue: "read-only" })}</Badge> : null}
+      {isWrite ? <Badge variant="secondary">{t("toolsShared.write", { defaultValue: "write" })}</Badge> : null}
+      {isDestructive ? <Badge variant="destructive">{t("toolsShared.destructive", { defaultValue: "destructive" })}</Badge> : null}
     </span>
   );
 }
@@ -83,25 +87,25 @@ function decisionToStatusKey(decision: string): { key: string; label: string } {
   switch (decision) {
     case "allow":
     case "allowed":
-      return { key: "allowed", label: "allowed" };
+      return { key: "allowed", label: translate("toolsShared.decision.allowed", { defaultValue: "allowed" }) };
     case "deny":
     case "denied":
-      return { key: "denied", label: "denied" };
+      return { key: "denied", label: translate("toolsShared.decision.denied", { defaultValue: "denied" }) };
     case "block":
-      return { key: "block", label: "block" };
+      return { key: "block", label: translate("toolsShared.decision.block", { defaultValue: "block" }) };
     case "require_approval":
     case "requires_approval":
-      return { key: "require-approval", label: "require approval" };
+      return { key: "require-approval", label: translate("toolsShared.decision.requireApproval", { defaultValue: "require approval" }) };
     case "redact":
     case "redacted":
-      return { key: "redacted", label: "redacted" };
+      return { key: "redacted", label: translate("toolsShared.decision.redacted", { defaultValue: "redacted" }) };
     case "rate_limited":
-      return { key: "rate-limit", label: "rate limited" };
+      return { key: "rate-limit", label: translate("toolsShared.decision.rateLimited", { defaultValue: "rate limited" }) };
     case "defer":
     case "deferred":
-      return { key: "deferred", label: "deferred" };
+      return { key: "deferred", label: translate("toolsShared.decision.deferred", { defaultValue: "deferred" }) };
     case "hidden":
-      return { key: "hidden", label: "hidden" };
+      return { key: "hidden", label: translate("toolsShared.decision.hidden", { defaultValue: "hidden" }) };
     default:
       return { key: decision, label: decision };
   }
@@ -116,7 +120,8 @@ export function DecisionBadge({ decision }: { decision: ToolPolicyDecision | str
 
 /** Compact relative time, falling back to absolute. */
 export function RelativeTime({ value }: { value: Date | string | null | undefined }) {
-  if (!value) return <span className="text-muted-foreground">never</span>;
+  const { t } = useTranslation();
+  if (!value) return <span className="text-muted-foreground">{t("toolsShared.never", { defaultValue: "never" })}</span>;
   const date = typeof value === "string" ? new Date(value) : value;
   if (Number.isNaN(date.getTime())) return <span className="text-muted-foreground">—</span>;
   const diffMs = Date.now() - date.getTime();
@@ -124,11 +129,13 @@ export function RelativeTime({ value }: { value: Date | string | null | undefine
   const mins = Math.round(abs / 60000);
   const isFuture = diffMs < 0;
   let text: string;
-  if (mins < 1) text = "just now";
+  if (mins < 1) text = t("toolsShared.justNow", { defaultValue: "just now" });
   else {
     const value =
       mins < 60 ? `${mins}m` : mins < 1440 ? `${Math.round(mins / 60)}h` : `${Math.round(mins / 1440)}d`;
-    text = isFuture ? `in ${value}` : `${value} ago`;
+    text = isFuture
+      ? t("toolsShared.inFuture", { defaultValue: "in {{value}}", value })
+      : t("toolsShared.ago", { defaultValue: "{{value}} ago", value });
   }
   return (
     <span title={date.toLocaleString()} className="text-muted-foreground">
@@ -157,11 +164,12 @@ export function ToolsPageHeader({
   );
 }
 
-export function LoadingState({ label = "Loading…" }: { label?: string }) {
+export function LoadingState({ label }: { label?: string }) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center gap-2 py-10 text-sm text-muted-foreground">
       <span className="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground" />
-      {label}
+      {label ?? t("toolsAdminGate.loading", { defaultValue: "Loading…" })}
     </div>
   );
 }
@@ -198,6 +206,7 @@ export function PendingBackendNotice({
   body: ReactNode;
   issue?: { identifier: string; href: string };
 }) {
+  const { t } = useTranslation();
   return (
     <Card className="border-dashed">
       <CardContent className="flex flex-col gap-2 py-8">
@@ -208,7 +217,7 @@ export function PendingBackendNotice({
         <p className="max-w-2xl text-sm text-muted-foreground">{body}</p>
         {issue ? (
           <a href={issue.href} className="text-sm font-medium text-primary hover:underline">
-            Tracked in {issue.identifier} →
+            {t("toolsShared.trackedIn", { defaultValue: "Tracked in {{identifier}} →", identifier: issue.identifier })}
           </a>
         ) : null}
       </CardContent>

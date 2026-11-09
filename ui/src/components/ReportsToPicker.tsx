@@ -9,6 +9,7 @@ import {
 import { FlyoutAppearanceProvider, FlyoutHeader, FlyoutOptions } from "./ui/flyout";
 import { Check, User } from "lucide-react";
 import { cn } from "../lib/utils";
+import { useTranslation } from "../i18n";
 
 export function ReportsToPicker({
   agents,
@@ -31,6 +32,9 @@ export function ReportsToPicker({
   trigger?: ReactElement;
   disabledAgentIds?: string[];
 }) {
+  const { t } = useTranslation();
+  const disabledEmptyLabelText = disabledEmptyLabel ?? t("reportsToPicker.disabledDefault", { defaultValue: "Reports to: N/A (CEO)" });
+  const chooseLabelText = chooseLabel ?? t("reportsToPicker.choose", { defaultValue: "Reports to..." });
   const [open, setOpen] = useState(false);
   const exclude = new Set(excludeAgentIds);
   const rows = agents.filter(
@@ -55,7 +59,7 @@ export function ReportsToPicker({
           {unknownManager ? (
             <>
               <User className="h-3 w-3 shrink-0 text-muted-foreground" />
-              <span className="min-w-0 truncate text-muted-foreground">Unknown manager (stale ID)</span>
+              <span className="min-w-0 truncate text-muted-foreground">{t("reportsToPicker.unknown", { defaultValue: "Unknown manager (stale ID)" })}</span>
             </>
           ) : current ? (
             <>
@@ -66,21 +70,21 @@ export function ReportsToPicker({
                   terminatedManager && "text-amber-900 dark:text-amber-200",
                 )}
               >
-                {`Reports to ${current.name}${terminatedManager ? " (terminated)" : ""}`}
+                {`${t("reportsToPicker.reportsTo", { name: current.name, defaultValue: "Reports to {{name}}" })}${terminatedManager ? t("reportsToPicker.terminatedSuffix", { defaultValue: " (terminated)" }) : ""}`}
               </span>
             </>
           ) : (
             <>
               <User className="h-3 w-3 shrink-0 text-muted-foreground" />
               <span className="min-w-0 truncate">
-                {disabled ? disabledEmptyLabel : chooseLabel}
+                {disabled ? disabledEmptyLabelText : chooseLabelText}
               </span>
             </>
           )}
         </button>}
       </PopoverTrigger>
-      <PopoverContent className="w-64" align="start" aria-label="Choose manager">
-        <FlyoutHeader>Reports to</FlyoutHeader>
+      <PopoverContent className="w-64" align="start" aria-label={t("reportsToPicker.chooseManager", { defaultValue: "Choose manager" })}>
+        <FlyoutHeader>{t("reportsToPicker.reportsTo", { defaultValue: "Reports to" })}</FlyoutHeader>
         <FlyoutOptions className="max-h-80 overflow-y-auto">
         <button
           type="button"
@@ -95,20 +99,20 @@ export function ReportsToPicker({
           }}
         >
           <User className="size-5 shrink-0" aria-hidden />
-          <span className="min-w-0 flex-1 text-left">No manager</span>
+          <span className="min-w-0 flex-1 text-left">{t("reportsToPicker.noManager", { defaultValue: "No manager" })}</span>
           {value === null && <Check className="size-4 shrink-0" aria-hidden />}
         </button>
         {terminatedManager && (
           <div className="flex min-w-0 items-center gap-2 overflow-hidden px-2 py-1.5 text-xs text-muted-foreground border-b border-border mb-0.5">
             <AgentAvatar agent={current} size={16} className="shrink-0 h-3 w-3"/>
             <span className="min-w-0 truncate">
-              Current: {current.name} (terminated)
+              {t("reportsToPicker.current", { name: current.name, defaultValue: "Current: {{name}} (terminated)" })}
             </span>
           </div>
         )}
         {unknownManager && (
           <div className="px-2 py-1.5 text-xs text-muted-foreground border-b border-border mb-0.5">
-            Saved manager is missing from this organization. Choose a new manager or clear.
+            {t("reportsToPicker.missingManager", { defaultValue: "Saved manager is missing from this organization. Choose a new manager or clear." })}
           </div>
         )}
         {rows.map((a) => (

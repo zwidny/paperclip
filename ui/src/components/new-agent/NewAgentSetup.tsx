@@ -77,6 +77,7 @@ import {
   type ProviderConnection,
 } from "./AgentProviderConnection";
 import { adapterCuratesModelOrder } from "../../lib/model-utils";
+import { useTranslation } from "../../i18n";
 
 const controlClass = nativeSelectClassName;
 const nativeSetupHarnesses: Record<string, string> = {
@@ -87,13 +88,14 @@ const blocking = (result: AdapterEnvironmentTestResult) =>
   result.checks.some((check) => check.code === ADAPTER_AUTH_MISSING_CHECK_CODE);
 
 export function NewAgentSetup() {
+  const { t } = useTranslation();
   const { selectedCompanyId } = useCompany();
   const [params] = useSearchParams();
   const navigate = useNavigate();
   if (!selectedCompanyId)
     return (
       <p className="text-sm text-muted-foreground">
-        Select an organization to create an agent.
+        {t("newAgent.selectOrganization", { defaultValue: "Select an organization to create an agent." })}
       </p>
     );
   if (params.get("adapterType") === "muse" || params.get("runnerProvider") === "muse") return <ExternalAgentInviteDialog companyId={selectedCompanyId} initialPreset="muse" initialMuseName={params.get("name") ?? ""} onClose={() => navigate("/agents/all")} onBack={() => navigate("/agents/all")} />;
@@ -131,6 +133,7 @@ function Setup({
   createdAgentId: string | null;
   setupAgentId: string | null;
 }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const cache = useQueryClient();
   const { openNewIssue } = useDialogActions();
@@ -547,21 +550,21 @@ function Setup({
     return config;
   }
   function preparedConfig(nextConnection = connection, setupRunner?: AgentRunner) {
-    if (nativeCursorCloud && !model.trim()) throw new Error("Enter the exact Cursor Cloud model ID.");
-    if (isKimi && !model.trim()) throw new Error("Enter the exact Kimi model ID.");
-    if (isKimi && !apiKey.trim() && !selectedBinding) throw new Error("Enter KIMI_API_KEY or select an organization secret.");
+    if (nativeCursorCloud && !model.trim()) throw new Error(t("newAgent.errors.cursorCloudModelIdRequired", { defaultValue: "Enter the exact Cursor Cloud model ID." }));
+    if (isKimi && !model.trim()) throw new Error(t("newAgent.errors.kimiModelIdRequired", { defaultValue: "Enter the exact Kimi model ID." }));
+    if (isKimi && !apiKey.trim() && !selectedBinding) throw new Error(t("newAgent.errors.credentialOrSecret", { defaultValue: "Enter {{key}} or select an organization secret.", key: "KIMI_API_KEY" }));
     if (brandType === "antigravity_runtime" && (!model.trim() || model !== model.trim() || /\s/.test(model) || ["auto", "default"].includes(model.toLowerCase())))
       throw new Error("Choose or enter an exact Google Antigravity model ID.");
     if (brandType === "copilot_runtime" && !models.data?.some(candidate => candidate.id === model))
-      throw new Error("Refresh Copilot models and select an available model before creating this agent.");
-    if (isDot && !allowUnmeteredProvider) throw new Error("Acknowledge external provider billing before creating your Dot agent.");
+      throw new Error(t("newAgent.errors.refreshCopilotModels", { defaultValue: "Refresh Copilot models and select an available model before creating this agent." }));
+    if (isDot && !allowUnmeteredProvider) throw new Error(t("newAgent.errors.acknowledgeProviderBilling", { defaultValue: "Acknowledge external provider billing before creating your Dot agent." }));
     if (multiProvider && (!model.trim() || !model.includes("/")))
-      throw new Error("Choose or enter a model in provider/model format.");
+      throw new Error(t("newAgent.errors.modelFormat", { defaultValue: "Choose or enter a model in provider/model format." }));
     if (
       adapterType === "cursor_cloud" &&
       !/^https:\/\/github\.com\/[^/]+\/[^/]+/.test(repository.trim())
     )
-      throw new Error("Enter a GitHub repository URL.");
+      throw new Error(t("newAgent.errors.repositoryUrl", { defaultValue: "Enter a GitHub repository URL." }));
     if (
       ["cursor_cloud", "hermes_gateway"].includes(adapterType) &&
       !apiKey.trim() &&
@@ -569,19 +572,19 @@ function Setup({
     )
       throw new Error(
         adapterType === "cursor_cloud"
-          ? "Enter a Cursor API key."
-          : `Enter ${envKey} or select an organization secret.`,
+          ? t("newAgent.errors.cursorApiKey", { defaultValue: "Enter a Cursor API key." })
+          : t("newAgent.errors.credentialOrSecret", { defaultValue: "Enter {{key}} or select an organization secret.", key: envKey }),
       );
     if (adapterType === "hermes_gateway") {
       try {
         const url = new URL(gatewayUrl.trim());
         if (!["https:", "http:"].includes(url.protocol)) throw new Error();
       } catch {
-        throw new Error("Enter the Hermes API base URL.");
+        throw new Error(t("newAgent.errors.hermesBaseUrl", { defaultValue: "Enter the Hermes API base URL." }));
       }
     }
     if (usingKimiApi && !kimiModel.trim())
-      throw new Error("Enter the Kimi API model name.");
+      throw new Error(t("newAgent.errors.kimiModelName", { defaultValue: "Enter the Kimi API model name." }));
     return buildConfig(nextConnection, selectedBinding, setupRunner);
   }
   function pendingCredentials(nextConnection = connection) {
@@ -619,7 +622,7 @@ function Setup({
       setCreated(agent);
       cache.setQueryData(queryKeys.agents.detail(agent.id), agent);
       void cache.invalidateQueries({ queryKey: queryKeys.agents.list(companyId) });
-    }).catch(cause => setError(cause instanceof Error ? cause.message : "Could not create the agent."))
+    }).catch(cause => setError(cause instanceof Error ? cause.message : t("newAgent.errors.createFailed", { defaultValue: "Could not create the agent." })))
       .finally(() => { creating.current = false; });
   }, [name, adapterType, companyId, connectionSettingsReady, creationAttempt, createdAgentId, setupAgentId, savedAgent.isError, created, pendingAntigravity]);
 
@@ -691,7 +694,7 @@ function Setup({
         rememberCredentials();
       } else {
         try { await Promise.all(staged.map(secret => secret.remove())); }
-        catch { throw new Error(`${cause instanceof Error ? cause.message : "Could not save agent setup."} Could not remove an unused setup credential. Remove it from Secrets before retrying.`); }
+        catch { throw new Error(`${cause instanceof Error ? cause.message : t("newAgent.errors.saveSetupFailed", { defaultValue: "Could not save agent setup." })} ${t("newAgent.errors.stagedCredentialCleanup", { defaultValue: "Could not remove an unused setup credential. Remove it from Secrets before retrying." })}`); }
       }
       throw cause;
     }
@@ -703,7 +706,7 @@ function Setup({
     savingRef.current = true;
     setSaving(true);
     try { await saveDraft(connection, true); }
-    catch (cause) { setError(cause instanceof Error ? cause.message : "Could not save agent setup."); }
+    catch (cause) { setError(cause instanceof Error ? cause.message : t("newAgent.errors.saveSetupFailed", { defaultValue: "Could not save agent setup." })); }
     finally { savingRef.current = false; setSaving(false); }
   }
 
@@ -713,7 +716,7 @@ function Setup({
     setEnvironmentSaving(true);
     setEnvironmentSaveError(null);
     try { await saveDraft(connection, false, undefined, selected); }
-    catch (cause) { setEnvironmentSaveError(cause instanceof Error ? cause.message : "Could not save the environment."); }
+    catch (cause) { setEnvironmentSaveError(cause instanceof Error ? cause.message : t("newAgent.errors.saveEnvironmentFailed", { defaultValue: "Could not save the environment." })); }
     finally { setEnvironmentSaving(false); }
   }
 
@@ -867,11 +870,11 @@ function Setup({
         className="text-sm text-muted-foreground"
       >
         {savedAgent.error
-          ? "Could not load the created agent. Return to Agents to view it."
-          : "Loading your agent…"}
+          ? t("newAgent.errors.loadCreatedAgent", { defaultValue: "Could not load the created agent. Return to Agents to view it." })
+          : t("newAgent.loadingAgent", { defaultValue: "Loading your agent…" })}
       </p>
     );
-  if (resumeSavedChoice) return <p role="status" className="text-sm text-muted-foreground">Loading your agent setup…</p>;
+  if (resumeSavedChoice) return <p role="status" className="text-sm text-muted-foreground">{t("newAgent.loadingAgentSetup", { defaultValue: "Loading your agent setup…" })}</p>;
   if (choosingAdapter || !name || !adapterType || (created?.metadata?.setupAdapterPending === true && !unreleasedAntigravity))
     return (
       <AgentBasicsDialog
@@ -889,8 +892,8 @@ function Setup({
       />
     );
   if (!created && connectionSettingsReady && !pendingAntigravity) return <div className="space-y-4">
-    <p role={error ? "alert" : "status"}>{error ?? "Creating your agent…"}</p>
-    {error && <Button onClick={() => setCreationAttempt(value => value + 1)}>Retry</Button>}
+    <p role={error ? "alert" : "status"}>{error ?? t("newAgent.creatingAgent", { defaultValue: "Creating your agent…" })}</p>
+    {error && <Button onClick={() => setCreationAttempt(value => value + 1)}>{t("common.retry", { defaultValue: "Retry" })}</Button>}
   </div>;
   const steps = [
     ...(connectionAdapter ? ["connect" as const] : []),
@@ -898,9 +901,9 @@ function Setup({
     "saved" as const,
   ];
   const labels = {
-    connect: "Connect",
-    runtime: "Configure",
-    saved: "Confirmation",
+    connect: t("newAgent.step.connect", { defaultValue: "Connect" }),
+    runtime: t("newAgent.step.configure", { defaultValue: "Configure" }),
+    saved: t("newAgent.step.confirmation", { defaultValue: "Confirmation" }),
   };
   const confirmationEnvironment = created?.defaultEnvironmentId
     ? envs.data?.find((env) => env.id === created.defaultEnvironmentId)
@@ -915,7 +918,7 @@ function Setup({
       ? createdKimiModel
       : (createdKimiModel as { value?: string } | undefined)?.value) ||
     model ||
-    "Default";
+    t("newAgent.modelDefault", { defaultValue: "Default" });
   const environmentLabel =
     adapterType === "cursor_cloud"
       ? "Cursor Cloud"
@@ -923,7 +926,7 @@ function Setup({
         ? "Hermes Gateway"
         : confirmationEnvironment
           ? environmentDisplayLabel(confirmationEnvironment)
-          : "Local machine";
+          : t("newAgent.localMachine", { defaultValue: "Local machine" });
   const setupError =
     adapters.error ??
     adapterInventory.error ??
@@ -954,7 +957,7 @@ function Setup({
                 <span>
                   ·{" "}
                   {runnerProvider === "codex"
-                    ? "Native app server runner"
+                    ? t("newAgent.nativeAppServerRunner", { defaultValue: "Native app server runner" })
                     : "Paperclip Runner"}
                 </span>
               )}
@@ -966,7 +969,7 @@ function Setup({
             {environmentError}
           </p>
         )}
-        {preparingComputer && <p role="status" className="text-sm text-muted-foreground">Preparing your agent computer…</p>}
+        {preparingComputer && <p role="status" className="text-sm text-muted-foreground">{t("newAgent.preparing", { defaultValue: "Preparing your agent computer…" })}</p>}
         {created?.lifecycleError && <div className="space-y-2">
           <p role="alert" className="text-sm text-destructive">{created.lifecycleError}</p>
           <Button disabled={busy} onClick={() => {
@@ -975,9 +978,9 @@ function Setup({
               await cache.cancelQueries({ queryKey: queryKeys.agents.detail(agent.id) });
               setCreated(agent);
               cache.setQueryData(queryKeys.agents.detail(agent.id), agent);
-            }).catch(cause => setError(cause instanceof Error ? cause.message : "Could not retry computer preparation."))
+            }).catch(cause => setError(cause instanceof Error ? cause.message : t("newAgent.errors.retryPreparationFailed", { defaultValue: "Could not retry computer preparation." })))
               .finally(() => setEnvironmentSaving(false));
-          }}>Retry preparation</Button>
+          }}>{t("newAgent.retryPreparation", { defaultValue: "Retry preparation" })}</Button>
         </div>}
         {setupError && (
           <QueryErrorState
@@ -990,27 +993,26 @@ function Setup({
         {pendingAntigravity && configurationAvailable && (
           <div className="space-y-2">
             <p role="status" className="text-sm text-muted-foreground">
-              Google Antigravity is not available yet. You can connect your Google account and review settings. This agent cannot finish setup or run tasks yet. Model and connection settings are not saved to this agent yet.
+              {t("newAgent.antigravityUnavailable", { defaultValue: "Google Antigravity is not available yet. You can connect your Google account and review settings. This agent cannot finish setup or run tasks yet. Model and connection settings are not saved to this agent yet." })}
             </p>
-            {created && <Button variant="link" className="px-0" onClick={() => setChoosingAdapter(true)}>Change adapter</Button>}
+            {created && <Button variant="link" className="px-0" onClick={() => setChoosingAdapter(true)}>{t("newAgent.changeAdapter", { defaultValue: "Change adapter" })}</Button>}
           </div>
         )}
-        {antigravityCandidate && <p role="status" className="text-sm text-muted-foreground">Google Antigravity candidate is enabled for testing on this instance.</p>}
+        {antigravityCandidate && <p role="status" className="text-sm text-muted-foreground">{t("newAgent.antigravityCandidateEnabled", { defaultValue: "Google Antigravity candidate is enabled for testing on this instance." })}</p>}
         {adapterInventory.data && !configurationAvailable && (
           <p role="alert" className="text-sm text-destructive">
-            This adapter is unavailable. Choose an enabled adapter.
+            {t("newAgent.adapterUnavailable", { defaultValue: "This adapter is unavailable. Choose an enabled adapter." })}
           </p>
         )}
         {!nativeCursorCloud && (managedOnly || forced.forced) &&
           !envs.isPending &&
           !environmentId && (
             <p role="alert" className="text-sm text-destructive">
-              No managed environment is available. Configure an environment
-              before continuing.
+              {t("newAgent.noManagedEnvironment", { defaultValue: "No managed environment is available. Configure an environment before continuing." })}
             </p>
           )}
         <div className="flex flex-col gap-8 md:flex-row">
-          <nav aria-label="Agent setup steps" className="shrink-0 md:w-44">
+          <nav aria-label={t("newAgent.stepsAria", { defaultValue: "Agent setup steps" })} className="shrink-0 md:w-44">
             <ol className="flex flex-wrap gap-2 md:flex-col">
               {steps.map((step, index) => (
                 <li key={step}>
@@ -1051,7 +1053,7 @@ function Setup({
                   <OnboardingCard className="mx-auto">
                     <div className="mb-8">
                       <OnboardingHeading
-                        title="Connect a model"
+                        title={t("onboarding.connect.title", { defaultValue: "Connect a model" })}
                         center
                       />
                     </div>
@@ -1114,9 +1116,9 @@ function Setup({
                           setConnection(next);
                           setRuntimeAiBinding(undefined);
                           setScreen("runtime");
-                        }).catch(cause => setError(cause instanceof Error ? cause.message : "Could not save agent setup."));
+                        }).catch(cause => setError(cause instanceof Error ? cause.message : t("newAgent.errors.saveSetupFailed", { defaultValue: "Could not save agent setup." })));
                       }}
-                    /></fieldset> : <p role="status" className="text-sm text-muted-foreground">Loading connection settings…</p>}
+                    /></fieldset> : <p role="status" className="text-sm text-muted-foreground">{t("newAgent.loadingConnection", { defaultValue: "Loading connection settings…" })}</p>}
                   </OnboardingCard>
                 ) : screen === "saved" && created ? (
                   <div className="space-y-6">
@@ -1124,30 +1126,31 @@ function Setup({
                       <h2 className="flex items-center gap-3 text-lg font-semibold">
                         <Check className="size-5" />
                         {created.status === "pending_approval"
-                          ? "Agent submitted for approval"
-                          : isDot ? "Your Dot agent has been created"
-                            : finishingSetup ? "Finishing agent setup" : runtimeReady ? "Your agent is ready" : "Your agent is paused"}
+                          ? t("newAgent.saved.submittedForApproval", { defaultValue: "Agent submitted for approval" })
+                          : isDot ? t("newAgent.saved.dotCreated", { defaultValue: "Your Dot agent has been created" })
+                            : finishingSetup ? t("newAgent.saved.finishingSetup", { defaultValue: "Finishing agent setup" })
+                              : runtimeReady ? t("newAgent.saved.ready", { defaultValue: "Your agent is ready" }) : t("newAgent.saved.paused", { defaultValue: "Your agent is paused" })}
                       </h2>
                       <dl className="grid grid-cols-2 gap-4 text-sm">
-                        <dt className="text-muted-foreground">Adapter</dt>
+                        <dt className="text-muted-foreground">{t("newAgent.adapter", { defaultValue: "Adapter" })}</dt>
                         <dd>{getAdapterDisplay(isDot ? "openai_dot" : adapterType).label}</dd>
                         {showModel && (
                           <>
-                            <dt className="text-muted-foreground">Model</dt>
+                            <dt className="text-muted-foreground">{t("newAgent.model", { defaultValue: "Model" })}</dt>
                             <dd className="break-all">
                               {String(confirmationModel)}
                             </dd>
                           </>
                         )}
-                        <dt className="text-muted-foreground">Environment</dt>
+                        <dt className="text-muted-foreground">{t("newAgent.environment", { defaultValue: "Environment" })}</dt>
                         <dd>{environmentLabel}</dd>
                       </dl>
                       <p className="text-sm text-muted-foreground">
                         {created.status === "pending_approval"
-                          ? "An organization administrator must approve this agent before it can work."
-                          : isDot ? "Pair your Dot and test event delivery in configuration before assigning work."
-                            : finishingSetup ? "Paperclip is preparing and verifying your agent. You can assign a task when it is ready."
-                              : runtimeReady ? "Assign a task when you’re ready for this agent to work." : "Review the agent’s status in configuration before assigning work."}
+                          ? t("newAgent.saved.approvalRequired", { defaultValue: "An organization administrator must approve this agent before it can work." })
+                          : isDot ? t("newAgent.saved.dotNextStep", { defaultValue: "Pair your Dot and test event delivery in configuration before assigning work." })
+                            : finishingSetup ? t("newAgent.saved.preparingNextStep", { defaultValue: "Paperclip is preparing and verifying your agent. You can assign a task when it is ready." })
+                              : runtimeReady ? t("newAgent.saved.nextStep", { defaultValue: "Assign a task when you’re ready for this agent to work." }) : t("newAgent.saved.reviewStatus", { defaultValue: "Review the agent’s status in configuration before assigning work." })}
                       </p>
                     </div>
                     <div className="flex flex-wrap justify-between gap-3">
@@ -1156,7 +1159,7 @@ function Setup({
                         onClick={() => navigate(isDot ? "/agents/all" : `${agentUrl(created)}/runtime`)}
                       >
                         <Settings2 className="size-4" />
-                        {isDot ? "Back to Agents" : "Edit configuration"}
+                        {isDot ? t("newAgent.saved.backToAgents", { defaultValue: "Back to Agents" }) : t("newAgent.saved.editConfiguration", { defaultValue: "Edit configuration" })}
                       </Button>
                       <Button
                         disabled={created.status === "pending_approval" || (!isDot && !runtimeReady)}
@@ -1165,7 +1168,7 @@ function Setup({
                           : void assignFirstTask()
                         }
                       >
-                        {isDot ? "Pair Dot" : `Assign ${created.name} a Task`}
+                        {isDot ? t("newAgent.saved.pairDot", { defaultValue: "Pair Dot" }) : t("newAgent.saved.assignTask", { defaultValue: "Assign {{name}} a Task", name: created.name })}
                         <ArrowRight className="size-4" />
                       </Button>
                     </div>
@@ -1179,14 +1182,14 @@ function Setup({
                     }}
                   >
                     <h2 className="text-xl font-semibold">
-                      Configure your agent
+                      {t("newAgent.configure.title", { defaultValue: "Configure your agent" })}
                     </h2>
                     <fieldset disabled={busy} className="space-y-8">
                       <section className="space-y-5">
                         {isDot && <>
-                          <p className="text-sm text-muted-foreground">Create this agent, then copy its pairing prompt to your Dot.</p>
-                          {experimental.data?.enablePublicMcp !== true && <p className="text-sm text-muted-foreground">Enable Assistant connections (MCP) in Experimental settings before pairing.</p>}
-                          <ToggleField label="Allow externally billed provider" hint="Dot does not report token usage or cost. Paperclip cannot enforce a provider spend ceiling; known company and agent budget limits still apply."
+                          <p className="text-sm text-muted-foreground">{t("newAgent.configure.dotCreateFirst", { defaultValue: "Create this agent, then copy its pairing prompt to your Dot." })}</p>
+                          {experimental.data?.enablePublicMcp !== true && <p className="text-sm text-muted-foreground">{t("newAgent.configure.dotEnableMcp", { defaultValue: "Enable Assistant connections (MCP) in Experimental settings before pairing." })}</p>}
+                          <ToggleField label={t("newAgent.configure.allowExternallyBilled", { defaultValue: "Allow externally billed provider" })} hint={t("newAgent.configure.allowExternallyBilledHint", { defaultValue: "Dot does not report token usage or cost. Paperclip cannot enforce a provider spend ceiling; known company and agent budget limits still apply." })}
                             checked={allowUnmeteredProvider} onChange={value => { setAllowUnmeteredProvider(value); resetTest(); }} />
                         </>}
                         {!connectionAdapter && aiProviderForAdapter(brandType) && (
@@ -1195,7 +1198,7 @@ function Setup({
                               if (accountCatalogAvailable && hashKey([aiBinding ?? null]) === hashKey([binding ?? null])) void refreshAccountModels();
                             }} />
                         )}
-                        {(connectionModels ? connectionModels.error : models.error) && <p role="alert" className="text-sm text-destructive">Could not load models. Retry or enter a model ID manually.</p>}
+                        {(connectionModels ? connectionModels.error : models.error) && <p role="alert" className="text-sm text-destructive">{t("newAgent.configure.modelsError", { defaultValue: "Could not load models. Retry or enter a model ID manually." })}</p>}
                         {((showModel && !usingKimiApi) ||
                           efforts.length > 0) && (
                           <div className="grid items-start gap-5 sm:grid-cols-2">
@@ -1238,18 +1241,18 @@ function Setup({
                               />
                             )}
                             {efforts.length > 0 && (
-                              <Field label="Thinking effort">
-                                {brandType === "codex_local" ? <SelectPopover aria-label="Thinking effort" value={effort}
+                              <Field label={t("newAgent.configure.thinkingEffort", { defaultValue: "Thinking effort" })}>
+                                {brandType === "codex_local" ? <SelectPopover aria-label={t("newAgent.configure.thinkingEffort", { defaultValue: "Thinking effort" })} value={effort}
                                   onValueChange={value => { setEffort(value); resetTest(); }}
-                                  options={[{ value: "", label: "Auto" }, ...efforts.map(value => ({ value, label: value }))]} /> : <NativeSelect
-                                  aria-label="Thinking effort"
+                                  options={[{ value: "", label: t("newAgent.configure.effortAuto", { defaultValue: "Auto" }) }, ...efforts.map(value => ({ value, label: value }))]} /> : <NativeSelect
+                                  aria-label={t("newAgent.configure.thinkingEffort", { defaultValue: "Thinking effort" })}
                                   value={effort}
                                   onChange={(event) => {
                                     setEffort(event.target.value);
                                     resetTest();
                                   }}
                                 >
-                                  <option value="">Auto</option>
+                                  <option value="">{t("newAgent.configure.effortAuto", { defaultValue: "Auto" })}</option>
                                   {efforts.map((value) => (
                                     <option key={value} value={value}>
                                       {value}
@@ -1268,9 +1271,9 @@ function Setup({
                         {hasCredentialField && !aiBinding && (
                           <div className="grid gap-5 sm:grid-cols-2">
                             {chooseProvider && (
-                              <Field label="API key provider">
+                              <Field label={t("newAgent.configure.apiKeyProvider", { defaultValue: "API key provider" })}>
                                 <select
-                                  aria-label="API key provider"
+                                  aria-label={t("newAgent.configure.apiKeyProvider", { defaultValue: "API key provider" })}
                                   className={controlClass}
                                   value={provider}
                                   onChange={(event) => {
@@ -1321,13 +1324,13 @@ function Setup({
                                     }}
                                     placeholder={
                                       selectedBinding
-                                        ? "Using saved key"
+                                        ? t("newAgent.configure.placeholderUsingSavedKey", { defaultValue: "Using saved key" })
                                         : (isKimi || [
                                               "cursor_cloud",
                                               "hermes_gateway",
                                             ].includes(adapterType))
-                                          ? "Required"
-                                          : "Optional if already configured"
+                                          ? t("newAgent.configure.placeholderRequired", { defaultValue: "Required" })
+                                          : t("newAgent.configure.placeholderOptional", { defaultValue: "Optional if already configured" })
                                     }
                                   />
                                   {adapterType === "cursor_cloud" && (
@@ -1337,7 +1340,7 @@ function Setup({
                                       rel="noopener noreferrer"
                                       className="shrink-0 text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
                                     >
-                                      get api key
+                                      {t("newAgent.configure.getApiKey", { defaultValue: "get api key" })}
                                     </a>
                                   )}
                                 </div>
@@ -1349,7 +1352,7 @@ function Setup({
                                   chooseProvider ? "sm:col-span-2" : undefined
                                 }
                               >
-                                <Field label="Or use an organization secret">
+                                <Field label={t("newAgent.configure.organizationSecret", { defaultValue: "Or use an organization secret" })}>
                                   <SecretPicker
                                     secretId={
                                       selectedBinding &&
@@ -1374,17 +1377,16 @@ function Setup({
                               </div>
                             )}
                             <p className="text-xs text-muted-foreground sm:col-span-2">
-                              New keys are saved as organization secrets when
-                              you finish setup.
-                              {isKimi && " Use a Kimi Code API key for this runner."}
-                              {multiProvider && ` Use a ${provider}/model ID.`}
+                              {t("newAgent.configure.organizationSecretsNote", { defaultValue: "New keys are saved as organization secrets when you finish setup." })}
+                              {isKimi && ` ${t("newAgent.configure.kimiCodeApiKeyNote", { defaultValue: "Use a Kimi Code API key for this runner." })}`}
+                              {multiProvider && ` ${t("newAgent.configure.modelIdSuffix", { defaultValue: "Use a {{provider}}/model ID.", provider })}`}
                             </p>
                           </div>
                         )}
                         {adapterType === "hermes_gateway" && (
-                          <Field label="Hermes API base URL">
+                          <Field label={t("newAgent.configure.hermesBaseUrl", { defaultValue: "Hermes API base URL" })}>
                             <Input
-                              aria-label="Hermes API base URL"
+                              aria-label={t("newAgent.configure.hermesBaseUrl", { defaultValue: "Hermes API base URL" })}
                               value={gatewayUrl}
                               onChange={(event) => {
                                 setGatewayUrl(event.target.value);
@@ -1396,9 +1398,9 @@ function Setup({
                         )}
                         {usingKimiApi && (
                           <div className="grid gap-5 sm:grid-cols-2">
-                            <Field label="Kimi API model name">
+                            <Field label={t("newAgent.configure.kimiModelName", { defaultValue: "Kimi API model name" })}>
                               <Input
-                                aria-label="Kimi API model name"
+                                aria-label={t("newAgent.configure.kimiModelName", { defaultValue: "Kimi API model name" })}
                                 value={kimiModel}
                                 onChange={(event) => {
                                   setKimiModel(event.target.value);
@@ -1407,9 +1409,9 @@ function Setup({
                                 placeholder="kimi-for-coding"
                               />
                             </Field>
-                            <Field label="Kimi API protocol">
+                            <Field label={t("newAgent.configure.kimiProtocol", { defaultValue: "Kimi API protocol" })}>
                               <select
-                                aria-label="Kimi API protocol"
+                                aria-label={t("newAgent.configure.kimiProtocol", { defaultValue: "Kimi API protocol" })}
                                 className={controlClass}
                                 value={kimiProtocol}
                                 onChange={(event) => {
@@ -1425,17 +1427,17 @@ function Setup({
                               </select>
                             </Field>
                             <Field
-                              label="Kimi API base URL"
-                              hint="Optional override for your provider endpoint."
+                              label={t("newAgent.configure.kimiBaseUrl", { defaultValue: "Kimi API base URL" })}
+                              hint={t("newAgent.configure.kimiBaseUrlHint", { defaultValue: "Optional override for your provider endpoint." })}
                             >
                               <Input
-                                aria-label="Kimi API base URL"
+                                aria-label={t("newAgent.configure.kimiBaseUrl", { defaultValue: "Kimi API base URL" })}
                                 value={kimiBaseUrl}
                                 onChange={(event) => {
                                   setKimiBaseUrl(event.target.value);
                                   resetTest();
                                 }}
-                                placeholder="Provider default"
+                                placeholder={t("newAgent.configure.providerDefault", { defaultValue: "Provider default" })}
                               />
                             </Field>
                           </div>
@@ -1444,9 +1446,9 @@ function Setup({
                           <>
                           {nativeCursorCloud && <p className="text-sm text-muted-foreground">Experimental. Cursor hosts this agent’s execution environment. A Paperclip computer is not required. Cursor manages cloud command permissions; the effective model is not acknowledged.</p>}
                           <div className="grid gap-5 sm:grid-cols-2">
-                            <Field label="GitHub repository">
+                            <Field label={t("newAgent.configure.githubRepository", { defaultValue: "GitHub repository" })}>
                               <Input
-                                aria-label="GitHub repository"
+                                aria-label={t("newAgent.configure.githubRepository", { defaultValue: "GitHub repository" })}
                                 value={repository}
                                 onChange={(event) => {
                                   setRepository(event.target.value);
@@ -1455,10 +1457,10 @@ function Setup({
                                 placeholder="https://github.com/your-org/repo"
                               />
                             </Field>
-                            <Field label="Branch">
+                            <Field label={t("newAgent.configure.branch", { defaultValue: "Branch" })}>
                               <Input
-                                aria-label="Branch"
-                                placeholder="Repository default"
+                                aria-label={t("newAgent.configure.branch", { defaultValue: "Branch" })}
+                                placeholder={t("newAgent.configure.repositoryDefault", { defaultValue: "Repository default" })}
                                 value={branch}
                                 onChange={(event) => {
                                   setBranch(event.target.value);
@@ -1472,9 +1474,9 @@ function Setup({
                       </section>
                       {adapterType !== "hermes_gateway" && adapterType !== "cursor_cloud" && (
                         <section className="space-y-5">
-                          <h3 className="text-sm font-semibold">Environment</h3>
+                          <h3 className="text-sm font-semibold">{t("newAgent.environment", { defaultValue: "Environment" })}</h3>
                           <select
-                            aria-label="Environment"
+                            aria-label={t("newAgent.environment", { defaultValue: "Environment" })}
                             className={controlClass}
                             value={environmentOverride}
                             disabled={forced.forced}
@@ -1483,7 +1485,7 @@ function Setup({
                             }}
                           >
                             <option value="">
-                              Default: {environmentLabel}
+                              {t("newAgent.configure.defaultEnvironment", { defaultValue: "Default: {{environment}}", environment: environmentLabel })}
                             </option>
                             {(envs.data ?? [])
                               .filter((env) => env.status === "active" && (!managedOnly || env.driver !== "local"))
@@ -1511,10 +1513,10 @@ function Setup({
                       </p>
                     )}
                     {environmentSaveError && <p role="alert" className="text-sm text-destructive">{environmentSaveError}</p>}
-                    {environmentSaveError && !environmentSelectionSaved && <Button disabled={busy} onClick={() => void changeEnvironment()}>Retry saving environment</Button>}
+                    {environmentSaveError && !environmentSelectionSaved && <Button disabled={busy} onClick={() => void changeEnvironment()}>{t("newAgent.configure.retrySavingEnvironment", { defaultValue: "Retry saving environment" })}</Button>}
                     <div className="flex justify-between border-t border-border py-5">
                       <div className="flex items-center gap-3">
-                        <Button type="button" variant="ghost" disabled={busy} onClick={() => void saveAndExit()}>{pendingAntigravity ? "Back to agents" : "Save & exit"}</Button>
+                        <Button type="button" variant="ghost" disabled={busy} onClick={() => void saveAndExit()}>{pendingAntigravity ? t("newAgent.backToAgents", { defaultValue: "Back to agents" }) : t("newAgent.saveAndExit", { defaultValue: "Save & exit" })}</Button>
                       {connectionAdapter ? (
                         <Button
                           type="button"
@@ -1523,7 +1525,7 @@ function Setup({
                           onClick={editConnection}
                         >
                           <ArrowLeft className="size-4" />
-                          Connection
+                          {t("newAgent.configure.connection", { defaultValue: "Connection" })}
                         </Button>
                       ) : (
                         null
@@ -1534,7 +1536,7 @@ function Setup({
                         disabled={!ready || busy}
                         onClick={() => setScreen("connect")}
                       >
-                        Connect model
+                        {t("newAgent.configure.connectModel", { defaultValue: "Connect model" })}
                         <ArrowRight className="size-4" />
                       </Button> : <Button
                         type="submit"
@@ -1546,7 +1548,7 @@ function Setup({
                           Boolean(connectionAdapter && !connection)
                         }
                       >
-                        {saving ? "Saving…" : "Finish setup"}
+                        {saving ? t("common.saving", { defaultValue: "Saving…" }) : t("newAgent.configure.finishSetup", { defaultValue: "Finish setup" })}
                         <Check className="size-4" />
                       </Button>}
                     </div>

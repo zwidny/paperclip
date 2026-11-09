@@ -14,14 +14,16 @@ import { formatDate } from "../lib/utils";
 import { ListTodo } from "lucide-react";
 import { useStreamlinedUiEnabled } from "../hooks/useStreamlinedUiEnabled";
 import { taskStatusIconProps } from "@/lib/task-status-presentation";
+import { useTranslation } from "../i18n";
 
 export function MyIssues() {
+  const { t } = useTranslation();
   const { enabled: streamlinedUiEnabled } = useStreamlinedUiEnabled();
   const { selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "My Tasks" }]);
+    setBreadcrumbs([{ label: t("tasks.myTasks", { defaultValue: "My Tasks" }) }]);
   }, [setBreadcrumbs]);
 
   const issuesQuery = useQuery({
@@ -37,8 +39,8 @@ export function MyIssues() {
       <EmptyState
         icon={ListTodo}
         message={streamlinedUiEnabled
-          ? "Select an organization to view your tasks."
-          : "Select a company to view your tasks."}
+          ? t("tasks.selectOrganization", { defaultValue: "Select an organization to view tasks." })
+          : t("tasks.selectCompany", { defaultValue: "Select a company to view tasks." })}
       />
     );
   }
@@ -68,7 +70,7 @@ export function MyIssues() {
   return (
     <div className="space-y-4">
       {myIssues.length === 0 && (
-        <EmptyState icon={ListTodo} message="No tasks assigned to you." />
+        <EmptyState icon={ListTodo} message={t("tasks.noAssigned", { defaultValue: "No tasks assigned to you." })} />
       )}
 
       {myIssues.length > 0 && (

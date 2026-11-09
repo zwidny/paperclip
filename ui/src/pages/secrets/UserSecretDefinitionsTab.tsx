@@ -27,6 +27,7 @@ import { secretsApi } from "../../api/secrets";
 import { queryKeys } from "../../lib/queryKeys";
 import { cn } from "../../lib/utils";
 import { useToastActions } from "../../context/ToastContext";
+import { useTranslation } from "../../i18n";
 import {
   coverageSummaryLabel,
   secretStatusTone,
@@ -65,6 +66,7 @@ const emptyForm: DefinitionForm = {
  * only — never values — per the UX terminology decisions.
  */
 export function UserSecretDefinitionsTab({ companyId }: { companyId: string }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { pushToast } = useToastActions();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -125,7 +127,9 @@ export function UserSecretDefinitionsTab({ companyId }: { companyId: string }) {
     onSuccess: (definition) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.secrets.userDefinitions(companyId) });
       pushToast({
-        title: editing ? "Definition updated" : "Definition created",
+        title: editing
+          ? t("userSecretDefinitions.updatedToast", { defaultValue: "Definition updated" })
+          : t("userSecretDefinitions.createdToast", { defaultValue: "Definition created" }),
         body: definition.name,
         tone: "success",
       });
@@ -140,12 +144,12 @@ export function UserSecretDefinitionsTab({ companyId }: { companyId: string }) {
       secretsApi.removeUserSecretDefinition(companyId, definition.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.secrets.userDefinitions(companyId) });
-      pushToast({ title: "Definition removed", tone: "info" });
+      pushToast({ title: t("userSecretDefinitions.removedToast", { defaultValue: "Definition removed" }), tone: "info" });
       setDeleteTarget(null);
     },
     onError: (err) =>
       pushToast({
-        title: "Could not remove definition",
+        title: t("userSecretDefinitions.removeFailed", { defaultValue: "Could not remove definition" }),
         body: describeError(err).body,
         tone: "error",
       }),
@@ -158,15 +162,13 @@ export function UserSecretDefinitionsTab({ companyId }: { companyId: string }) {
       <div className="flex items-start gap-2 rounded-md border border-violet-500/30 bg-violet-500/5 px-4 py-3 text-xs text-violet-800 dark:text-violet-200">
         <UserRound className="h-4 w-4 mt-0.5 shrink-0" />
         <p>
-          Define credentials that <span className="font-medium">each member supplies for
-          themselves</span>. You set the shape here; every user enters their own value under My
-          secrets. Coverage shows how many members have set a value — never the values themselves.
+          {t("userSecretDefinitions.bannerPrefix", { defaultValue: "Define credentials that " })}<span className="font-medium">{t("userSecretDefinitions.bannerStrong", { defaultValue: "each member supplies for themselves" })}</span>{t("userSecretDefinitions.bannerSuffix", { defaultValue: ". You set the shape here; every user enters their own value under My secrets. Coverage shows how many members have set a value — never the values themselves." })}
         </p>
       </div>
 
       <div className="flex items-center justify-end">
         <Button size="sm" onClick={openCreate}>
-          <Plus className="mr-1 h-3.5 w-3.5" /> New user secret
+          <Plus className="mr-1 h-3.5 w-3.5" /> {t("userSecretDefinitions.newUserSecret", { defaultValue: "New user secret" })}
         </Button>
       </div>
 
@@ -183,8 +185,8 @@ export function UserSecretDefinitionsTab({ companyId }: { companyId: string }) {
         ) : definitions.length === 0 && !definitionsQuery.isPending && definitionsView.kind !== "reconnecting" ? (
           <EmptyState
             icon={UserRound}
-            message="No user secret definitions yet. Create one to require each member to supply their own credential."
-            action="New user secret"
+            message={t("userSecretDefinitions.emptyMessage", { defaultValue: "No user secret definitions yet. Create one to require each member to supply their own credential." })}
+            action={t("userSecretDefinitions.newUserSecret", { defaultValue: "New user secret" })}
             onAction={openCreate}
           />
         ) : (
@@ -205,7 +207,7 @@ export function UserSecretDefinitionsTab({ companyId }: { companyId: string }) {
                       variant="outline"
                       className={cn("text-(length:--text-micro)", secretStatusTone(definition.status))}
                     >
-                      {definition.status}
+                      {t(`secrets.status.${definition.status}`, { defaultValue: definition.status })}
                     </Badge>
                   </div>
                   {definition.description ? (
@@ -237,17 +239,19 @@ export function UserSecretDefinitionsTab({ companyId }: { companyId: string }) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              {editing ? "Edit user secret" : "New user secret"}
+              {editing
+                ? t("userSecretDefinitions.editTitle", { defaultValue: "Edit user secret" })
+                : t("userSecretDefinitions.newUserSecret", { defaultValue: "New user secret" })}
               <UserSecretChip />
             </DialogTitle>
             <DialogDescription>
-              Members supply their own value for this credential. No value is entered here.
+              {t("userSecretDefinitions.dialogDescription", { defaultValue: "Members supply their own value for this credential. No value is entered here." })}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-3">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-foreground">Name</label>
+              <label className="text-xs font-medium text-foreground">{t("secrets.create.nameLabel", { defaultValue: "Name" })}</label>
               <Input
                 value={form.name}
                 onChange={(event) => {
@@ -258,52 +262,52 @@ export function UserSecretDefinitionsTab({ companyId }: { companyId: string }) {
                     key: keyDirty ? current.key : keyFromName(name),
                   }));
                 }}
-                placeholder="Personal GitHub token"
+                placeholder={t("secrets.create.namePlaceholderUser", { defaultValue: "Personal GitHub token" })}
                 autoFocus
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-foreground">Key</label>
+              <label className="text-xs font-medium text-foreground">{t("secrets.create.keyLabel", { defaultValue: "Key" })}</label>
               <Input
                 value={form.key}
                 onChange={(event) => {
                   setKeyDirty(true);
                   setForm((current) => ({ ...current, key: event.target.value }));
                 }}
-                placeholder="PERSONAL_GH_TOKEN"
+                placeholder={t("secrets.create.keyPlaceholderUser", { defaultValue: "PERSONAL_GH_TOKEN" })}
                 className="font-mono text-sm"
                 disabled={Boolean(editing)}
               />
               <p className="text-(length:--text-micro) text-muted-foreground">
-                Stable identifier referenced by env bindings. {editing ? "Cannot be changed." : ""}
+                {t("userSecretDefinitions.keyHint", { defaultValue: "Stable identifier referenced by env bindings. " })}{editing ? t("userSecretDefinitions.keyCannotChange", { defaultValue: "Cannot be changed." }) : ""}
               </p>
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-foreground">Description</label>
+              <label className="text-xs font-medium text-foreground">{t("secrets.create.descriptionLabel", { defaultValue: "Description" })}</label>
               <Input
                 value={form.description}
                 onChange={(event) =>
                   setForm((current) => ({ ...current, description: event.target.value }))
                 }
-                placeholder="What this credential is for"
+                placeholder={t("userSecretDefinitions.descriptionPlaceholder", { defaultValue: "What this credential is for" })}
               />
             </div>
             <div className="space-y-1">
               <label className="text-xs font-medium text-foreground">
-                Usage guidance <span className="text-muted-foreground">(optional)</span>
+                {t("secrets.create.usageGuidanceLabel", { defaultValue: "Usage guidance" })}<span className="text-muted-foreground">{t("secrets.vaultFields.optional", { defaultValue: " (optional)" })}</span>
               </label>
               <Textarea
                 value={form.usageGuidance}
                 onChange={(event) =>
                   setForm((current) => ({ ...current, usageGuidance: event.target.value }))
                 }
-                placeholder="Tell members how to create their token, required scopes, etc."
+                placeholder={t("secrets.create.usageGuidancePlaceholder", { defaultValue: "Tell members how to create their token, required scopes, etc." })}
                 className="min-h-(--sz-70px) text-sm"
               />
             </div>
             {editing ? (
               <div className="space-y-1">
-                <label className="text-xs font-medium text-foreground">Status</label>
+                <label className="text-xs font-medium text-foreground">{t("secrets.details.status", { defaultValue: "Status" })}</label>
                 <Select
                   value={form.status}
                   onValueChange={(status) =>
@@ -314,9 +318,9 @@ export function UserSecretDefinitionsTab({ companyId }: { companyId: string }) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="disabled">Disabled</SelectItem>
-                    <SelectItem value="archived">Archived</SelectItem>
+                    <SelectItem value="active">{t("secrets.status.active", { defaultValue: "Active" })}</SelectItem>
+                    <SelectItem value="disabled">{t("secrets.status.disabled", { defaultValue: "Disabled" })}</SelectItem>
+                    <SelectItem value="archived">{t("secrets.status.archived", { defaultValue: "Archived" })}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -326,10 +330,14 @@ export function UserSecretDefinitionsTab({ companyId }: { companyId: string }) {
 
           <DialogFooter>
             <Button variant="ghost" onClick={() => setDialogOpen(false)} disabled={save.isPending}>
-              Cancel
+              {t("common.cancel", { defaultValue: "Cancel" })}
             </Button>
             <Button onClick={() => save.mutate()} disabled={!canSave || save.isPending}>
-              {save.isPending ? "Saving…" : editing ? "Save changes" : "Create"}
+              {save.isPending
+                ? t("common.saving", { defaultValue: "Saving…" })
+                : editing
+                  ? t("common.saveChanges", { defaultValue: "Save changes" })
+                  : t("userSecretDefinitions.create", { defaultValue: "Create" })}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -339,22 +347,21 @@ export function UserSecretDefinitionsTab({ companyId }: { companyId: string }) {
       <Dialog open={deleteTarget !== null} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Remove user secret?</DialogTitle>
+            <DialogTitle>{t("userSecretDefinitions.removeTitle", { defaultValue: "Remove user secret?" })}</DialogTitle>
             <DialogDescription>
-              This removes the definition <span className="font-mono">{deleteTarget?.key}</span> for
-              the whole company. Existing member values become unreferenced. This cannot be undone.
+              {t("userSecretDefinitions.removePrefix", { defaultValue: "This removes the definition " })}<span className="font-mono">{deleteTarget?.key}</span>{t("userSecretDefinitions.removeSuffix", { defaultValue: " for the whole company. Existing member values become unreferenced. This cannot be undone." })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setDeleteTarget(null)} disabled={remove.isPending}>
-              Cancel
+              {t("common.cancel", { defaultValue: "Cancel" })}
             </Button>
             <Button
               variant="destructive"
               onClick={() => deleteTarget && remove.mutate(deleteTarget)}
               disabled={remove.isPending}
             >
-              {remove.isPending ? "Removing…" : "Remove"}
+              {remove.isPending ? t("properties.removing", { defaultValue: "Removing…" }) : t("properties.remove", { defaultValue: "Remove" })}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -370,6 +377,7 @@ function CoverageBadge({
   companyId: string;
   definitionId: string;
 }) {
+  const { t } = useTranslation();
   const coverageQuery = useQuery({
     queryKey: queryKeys.secrets.userDefinitionCoverage(companyId, definitionId),
     queryFn: () => secretsApi.userSecretDefinitionCoverage(companyId, definitionId),
@@ -380,9 +388,9 @@ function CoverageBadge({
   return (
     <p className="mt-1 inline-flex items-center gap-1 text-(length:--text-micro) text-muted-foreground">
       <Users className="h-3 w-3" />
-      Coverage: {coverageSummaryLabel(summary)}
+      {t("userSecretDefinitions.coverageLabel", { defaultValue: "Coverage: {{label}}", label: coverageSummaryLabel(summary) })}
       {summary && missing > 0 ? (
-        <span className="text-amber-600 dark:text-amber-400">· {missing} not set</span>
+        <span className="text-amber-600 dark:text-amber-400">{t("userSecretDefinitions.coverageMissing", { defaultValue: "· {{count}} not set", count: missing })}</span>
       ) : null}
     </p>
   );

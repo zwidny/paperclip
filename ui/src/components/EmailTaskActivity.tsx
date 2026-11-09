@@ -7,7 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { describeError } from "@/api/errors";
 import { QueryErrorState, useQueryView } from "./QueryView";
-import type { EmailPublicationSummary } from "@paperclipai/shared";
+import type { EmailPublicationSummary, EmailDeliveryOutcome } from "@paperclipai/shared";
+import { useTranslation } from "../i18n";
+
+const OUTCOME_LABEL: Record<EmailDeliveryOutcome, { key: string; defaultValue: string }> = {
+  queued: { key: "emailTaskActivity.outcomeQueued", defaultValue: "Email queued" },
+  sent: { key: "emailTaskActivity.outcomeSent", defaultValue: "Email sent" },
+  delivered: { key: "emailTaskActivity.outcomeDelivered", defaultValue: "Email delivered" },
+  failed: { key: "emailTaskActivity.outcomeFailed", defaultValue: "Email failed" },
+  uncertain: { key: "emailTaskActivity.outcomeUncertain", defaultValue: "Email uncertain" },
+};
 
 // Email actions belong to the agent's task conversation. Only surface mail
 // without a task comment yet and delivery outcomes that need attention here.
@@ -18,6 +27,7 @@ export function EmailTaskActivity({
   companyId: string;
   issueId: string;
 }) {
+  const { t } = useTranslation();
   const cache = useQueryClient();
   const threadKey = ["email-thread", companyId, issueId];
   const queryEnabled = Boolean(companyId && issueId) && !issueId.startsWith("chat:");
@@ -82,6 +92,8 @@ function EmailDelivery({
   publication: EmailPublicationSummary;
   onResolved: () => void;
 }) {
+  const { t } = useTranslation();
+  const providerMessageId = t("emailTaskActivity.providerMessageId", { defaultValue: "Provider message ID" });
   const [messageId, setMessageId] = useState("");
   const resolve = useMutation({
     mutationFn: (outcome: "sent" | "failed") =>
@@ -92,35 +104,34 @@ function EmailDelivery({
     <div className="space-y-2 text-xs text-muted-foreground">
       {p.request && !p.providerMessageId && (
         <article
-          aria-label="Email send intent"
+          aria-label={t("emailTaskActivity.sendIntentAria", { defaultValue: "Email send intent" })}
           className="task-context-notice space-y-3"
         >
-          <p className="font-semibold">{p.request.subject ?? "Email reply"}</p>
-          {p.request.to && <p>To: {p.request.to.join(", ")}</p>}
+          <p className="font-semibold">{p.request.subject ?? t("emailTaskActivity.replySubject", { defaultValue: "Email reply" })}</p>
+          {p.request.to && <p>{t("emailTaskActivity.toLine", { recipients: p.request.to.join(", "), defaultValue: "To: {{recipients}}" })}</p>}
           <div className="whitespace-pre-wrap break-words text-sm text-foreground">
             {p.request.text}
           </div>
         </article>
       )}
       <p>
-        Email {p.outcome}
-        {p.error ? ` — ${p.error}` : ""}
+        {t(OUTCOME_LABEL[p.outcome].key, { defaultValue: OUTCOME_LABEL[p.outcome].defaultValue })}
+        {p.error ? t("emailTaskActivity.errorSuffix", { message: p.error, defaultValue: " — {{message}}" }) : ""}
       </p>
       {p.outcome === "uncertain" && (
         <details>
           <summary className="cursor-pointer">
-            Resolve delivery after checking AgentMail
+            {t("emailTaskActivity.resolveSummary", { defaultValue: "Resolve delivery after checking AgentMail" })}
           </summary>
           <div className="space-y-2 py-2">
             <p>
-              Confirm the outcome in AgentMail before resolving. This action
-              does not resend.
+              {t("emailTaskActivity.resolveDescription", { defaultValue: "Confirm the outcome in AgentMail before resolving. This action does not resend." })}
             </p>
             <Input
-              aria-label="Provider message ID"
+              aria-label={providerMessageId}
               value={messageId}
               onChange={(e) => setMessageId(e.target.value)}
-              placeholder="Provider message ID"
+              placeholder={providerMessageId}
             />
             <div className="flex gap-2">
               <Button
@@ -129,7 +140,7 @@ function EmailDelivery({
                 disabled={!messageId || resolve.isPending}
                 onClick={() => resolve.mutate("sent")}
               >
-                Confirm sent
+                {t("emailTaskActivity.confirmSent", { defaultValue: "Confirm sent" })}
               </Button>
               <Button
                 size="sm"
@@ -137,7 +148,7 @@ function EmailDelivery({
                 disabled={resolve.isPending}
                 onClick={() => resolve.mutate("failed")}
               >
-                Confirm not sent
+                {t("emailTaskActivity.confirmNotSent", { defaultValue: "Confirm not sent" })}
               </Button>
             </div>
             {resolve.isError && ( // query-error-ok: mutation result

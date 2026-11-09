@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "../../i18n";
 
 const AgentBulkSettingsSheet = lazy(() => import("./AgentBulkSettingsSheet").then(m => ({ default: m.AgentBulkSettingsSheet })));
 
@@ -28,6 +29,7 @@ export function AgentBulkRoster({ companyId, agents, visibleAgents, renderAgent,
   const openingRef = useRef(false);
   const [opening, setOpening] = useState(false);
   const [openError, setOpenError] = useState("");
+  const { t } = useTranslation();
   const [selected, setSelected] = useState<string[]>([]);
   const selectionRevision = useRef(0);
   const changeSelection = (next: SetStateAction<string[]>) => {
@@ -79,27 +81,27 @@ export function AgentBulkRoster({ companyId, agents, visibleAgents, renderAgent,
     <div data-canonical-toolbar="agent-filters" role="toolbar" aria-label="Agent filters" className="flex flex-wrap items-center justify-between gap-3">
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="ghost" size="icon" aria-label="Filter agents" title={filter === "all" ? "Filter" : `Filter: ${getAdapterLabel(filter)}`}
+          <Button variant="ghost" size="icon" aria-label={t("agentRoster.filterAgents", { defaultValue: "Filter agents" })} title={filter === "all" ? t("agentRoster.filter", { defaultValue: "Filter" }) : t("agentRoster.filterBy", { defaultValue: "Filter: {{label}}", label: getAdapterLabel(filter) })}
             className={cn("relative h-8 w-8 shrink-0", filter !== "all" && "text-blue-600 dark:text-blue-400")}>
             <Filter className="h-3.5 w-3.5" aria-hidden />
             {filter !== "all" && <span aria-hidden className="absolute -right-1 -top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-blue-600 text-(length:--text-nano) font-bold text-white">1</span>}
           </Button>
         </PopoverTrigger>
-        <PopoverContent aria-label="Agent filters" align="start" className="w-64 space-y-3 p-3">
+        <PopoverContent aria-label={t("agentRoster.agentFilters", { defaultValue: "Agent filters" })} align="start" className="w-64 space-y-3 p-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Filters</span>
-            {filter !== "all" && <button type="button" className="text-xs text-muted-foreground hover:text-foreground" onClick={() => setFilter("all")}>Clear</button>}
+            <span className="text-sm font-medium">{t("agentRoster.filters", { defaultValue: "Filters" })}</span>
+            {filter !== "all" && <button type="button" className="text-xs text-muted-foreground hover:text-foreground" onClick={() => setFilter("all")}>{t("agentRoster.clear", { defaultValue: "Clear" })}</button>}
           </div>
-          <div role="group" aria-label="Harness" className="space-y-1">
-            <div className="px-2 text-xs font-medium text-muted-foreground">Harness</div>
+          <div role="group" aria-label={t("agentRoster.harness", { defaultValue: "Harness" })} className="space-y-1">
+            <div className="px-2 text-xs font-medium text-muted-foreground">{t("agentRoster.harness", { defaultValue: "Harness" })}</div>
             {["all", ...harnesses].map(h => <button key={h} type="button" aria-pressed={filter === h} onClick={() => setFilter(h)}
               className={cn("flex w-full items-center justify-between rounded-sm px-2 py-1 text-left text-sm", filter === h ? "bg-accent/50 text-foreground" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground")}>
-              {h === "all" ? "All harnesses" : getAdapterLabel(h)}{filter === h && <Check className="size-3.5" aria-hidden />}
+              {h === "all" ? t("agentRoster.allHarnesses", { defaultValue: "All harnesses" }) : getAdapterLabel(h)}{filter === h && <Check className="size-3.5" aria-hidden />}
             </button>)}
           </div>
         </PopoverContent>
       </Popover>
-      <span className="text-xs text-muted-foreground">{visible.length} {visible.length === 1 ? "agent" : "agents"}</span>
+      <span className="text-xs text-muted-foreground">{t("agentRoster.agentCount", { defaultValue: "{{count}} agents", count: visible.length })}</span>
     </div>
     {createPortal(<div role="region" aria-label="Bulk actions" aria-hidden={selectedAgents.length === 0} inert={selectedAgents.length === 0}
       data-state={selectedAgents.length > 0 ? "open" : "closed"} className="agent-selection-bar flex flex-wrap items-center gap-3 rounded-lg border bg-background p-3">
@@ -127,13 +129,13 @@ export function AgentBulkRoster({ companyId, agents, visibleAgents, renderAgent,
         {renderChat && <td>{renderChat(agent)}</td>}
         <td>{renderStatus ? renderStatus(agent) : <AgentStatusBadge status={agent.status} />}</td>
         <td className="whitespace-nowrap text-xs">{getAdapterLabel(pendingSetup ?? bulkAgentHarness(agent))}</td>
-        <td className="text-xs">{pendingSetup ? "Not configured" : ["http", "process"].includes(agent.adapterType) ? "Managed externally" : bulkConnectionName(agentConnection(agent), accounts.data)}</td>
-        <td className="font-mono text-xs">{pendingSetup ? "Not available yet" : agentDefaultModel(agent) ?? "Harness default"}</td>
+        <td className="text-xs">{pendingSetup ? t("agentRoster.notConfigured", { defaultValue: "Not configured" }) : ["http", "process"].includes(agent.adapterType) ? t("agentRoster.managedExternally", { defaultValue: "Managed externally" }) : bulkConnectionName(agentConnection(agent), accounts.data)}</td>
+        <td className="font-mono text-xs">{pendingSetup ? t("agentRoster.notAvailableYet", { defaultValue: "Not available yet" }) : agentDefaultModel(agent) ?? t("agentRoster.harnessDefault", { defaultValue: "Harness default" })}</td>
       </tr>;
       })}</tbody>
     </table></div>
-    {!visible.length && <p className="py-8 text-center text-sm text-muted-foreground">No agents match these filters.</p>}
-    {editing && <Suspense fallback={<p role="status" className="text-sm text-muted-foreground">Loading editor…</p>}><AgentBulkSettingsSheet companyId={companyId} agents={editing} totalSelected={selectedAgents.length} onClose={(updatedIds, complete) => {
+    {!visible.length && <p className="py-8 text-center text-sm text-muted-foreground">{t("agentRoster.noMatch", { defaultValue: "No agents match these filters." })}</p>}
+    {editing && <Suspense fallback={<p role="status" className="text-sm text-muted-foreground">{t("agentRoster.loadingEditor", { defaultValue: "Loading editor…" })}</p>}><AgentBulkSettingsSheet companyId={companyId} agents={editing} totalSelected={selectedAgents.length} onClose={(updatedIds, complete) => {
       setEditing(null);
       if (updatedIds.length) {
         changeSelection(ids => ids.filter(id => !(complete ? editing.map(a => a.id) : updatedIds).includes(id)));

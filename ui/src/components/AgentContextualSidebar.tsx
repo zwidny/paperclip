@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { usePluginSlots } from "@/plugins/slots";
 import { agentsApi } from "@/api/agents";
+import { useTranslation } from "../i18n";
 import { useCompany } from "@/context/CompanyContext";
 import { queryKeys } from "@/lib/queryKeys";
 import { ContextualSidebarFrame } from "./ContextualSidebarFrame";
@@ -57,6 +58,7 @@ export function AgentContextualSidebar({
   agentName?: string;
   labels?: Partial<Record<AgentLocalDetailView, string>>;
 }) {
+  const { t } = useTranslation();
   const { selectedCompanyId } = useCompany();
   const shouldResolveAgent = !agentId || !agentName;
   const { data: resolvedAgent } = useQuery({
@@ -66,7 +68,10 @@ export function AgentContextualSidebar({
   });
   const resolvedId = agentId ?? resolvedAgent?.id;
   const { slots: pluginTabs } = usePluginSlots({ slotTypes: ["detailTab"], entityType: "agent", companyId: resolvedAgent?.companyId ?? selectedCompanyId, enabled: Boolean(resolvedId) });
-  const resolvedName = agentName ?? resolvedAgent?.name ?? "Agent";
+  const resolvedName = agentName ?? resolvedAgent?.name ?? t("agentSidebar.agentFallback", { defaultValue: "Agent" });
+  const resolvedLabels: Partial<Record<AgentLocalDetailView, string>> = labels ?? {
+    secrets: t("agentDetail.tabs.secretsAndVariables", { defaultValue: "Secrets & variables" }),
+  };
 
   return (
     <ContextualSidebarFrame
@@ -77,7 +82,7 @@ export function AgentContextualSidebar({
       className="border-r border-border bg-background"
     >
       <nav
-        aria-label={`${resolvedName} navigation`}
+        aria-label={t("agentSidebar.navAriaLabel", { name: resolvedName, defaultValue: "{{name}} navigation" })}
         data-slot="contextual-sidebar-nav"
         className={contextualSidebarStyles.nav}
       >
@@ -100,7 +105,7 @@ export function AgentContextualSidebar({
                   <SidebarNavItem
                     key={item.value}
                     to={agentDetailHref(agentRef, item.value)}
-                    label={labels?.[item.value] ?? item.label}
+                    label={resolvedLabels?.[item.value] ?? item.label}
                     icon={localIcons[item.value]}
                   />
                 ))}

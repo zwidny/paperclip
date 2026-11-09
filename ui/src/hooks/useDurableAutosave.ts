@@ -1,7 +1,9 @@
 import { useCallback, useContext, useEffect, useId, useRef, useState } from "react";
 import { QueryClientContext } from "@tanstack/react-query";
+import type { TFunction } from "i18next";
 import { bindAccount } from "@/lib/account-scope";
 import { classifyError, describeError, type ErrorDescription } from "@/api/errors";
+import { useTranslation } from "@/i18n";
 import { loadStructuredDraft, saveStructuredDraft } from "@/lib/composer-draft";
 import { useConnectivityStore } from "@/lib/connectivity";
 import { classifySendFailure, MAX_ONLINE_RESENDS, resendDelayFor, type SendOutcome } from "@/lib/pending-send";
@@ -26,18 +28,24 @@ export type DurableAutosaveResult =
   | { kind: "failed"; error: unknown };
 
 /** Copy for the autosave indicator. */
-export function autosaveLabel(status: DurableAutosaveStatus, error: ErrorDescription | null): string | null {
+export function autosaveLabel(status: DurableAutosaveStatus, error: ErrorDescription | null, t?: TFunction): string | null {
   switch (status) {
     case "saving":
-      return "Saving…";
+      return t ? t("issueDocuments.autosaving", { defaultValue: "Saving…" }) : "Saving…";
     case "saved":
-      return "Saved";
+      return t ? t("issueDocuments.saved", { defaultValue: "Saved" }) : "Saved";
     case "waiting":
-      return "Will save when reconnected";
+      return t ? t("issueDocuments.autosaveWaiting", { defaultValue: "Will save when reconnected" }) : "Will save when reconnected";
     case "stalled":
-      return "Automatic saving paused";
+      return t ? t("issueDocuments.autosaveStalled", { defaultValue: "Automatic saving paused" }) : "Automatic saving paused";
     case "error":
-      return error ? `Couldn't save (${error.body.replace(/\.$/, "")})` : "Couldn't save";
+      if (error) {
+        const detail = error.body.replace(/\.$/, "");
+        return t
+          ? t("issueDocuments.couldNotSaveDetail", { detail, defaultValue: "Couldn't save ({{detail}})" })
+          : `Couldn't save (${detail})`;
+      }
+      return t ? t("issueDocuments.couldNotSave", { defaultValue: "Couldn't save" }) : "Couldn't save";
     default:
       return null;
   }
@@ -116,6 +124,7 @@ const SAVED_LINGER_MS = 1600;
  * - Errors become readable copy for "Couldn't save (reason)".
  */
 export function useDurableAutosave<T>(options: DurableAutosaveOptions<T>): DurableAutosave<T> {
+  const { t } = useTranslation();
   const client = useContext(QueryClientContext);
   const owner = useDraftOwner();
   const readOwner = useDraftOwnerReader();

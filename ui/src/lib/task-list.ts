@@ -1,4 +1,5 @@
 import { readIssueSortParams, type IssueSort, type IssueSortField } from "./issue-sort";
+import type { TFunction } from "i18next";
 
 /** Ordered columns and token references shared by the proposed header and rows. */
 export const taskListColumns = [

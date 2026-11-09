@@ -19,6 +19,12 @@ export type AgentDetailView =
 
 export type AgentLocalDetailView = Exclude<AgentDetailView, "run-detail">;
 
+/**
+ * Local agent detail information architecture.
+ *
+ * `label` stays the canonical English copy for non-React consumers. Components
+ * translate `labelKey` at render so routing values and this data stay inert.
+ */
 export const AGENT_DETAIL_NAVIGATION: ReadonlyArray<{
   label: string;
   items: ReadonlyArray<{ value: AgentLocalDetailView; label: string }>;

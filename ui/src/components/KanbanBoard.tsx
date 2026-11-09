@@ -30,6 +30,7 @@ import { cn } from "../lib/utils";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { HorizontalScrollViewport } from "./HorizontalScrollViewport";
+import { useTranslation } from "../i18n";
 
 export const KANBAN_BOARD_HIGH_VOLUME_THRESHOLD = 100;
 export const KANBAN_COLUMN_PAGE_SIZE_OPTIONS = [10, 25, 50] as const;
@@ -188,6 +189,8 @@ function KanbanColumn({
   revealIncrement: number;
   onShowMore: () => void;
 }) {
+  const { t } = useTranslation();
+  const statusName = t(`tasks.status.${status}`, { defaultValue: statusLabel(status) });
   const { setNodeRef, isOver } = useDroppable({ id: status, disabled: status === "monitoring" });
 
   const isEmpty = issues.length === 0;
@@ -205,11 +208,11 @@ function KanbanColumn({
           tone.rail,
           isOver && tone.railOver,
         )}
-        title={`${statusLabel(status)}: ${issues.length}`}
+        title={t("kanban.columnTitle", { status: statusName, count: issues.length, defaultValue: "{{status}}: {{count}}" })}
       >
         <StatusIcon status={status} />
         <span className={cn("mt-2 [writing-mode:vertical-rl] rotate-180 text-(length:--text-nano) font-semibold uppercase tracking-wide", tone.header)}>
-          {statusLabel(status)}
+          {statusName}
         </span>
         <Badge variant="ghost" className={cn("mt-auto bg-background px-1.5 text-(length:--text-nano) tabular-nums", tone.header)}>
           {issues.length}
@@ -223,7 +226,7 @@ function KanbanColumn({
       <div className="flex items-center gap-2 px-3 py-2 mb-1">
         <StatusIcon status={status} />
         <span className={cn("text-xs font-semibold uppercase tracking-wide", tone.header)}>
-          {statusLabel(status)}
+          {statusName}
         </span>
         <span className={cn("ml-auto text-xs tabular-nums", tone.count)}>
           {issues.length}
@@ -259,12 +262,12 @@ function KanbanColumn({
             className="mt-1 flex w-full items-center justify-center rounded-md border border-dashed border-border bg-background/70 px-2 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
             onClick={onShowMore}
           >
-            Show {nextRevealCount} more
+            {t("kanban.showMore", { count: nextRevealCount, defaultValue_one: "Show {{count}} more", defaultValue_other: "Show {{count}} more" })}
           </button>
         ) : null}
         {issues.length > 0 && (hiddenCount > 0 || issues.length >= visibleCount) ? (
           <p className="px-1 pt-1 text-(length:--text-micro) text-muted-foreground">
-            Showing {visibleIssues.length} of {issues.length}
+            {t("kanban.showingCount", { visible: visibleIssues.length, total: issues.length, defaultValue: "Showing {{visible}} of {{total}}" })}
           </p>
         ) : null}
       </div>
@@ -299,6 +302,7 @@ function KanbanCard({
     transition,
     isDragging,
   } = useSortable({ id: issue.id, data: { issue } });
+  const { t } = useTranslation();
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -341,11 +345,11 @@ function KanbanCard({
           {isSuccessfulRunHandoffRequired(issue) ? (
             <Badge variant="outline"
               className="border-amber-400/45 bg-amber-50/60 px-1.5 text-(length:--text-nano) text-amber-700 dark:border-amber-300/35 dark:bg-amber-400/10 dark:text-amber-300"
-              title="This task needs a next step"
-              aria-label="Needs next step"
+              title={t("tasks.badge.needsNextStepTitle", { defaultValue: "This task needs a next step" })}
+              aria-label={t("tasks.badge.needsNextStep", { defaultValue: "Needs next step" })}
             >
               <AlertTriangle className="h-3 w-3" />
-              Next step
+              {t("kanban.nextStep", { defaultValue: "Next step" })}
             </Badge>
           ) : null}
           {isLive && (
@@ -354,16 +358,16 @@ function KanbanCard({
                 <span className="animate-pulse absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
               </span>
-              {compact ? "Live" : null}
+              {compact ? t("kanban.live", { defaultValue: "Live" }) : null}
             </span>
           )}
           {!isLive && subtreeLiveCount > 0 && (
             <Badge variant="outline"
               className="border-border px-1.5 text-(length:--text-nano) text-muted-foreground"
-              title={`${subtreeLiveCount} sub-task${subtreeLiveCount === 1 ? "" : "s"} running below`}
+              title={t("kanban.subtreeRunning", { count: subtreeLiveCount, defaultValue_one: "{{count}} sub-task running below", defaultValue_other: "{{count}} sub-tasks running below" })}
             >
               <span className="h-2 w-2 shrink-0 rounded-full border border-muted-foreground/60" aria-hidden="true" />
-              {subtreeLiveCount} live below
+              {t("kanban.liveBelow", { count: subtreeLiveCount, defaultValue: "{{count}} live below" })}
             </Badge>
           )}
         </div>
@@ -401,6 +405,7 @@ export function KanbanBoard({
   onUpdateIssue,
 }: KanbanBoardProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
+  const { t } = useTranslation();
   const paginationKey = `${initialVisibleCount}:${revealIncrement}`;
   const [visibleState, setVisibleState] = useState<{
     paginationKey: string;
@@ -493,7 +498,7 @@ export function KanbanBoard({
       onDragEnd={handleDragEnd}
     >
       {showOverflowFades
-        ? <HorizontalScrollViewport label="Task board columns" contentClassName="flex gap-3 pb-4 px-2">{columns}</HorizontalScrollViewport>
+        ? <HorizontalScrollViewport label={t("kanban.boardColumns", { defaultValue: "Task board columns" })} contentClassName="flex gap-3 pb-4 px-2">{columns}</HorizontalScrollViewport>
         : <div className="flex gap-3 overflow-x-auto pb-4 -mx-2 px-2">{columns}</div>}
       <DragOverlay>
         {activeIssue ? (

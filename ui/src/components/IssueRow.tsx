@@ -27,6 +27,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { TaskRowColumnCells, useTaskListColumns, type TaskRowColumnValues } from "./TaskListColumns";
 import { CellMarquee, HoveredCellContext, useCellMarqueeHover } from "./CellMarquee";
 import { taskStatusIconProps } from "@/lib/task-status-presentation";
+import { useTranslation } from "../i18n";
+import type { TFunction } from "i18next";
 
 export type IssueRowUnreadState = "hidden" | "visible" | "fading";
 export type IssueRowPresentation = "legacy" | "task";
@@ -104,6 +106,8 @@ export function InboxArchiveButton({
   disabled?: boolean;
   compact?: boolean;
 }) {
+  const { t } = useTranslation();
+  const archiveLabel = t("tasks.row.archive", { defaultValue: "Archive" });
   return (
     <button
       type="button"
@@ -124,10 +128,10 @@ export function InboxArchiveButton({
         "inline-flex shrink-0 items-center gap-1.5 rounded-md px-2 text-xs font-medium text-muted-foreground opacity-0 transition-opacity hover:bg-accent hover:text-foreground group-hover:opacity-100 focus-visible:opacity-100 disabled:pointer-events-none disabled:opacity-30",
         compact ? "h-5 py-0" : "py-1",
       )}
-      aria-label="Archive"
+      aria-label={archiveLabel}
     >
       <Archive className="h-3.5 w-3.5" />
-      Archive
+      {archiveLabel}
     </button>
   );
 }
@@ -171,6 +175,7 @@ export function IssueRow({
   chevronInGuide = false,
   showDivider = false,
 }: IssueRowProps) {
+  const { t } = useTranslation();
   const visibleColumns = useTaskListColumns();
   const { hoveredCell, onMouseMove: handleCellHover, clearHoveredCell } = useCellMarqueeHover();
   const [titleFocused, setTitleFocused] = useState(false);
@@ -200,7 +205,7 @@ export function IssueRow({
         "inline-flex h-4 w-4 items-center justify-center rounded-full transition-colors",
         selected ? "hover:bg-muted/80" : "hover:bg-blue-500/20",
       )}
-      aria-label="Mark as read"
+      aria-label={t("inbox.markAsRead", { defaultValue: "Mark as read" })}
     >
       <span
         className={cn(
@@ -225,16 +230,16 @@ export function IssueRow({
   const recoveryIndicator = issue.interruption?.responsibility === "system" && issue.interruption.state !== "resolved"
     ? null
     : recoveryAction && !requiresExecutionReconciliation(recoveryAction.cause)
-    ? renderRecoveryChip(recoveryAction, selected, { scheduledRetry: issue.scheduledRetry ?? null })
+    ? renderRecoveryChip(recoveryAction, selected, { scheduledRetry: issue.scheduledRetry ?? null }, t)
     : null;
   const parkedBlockerIndicator = hasAssignedBacklogBlocker(issue.blockedBy) ? (
     <Badge variant="outline"
       data-testid="issue-row-parked-blocker"
       className="[&>svg]:size-2.5 ml-1.5 gap-0.5 border-amber-500/60 bg-amber-500/15 text-(length:--text-nano) text-amber-700 dark:text-amber-300"
-      title="Blocked by parked work — at least one assigned blocker is in backlog and will not wake its assignee."
+      title={t("tasks.row.parkedBlockerTitle", { defaultValue: "Blocked by parked work — at least one assigned blocker is in backlog and will not wake its assignee." })}
     >
       <Flag className="h-2.5 w-2.5" aria-hidden />
-      Blocked by parked work
+      {t("issueBlocked.blockedByParkedWork", { defaultValue: "Blocked by parked work" })}
     </Badge>
   ) : null;
 
@@ -251,7 +256,7 @@ export function IssueRow({
             disableIssueQuicklook
             issuePrefetch={issue}
             onClickCapture={() => rememberIssueDetailLocationState(issuePathId, detailState)}
-            aria-label={`Open task ${identifier} (${statusLabel})`}
+            aria-label={t("tasks.row.openTaskAria", { defaultValue: "Open task {{identifier}} ({{status}})", identifier, status: statusLabel })}
             className="task-row-status-link"
             data-slot="task-row-status"
           >
@@ -284,7 +289,7 @@ export function IssueRow({
           refreshed && "task-row-link",
         )}
       >
-        <span className="sr-only">Open {identifier}: {issue.title}</span>
+        <span className="sr-only">{t("tasks.row.openTask", { defaultValue: "Open {{identifier}}: {{title}}", identifier, title: issue.title })}</span>
       </Link>
     );
     return (
@@ -387,7 +392,7 @@ export function IssueRow({
                   {recoveryIndicator ? (
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <span tabIndex={0} aria-label="Task recovery status" className="relative z-10 inline-flex text-muted-foreground sm:hidden">
+                        <span tabIndex={0} aria-label={t("tasks.row.recoveryStatus", { defaultValue: "Task recovery status" })} className="relative z-10 inline-flex text-muted-foreground sm:hidden">
                           <CircleAlert className="h-4 w-4" />
                         </span>
                       </TooltipTrigger>
@@ -485,7 +490,7 @@ export function IssueRow({
           "absolute inset-0 rounded-lg no-underline text-inherit focus-visible:z-10 focus-visible:outline-none focus-visible:ring-(length:--rad-3) focus-visible:ring-ring",
         )}
       >
-        <span className="sr-only">Open {identifier}: {issue.title}</span>
+        <span className="sr-only">{t("tasks.row.openTask", { defaultValue: "Open {{identifier}}: {{title}}", identifier, title: issue.title })}</span>
       </Link>
       <span className="flex shrink-0 items-center gap-1 pt-px sm:hidden">
         {mobileLeading ?? <StatusIcon {...taskStatusIconProps(issue)} size="md" className={selectedStatusClass} />}
@@ -610,6 +615,7 @@ function renderRecoveryChip(
   action: IssueRecoveryAction,
   selected: boolean,
   liveness: RecoveryLivenessContext,
+  t: TFunction,
 ): ReactNode {
   const state = deriveActiveRecoveryDisplayState(action, liveness);
   if (!state) return null;
@@ -632,8 +638,8 @@ function renderRecoveryChip(
         selected ? "!border-muted-foreground !text-muted-foreground" : null,
       )}
       title={detail
-        ? `${label} — ${detail}. Open the source task to act.`
-        : `${label} — open the source task to act.`}
+        ? t("issueBlocked.sourceTaskTitleWithDetail", { label, detail, defaultValue: "{{label}} — {{detail}}. Open the source task to act." })
+        : t("issueBlocked.sourceTaskTitle", { label, defaultValue: "{{label}} — open the source task to act." })}
     >
       <Icon className="h-2.5 w-2.5" aria-hidden />
       {label}

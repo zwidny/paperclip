@@ -19,6 +19,7 @@ import { isImageLikeOutput, isVideoLikeOutput } from "@/lib/issue-output";
 import { attachmentDownloadPath, isTextAttachment } from "@/lib/issue-attachments";
 import { workProductHref } from "@/lib/issue-artifacts";
 import { formatDateTime } from "@/lib/utils";
+import { useTranslation } from "../../i18n";
 import {
   artifactText as text,
   artifactNumber as number,
@@ -55,6 +56,7 @@ export interface IssueArtifactFileProps extends ArtifactIdentity {
 
 /** Shared by uploads and promoted uploads; both use the issue's existing gallery. */
 export function IssueArtifactFile(props: IssueArtifactFileProps) {
+  const { t } = useTranslation();
   const { metadata = null, attachmentId } = props;
   const openGallery = useContext(IssueGalleryContext);
   const openTextAttachment = useContext(TextAttachmentContext);
@@ -65,10 +67,10 @@ export function IssueArtifactFile(props: IssueArtifactFileProps) {
     <Button
       variant="outline"
       size="sm"
-      aria-label={`Open in tab: ${props.title}`}
+      aria-label={t("issueArtifactsTab.openInTabAria", { defaultValue: "Open in tab: {{title}}", title: props.title })}
       onClick={() => openTextAttachment(attachmentId, props.filename)}
     >
-      Open in tab
+      {t("issueArtifactsTab.openInTab", { defaultValue: "Open in tab" })}
     </Button>
   ) : null;
   const [galleryOpen, setGalleryOpen] = useState(false);
@@ -153,7 +155,7 @@ export function IssueArtifactFile(props: IssueArtifactFileProps) {
   if (patchEligible && patchData.data !== undefined) {
     return <DocumentCard {...props} patch body={patchData.data} actions={<>
       {openTextAction}
-      {downloadPath ? <Button asChild size="sm" variant="outline"><a href={downloadPath} download={props.filename}>Download file</a></Button> : null}
+      {downloadPath ? <Button asChild size="sm" variant="outline"><a href={downloadPath} download={props.filename}>{t("fileViewer.downloadFile", { defaultValue: "Download file" })}</a></Button> : null}
     </>} />;
   }
   if (localCsv && !tooLarge && data.data) {
@@ -168,7 +170,7 @@ export function IssueArtifactFile(props: IssueArtifactFileProps) {
             {downloadPath ? (
               <Button asChild size="sm" variant="outline">
                 <a href={downloadPath} download={props.filename}>
-                  Download file
+                  {t("fileViewer.downloadFile", { defaultValue: "Download file" })}
                 </a>
               </Button>
             ) : null}
@@ -200,7 +202,9 @@ export function IssueArtifactFile(props: IssueArtifactFileProps) {
                 disabled={data.isFetching}
                 onClick={() => setCsvRequested(true)}
               >
-                {data.isFetching ? "Loading preview…" : "Preview data"}
+                {data.isFetching
+                  ? t("skillPackagePreview.loadingPreview", { defaultValue: "Loading preview…" })
+                  : t("artifactFileRow.previewData", { defaultValue: "Preview data" })}
               </Button>
             ) : null}
           </>
@@ -208,7 +212,7 @@ export function IssueArtifactFile(props: IssueArtifactFileProps) {
       />
       {patchEligible && patchView.kind === "error" ? (
         <QueryErrorState size="inline" error={patchView.error} action="load the patch preview" onRetry={patchView.retry} retrying={patchView.isFetching} />
-      ) : patchEligible && patchData.isFetching ? <p role="status" className="text-xs text-muted-foreground">Loading patch preview…</p> : null}
+      ) : patchEligible && patchData.isFetching ? <p role="status" className="text-xs text-muted-foreground">{t("issueArtifactCard.loadingPatchPreview", { defaultValue: "Loading patch preview…" })}</p> : null}
       {csv && (tooLarge || dataView.kind === "error" || !localCsv) && (
         <div className="px-2 text-xs text-muted-foreground" role="status">
           {tooLarge
@@ -229,6 +233,7 @@ export function IssueWorkProductArtifactCard({
   workProduct: IssueWorkProduct;
   author: string;
 }) {
+  const { t } = useTranslation();
   const m = wp.metadata;
   const href = artifactUrl(workProductHref(wp));
   const chip = stateChipFor(wp.type, wp.status, wp.reviewState);
@@ -239,7 +244,7 @@ export function IssueWorkProductArtifactCard({
     updatedAt: formatDateTime(wp.updatedAt),
     statusBadge:
       wp.healthStatus === "unhealthy" ? (
-        <Badge variant="destructive">Unhealthy</Badge>
+        <Badge variant="destructive">{t("taskChat.workProductUnhealthy", { defaultValue: "Unhealthy" })}</Badge>
       ) : chip ? (
         <Badge variant="outline">{chip.label}</Badge>
       ) : undefined,

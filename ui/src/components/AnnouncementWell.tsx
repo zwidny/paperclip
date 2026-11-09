@@ -11,6 +11,7 @@ import { useOptionalToastActions, useOptionalToastState } from "@/context/ToastC
 import { useAnnouncement } from "@/hooks/useAnnouncement";
 import { queryKeys } from "@/lib/queryKeys";
 import { AnnouncementCard } from "./AnnouncementCard";
+import { useTranslation } from "../i18n";
 
 // Includes the command palette, sheets and dialogs created outside DialogContext.
 const MODAL_SELECTOR = '[role="dialog"][data-state="open"], [role="alertdialog"][data-state="open"], [aria-modal="true"]:not([data-state="closed"]), dialog[open]';
@@ -54,6 +55,7 @@ function useOnboardingInProgress(companyId: string | null) {
 export type AnnouncementPlacement = "sidebar" | "floating";
 
 export function AnnouncementWell({ health, placement = "floating" }: { health?: HealthStatus; placement?: AnnouncementPlacement }) {
+  const { t } = useTranslation();
   const { userId: accountId, settled } = useAccountIdentity();
   const { selectedCompanyId, loading } = useCompany();
   const { onboardingOpen } = useDialogState();
@@ -65,8 +67,10 @@ export function AnnouncementWell({ health, placement = "floating" }: { health?: 
     userId, companyId: selectedCompanyId,
     enabled: Boolean(userId && !loading && selectedCompanyId && !onboardingOpen && !onboardingInProgress),
     onSaveFailure: (savedLocally) => toastActions?.pushToast({
-      title: savedLocally ? "Dismissed in this browser" : "Dismissed for this visit",
-      body: "Couldn’t save across devices. We’ll retry when you reconnect or return.",
+      title: savedLocally
+        ? t("announcementWell.dismissedBrowser", { defaultValue: "Dismissed in this browser" })
+        : t("announcementWell.dismissedVisit", { defaultValue: "Dismissed for this visit" }),
+      body: t("announcementWell.syncFailed", { defaultValue: "Couldn’t save across devices. We’ll retry when you reconnect or return." }),
       tone: "info", dedupeKey: "announcement-dismissal-sync",
     }),
   });
@@ -74,7 +78,7 @@ export function AnnouncementWell({ health, placement = "floating" }: { health?: 
   if (!announcement || modalOpen || (toasts?.length ?? 0) > 0) return null;
   return (
     <aside
-      aria-label="Paperclip announcements"
+      aria-label={t("announcementWell.ariaLabel", { defaultValue: "Paperclip announcements" })}
       data-placement={placement}
       className={cn(
         "announcement-well",

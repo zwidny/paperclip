@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Globe, LoaderCircle } from "lucide-react";
 import { useBrowserViewport } from "@/hooks/useBrowserViewport";
 import { useResilientFetch } from "@/hooks/useResilientFetch";
+import { useTranslation } from "@/i18n";
 import { TaskBrowserFooter } from "./TaskBrowserFooter";
 
 /** Revalidate the viewer credential this often, even while the panel is hidden. */
@@ -25,6 +26,7 @@ export function TaskBrowserPanel({
   active?: boolean;
   onOpenActiveBrowser?: () => void;
 }) {
+  const { t } = useTranslation();
   const cache = useQueryClient();
   const [actionError, setActionError] = useState<string | null>(null);
   const [refresh, setRefresh] = useState(0);
@@ -156,24 +158,24 @@ export function TaskBrowserPanel({
     onSuccess: () => {
       void cache.invalidateQueries({ queryKey: ["task-browsers", issueId] });
     },
-    onError: () => setActionError("The browser action failed. Try again."),
+    onError: () => setActionError(t("taskBrowserPanel.actionFailed", { defaultValue: "The browser action failed. Try again." })),
   });
   const message = accessError
-    ? "You no longer have access to this browser."
+    ? t("taskBrowserPanel.noAccess", { defaultValue: "You no longer have access to this browser." })
     : (browser?.error ?? actionError);
   const heading = accessError
-    ? "Browser access unavailable"
+    ? t("taskBrowserPanel.accessUnavailable", { defaultValue: "Browser access unavailable" })
     : browser?.status === "starting"
-      ? "Starting browser…"
+      ? t("taskBrowserPanel.starting", { defaultValue: "Starting browser…" })
       : browser?.status === "stopping"
-        ? "Closing browser…"
+        ? t("taskBrowserPanel.closing", { defaultValue: "Closing browser…" })
         : browser?.status === "closed"
-          ? "Browser closed"
+          ? t("taskBrowserPanel.closed", { defaultValue: "Browser closed" })
           : browser?.status === "failed"
-            ? "Browser could not start"
+            ? t("taskBrowserPanel.couldNotStart", { defaultValue: "Browser could not start" })
             : viewable
-              ? "Connecting to browser…"
-              : "No browser open";
+              ? t("taskBrowserPanel.connecting", { defaultValue: "Connecting to browser…" })
+              : t("taskBrowserPanel.noBrowser", { defaultValue: "No browser open" });
   const waiting =
     !message &&
     (browser?.status === "starting" ||

@@ -1,3 +1,4 @@
+import type { TFunction } from "i18next";
 import { isAgentCreatedIssue, type ExternalObjectSummary, type Issue } from "@paperclipai/shared";
 
 export type IssueFilterWorkspaceLookup = {
@@ -76,19 +77,36 @@ const EXTERNAL_OBJECT_FILTER_LABELS: Record<string, string> = {
   none: "No external objects",
 };
 
-export function externalObjectFilterLabel(value: string): string {
-  return EXTERNAL_OBJECT_FILTER_LABELS[value] ?? issueFilterLabel(value);
+/**
+ * Display label for an external-object status filter. `value` stays the stable
+ * filter token; only the returned text is localized.
+ */
+export function externalObjectFilterLabel(value: string, t?: TFunction): string {
+  const english = EXTERNAL_OBJECT_FILTER_LABELS[value];
+  if (!english) return issueFilterLabel(value);
+  return t ? t(`filters.externalObjectOption.${value}`, { defaultValue: english }) : english;
 }
 
 export const issueStatusOrder = ["in_progress", "monitoring", "todo", "backlog", "in_review", "blocked", "done", "cancelled"];
 export const issuePriorityOrder = ["critical", "high", "medium", "low"];
 
+/**
+ * `id` is the stable identity (React key, preset switching); `label` is the
+ * English display fallback and `labelKey` the locale key used when `t` exists.
+ */
 export const issueQuickFilterPresets = [
-  { label: "All", statuses: [] as string[] },
-  { label: "Active", statuses: ["todo", "in_progress", "monitoring", "in_review", "blocked"] },
-  { label: "Backlog", statuses: ["backlog"] },
-  { label: "Done", statuses: ["done", "cancelled"] },
+  { id: "all", label: "All", labelKey: "filters.quickPreset.all", statuses: [] as string[] },
+  { id: "active", label: "Active", labelKey: "filters.quickPreset.active", statuses: ["todo", "in_progress", "monitoring", "in_review", "blocked"] },
+  { id: "backlog", label: "Backlog", labelKey: "filters.quickPreset.backlog", statuses: ["backlog"] },
+  { id: "done", label: "Done", labelKey: "filters.quickPreset.done", statuses: ["done", "cancelled"] },
 ];
+
+export function issueQuickFilterPresetLabel(
+  preset: Pick<(typeof issueQuickFilterPresets)[number], "label" | "labelKey">,
+  t?: TFunction,
+): string {
+  return t ? t(preset.labelKey, { defaultValue: preset.label }) : preset.label;
+}
 
 export function issueFilterLabel(value: string): string {
   return value.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());

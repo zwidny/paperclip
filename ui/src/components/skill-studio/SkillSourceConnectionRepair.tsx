@@ -10,11 +10,13 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { RadioCardGroup } from '@/components/ui/radio-card';
 import { SkillSourceBranchRepair } from './SkillSourceBranchRepair';
+import { useTranslation } from '../../i18n';
 
 export function SkillSourceConnectionRepair({ companyId, source, onClose, onSaved, onReturnFocus }: {
   companyId: string; source: SkillSource; onClose: () => void; onSaved: () => Promise<void>;
   onReturnFocus?: () => void;
 }) {
+  const { t } = useTranslation();
   const [connectionId, setConnectionId] = useState(source.connectionId ?? '');
   const [chooseBranch, setChooseBranch] = useState(false);
   const client = useQueryClient();
@@ -35,23 +37,23 @@ export function SkillSourceConnectionRepair({ companyId, source, onClose, onSave
     <DialogContent className="flex max-h-(--sz-calc-18) flex-col overflow-hidden sm:max-w-md"
       onCloseAutoFocus={event => { if (onReturnFocus) { event.preventDefault(); onReturnFocus(); } }}>
       <DialogHeader className="shrink-0">
-        <DialogTitle>Choose GitHub connection</DialogTitle>
-        <DialogDescription>Automatic updates will use your access to this connection. Installed skills and selections stay in place.</DialogDescription>
+        <DialogTitle>{t('skillSourceRepair.title', { defaultValue: 'Choose GitHub connection' })}</DialogTitle>
+        <DialogDescription>{t('skillSourceRepair.description', { defaultValue: 'Automatic updates will use your access to this connection. Installed skills and selections stay in place.' })}</DialogDescription>
       </DialogHeader>
       <div className="min-h-0 overflow-y-auto space-y-4">
-      {query.isPending && <p role="status" className="text-sm text-muted-foreground">Loading connections…</p>}
-      {query.error && <p role="alert" className="text-sm text-destructive">{describeError(query.error).body} <Button variant="ghost" size="sm" onClick={() => void query.refetch()}>Try again</Button></p>}
-      <RadioCardGroup ariaLabel="GitHub connection" value={connectionId} onValueChange={setConnectionId} disabled={save.isPending}
+      {query.isPending && <p role="status" className="text-sm text-muted-foreground">{t('skillSourceRepair.loadingConnections', { defaultValue: 'Loading connections…' })}</p>}
+      {query.error && <p role="alert" className="text-sm text-destructive">{describeError(query.error).body} <Button variant="ghost" size="sm" onClick={() => void query.refetch()}>{t('common.tryAgain', { defaultValue: 'Try again' })}</Button></p>}
+      <RadioCardGroup ariaLabel={t('skillSourceRepair.connectionsAria', { defaultValue: 'GitHub connection' })} value={connectionId} onValueChange={setConnectionId} disabled={save.isPending}
         options={connections.map(connection => ({ value: connection.id, title: connection.name }))} />
-      {query.isSuccess && connections.length === 0 && <p className="text-sm text-muted-foreground">Connect GitHub to continue.</p>}
-      <Button asChild variant="link" className="justify-start p-0"><Link to="/apps">Manage GitHub connections</Link></Button>
+      {query.isSuccess && connections.length === 0 && <p className="text-sm text-muted-foreground">{t('skillSourceRepair.connectGitHub', { defaultValue: 'Connect GitHub to continue.' })}</p>}
+      <Button asChild variant="link" className="justify-start p-0"><Link to="/apps">{t('skillSourceRepair.manageConnections', { defaultValue: 'Manage GitHub connections' })}</Link></Button>
       {save.error && <p role="alert" className="text-sm text-destructive">{save.error instanceof ApiError && save.error.status === 409 && (save.error.body as { code?: string } | null)?.code === 'skill_source_settings_changed'
-        ? 'This source was updated. Your connection is still selected. Save again to apply it.' : save.error.message}</p>}
-      {branchMissing && source.accessScope !== 'projects' && !source.projects?.some(project => project.active) && <Button variant="outline" disabled={!canSave || save.isPending} onClick={() => setChooseBranch(true)}>Choose a new branch</Button>}
+        ? t('skillSourceRepair.settingsChanged', { defaultValue: 'This source was updated. Your connection is still selected. Save again to apply it.' }) : save.error.message}</p>}
+      {branchMissing && source.accessScope !== 'projects' && !source.projects?.some(project => project.active) && <Button variant="outline" disabled={!canSave || save.isPending} onClick={() => setChooseBranch(true)}>{t('skillSourceRepair.chooseNewBranch', { defaultValue: 'Choose a new branch' })}</Button>}
       </div>
       <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-border pt-4">
-        <Button variant="ghost" disabled={save.isPending} onClick={onClose}>Cancel</Button>
-        <Button disabled={!canSave || save.isPending} onClick={() => save.mutate()}>{save.isPending ? 'Saving…' : 'Save connection'}</Button>
+        <Button variant="ghost" disabled={save.isPending} onClick={onClose}>{t('common.cancel', { defaultValue: 'Cancel' })}</Button>
+        <Button disabled={!canSave || save.isPending} onClick={() => save.mutate()}>{save.isPending ? t('common.saving', { defaultValue: 'Saving…' }) : t('skillSourceRepair.saveConnection', { defaultValue: 'Save connection' })}</Button>
       </footer>
     </DialogContent>
   </Dialog>;

@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { QueryErrorState, useQueryView } from "@/components/QueryView";
 import { RoutineActivityRow } from "@/components/RoutineActivityRow";
 import { queryKeys } from "@/lib/queryKeys";
+import { useTranslation } from "../../i18n";
 
 export function RoutineAuditActivity({
   companyId,
@@ -13,6 +14,7 @@ export function RoutineAuditActivity({
   companyId: string;
   routineId: string;
 }) {
+  const { t } = useTranslation();
   const activity = useQuery({
     queryKey: [...queryKeys.routines.activity(companyId, routineId), "audit"],
     queryFn: async () => {
@@ -33,7 +35,7 @@ export function RoutineAuditActivity({
   if (activityView.kind === "loading" || activityView.kind === "reconnecting") {
     return (
       <div className="border-y border-border py-14 text-center text-sm text-muted-foreground">
-        Loading routine activity…
+        {t("routineAuditActivity.loading", { defaultValue: "Loading routine activity…" })}
       </div>
     );
   }
@@ -51,11 +53,11 @@ export function RoutineAuditActivity({
 
   const events = activityView.data ?? [];
   if (events.length === 0) {
-    return <EmptyState icon={Activity} message="No routine activity yet." />;
+    return <EmptyState icon={Activity} message={t("routineAuditActivity.noActivity", { defaultValue: "No routine activity yet." })} />;
   }
 
   return (
-    <div className="border-y border-border" aria-label="Routine activity">
+    <div className="border-y border-border" aria-label={t("routineAuditActivity.aria", { defaultValue: "Routine activity" })}>
       {events.map((event) => (
         <RoutineActivityRow key={event.id} event={event} />
       ))}

@@ -10,8 +10,10 @@ import { Card } from "@/components/ui/card";
 import { companyDirectoryQueryOptions, useAccountIdentity } from "@/api/companies-query";
 import { useToast } from "@/context/ToastContext";
 import { queryKeys } from "@/lib/queryKeys";
+import { useTranslation } from "../i18n";
 
 export function InstanceAccess() {
+  const { t } = useTranslation();
   const { userId: accountUserId, settled: accountSettled } = useAccountIdentity();
   const { setBreadcrumbs } = useBreadcrumbs();
   const { pushToast } = useToast();
@@ -22,11 +24,11 @@ export function InstanceAccess() {
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Settings", href: "/company/settings" },
-      { label: "Instance settings", href: "/company/settings/instance/general" },
-      { label: "Access" },
+      { label: t("nav.settings", { defaultValue: "Settings" }), href: "/company/settings" },
+      { label: t("instanceAccess.breadcrumbInstanceSettings", { defaultValue: "Instance settings" }), href: "/company/settings/instance/general" },
+      { label: t("settingsSidebar.access", { defaultValue: "Access" }) },
     ]);
-  }, [setBreadcrumbs]);
+  }, [setBreadcrumbs, t]);
 
   const usersQuery = useQuery({
     queryKey: queryKeys.access.adminUsers(search),
@@ -76,13 +78,13 @@ export function InstanceAccess() {
       await queryClient.invalidateQueries({ queryKey: queryKeys.access.userCompanyAccess(selectedUserId!) });
       await queryClient.invalidateQueries({ queryKey: queryKeys.access.adminUsers(search) });
       await queryClient.invalidateQueries({ queryKey: queryKeys.companies.all });
-      pushToast({ title: "Organization access updated", tone: "success" });
+      pushToast({ title: t("instanceAccess.toastOrgAccessUpdated", { defaultValue: "Organization access updated" }), tone: "success" });
     },
   });
 
   const setAdminMutation = useMutation({
     mutationFn: async (makeAdmin: boolean) => {
-      if (!selectedUserId) throw new Error("No user selected");
+      if (!selectedUserId) throw new Error(t("instanceAccess.noUserSelected", { defaultValue: "No user selected" }));
       if (makeAdmin) return accessApi.promoteInstanceAdmin(selectedUserId);
       return accessApi.demoteInstanceAdmin(selectedUserId);
     },
@@ -91,7 +93,7 @@ export function InstanceAccess() {
       if (selectedUserId) {
         await queryClient.invalidateQueries({ queryKey: queryKeys.access.userCompanyAccess(selectedUserId) });
       }
-      pushToast({ title: "Instance role updated", tone: "success" });
+      pushToast({ title: t("instanceAccess.toastRoleUpdated", { defaultValue: "Instance role updated" }), tone: "success" });
     },
   });
 
@@ -101,12 +103,12 @@ export function InstanceAccess() {
     !accountSettled ||
     (usersQuery.isSuccess && (companiesQuery.isPending || companiesView.kind === "reconnecting"))
   ) {
-    return <div className="text-sm text-muted-foreground">Loading instance access…</div>;
+    return <div className="text-sm text-muted-foreground">{t("instanceAccess.loading", { defaultValue: "Loading instance access…" })}</div>;
   }
 
   if (usersView.kind === "error") {
     if (usersView.errorKind === "forbidden") {
-      return <div className="text-sm text-destructive">Instance admin access is required to manage users.</div>;
+      return <div className="text-sm text-destructive">{t("instanceAccess.adminRequired", { defaultValue: "Instance admin access is required to manage users." })}</div>;
     }
     return (
       <QueryErrorState
@@ -136,22 +138,22 @@ export function InstanceAccess() {
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-muted-foreground" />
-          <h1 className="text-lg font-semibold">Instance Access</h1>
+          <h1 className="text-lg font-semibold">{t("instanceAccess.title", { defaultValue: "Instance Access" })}</h1>
         </div>
         <p className="max-w-3xl text-sm text-muted-foreground">
-          Search users, manage instance-admin status, and control which organizations they can access.
+          {t("instanceAccess.description", { defaultValue: "Search users, manage instance-admin status, and control which organizations they can access." })}
         </p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-(--gtc-34)">
         <Card className="block space-y-4 p-4">
           <label className="block space-y-2 text-sm">
-            <span className="font-medium">Search users</span>
+            <span className="font-medium">{t("instanceAccess.searchUsers", { defaultValue: "Search users" })}</span>
             <input
               className="w-full rounded-md border border-border bg-background px-3 py-2"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search by name or email"
+              placeholder={t("instanceAccess.searchPlaceholder", { defaultValue: "Search by name or email" })}
             />
           </label>
           <div className="space-y-2">
@@ -176,7 +178,7 @@ export function InstanceAccess() {
                   ) : null}
                 </div>
                 <div className="mt-2 text-xs text-muted-foreground">
-                  {user.activeCompanyMembershipCount} active organization memberships
+                  {t("instanceAccess.membershipCount", { count: user.activeCompanyMembershipCount, defaultValue: user.activeCompanyMembershipCount === 1 ? "{{count}} active organization membership" : "{{count}} active organization memberships" })}
                 </div>
               </button>
             ))}
@@ -185,9 +187,9 @@ export function InstanceAccess() {
 
         <Card className="block space-y-4 p-5">
           {!selectedUserId ? (
-            <div className="text-sm text-muted-foreground">Select a user to inspect instance access.</div>
+            <div className="text-sm text-muted-foreground">{t("instanceAccess.selectUser", { defaultValue: "Select a user to inspect instance access." })}</div>
           ) : userAccessQuery.isLoading || userAccessView.kind === "reconnecting" ? (
-            <div className="text-sm text-muted-foreground">Loading user access…</div>
+            <div className="text-sm text-muted-foreground">{t("instanceAccess.loadingUserAccess", { defaultValue: "Loading user access…" })}</div>
           ) : userAccessView.kind === "error" ? (
             <QueryErrorState
               error={userAccessQuery.error}
@@ -211,15 +213,15 @@ export function InstanceAccess() {
                   onClick={() => setAdminMutation.mutate(!(selectedUser?.isInstanceAdmin ?? false))}
                   disabled={setAdminMutation.isPending}
                 >
-                  {selectedUser?.isInstanceAdmin ? "Remove instance admin" : "Promote to instance admin"}
+                  {selectedUser?.isInstanceAdmin ? t("instanceAccess.removeAdmin", { defaultValue: "Remove instance admin" }) : t("instanceAccess.promoteAdmin", { defaultValue: "Promote to instance admin" })}
                 </Button>
               </div>
 
               <div className="space-y-3">
                 <div>
-                  <h2 className="text-sm font-semibold">Organization access</h2>
+                  <h2 className="text-sm font-semibold">{t("invite.organizationAccess", { defaultValue: "Organization access" })}</h2>
                   <p className="text-sm text-muted-foreground">
-                    Toggle organization membership for this user. New access defaults to an active operator membership.
+                    {t("instanceAccess.organizationAccessBody", { defaultValue: "Toggle organization membership for this user. New access defaults to an active operator membership." })}
                   </p>
                 </div>
                 <div className="grid gap-3 md:grid-cols-2">
@@ -251,13 +253,13 @@ export function InstanceAccess() {
                     onClick={() => updateCompanyAccessMutation.mutate()}
                     disabled={updateCompanyAccessMutation.isPending}
                   >
-                    {updateCompanyAccessMutation.isPending ? "Saving…" : "Save organization access"}
+                    {updateCompanyAccessMutation.isPending ? t("common.saving", { defaultValue: "Saving…" }) : t("instanceAccess.saveOrgAccess", { defaultValue: "Save organization access" })}
                   </Button>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <h2 className="text-sm font-semibold">Current memberships</h2>
+                <h2 className="text-sm font-semibold">{t("instanceAccess.currentMemberships", { defaultValue: "Current memberships" })}</h2>
                 <div className="space-y-2">
                   {(userAccessQuery.data?.companyAccess ?? []).map((membership) => (
                     <div
@@ -267,7 +269,7 @@ export function InstanceAccess() {
                       <div>
                         <div className="font-medium">{membership.companyName || membership.companyId}</div>
                         <div className="text-muted-foreground">
-                          {membership.membershipRole || "unset"} • {membership.status}
+                          {membership.membershipRole || t("instanceAccess.unset", { defaultValue: "unset" })} • {membership.status}
                         </div>
                       </div>
                       <div className="text-xs text-muted-foreground">

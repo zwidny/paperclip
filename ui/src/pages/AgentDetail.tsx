@@ -38,6 +38,7 @@ import { useToastActions } from "../context/ToastContext";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { queryKeys } from "../lib/queryKeys";
 import { copyTextToClipboard } from "../lib/clipboard";
+import { useTranslation } from "../i18n";
 import { AgentSkillsTab } from "./agent-skills/AgentSkillsTab";
 import { AgentConfigForm } from "../components/AgentConfigForm";
 import { agentDisplayAdapterType, getAdapterDisplay } from "../adapters/adapter-display-registry";
@@ -242,6 +243,39 @@ const LEGACY_AGENT_DETAIL_TABS = [
   { value: "budget", label: "Budget" },
 ] as const;
 
+const AGENT_DETAIL_VIEW_LABEL_KEY: Record<Exclude<AgentDetailView, "run-detail">, string> = {
+  overview: "agentDetail.tabs.overview",
+  instructions: "agentDetail.tabs.instructions",
+  skills: "agentDetail.tabs.skills",
+  runtime: "agentDetail.tabs.runtime",
+  secrets: "agentDetail.tabs.secretsAndVariables",
+  tools: "agentDetail.tabs.tools",
+  channels: "agentDetail.tabs.channels",
+  permissions: "agentDetail.tabs.permissions",
+  "api-keys": "agentDetail.tabs.apiKeys",
+  revisions: "agentDetail.tabs.revisions",
+  advanced: "agentDetail.tabs.advanced",
+  activity: "agentDetail.auditLink.activity",
+  runs: "agentDetail.tabs.runs",
+  costs: "agentDetail.auditLink.costs",
+  budgets: "agentDetail.auditLink.budgets",
+};
+
+function agentDetailViewLabelKey(view: Exclude<AgentDetailView, "run-detail">): string {
+  return AGENT_DETAIL_VIEW_LABEL_KEY[view] ?? "agentDetail.tabs.overview";
+}
+
+const RUN_SOURCE_LABEL_KEY: Record<string, string> = {
+  timer: "agentDetail.runSource.timer",
+  assignment: "agentDetail.runSource.assignment",
+  on_demand: "agentDetail.runSource.onDemand",
+  automation: "agentDetail.runSource.automation",
+};
+
+function runSourceLabelKey(source: string): string {
+  return RUN_SOURCE_LABEL_KEY[source] ?? `agentDetail.runSource.${source}`;
+}
+
 export const DISCARD_AGENT_CONFIG_CHANGES_MESSAGE = "Discard unsaved agent configuration changes?";
 
 export function confirmAgentConfigNavigation(
@@ -361,6 +395,7 @@ export function AgentDetail() {
   const { companies, selectedCompanyId, setSelectedCompanyId } = useCompany();
   const { closePanel } = usePanel();
   const { setBreadcrumbs } = useBreadcrumbs();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
@@ -487,7 +522,7 @@ export function AgentDetail() {
       builtInAgentsApi.reset(resolvedCompanyId!, builtInState!.definition.key, [kind]),
     onSuccess: invalidateBuiltIn,
     onError: (error) => {
-      setActionError(error instanceof Error ? error.message : "Failed to update bundle resource");
+      setActionError(error instanceof Error ? error.message : t("agentDetail.config.failedToUpdateBundle", { defaultValue: "Failed to update bundle resource" }));
     },
   });
   const runBuiltInRoutine = useMutation({
@@ -495,7 +530,7 @@ export function AgentDetail() {
       builtInAgentsApi.runRoutine(resolvedCompanyId!, builtInState!.definition.key, routineKey),
     onSuccess: invalidateBuiltIn,
     onError: (error) => {
-      setActionError(error instanceof Error ? error.message : "Failed to run built-in routine");
+      setActionError(error instanceof Error ? error.message : t("agentDetail.config.failedToRunRoutine", { defaultValue: "Failed to run built-in routine" }));
     },
   });
   const enableBuiltInSchedule = useMutation({
@@ -503,7 +538,7 @@ export function AgentDetail() {
       builtInAgentsApi.enableRoutineSchedule(resolvedCompanyId!, builtInState!.definition.key, routineKey),
     onSuccess: invalidateBuiltIn,
     onError: (error) => {
-      setActionError(error instanceof Error ? error.message : "Failed to enable routine schedule");
+      setActionError(error instanceof Error ? error.message : t("agentDetail.config.failedToEnableSchedule", { defaultValue: "Failed to enable routine schedule" }));
     },
   });
   const disableBuiltInSchedule = useMutation({
@@ -511,7 +546,7 @@ export function AgentDetail() {
       builtInAgentsApi.disableRoutineSchedule(resolvedCompanyId!, builtInState!.definition.key, routineKey),
     onSuccess: invalidateBuiltIn,
     onError: (error) => {
-      setActionError(error instanceof Error ? error.message : "Failed to disable routine schedule");
+      setActionError(error instanceof Error ? error.message : t("agentDetail.config.failedToDisableSchedule", { defaultValue: "Failed to disable routine schedule" }));
     },
   });
   const builtInRoutineActionPending =
@@ -625,7 +660,7 @@ export function AgentDetail() {
   // AgentActionButtons component. Approval and lifecycle retry stay in the detail header.
   const agentAction = useMutation({
     mutationFn: async (action: "approve" | "retryLifecycle") => {
-      if (!agentLookupRef) return Promise.reject(new Error("No agent reference"));
+      if (!agentLookupRef) return Promise.reject(new Error(t("agentDetail.config.noAgentReference", { defaultValue: "No agent reference" })));
       if (action === "approve") {
         return agentsApi.approve(agentLookupRef, resolvedCompanyId ?? undefined);
       }
@@ -649,7 +684,7 @@ export function AgentDetail() {
       }
     },
     onError: (err) => {
-      setActionError(err instanceof Error ? err.message : "Action failed");
+      setActionError(err instanceof Error ? err.message : t("agentDetail.config.actionFailed", { defaultValue: "Action failed" }));
     },
   });
 
@@ -676,13 +711,13 @@ export function AgentDetail() {
       }
     },
     onError: (err) => {
-      setActionError(err instanceof Error ? err.message : "Failed to update permissions");
+      setActionError(err instanceof Error ? err.message : t("agentDetail.config.failedToUpdatePermissions", { defaultValue: "Failed to update permissions" }));
     },
   });
 
   useEffect(() => {
     const crumbs: { label: string; href?: string }[] = [
-      { label: "Agents", href: "/agents" },
+      { label: t("nav.agents", { defaultValue: "Agents" }), href: "/agents" },
     ];
     const agentName = agent?.name ?? routeAgentRef ?? "Agent";
     if (activeView === "overview" && !urlRunId) {
@@ -690,14 +725,14 @@ export function AgentDetail() {
     } else {
       crumbs.push({ label: agentName, href: agentDetailHref(canonicalAgentRef) });
       if (urlRunId) {
-        crumbs.push({ label: "Runs", href: agentDetailHref(canonicalAgentRef, "runs") });
-        crumbs.push({ label: `Run ${urlRunId.slice(0, 8)}` });
+        crumbs.push({ label: t("agentDetail.tabs.runs", { defaultValue: "Runs" }), href: agentDetailHref(canonicalAgentRef, "runs") });
+        crumbs.push({ label: t("agentDetail.breadcrumbs.run", { defaultValue: "Run {{id}}", id: urlRunId.slice(0, 8) }) });
       } else {
-        crumbs.push({ label: agentDetailViewLabel(activeView === "run-detail" ? "overview" : activeView) });
+        crumbs.push({ label: t(agentDetailViewLabelKey(activeView === "run-detail" ? "overview" : activeView), { defaultValue: agentDetailViewLabel(activeView === "run-detail" ? "overview" : activeView) }) });
       }
     }
     setBreadcrumbs(crumbs);
-  }, [setBreadcrumbs, agent, routeAgentRef, canonicalAgentRef, activeView, urlRunId]);
+  }, [setBreadcrumbs, agent, routeAgentRef, canonicalAgentRef, activeView, urlRunId, t]);
 
   useEffect(() => {
     closePanel();
@@ -822,7 +857,7 @@ export function AgentDetail() {
       {showLeftAgentNotice ? (
         <div className="flex items-center gap-3 border border-yellow-300/35 bg-yellow-300/10 px-3 py-2 text-sm text-yellow-900 dark:text-yellow-100">
           <p className="min-w-0 flex-1">
-            You left this agent. It no longer appears in your sidebar.
+            {t("agentDetail.header.leftAgentNotice", { defaultValue: "You left this agent. It no longer appears in your sidebar." })}
           </p>
           <MembershipAction
             compact
@@ -846,7 +881,7 @@ export function AgentDetail() {
           <button
             type="button"
             className="h-6 w-6 shrink-0 text-yellow-900/70 hover:text-yellow-900 dark:text-yellow-100/70 dark:hover:text-yellow-100"
-            aria-label="Dismiss agent membership notice"
+            aria-label={t("agentDetail.header.dismissMembershipNotice", { defaultValue: "Dismiss agent membership notice" })}
             onClick={() => setDismissedLeftAgentIds((current) => new Set(current).add(agent.id))}
           >
             ×
@@ -857,7 +892,7 @@ export function AgentDetail() {
         <div className="flex items-start gap-3 border border-amber-300/35 bg-amber-300/10 px-3 py-2 text-sm text-amber-900 dark:text-amber-100">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
           <div className="min-w-0 space-y-1">
-            <p className="font-medium">Escalation path is paused</p>
+            <p className="font-medium">{t("agentDetail.header.escalationPaused", { defaultValue: "Escalation path is paused" })}</p>
             <p className="text-amber-900/90 dark:text-amber-100/90">{pausedEscalationWarning}</p>
           </div>
         </div>
@@ -866,9 +901,12 @@ export function AgentDetail() {
         <div className="flex items-start gap-3 border border-amber-300/35 bg-amber-300/10 px-3 py-2 text-sm text-amber-900 dark:text-amber-100">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
           <div className="min-w-0 space-y-1">
-            <p className="font-medium">Invalid reporting chain</p>
+            <p className="font-medium">{t("agentDetail.header.invalidReportingChain", { defaultValue: "Invalid reporting chain" })}</p>
             <p className="text-amber-900/90 dark:text-amber-100/90">
-              {agent.name} cannot accept tasks or start runs until its reporting chain is repaired.
+              {t("agentDetail.header.invalidReportingChainBody", {
+                defaultValue: "{{name}} cannot accept tasks or start runs until its reporting chain is repaired.",
+                name: agent.name,
+              })}
             </p>
             <p className="break-words font-mono text-xs text-amber-900/80 dark:text-amber-100/80">
               {formatOrgChainHealthPath(agent)}
@@ -877,7 +915,9 @@ export function AgentDetail() {
               <p className="text-amber-900/85 dark:text-amber-100/85">{agent.orgChainHealth.repairGuidance}</p>
             ) : (
               <p className="text-amber-900/85 dark:text-amber-100/85">
-                Assign this agent to an active manager/root, or explicitly pause or terminate the affected agent/subtree.
+                {t("agentDetail.header.invalidReportingChainGuidance", {
+                  defaultValue: "Assign this agent to an active manager/root, or explicitly pause or terminate the affected agent/subtree.",
+                })}
               </p>
             )}
           </div>
@@ -885,7 +925,7 @@ export function AgentDetail() {
       ) : null}
       {/* Header */}
       <header className="agent-character-header flex items-center gap-2">
-        <div role="img" aria-label={`${agent.name} avatar`} className="shrink-0">
+        <div role="img" aria-label={t("agentDetail.header.avatarAlt", { defaultValue: "{{name}} avatar", name: agent.name })} className="shrink-0">
           <AgentCharacter agent={agent} state={characterStateForAgent(currentAgent.status) === "rest" ? "idle" : characterStateForAgent(currentAgent.status)} size={128} className="agent-header-character" trackingScope="page" followCursor />
         </div>
         <div className="min-w-0 flex-1">
@@ -935,7 +975,9 @@ export function AgentDetail() {
           menuItems={[{ label: "Agent history", icon: HistoryIcon, onSelect: () => setHistoryOpen(true) }]}
           actionsDisabled={agentAction.isPending || (activeView === "advanced" && configSaving)}
           workActionsDisabled={hasInvalidOrgChain}
-          workActionsDisabledReason="Repair this agent's reporting chain before assigning tasks or starting runs"
+          workActionsDisabledReason={t("agentDetail.header.workActionsDisabledReason", {
+            defaultValue: "Repair this agent's reporting chain before assigning tasks or starting runs",
+          })}
           hasPendingNavigationChanges={configDirty}
           onBeforeNavigate={prepareAgentNavigation}
           onActionError={setActionError}
@@ -944,14 +986,15 @@ export function AgentDetail() {
           pauseConfirm={
             builtInState
               ? {
-                  title: `Pause the ${builtInState.definition.displayName}?`,
-                  description: (
-                    <>
-                      {builtInFeatureLabel} depends on this agent. While paused,{" "}
-                      {builtInFeatureLabel.toLowerCase()} generation is skipped and the{" "}
-                      {builtInFeatureLabel} page shows a warning.
-                    </>
-                  ),
+                  title: t("agentDetail.header.pauseBuiltInTitle", {
+                    defaultValue: "Pause the {{name}}?",
+                    name: builtInState.definition.displayName,
+                  }),
+                  description: t("agentDetail.header.pauseBuiltInDescription", {
+                    defaultValue: "{{features}} depends on this agent. While paused, {{featuresLower}} generation is skipped and the {{features}} page shows a warning.",
+                    features: builtInFeatureLabel,
+                    featuresLower: builtInFeatureLabel.toLowerCase(),
+                  }),
                 }
               : undefined
           }
@@ -965,7 +1008,7 @@ export function AgentDetail() {
                 <span className="animate-pulse absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
               </span>
-              <span className="text-(length:--text-micro) font-medium text-blue-600 dark:text-blue-400">Live</span>
+              <span className="text-(length:--text-micro) font-medium text-blue-600 dark:text-blue-400">{t("agentDetail.header.live", { defaultValue: "Live" })}</span>
             </Link>
           )}
         </AgentActionButtons>
@@ -1005,7 +1048,7 @@ export function AgentDetail() {
       {builtInState && (
         <InlineBanner
           tone="info"
-          title="Built-in agent"
+          title={t("agentDetail.builtIn.title", { defaultValue: "Built-in agent" })}
           actions={
             <Button
               variant="outline"
@@ -1013,13 +1056,18 @@ export function AgentDetail() {
               onClick={() => resetBuiltIn.mutate()}
               disabled={resetBuiltIn.isPending}
             >
-              {resetBuiltIn.isPending ? "Resetting…" : "Reset to defaults"}
+              {resetBuiltIn.isPending
+                ? t("agentDetail.builtIn.resetting", { defaultValue: "Resetting…" })
+                : t("agentDetail.builtIn.resetToDefaults", { defaultValue: "Reset to defaults" })}
             </Button>
           }
         >
-          Ships with Paperclip and powers <strong>{builtInFeatureLabel}</strong>. Configure it like
-          any agent — model, instructions, budget. It can be paused but not deleted; pausing it
-          pauses {builtInFeatureLabel}.
+          {t("agentDetail.builtIn.bodyPrefix", { defaultValue: "Ships with Paperclip and powers " })}
+          <strong>{builtInFeatureLabel}</strong>
+          {t("agentDetail.builtIn.bodySuffix", {
+            defaultValue: ". Configure it like any agent — model, instructions, budget. It can be paused but not deleted; pausing it pauses {{features}}.",
+            features: builtInFeatureLabel,
+          })}
         </InlineBanner>
       )}
 
@@ -1053,7 +1101,7 @@ export function AgentDetail() {
       {actionError && <p className="text-sm text-destructive">{actionError}</p>}
       {isPendingApproval && (
         <div className="flex flex-wrap items-center gap-3 rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-400/40 dark:bg-amber-950/30 dark:text-amber-200">
-          <span>This agent is pending board approval and cannot be invoked yet.</span>
+          <span>{t("agentDetail.pendingApproval", { defaultValue: "This agent is pending board approval and cannot be invoked yet." })}</span>
           <Button
             variant="outline"
             size="sm"
@@ -1061,14 +1109,14 @@ export function AgentDetail() {
             disabled={agentAction.isPending}
           >
             <CheckCircle2 className="h-3.5 w-3.5 sm:mr-1" />
-            <span>Approve agent</span>
+            <span>{t("agentDetail.approveAgent", { defaultValue: "Approve agent" })}</span>
           </Button>
         </div>
       )}
 
       {activeView !== "run-detail" && activeView !== "channels" && !UNTITLED_AGENT_VIEWS.has(activeView) ? (
         <div className="mb-4 space-y-1">
-          <h2 className="text-lg font-semibold text-foreground">{agentDetailViewLabel(activeView)}</h2>
+          <h2 className="text-lg font-semibold text-foreground">{t(agentDetailViewLabelKey(activeView), { defaultValue: agentDetailViewLabel(activeView) })}</h2>
           {agentViewDescription(activeView, agent.name) ? (
             <p className="text-sm text-muted-foreground">{agentViewDescription(activeView, agent.name)}</p>
           ) : null}
@@ -1183,7 +1231,7 @@ export function AgentDetail() {
       )}
 
       {activeView === "advanced" && (
-        <Suspense fallback={<p role="status" className="text-sm text-muted-foreground">Loading configuration…</p>}>
+        <Suspense fallback={<p role="status" className="text-sm text-muted-foreground">{t("agentAdvanced.loadingConfiguration", { defaultValue: "Loading configuration…" })}</p>}>
           <AgentAdvancedTab key={agent.id} agent={agent} onDirtyChange={setConfigDirty} onSavingChange={setConfigSaving}
             onSaved={updated => {
               const nextRef = agentRouteRef(updated);
@@ -1218,11 +1266,17 @@ export function AgentDetail() {
           ) : configJustSaved ? (
             <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-(--agent-detail-dot-saved)" />
           ) : null}
-          {configSaving ? "Saving changes…" : configDirty ? "Unsaved changes" : configJustSaved ? "Changes saved" : "No unsaved changes"}
+          {configSaving
+            ? t("agentDetail.footer.savingChanges", { defaultValue: "Saving changes…" })
+            : configDirty
+              ? "Unsaved changes"
+              : configJustSaved
+                ? "Changes saved"
+                : "No unsaved changes"}
         </p>
         <div className="flex gap-2">
-          <Button variant="ghost" disabled={!configDirty || configSaving} onClick={() => cancelConfigActionRef.current?.()}>Discard</Button>
-          <Button disabled={!configDirty || configSaving} onClick={() => {Promise.resolve(saveConfigActionRef.current?.()).catch(() => {});}}>{configSaving ? "Saving…" : "Save changes"}</Button>
+          <Button variant="ghost" disabled={!configDirty || configSaving} onClick={() => cancelConfigActionRef.current?.()}>{t("agentDetail.footer.discard", { defaultValue: "Discard" })}</Button>
+          <Button disabled={!configDirty || configSaving} onClick={() => {Promise.resolve(saveConfigActionRef.current?.()).catch(() => {});}}>{configSaving ? t("agentDetail.footer.saving", { defaultValue: "Saving…" }) : t("agentDetail.footer.saveChanges", { defaultValue: "Save changes" })}</Button>
         </div>
       </footer>}
 
@@ -1286,6 +1340,7 @@ function LatestRunCard({
   agentId: string;
   issuesById: Map<string, LatestRunIssue>;
 }) {
+  const { t } = useTranslation();
   const sorted = useMemo(
     () =>
       [...runs].sort(
@@ -1367,7 +1422,9 @@ function LatestRunCard({
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
               </span>
             )}
-            <span>{isLive ? "Live Run" : "Latest Run"}</span>
+            <span>{isLive
+              ? t("agentDetail.latestRun.liveRun", { defaultValue: "Live Run" })
+              : t("agentDetail.latestRun.latestRun", { defaultValue: "Latest Run" })}</span>
             <span className="font-mono text-xs font-normal text-muted-foreground">
               &middot; {run.id.slice(0, 8)}
             </span>
@@ -1403,7 +1460,7 @@ function LatestRunCard({
                   : run.invocationSource === "on_demand" ? "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300"
                   : "bg-muted text-muted-foreground"
               )}>
-                {sourceLabels[run.invocationSource] ?? run.invocationSource}
+                {t(runSourceLabelKey(run.invocationSource), { defaultValue: sourceLabels[run.invocationSource] ?? run.invocationSource })}
               </Badge>
             </>
           )}
@@ -1439,6 +1496,7 @@ export function AgentOverview({
   skillNames: string[];
   agentRouteId: string;
 }) {
+  const { t } = useTranslation();
   const agentRef = agentRouteRef(agent);
   const hasHumanCreator = Boolean(humanAgentCreatorUserId(agent.createdByUserId));
   const userDirectory = useQuery({
@@ -1467,21 +1525,21 @@ export function AgentOverview({
         <AgentMetricTile
           icon={ActivityIcon}
           value={activity.isLoading ? "–" : formatWindowCount(activityThisWeek)}
-          label="Activity"
+          label={t("agentDetail.auditLink.activity", { defaultValue: "Activity" })}
           description="Events this week"
           to={agentDetailHref(agentRef, "activity")}
         />
         <AgentMetricTile
           icon={PlayCircle}
           value={formatWindowCount(runsThisWeek)}
-          label="Runs"
+          label={t("agentDetail.auditLink.runs", { defaultValue: "Runs" })}
           description={`${formatWindowCount(recentFailures)} failed in the last 2 days`}
           to={agentDetailHref(agentRef, "runs")}
         />
         <AgentMetricTile
           icon={ReceiptText}
           value={formatCents(spent)}
-          label="Costs"
+          label={t("agentDetail.auditLink.costs", { defaultValue: "Costs" })}
           description="Month to date"
           to={agentDetailHref(agentRef, "costs")}
         />
@@ -1494,19 +1552,23 @@ export function AgentOverview({
         />
         <AgentPanel title="Profile" className="min-h-(--agent-detail-tile-min-h) sm:col-span-2" aria-label="Profile"
           meta={<span className={creatorFailed ? "text-destructive" : undefined}>
-            {creatorFailed ? "Could not load creator" : creatorLabel ? `Created by ${creatorLabel} · ${formatDate(agent.createdAt)}` : `Created ${formatDate(agent.createdAt)}`}
+            {creatorFailed
+              ? t("agentDetail.overview.creatorLoadFailed", { defaultValue: "Could not load creator" })
+              : creatorLabel
+                ? `${t("agentDetail.overview.createdBy", { defaultValue: "Created by" })} ${creatorLabel} · ${formatDate(agent.createdAt)}`
+                : `Created ${formatDate(agent.createdAt)}`}
           </span>}>
           <div className="flex flex-col pb-3">
             <AgentReportingManager key={agent.id} agent={agent} />
             {directReports.length > 0 && <div className="flex flex-col gap-1.5 px-(--agent-detail-module-inset) py-1.5 text-sm">
-              <span className="text-muted-foreground">Direct reports:</span>
+              <span className="text-muted-foreground">{t("agentDetail.overview.directReports", { defaultValue: "Direct reports" })}:</span>
               <AgentDirectReports reports={directReports} />
             </div>}
 
           </div>
         </AgentPanel>
         <AgentPanel
-          title="Skills"
+          title={t("agentDetail.tabs.skills", { defaultValue: "Skills" })}
           meta={<span>{skillNames.length} enabled</span>}
           className="min-h-(--agent-detail-tile-min-h) sm:col-span-2"
           aria-label="Skills"
@@ -1518,14 +1580,14 @@ export function AgentOverview({
               ))}
             </div>
           ) : (
-            <p className="px-(--agent-detail-module-inset) pt-1 pb-(--agent-detail-module-inset) text-sm text-muted-foreground">No skills enabled.</p>
+            <p className="px-(--agent-detail-module-inset) pt-1 pb-(--agent-detail-module-inset) text-sm text-muted-foreground">{t("agentDetail.overview.noSkills", { defaultValue: "No skills enabled." })}</p>
           )}
         </AgentPanel>
       </div>
 
-      <section className="flex flex-col gap-3" aria-label="Recent tasks">
+      <section className="flex flex-col gap-3" aria-label={t("agentDetail.overview.recentTasks", { defaultValue: "Recent tasks" })}>
         <AgentSectionHeading
-          title="Recent tasks"
+          title={t("agentDetail.overview.recentTasks", { defaultValue: "Recent tasks" })}
           action={
             <Link to={`/issues?participantAgentId=${agent.id}`} className="text-xs text-muted-foreground no-underline transition-colors hover:text-foreground">
               See all tasks
@@ -1533,7 +1595,7 @@ export function AgentOverview({
           }
         />
         {assignedIssues.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No recent tasks.</p>
+          <p className="text-sm text-muted-foreground">{t("agentDetail.overview.noRecentTasks", { defaultValue: "No recent tasks." })}</p>
         ) : (
           <div className="overflow-hidden rounded-lg border border-border bg-(--agent-detail-tile)">
             <TaskSummaryList issues={assignedIssues.slice(0, 5)} />
@@ -1553,6 +1615,7 @@ export function AgentRevisionsTab({
   agent: AgentDetailRecord;
   companyId?: string;
 }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -1575,11 +1638,11 @@ export function AgentRevisionsTab({
   return (
     <div className="max-w-3xl space-y-3">
       <div className="flex items-baseline justify-between gap-3">
-        <h3 className="text-sm font-medium">Configuration Revisions</h3>
-        <span className="text-xs text-muted-foreground">{configRevisions?.length ?? 0} total</span>
+        <h3 className="text-sm font-medium">{t("agentDetail.revisions.title", { defaultValue: "Configuration Revisions" })}</h3>
+        <span className="text-xs text-muted-foreground">{t("agentDetail.revisions.total", { defaultValue: "{{total}} total", total: configRevisions?.length ?? 0 })}</span>
       </div>
       {(configRevisions ?? []).length === 0 ? (
-        <p className="text-sm text-muted-foreground">No configuration revisions yet.</p>
+        <p className="text-sm text-muted-foreground">{t("agentDetail.revisions.empty", { defaultValue: "No configuration revisions yet." })}</p>
       ) : (
         <div className="space-y-2">
           {(configRevisions ?? []).map((revision) => (
@@ -1598,11 +1661,16 @@ export function AgentRevisionsTab({
                   onClick={() => rollbackConfig.mutate(revision.id)}
                   disabled={rollbackConfig.isPending}
                 >
-                  Restore
+                  {t("agentDetail.revisions.restore", { defaultValue: "Restore" })}
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                Changed: {revision.changedKeys.length > 0 ? revision.changedKeys.join(", ") : "no tracked changes"}
+                {t("agentDetail.revisions.changed", {
+                  defaultValue: "Changed: {{keys}}",
+                  keys: revision.changedKeys.length > 0
+                    ? revision.changedKeys.join(", ")
+                    : t("agentDetail.revisions.noTrackedChanges", { defaultValue: "no tracked changes" }),
+                })}
               </p>
             </div>
           ))}
@@ -1639,6 +1707,7 @@ export function ConfigurationTab({
   content?: "runtime" | "permissions" | "secrets";
   canConfigureProviderTrace?: boolean;
 }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { tab: urlTab } = useParams<{ tab?: string }>();
@@ -1686,7 +1755,7 @@ export function ConfigurationTab({
         || !syncAgentRouteAfterRename(queryClient, navigate, target, updated, urlTab ?? content)) {
         queryClient.invalidateQueries({ queryKey: queryKeys.agents.detail(target.urlKey) });
       }
-      pushToast({ title: "Agent saved", tone: updated.configurationWarnings?.length ? "warn" : "success",
+      pushToast({ title: t("agentDetail.config.agentSaved", { defaultValue: "Agent saved" }), tone: updated.configurationWarnings?.length ? "warn" : "success",
         body: updated.configurationWarnings?.map(warning => warning.message).join("\n") });
     },
     onError: (err) => {
@@ -1696,8 +1765,8 @@ export function ConfigurationTab({
           ? err.message
           : err instanceof Error
             ? err.message
-            : "Could not save agent";
-      pushToast({ title: "Save failed", body: message, tone: "error" });
+            : t("agentDetail.config.couldNotSave", { defaultValue: "Could not save agent" });
+      pushToast({ title: t("agentDetail.config.saveFailed", { defaultValue: "Save failed" }), body: message, tone: "error" });
     },
   });
 
@@ -1727,14 +1796,14 @@ export function ConfigurationTab({
   const taskAssignLocked = agent.role === "ceo" || canCreateAgents;
   const taskAssignHint =
     taskAssignSource === "ceo_role"
-      ? "Enabled automatically for CEO agents."
+      ? t("agentDetail.config.taskAssignCeo", { defaultValue: "Enabled automatically for CEO agents." })
       : taskAssignSource === "agent_creator"
-        ? "Enabled automatically while this agent can create new agents."
+        ? t("agentDetail.config.taskAssignAgentCreator", { defaultValue: "Enabled automatically while this agent can create new agents." })
         : taskAssignSource === "explicit_grant"
-          ? "Enabled via explicit organization permission grant."
+          ? t("agentDetail.config.taskAssignExplicitGrantOrganization", { defaultValue: "Enabled via explicit organization permission grant." })
           : taskAssignSource === "simple_default"
-            ? "Enabled by simple organization-wide task assignment defaults."
-            : "Disabled unless explicitly granted.";
+            ? t("agentDetail.config.taskAssignSimpleDefaultOrganization", { defaultValue: "Enabled by simple organization-wide task assignment defaults." })
+            : t("agentDetail.config.taskAssignDisabled", { defaultValue: "Disabled unless explicitly granted." });
 
   return (
     <div className={cn("agent-settings-form", content === "permissions" ? "flex flex-col gap-(--agent-detail-module-gap)" : "space-y-6")}>
@@ -1786,13 +1855,13 @@ export function ConfigurationTab({
         }
       /> : null}
 
-      {content === "permissions" ? <AgentPanel title="Capabilities" aria-label="Capabilities">
+      {content === "permissions" ? <AgentPanel title={t("agentDetail.overview.capabilities", { defaultValue: "Capabilities" })} aria-label={t("agentDetail.overview.capabilities", { defaultValue: "Capabilities" })}>
         <div className="flex flex-col pb-3">
           <div className="flex min-h-11 items-center justify-between gap-4 px-(--agent-detail-module-inset) py-2 text-sm">
             <div className="space-y-1">
-              <div>Can create new agents</div>
+              <div>{t("agentDetail.config.canCreateAgents", { defaultValue: "Can create new agents" })}</div>
               <p className="text-xs text-muted-foreground">
-                Lets this agent create or hire agents. This also grants task assignment authority.
+                {t("agentDetail.config.canCreateAgentsHint", { defaultValue: "Lets this agent create or hire agents. This also grants task assignment authority." })}
               </p>
             </div>
             <ToggleSwitch
@@ -1809,9 +1878,9 @@ export function ConfigurationTab({
           </div>
           <div className="flex min-h-11 items-center justify-between gap-4 px-(--agent-detail-module-inset) py-2 text-sm">
             <div className="space-y-1">
-              <div>Can create/import skills</div>
+              <div>{t("agentDetail.config.canCreateSkills", { defaultValue: "Can create/import skills" })}</div>
               <p className="text-xs text-muted-foreground">
-                Lets this agent install, import, create, and scan organization skills without creating agents.
+                {t("agentDetail.config.canCreateSkillsHintOrganization", { defaultValue: "Lets this agent install, import, create, and scan organization skills without creating agents." })}
               </p>
             </div>
             <ToggleSwitch
@@ -1828,7 +1897,7 @@ export function ConfigurationTab({
           </div>
           <div className="flex min-h-11 items-center justify-between gap-4 px-(--agent-detail-module-inset) py-2 text-sm">
             <div className="space-y-1">
-              <div>Can assign tasks</div>
+              <div>{t("agentDetail.config.canAssignTasks", { defaultValue: "Can assign tasks" })}</div>
               <p className="text-xs text-muted-foreground">
                 {taskAssignHint}
               </p>

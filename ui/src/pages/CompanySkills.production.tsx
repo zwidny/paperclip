@@ -3325,7 +3325,9 @@ export function SkillDetailPage({
           {fileLoading ? (
             <PageSkeleton variant="detail" />
           ) : !file ? (
-            <div className="text-sm text-muted-foreground">Select a file to inspect.</div>
+            <div className="text-sm text-muted-foreground">
+              {t("common.selectFile", { defaultValue: "Select a file to inspect." })}
+            </div>
           ) : file.encoding === "base64" ? <SkillBinaryFile file={file} /> : editMode && file.editable ? (
             file.markdown ? (
               <MarkdownEditor value={draft} onChange={setDraft} bordered={false} className="min-h-(--sz-520px)" />
@@ -3581,7 +3583,9 @@ export function SkillDetailPage({
                         onClick={() => setDescExpanded((value) => !value)}
                         className="mt-0.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
                       >
-                        {descExpanded ? "Show less" : "View all"}
+                        {descExpanded
+                          ? t("companySkills.detail.showLess", { defaultValue: "Show less" })
+                          : t("companySkills.detail.viewAll", { defaultValue: "View all" })}
                       </button>
                     ) : null}
                   </div>
@@ -3601,7 +3605,7 @@ export function SkillDetailPage({
             <Button variant="outline" size="sm" asChild>
               <Link to={resolvedStudioHref}>
                 <FlaskConical className="mr-1.5 h-3.5 w-3.5" />
-                Open in Studio
+                {t("companySkills.detail.openInStudio", { defaultValue: "Open in Studio" })}
               </Link>
             </Button>
             <div className="flex items-center overflow-hidden rounded-md border border-border">
@@ -3613,24 +3617,36 @@ export function SkillDetailPage({
                     <span className="hidden sm:inline">{detail.attachedAgentCount === 1 ? "install" : "installs"}</span>
                   </span>
                 </TooltipTrigger>
-                <TooltipContent>Agents in this company that currently have this skill installed.</TooltipContent>
+                <TooltipContent>
+                  {t("companySkills.detail.installsTooltipCompany", {
+                    defaultValue: "Agents in this company that currently have this skill installed.",
+                  })}
+                </TooltipContent>
               </Tooltip>
               <button
                 type="button"
                 onClick={onToggleStar}
                 disabled={starPending}
                 className="inline-flex items-center gap-1.5 border-l border-border px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent/40 hover:text-foreground disabled:opacity-50"
-                title={detail.starredByCurrentActor ? "Unstar this skill" : "Star this skill"}
+                title={
+                  detail.starredByCurrentActor
+                    ? t("companySkills.detail.unstar", { defaultValue: "Unstar this skill" })
+                    : t("companySkills.detail.star", { defaultValue: "Star this skill" })
+                }
               >
                 <Star className={cn("h-3.5 w-3.5", detail.starredByCurrentActor && "fill-current text-yellow-400")} />
-                <span className="hidden sm:inline">{detail.starredByCurrentActor ? "Starred" : "Star"}</span>
+                <span className="hidden sm:inline">
+                  {detail.starredByCurrentActor
+                    ? t("companySkills.detail.starred", { defaultValue: "Starred" })
+                    : t("companySkills.detail.starLabel", { defaultValue: "Star" })}
+                </span>
                 <span className="font-medium text-foreground">{detail.starCount}</span>
               </button>
               <button
                 type="button"
                 onClick={onFork}
                 className="inline-flex items-center gap-1.5 border-l border-border px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent/40 hover:text-foreground"
-                title="Fork this skill"
+                title={t("companySkills.detail.forkTitle", { defaultValue: "Fork this skill" })}
               >
                 <GitFork className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">{skill.sourceType === "github" ? "Make a copy" : "Fork"}</span>
@@ -3673,7 +3689,9 @@ export function SkillDetailPage({
             onSave={(categories) => onUpdateSettings({ categories, sharingScope: detail.sharingScope === "public_link" ? "company" : detail.sharingScope })}
           />
           <section>
-            <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Agents</div>
+            <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              {t("companySkills.tabs.agents", { defaultValue: "Agents" })}
+            </div>
             <div className="space-y-3">
               {/* Big primary action opens the agent multi-selector (PAP-10907). */}
               <AttachAgentsPopover
@@ -3686,7 +3704,9 @@ export function SkillDetailPage({
                 fullWidth
               />
               {detail.usedByAgents.length === 0 ? (
-                <p className="text-xs text-muted-foreground">No agents attached yet.</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("companySkills.detail.noAgentsAttachedYet", { defaultValue: "No agents attached yet." })}
+                </p>
               ) : (
                 <div className="space-y-0.5">
                   {/* Preview up to three attached agents, then summarise the rest. */}
@@ -3720,7 +3740,9 @@ export function SkillDetailPage({
               available. Bundled/catalog skills surface their source label too
               (PAP-10907). */}
           <section>
-            <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Source</div>
+            <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              {t("companySkills.detail.source", { defaultValue: "Source" })}
+            </div>
             {githubSource ? (
               <div className="flex items-start gap-2 text-sm">
                 <GithubIcon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -3776,28 +3798,40 @@ export function SkillDetailPage({
               (PAP-10907 F). Only GitHub-sourced skills can pull updates. */}
           {detail.sourceType === "github" ? (
             <section>
-              <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Updates</div>
+              <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {t("companySkills.detail.updates", { defaultValue: "Updates" })}
+              </div>
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Pin className="h-3.5 w-3.5 shrink-0" aria-label="Pinned source revision" />
+                      <Pin
+                        className="h-3.5 w-3.5 shrink-0"
+                        aria-label={t("companySkills.detail.pinnedRevision", { defaultValue: "Pinned source revision" })}
+                      />
                     </TooltipTrigger>
-                    <TooltipContent>Pinned source revision</TooltipContent>
+                    <TooltipContent>
+                      {t("companySkills.detail.pinnedRevision", { defaultValue: "Pinned source revision" })}
+                    </TooltipContent>
                   </Tooltip>
-                  <span className="truncate font-mono text-foreground">{currentPin ?? "untracked"}</span>
+                  <span className="truncate font-mono text-foreground">
+                    {currentPin ?? t("companySkills.detail.untracked", { defaultValue: "untracked" })}
+                  </span>
                 </div>
                 <Button variant="outline" size="sm" className="w-full" onClick={onCheckUpdates} disabled={checkUpdatesPending || updateStatusLoading}>
                   <RefreshCw className={cn("mr-1.5 h-3.5 w-3.5", (checkUpdatesPending || updateStatusLoading) && "animate-spin")} />
-                  Check for updates
+                  {t("companySkills.detail.checkForUpdates", { defaultValue: "Check for updates" })}
                 </Button>
                 {updateStatus?.supported && updateStatus.hasUpdate ? (
                   <Button size="sm" className="w-full" onClick={onInstallUpdate} disabled={installUpdatePending}>
                     <ArrowUpCircle className={cn("mr-1.5 h-3.5 w-3.5", installUpdatePending && "animate-spin")} />
-                    Install update{latestPin ? ` ${latestPin}` : ""}
+                    {t("companySkills.detail.installUpdate", { defaultValue: "Install update" })}
+                    {latestPin ? ` ${latestPin}` : ""}
                   </Button>
                 ) : updateStatus?.supported && !updateStatus.hasUpdate && !updateStatusLoading ? (
-                  <p className="text-xs text-muted-foreground">Up to date.</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("companySkills.detail.upToDate", { defaultValue: "Up to date." })}
+                  </p>
                 ) : null}
               </div>
             </section>
@@ -3816,7 +3850,7 @@ export function SkillDetailPage({
               className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-accent/30 hover:text-foreground"
             >
               <Settings className="h-4 w-4 shrink-0" />
-              <span className="flex-1">Settings</span>
+              <span className="flex-1">{t("companySkills.detail.settings", { defaultValue: "Settings" })}</span>
             </button>
           </section>
         </aside>
@@ -3826,7 +3860,9 @@ export function SkillDetailPage({
           unsaved state is obvious (PAP-10907 J). */}
       {isDirty ? (
         <div className="fixed bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-full border border-border bg-background/95 px-4 py-2 shadow-lg backdrop-blur">
-          <span className="text-sm text-muted-foreground">Unsaved changes</span>
+          <span className="text-sm text-muted-foreground">
+            {t("companySkills.detail.unsavedChanges", { defaultValue: "Unsaved changes" })}
+          </span>
           <Button
             variant="ghost"
             size="sm"
@@ -3836,44 +3872,66 @@ export function SkillDetailPage({
             }}
             disabled={savePending}
           >
-            Discard
+            {t("companySkills.detail.discard", { defaultValue: "Discard" })}
           </Button>
           <Button size="sm" onClick={onSave} disabled={savePending}>
             <Save className="mr-1.5 h-3.5 w-3.5" />
-            {savePending ? "Saving…" : "Save changes"}
+            {savePending
+              ? t("companySkills.detail.savingSettings", { defaultValue: "Saving…" })
+              : t("companySkills.detail.saveChanges", { defaultValue: "Save changes" })}
           </Button>
         </div>
       ) : null}
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Skill settings</DialogTitle>
+            <DialogTitle>{t("companySkills.detail.settingsTitle", { defaultValue: "Skill settings" })}</DialogTitle>
             <DialogDescription>Manage how {detail.name} is grouped and shared.</DialogDescription>
           </DialogHeader>
           <div className="space-y-5">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Categories</label>
+              <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {t("companySkills.detail.categories", { defaultValue: "Categories" })}
+              </label>
               <Input
                 value={settingsCategoryDraft}
                 onChange={(event) => setSettingsCategoryDraft(event.target.value)}
-                placeholder="engineering, review, memory"
+                placeholder={t("companySkills.wizard.categoriesPlaceholder", {
+                  defaultValue: "engineering, review, memory",
+                })}
                 className="h-9"
                 disabled={updateSettingsPending}
               />
-              <p className="text-xs text-muted-foreground">Separate categories with commas. Leave empty to clear categories.</p>
+              <p className="text-xs text-muted-foreground">
+                {t("companySkills.detail.categoriesHint", {
+                  defaultValue: "Separate categories with commas. Leave empty to clear categories.",
+                })}
+              </p>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Sharing</label>
+              <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {t("companySkills.detail.sharing", { defaultValue: "Sharing" })}
+              </label>
               <select
                 value={settingsSharingScope}
                 onChange={(event) => setSettingsSharingScope(event.target.value as Exclude<CompanySkillSharingScope, "public_link">)}
                 disabled={updateSettingsPending}
                 className="h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground"
               >
-                <option value="company">Company — visible inside this company</option>
-                <option value="private">Private — only visible in your library</option>
+                <option value="company">
+                  {t("companySkills.detail.sharingCompany", {
+                    defaultValue: "Company — visible inside this company",
+                  })}
+                </option>
+                <option value="private">
+                  {t("companySkills.detail.sharingPrivate", {
+                    defaultValue: "Private — only visible in your library",
+                  })}
+                </option>
               </select>
-              <p className="text-xs text-muted-foreground">Public link sharing is coming later.</p>
+              <p className="text-xs text-muted-foreground">
+                {t("companySkills.detail.sharingLater", { defaultValue: "Public link sharing is coming later." })}
+              </p>
             </div>
             <div className="flex justify-end gap-2 border-t border-border pt-4">
               <Button
@@ -3886,7 +3944,7 @@ export function SkillDetailPage({
                 }}
                 disabled={!settingsDirty || updateSettingsPending}
               >
-                Reset
+                {t("companySkills.detail.reset", { defaultValue: "Reset" })}
               </Button>
               <Button
                 type="button"
@@ -3895,24 +3953,40 @@ export function SkillDetailPage({
                 disabled={!settingsDirty || updateSettingsPending}
               >
                 <Save className="mr-1.5 h-3.5 w-3.5" />
-                {updateSettingsPending ? "Saving…" : "Save settings"}
+                {updateSettingsPending
+                  ? t("companySkills.detail.savingSettings", { defaultValue: "Saving…" })
+                  : t("companySkills.detail.saveSettings", { defaultValue: "Save settings" })}
               </Button>
             </div>
             {detail.editable ? (
               <div className="rounded-md border border-destructive/40 p-3">
-                <div className="text-xs font-semibold uppercase tracking-wide text-destructive">Danger zone</div>
+                <div className="text-xs font-semibold uppercase tracking-wide text-destructive">
+                  {t("companySkills.detail.dangerZone", { defaultValue: "Danger zone" })}
+                </div>
                 <div className="mt-2 flex items-center justify-between gap-3">
-                  <p className="min-w-0 text-xs text-muted-foreground">Remove this skill from the company library.</p>
+                  <p className="min-w-0 text-xs text-muted-foreground">
+                    {t("companySkills.detail.removeFromLibraryCompany", {
+                      defaultValue: "Remove this skill from the company library.",
+                    })}
+                  </p>
                   <Button
                     variant="destructive"
                     size="sm"
                     className="shrink-0"
                     onClick={onDelete}
                     disabled={deletePending}
-                    title={detail.usedByAgents.length > 0 ? "Detach this skill from all agents before removing it." : undefined}
+                    title={
+                      detail.usedByAgents.length > 0
+                        ? t("companySkills.detail.detachBeforeRemove", {
+                            defaultValue: "Detach this skill from all agents before removing it.",
+                          })
+                        : undefined
+                    }
                   >
                     <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-                    {deletePending ? "Removing…" : "Remove"}
+                    {deletePending
+                      ? t("companySkills.detail.removing", { defaultValue: "Removing…" })
+                      : t("companySkills.detail.remove", { defaultValue: "Remove" })}
                   </Button>
                 </div>
               </div>
@@ -3975,6 +4049,7 @@ function SkillPane({
   onSubmitAttach: (ids: string[], versionId: string | null) => void;
   attachPending: boolean;
 }) {
+  const { t } = useTranslation();
   if (!detail) {
     if (loading) {
       return <PageSkeleton variant="detail" />;
@@ -3982,7 +4057,7 @@ function SkillPane({
     return (
       <EmptyState
         icon={Boxes}
-        message="Select a skill to inspect its files."
+        message={t("companySkills.pane.selectSkill", { defaultValue: "Select a skill to inspect its files." })}
       />
     );
   }
@@ -3996,7 +4071,9 @@ function SkillPane({
   const displaySourcePath = detail.sourcePath ? middleTruncate(detail.sourcePath) : null;
   const removeBlocked = usedBy.length > 0;
   const removeDisabledReason = removeBlocked
-    ? "Detach this skill from all agents before removing it."
+    ? t("companySkills.detail.detachBeforeRemove", {
+        defaultValue: "Detach this skill from all agents before removing it.",
+      })
     : null;
 
   return (
@@ -4016,7 +4093,7 @@ function SkillPane({
             <Button variant="outline" size="sm" asChild>
               <Link to={skillStudioRoute(detail.id)}>
                 <FlaskConical className="mr-1.5 h-3.5 w-3.5" />
-                Open in Studio
+                {t("companySkills.detail.openInStudio", { defaultValue: "Open in Studio" })}
               </Link>
             </Button>
             <Button
@@ -4027,7 +4104,9 @@ function SkillPane({
               title={removeDisabledReason ?? undefined}
             >
               <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-              {deletePending ? "Removing..." : "Remove"}
+              {deletePending
+                ? t("companySkills.pane.removing", { defaultValue: "Removing..." })
+                : t("companySkills.detail.remove", { defaultValue: "Remove" })}
             </Button>
             {detail.editable ? (
               <button
@@ -4035,7 +4114,9 @@ function SkillPane({
                 onClick={() => setEditMode(!editMode)}
               >
                 <Pencil className="h-3.5 w-3.5" />
-                {editMode ? "Stop editing" : "Edit"}
+                {editMode
+                  ? t("companySkills.pane.stopEditing", { defaultValue: "Stop editing" })
+                  : t("companySkills.detail.edit", { defaultValue: "Edit" })}
               </button>
             ) : (
               <div className="text-sm text-muted-foreground">{detail.editableReason}</div>
@@ -4046,7 +4127,9 @@ function SkillPane({
         <div className="mt-4 space-y-3 border-t border-border pt-4 text-sm">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
             <div className="flex min-w-0 items-center gap-2">
-              <span className="text-(length:--text-micro) uppercase tracking-(--tracking-caps) text-muted-foreground">Source</span>
+              <span className="text-(length:--text-micro) uppercase tracking-(--tracking-caps) text-muted-foreground">
+                {t("companySkills.detail.source", { defaultValue: "Source" })}
+              </span>
               <span className="flex min-w-0 items-center gap-2">
                 <SourceIcon className="h-3.5 w-3.5 text-muted-foreground" />
                 {detail.sourcePath && displaySourcePath ? (
@@ -4059,9 +4142,9 @@ function SkillPane({
                     </span>
                     <CopyText
                       text={detail.sourcePath}
-                      copiedLabel="Copied path"
-                      ariaLabel="Copy source path"
-                      title="Copy source path"
+                      copiedLabel={t("companySkills.pane.copiedPath", { defaultValue: "Copied path" })}
+                      ariaLabel={t("companySkills.pane.copySourcePath", { defaultValue: "Copy source path" })}
+                      title={t("companySkills.pane.copySourcePath", { defaultValue: "Copy source path" })}
                       className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border border-border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                     >
                       <Copy className="h-3.5 w-3.5" />
@@ -4074,8 +4157,12 @@ function SkillPane({
             </div>
             {detail.sourceType === "github" && (
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-(length:--text-micro) uppercase tracking-(--tracking-caps) text-muted-foreground">Pin</span>
-                <span className="font-mono text-xs">{currentPin ?? "untracked"}</span>
+                <span className="text-(length:--text-micro) uppercase tracking-(--tracking-caps) text-muted-foreground">
+                  {t("companySkills.pane.pin", { defaultValue: "Pin" })}
+                </span>
+                <span className="font-mono text-xs">
+                  {currentPin ?? t("companySkills.detail.untracked", { defaultValue: "untracked" })}
+                </span>
                 {updateStatus?.trackingRef && (
                   <span className="text-xs text-muted-foreground">tracking {updateStatus.trackingRef}</span>
                 )}
@@ -4086,7 +4173,7 @@ function SkillPane({
                   disabled={checkUpdatesPending || updateStatusLoading}
                 >
                   <RefreshCw className={cn("mr-1.5 h-3.5 w-3.5", (checkUpdatesPending || updateStatusLoading) && "animate-spin")} />
-                  Check for updates
+                  {t("companySkills.detail.checkForUpdates", { defaultValue: "Check for updates" })}
                 </Button>
                 {updateStatus?.supported && updateStatus.hasUpdate && (
                   <Button
@@ -4095,11 +4182,14 @@ function SkillPane({
                     disabled={installUpdatePending}
                   >
                     <RefreshCw className={cn("mr-1.5 h-3.5 w-3.5", installUpdatePending && "animate-spin")} />
-                    Install update{latestPin ? ` ${latestPin}` : ""}
+                    {t("companySkills.detail.installUpdate", { defaultValue: "Install update" })}
+                    {latestPin ? ` ${latestPin}` : ""}
                   </Button>
                 )}
                 {updateStatus?.supported && !updateStatus.hasUpdate && !updateStatusLoading && (
-                  <span className="text-xs text-muted-foreground">Up to date</span>
+                  <span className="text-xs text-muted-foreground">
+                    {t("companySkills.pane.upToDate", { defaultValue: "Up to date" })}
+                  </span>
                 )}
                 {!updateStatus?.supported && updateStatus?.reason && (
                   <span className="text-xs text-muted-foreground">{updateStatus.reason}</span>
@@ -4107,16 +4197,26 @@ function SkillPane({
               </div>
             )}
             <div className="flex items-center gap-2">
-              <span className="text-(length:--text-micro) uppercase tracking-(--tracking-caps) text-muted-foreground">Key</span>
+              <span className="text-(length:--text-micro) uppercase tracking-(--tracking-caps) text-muted-foreground">
+                {t("companySkills.detail.key", { defaultValue: "Key" })}
+              </span>
               <span className="font-mono text-xs">{detail.key}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-(length:--text-micro) uppercase tracking-(--tracking-caps) text-muted-foreground">Mode</span>
-              <span>{detail.editable ? "Editable" : "Read only"}</span>
+              <span className="text-(length:--text-micro) uppercase tracking-(--tracking-caps) text-muted-foreground">
+                {t("companySkills.detail.mode", { defaultValue: "Mode" })}
+              </span>
+              <span>
+                {detail.editable
+                  ? t("companySkills.detail.editable", { defaultValue: "Editable" })
+                  : t("companySkills.detail.readOnly", { defaultValue: "Read only" })}
+              </span>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-(length:--text-micro) uppercase tracking-(--tracking-caps) text-muted-foreground">Trust</span>
+            <span className="text-(length:--text-micro) uppercase tracking-(--tracking-caps) text-muted-foreground">
+              {t("companySkills.trust.label", { defaultValue: "Trust" })}
+            </span>
             <TrustChip level={detail.trustLevel} />
             <CompatChip compatibility={detail.compatibility} />
             {readonlyMetadataValue(detail.metadata, "userModifiedAt") ? (
@@ -4124,10 +4224,15 @@ function SkillPane({
                 <TooltipTrigger asChild>
                   <Badge variant="outline" className="border-violet-500/40 bg-violet-500/10 text-(length:--text-micro) text-violet-200">
                     <Pencil className="h-3 w-3" aria-hidden="true" />
-                    Locally modified
+                    {t("companySkills.pane.locallyModified", { defaultValue: "Locally modified" })}
                   </Badge>
                 </TooltipTrigger>
-                <TooltipContent>You have edited this skill after installing. Updates from the catalog will overwrite your changes.</TooltipContent>
+                <TooltipContent>
+                  {t("companySkills.pane.locallyModifiedTooltip", {
+                    defaultValue:
+                      "You have edited this skill after installing. Updates from the catalog will overwrite your changes.",
+                  })}
+                </TooltipContent>
               </Tooltip>
             ) : null}
             {(() => {
@@ -4138,7 +4243,9 @@ function SkillPane({
           </div>
           <div className="flex flex-wrap items-start gap-x-3 gap-y-2">
             <div className="flex items-center gap-2">
-              <span className="text-(length:--text-micro) uppercase tracking-(--tracking-caps) text-muted-foreground">Used by</span>
+              <span className="text-(length:--text-micro) uppercase tracking-(--tracking-caps) text-muted-foreground">
+                {t("companySkills.pane.usedBy", { defaultValue: "Used by" })}
+              </span>
               <AttachAgentsPopover
                 agents={attachAgents}
                 attachedAgentIds={usedBy.map((agent) => agent.id)}
@@ -4149,7 +4256,9 @@ function SkillPane({
               />
             </div>
             {usedBy.length === 0 ? (
-              <span className="text-muted-foreground">No agents attached</span>
+              <span className="text-muted-foreground">
+                {t("companySkills.pane.noAgentsAttached", { defaultValue: "No agents attached" })}
+              </span>
             ) : (
               <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {usedBy.map((agent) => (
@@ -4181,7 +4290,7 @@ function SkillPane({
                 >
                   <span className="flex items-center gap-1.5">
                     <Eye className="h-3.5 w-3.5" />
-                    View
+                    {t("companySkills.detail.view", { defaultValue: "View" })}
                   </span>
                 </button>
                 <button
@@ -4190,7 +4299,7 @@ function SkillPane({
                 >
                   <span className="flex items-center gap-1.5">
                     <Code2 className="h-3.5 w-3.5" />
-                    Code
+                    {t("companySkills.detail.code", { defaultValue: "Code" })}
                   </span>
                 </button>
               </div>
@@ -4198,11 +4307,13 @@ function SkillPane({
             {editMode && file?.editable && (
               <>
                 <Button variant="ghost" size="sm" onClick={() => setEditMode(false)} disabled={savePending}>
-                  Cancel
+                  {t("common.cancel", { defaultValue: "Cancel" })}
                 </Button>
                 <Button size="sm" onClick={onSave} disabled={savePending}>
                   <Save className="mr-1.5 h-3.5 w-3.5" />
-                  {savePending ? "Saving..." : "Save"}
+                  {savePending
+                    ? t("companySkills.detail.saving", { defaultValue: "Saving..." })
+                    : t("companySkills.detail.save", { defaultValue: "Save" })}
                 </Button>
               </>
             )}
@@ -4214,7 +4325,9 @@ function SkillPane({
         {fileLoading ? (
           <PageSkeleton variant="detail" />
         ) : !file ? (
-          <div className="text-sm text-muted-foreground">Select a file to inspect.</div>
+          <div className="text-sm text-muted-foreground">
+            {t("common.selectFile", { defaultValue: "Select a file to inspect." })}
+          </div>
         ) : editMode && file.editable ? (
           file.markdown ? (
             <MarkdownEditor

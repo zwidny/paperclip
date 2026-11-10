@@ -171,6 +171,7 @@ import {
 import { GithubIcon } from "../components/icons/github-icon";
 import type { FolderListItem, FolderListResult } from "@paperclipai/shared";
 import { describeError } from "@/api/errors";
+import { i18n, useTranslation } from "../i18n";
 
 type SkillTreeNode = {
   name: string;
@@ -326,11 +327,11 @@ function parentDirectoryPaths(filePath: string) {
 type SourceFilter = "all" | "company" | "bundled" | "optional" | "external";
 
 const SOURCE_FILTER_LABELS: Record<SourceFilter, string> = {
-  all: "All",
-  company: "Company",
-  bundled: "Bundled",
-  optional: "Optional",
-  external: "External",
+  all: i18n.t("companySkills.filter.all", { defaultValue: "All" }),
+  company: i18n.t("companySkills.filter.company", { defaultValue: "Company" }),
+  bundled: i18n.t("companySkills.filter.bundled", { defaultValue: "Bundled" }),
+  optional: i18n.t("companySkills.filter.optional", { defaultValue: "Optional" }),
+  external: i18n.t("companySkills.filter.external", { defaultValue: "External" }),
 };
 
 function readonlyMetadataValue(metadata: Record<string, unknown> | null | undefined, key: string): string | null {
@@ -380,6 +381,7 @@ function SourceFilterMenu({
   onChange: (next: SourceFilter) => void;
 }) {
   const filters: SourceFilter[] = ["all", "company", "bundled", "optional", "external"];
+  const { t } = useTranslation();
   const activeFilterCount = value === "all" ? 0 : 1;
   return (
     <DropdownMenu>
@@ -388,7 +390,11 @@ function SourceFilterMenu({
           variant="ghost"
           size="icon-sm"
           className={cn("relative shrink-0", activeFilterCount > 0 && "text-blue-600 dark:text-blue-400")}
-          title={activeFilterCount > 0 ? `Filters: ${activeFilterCount}` : "Filter"}
+          title={
+            activeFilterCount > 0
+              ? `Filters: ${activeFilterCount}`
+              : t("companySkills.filter.label", { defaultValue: "Filter" })
+          }
         >
           <Filter className="h-3.5 w-3.5" />
           {activeFilterCount > 0 ? (
@@ -399,7 +405,7 @@ function SourceFilterMenu({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuLabel>Source</DropdownMenuLabel>
+        <DropdownMenuLabel>{t("companySkills.filter.source", { defaultValue: "Source" })}</DropdownMenuLabel>
         <DropdownMenuRadioGroup value={value} onValueChange={(next) => onChange(next as SourceFilter)}>
           {filters.map((filter) => (
             <DropdownMenuRadioItem key={filter} value={filter}>
@@ -426,6 +432,7 @@ function CatalogFilterMenu({
   onKindChange: (next: "all" | "bundled" | "optional") => void;
   onCategoryChange: (next: string) => void;
 }) {
+  const { t } = useTranslation();
   const activeFilterCount = (kindFilter === "all" ? 0 : 1) + (categoryFilter ? 1 : 0);
   return (
     <DropdownMenu>
@@ -434,7 +441,11 @@ function CatalogFilterMenu({
           variant="ghost"
           size="icon-sm"
           className={cn("relative shrink-0", activeFilterCount > 0 && "text-blue-600 dark:text-blue-400")}
-          title={activeFilterCount > 0 ? `Filters: ${activeFilterCount}` : "Filter"}
+          title={
+            activeFilterCount > 0
+              ? `Filters: ${activeFilterCount}`
+              : t("companySkills.filter.label", { defaultValue: "Filter" })
+          }
         >
           <Filter className="h-3.5 w-3.5" />
           {activeFilterCount > 0 ? (
@@ -445,16 +456,16 @@ function CatalogFilterMenu({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="max-h-(--sz-calc-32) w-56 overflow-y-auto">
-        <DropdownMenuLabel>Type</DropdownMenuLabel>
+        <DropdownMenuLabel>{t("companySkills.filter.type", { defaultValue: "Type" })}</DropdownMenuLabel>
         <DropdownMenuRadioGroup value={kindFilter} onValueChange={(next) => onKindChange(next as "all" | "bundled" | "optional")}>
-          <DropdownMenuRadioItem value="all">All</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="bundled">Bundled</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="optional">Optional</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="all">{t("companySkills.filter.all", { defaultValue: "All" })}</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="bundled">{t("companySkills.filter.bundled", { defaultValue: "Bundled" })}</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="optional">{t("companySkills.filter.optional", { defaultValue: "Optional" })}</DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuLabel>Category</DropdownMenuLabel>
+        <DropdownMenuLabel>{t("companySkills.filter.category", { defaultValue: "Category" })}</DropdownMenuLabel>
         <DropdownMenuRadioGroup value={categoryFilter || "__all__"} onValueChange={(next) => onCategoryChange(next === "__all__" ? "" : next)}>
-          <DropdownMenuRadioItem value="__all__">All categories</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="__all__">{t("companySkills.filter.allCategories", { defaultValue: "All categories" })}</DropdownMenuRadioItem>
           {categories.map((category) => (
             <DropdownMenuRadioItem key={category} value={category}>
               {category}
@@ -467,23 +478,30 @@ function CatalogFilterMenu({
 }
 
 function TrustChip({ level }: { level: CompanySkillTrustLevel }) {
+  const { t } = useTranslation();
   const map = {
     markdown_only: {
       icon: ShieldCheck,
-      label: "Markdown only",
-      tooltip: "Text only — no scripts, no binaries, no assets.",
+      label: t("companySkills.trust.markdownOnly", { defaultValue: "Markdown only" }),
+      tooltip: t("companySkills.trust.markdownOnlyTooltip", {
+        defaultValue: "Text only — no scripts, no binaries, no assets.",
+      }),
       className: "border-border bg-muted/40 text-muted-foreground",
     },
     assets: {
       icon: Folder,
-      label: "Includes assets",
-      tooltip: "Ships images, fonts, or other non-script files.",
+      label: t("companySkills.trust.assets", { defaultValue: "Includes assets" }),
+      tooltip: t("companySkills.trust.assetsTooltip", {
+        defaultValue: "Ships images, fonts, or other non-script files.",
+      }),
       className: "border-cyan-500/30 bg-cyan-500/10 text-cyan-800 dark:text-cyan-200",
     },
     scripts_executables: {
       icon: AlertTriangle,
-      label: "Includes scripts",
-      tooltip: "Ships executable scripts. Review before installing.",
+      label: t("companySkills.trust.scripts", { defaultValue: "Includes scripts" }),
+      tooltip: t("companySkills.trust.scriptsTooltip", {
+        defaultValue: "Ships executable scripts. Review before installing.",
+      }),
       className: "border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-200",
     },
   } as const;
@@ -503,18 +521,23 @@ function TrustChip({ level }: { level: CompanySkillTrustLevel }) {
 }
 
 function CompatChip({ compatibility }: { compatibility: CompanySkillCompatibility }) {
+  const { t } = useTranslation();
   if (compatibility === "compatible") return null;
   const map = {
     unknown: {
       icon: HelpCircle,
-      label: "Unknown format",
-      tooltip: "Paperclip could not validate this skill as Agent Skills markdown. Install at your own risk.",
+      label: t("companySkills.compat.unknown", { defaultValue: "Unknown format" }),
+      tooltip: t("companySkills.compat.unknownTooltip", {
+        defaultValue: "Paperclip could not validate this skill as Agent Skills markdown. Install at your own risk.",
+      }),
       className: "border-yellow-500/40 bg-yellow-500/10 text-yellow-800 dark:text-yellow-200",
     },
     invalid: {
       icon: XOctagon,
-      label: "Invalid",
-      tooltip: "This skill cannot be installed — content is not valid Agent Skills markdown.",
+      label: t("companySkills.compat.invalid", { defaultValue: "Invalid" }),
+      tooltip: t("companySkills.compat.invalidTooltip", {
+        defaultValue: "This skill cannot be installed — content is not valid Agent Skills markdown.",
+      }),
       className: "border-destructive/40 bg-destructive/10 text-destructive",
     },
   } as const;
@@ -534,6 +557,7 @@ function CompatChip({ compatibility }: { compatibility: CompanySkillCompatibilit
 }
 
 function ProvenanceBadge({ packageName, packageVersion }: { packageName: string | null; packageVersion: string | null }) {
+  const { t } = useTranslation();
   if (!packageName) return null;
   return (
     <Tooltip>
@@ -543,7 +567,12 @@ function ProvenanceBadge({ packageName, packageVersion }: { packageName: string 
           <span>{packageName}{packageVersion ? ` v${packageVersion}` : ""}</span>
         </span>
       </TooltipTrigger>
-      <TooltipContent>Installed from the app-shipped skills catalog. Provenance is signed by package version and content hash.</TooltipContent>
+      <TooltipContent>
+        {t("companySkills.provenance.catalogTooltip", {
+          defaultValue:
+            "Installed from the app-shipped skills catalog. Provenance is signed by package version and content hash.",
+        })}
+      </TooltipContent>
     </Tooltip>
   );
 }
@@ -585,7 +614,7 @@ export function skillDetailBreadcrumbs(
     ? folderBreadcrumbTrail(treeFromResult(folderResult), detail.folderId)
     : [];
   return [
-    { label: "Skills", href: "/skills" },
+    { label: i18n.t("companySkills.page.breadcrumbSkills", { defaultValue: "Skills" }), href: "/skills" },
     ...trail.map((folder, index) => ({
       label: index === 0 ? reservedRootLabel(folder) : folder.name,
       href: `/skills?folder=${encodeURIComponent(folder.id)}`,
@@ -597,11 +626,11 @@ export function skillDetailBreadcrumbs(
 type DiscoverySort = "agents" | "stars" | "forks" | "recent" | "alphabetical";
 
 const DISCOVERY_SORT_LABELS: Record<DiscoverySort, string> = {
-  agents: "Most agents",
-  stars: "Most stars",
-  forks: "Most forks",
-  recent: "Recently updated",
-  alphabetical: "Alphabetical",
+  agents: i18n.t("companySkills.sort.mostAgents", { defaultValue: "Most agents" }),
+  stars: i18n.t("companySkills.sort.mostStars", { defaultValue: "Most stars" }),
+  forks: i18n.t("companySkills.sort.mostForks", { defaultValue: "Most forks" }),
+  recent: i18n.t("companySkills.sort.recentlyUpdated", { defaultValue: "Recently updated" }),
+  alphabetical: i18n.t("companySkills.sort.alphabetical", { defaultValue: "Alphabetical" }),
 };
 const DISCOVERY_SORTS: DiscoverySort[] = ["agents", "stars", "forks", "recent", "alphabetical"];
 
@@ -659,8 +688,12 @@ function categorySetKey(categories: string[]) {
 }
 
 function skillSettingsToastBody(skill: Pick<CompanySkillDetail, "categories" | "sharingScope">) {
-  const sharing = skill.sharingScope === "private" ? "Sharing: private" : "Sharing: company";
-  const categories = skill.categories.length ? `Categories: ${skill.categories.join(", ")}` : "Categories: none";
+  const sharing = skill.sharingScope === "private"
+    ? i18n.t("companySkills.toast.sharingPrivate", { defaultValue: "Sharing: private" })
+    : i18n.t("companySkills.toast.sharingCompany", { defaultValue: "Sharing: company" });
+  const categories = skill.categories.length
+    ? `Categories: ${skill.categories.join(", ")}`
+    : i18n.t("companySkills.toast.categoriesNone", { defaultValue: "Categories: none" });
   return `${sharing} | ${categories}`;
 }
 
@@ -828,6 +861,7 @@ function SkillCard({
   onCreateFolderAndMove?: (card: DiscoveryCard) => void;
   onOpenMove?: (card: DiscoveryCard) => void;
 }) {
+  const { t } = useTranslation();
   const badgeFolder = showFolderBadge && card.installed
     ? (card.folderId ? folders?.find((folder) => folder.id === card.folderId) ?? null : null)
     : undefined;
@@ -874,7 +908,9 @@ function SkillCard({
           {badgeFolder !== undefined ? (
             <div className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
               <FolderSwatch color={badgeFolder?.color} className="h-2 w-2" />
-              <span className="truncate">{badgeFolder ? badgeFolder.name : "Unfiled"}</span>
+              <span className="truncate">
+                {badgeFolder ? badgeFolder.name : t("companySkills.card.unfiled", { defaultValue: "Unfiled" })}
+              </span>
             </div>
           ) : null}
         </div>
@@ -906,7 +942,7 @@ function SkillCard({
                 <>
                   <DropdownMenuItem onSelect={() => onOpenMove(card)}>
                     <FolderInput className="h-3.5 w-3.5" />
-                    Move to folder…
+                    {t("companySkills.card.moveToFolder", { defaultValue: "Move to folder…" })}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                 </>
@@ -925,7 +961,7 @@ function SkillCard({
       {card.forkedFrom ? (
         <div className="mt-2 inline-flex items-center gap-1 text-(length:--text-micro) text-muted-foreground">
           <GitFork className="h-3 w-3" aria-hidden="true" />
-          Forked
+          {t("companySkills.card.forked", { defaultValue: "Forked" })}
         </div>
       ) : null}
 
@@ -959,7 +995,7 @@ function SkillCard({
         <div className="mt-2 flex flex-wrap items-center gap-1">
           {card.installed ? (
             <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-(length:--text-nano) text-emerald-700 dark:text-emerald-300">
-              Installed
+              {t("companySkills.card.installed", { defaultValue: "Installed" })}
             </Badge>
           ) : null}
           {card.categories.slice(0, 2).map((category) => (
@@ -968,7 +1004,7 @@ function SkillCard({
           {card.required ? (
             <Badge variant="outline" className="ml-auto border-border bg-muted/60 text-(length:--text-nano) text-muted-foreground">
               <Lock className="h-3 w-3" aria-hidden="true" />
-              Bundled
+              {t("companySkills.card.bundled", { defaultValue: "Bundled" })}
             </Badge>
           ) : null}
         </div>
@@ -990,6 +1026,7 @@ function CategoryNav({
   active: string | null;
   onSelect: (slug: string | null) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <nav className="flex flex-col gap-0.5 px-2">
       <button
@@ -1000,7 +1037,7 @@ function CategoryNav({
           active == null ? "bg-accent/60 font-medium text-foreground" : "text-muted-foreground",
         )}
       >
-        <span>All</span>
+        <span>{t("companySkills.filter.all", { defaultValue: "All" })}</span>
         <span className="text-xs text-muted-foreground">{total}</span>
       </button>
       {categories.map((category) => (
@@ -1125,6 +1162,7 @@ export function DiscoveryGrid({
   /** When set and no folders exist yet, show the dismissible all-unfiled nudge (ux-spec §6.3). */
   folderNudgeStorageKey?: string;
 }) {
+  const { t } = useTranslation();
   // Source filter (github / skills.sh / local / …) lives in the grid so it
   // narrows whatever the parent already filtered by tab/category/search (PAP-10907 E).
   const [sourceBadgeFilter, setSourceBadgeFilter] = useState<string>("all");
@@ -1186,11 +1224,15 @@ export function DiscoveryGrid({
           this is present (handled in Layout). */}
       <aside className={cn("hidden w-60 shrink-0 flex-col overflow-hidden border-r border-border md:flex", showFolderRail && "md:hidden")}>
         <div className="border-b border-border px-4 py-4">
-          <h2 className="text-sm font-semibold text-foreground">Skills Store</h2>
-          <p className="text-xs text-muted-foreground">Discover, install, fork, share</p>
+          <h2 className="text-sm font-semibold text-foreground">
+            {t("companySkills.production.storeTitle", { defaultValue: "Skills Store" })}
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            {t("companySkills.production.storeSubtitle", { defaultValue: "Discover, install, fork, share" })}
+          </p>
         </div>
         <div className="px-4 pb-1 pt-3 text-(length:--text-micro) font-medium uppercase tracking-wide text-muted-foreground">
-          Categories
+          {t("companySkills.view.categories", { defaultValue: "Categories" })}
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto pb-4">
           <CategoryNav
@@ -1210,14 +1252,16 @@ export function DiscoveryGrid({
             <input
               value={search}
               onChange={(event) => onSearchChange(event.target.value)}
-              placeholder="Search skills, authors, categories…"
+              placeholder={t("companySkills.production.searchPlaceholder", {
+                defaultValue: "Search skills, authors, categories…",
+              })}
               className="h-full w-full bg-transparent text-base outline-none placeholder:text-muted-foreground sm:text-sm"
             />
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
-                <span className="text-muted-foreground">Sort</span>
+                <span className="text-muted-foreground">{t("companySkills.production.sortLabel", { defaultValue: "Sort" })}</span>
                 <span className="ml-1.5">{DISCOVERY_SORT_LABELS[sort]}</span>
                 <ChevronDown className="ml-1 h-3.5 w-3.5" />
               </Button>
@@ -1236,16 +1280,18 @@ export function DiscoveryGrid({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
-                  <span className="text-muted-foreground">Source</span>
+                  <span className="text-muted-foreground">{t("companySkills.filter.source", { defaultValue: "Source" })}</span>
                   <span className="ml-1.5 capitalize">
-                    {sourceBadgeFilter === "all" ? "All" : sourceMeta(sourceBadgeFilter as CompanySkillSourceBadge, null).label}
+                    {sourceBadgeFilter === "all"
+                      ? t("companySkills.filter.all", { defaultValue: "All" })
+                      : sourceMeta(sourceBadgeFilter as CompanySkillSourceBadge, null).label}
                   </span>
                   <ChevronDown className="ml-1 h-3.5 w-3.5" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuRadioGroup value={sourceBadgeFilter} onValueChange={setSourceBadgeFilter}>
-                  <DropdownMenuRadioItem value="all">All sources</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="all">{t("companySkills.filter.allSources", { defaultValue: "All sources" })}</DropdownMenuRadioItem>
                   {availableSources.map((badge) => (
                     <DropdownMenuRadioItem key={badge} value={badge}>
                       {sourceMeta(badge as CompanySkillSourceBadge, null).label}
@@ -1260,43 +1306,47 @@ export function DiscoveryGrid({
             size="icon-sm"
             onClick={() => onScan()}
             disabled={scanPending}
-            aria-label="Scan project workspaces for skills"
-            title="Scan project workspaces for skills"
+            aria-label={t("companySkills.production.scanProjects", {
+              defaultValue: "Scan project workspaces for skills",
+            })}
+            title={t("companySkills.production.scanProjects", {
+              defaultValue: "Scan project workspaces for skills",
+            })}
           >
             <RefreshCw className={cn("h-4 w-4", scanPending && "animate-spin")} />
           </Button>
           <Button asChild variant="outline" size="sm">
             <Link to="/skills/studio">
               <FlaskConical className="h-3.5 w-3.5" />
-              Studio
+              {t("companySkills.production.studio", { defaultValue: "Studio" })}
             </Link>
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="sm" variant="default">
                 <Plus className="mr-1 h-3.5 w-3.5" />
-                New
+                {t("companySkills.production.new", { defaultValue: "New" })}
                 <ChevronDown className="ml-1 h-3.5 w-3.5" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onSelect={onCreate}>
                 <Pencil className="mr-2 h-4 w-4" />
-                Create new skill
+                {t("companySkills.production.createNewSkill", { defaultValue: "Create new skill" })}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={onBrowseCatalog}>
                 <Boxes className="mr-2 h-4 w-4" />
-                Browse catalog
+                {t("companySkills.production.browseCatalog", { defaultValue: "Browse catalog" })}
               </DropdownMenuItem>
-              <DropdownMenuItem asChild><Link to="/skills/sources/new"><GithubIcon className="mr-2 h-4 w-4" />Import from GitHub</Link></DropdownMenuItem>
-              <DropdownMenuItem asChild><Link to="/skills/sources">Manage sources</Link></DropdownMenuItem>
+              <DropdownMenuItem asChild><Link to="/skills/sources/new"><GithubIcon className="mr-2 h-4 w-4" />{t("companySkills.view.importFromGithub", { defaultValue: "Import from GitHub" })}</Link></DropdownMenuItem>
+              <DropdownMenuItem asChild><Link to="/skills/sources">{t("companySkills.production.manageSources", { defaultValue: "Manage sources" })}</Link></DropdownMenuItem>
               <DropdownMenuItem onSelect={onImport}>
                 <Globe className="mr-2 h-4 w-4" />
-                Import from path or URL
+                {t("companySkills.production.importFromPath", { defaultValue: "Import from path or URL" })}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={onImportFromProject}>
                 <FolderSearch className="mr-2 h-4 w-4" />
-                Import skills from project
+                {t("companySkills.production.importSkillsFromProject", { defaultValue: "Import skills from project" })}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -1305,7 +1355,7 @@ export function DiscoveryGrid({
               <FolderChip
                 result={folderResult}
                 selection={folderSelection}
-                allLabel="All skills"
+                allLabel={t("companySkills.view.allSkills", { defaultValue: "All skills" })}
                 onClick={onOpenMobileFolders ?? (() => undefined)}
               />
             </div>
@@ -1313,12 +1363,14 @@ export function DiscoveryGrid({
           {onCreateFolder && !showFolderRail ? (
             <Button variant="outline" size="sm" onClick={onCreateFolder}>
               <Plus className="mr-1 h-3.5 w-3.5" />
-              New folder
+              {t("companySkills.production.newFolder", { defaultValue: "New folder" })}
             </Button>
           ) : null}
           {onToggleSelectMode ? (
             <Button variant="ghost" size="sm" onClick={onToggleSelectMode}>
-              {selectMode ? "Done" : "Select"}
+              {selectMode
+                ? t("common.done", { defaultValue: "Done" })
+                : t("companySkills.production.select", { defaultValue: "Select" })}
             </Button>
           ) : null}
         </div>
@@ -1329,7 +1381,9 @@ export function DiscoveryGrid({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="w-full justify-between">
-                  <span className="capitalize">{activeCategory ?? "All categories"}</span>
+                  <span className="capitalize">
+                    {activeCategory ?? t("companySkills.filter.allCategories", { defaultValue: "All categories" })}
+                  </span>
                   <ChevronDown className="h-3.5 w-3.5" />
                 </Button>
               </DropdownMenuTrigger>
@@ -1338,7 +1392,7 @@ export function DiscoveryGrid({
                   value={activeCategory ?? "__all__"}
                   onValueChange={(value) => onCategoryChange(value === "__all__" ? null : value)}
                 >
-                  <DropdownMenuRadioItem value="__all__">All ({categoryTotal})</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="__all__">{t("companySkills.filter.all", { defaultValue: "All" })} ({categoryTotal})</DropdownMenuRadioItem>
                   {categories.map((category) => (
                     <DropdownMenuRadioItem key={category.slug} value={category.slug} className="capitalize">
                       {category.slug} ({category.count})
@@ -1355,24 +1409,26 @@ export function DiscoveryGrid({
           <Tabs value={tab} onValueChange={(value) => onTabChange(value as DiscoveryTab)}>
             <TabsList variant="line" className="p-0">
               <TabsTrigger value="all" className="px-3">
-                <span>All</span>
+                <span>{t("companySkills.filter.all", { defaultValue: "All" })}</span>
                 <span className="ml-1.5 text-(length:--text-micro) text-muted-foreground">{tabCounts.all}</span>
               </TabsTrigger>
               <TabsTrigger value="installed" className="px-3">
-                <span>Installed</span>
+                <span>{t("companySkills.production.tabInstalled", { defaultValue: "Installed" })}</span>
                 <span className="ml-1.5 text-(length:--text-micro) text-muted-foreground">{tabCounts.installed}</span>
               </TabsTrigger>
               <TabsTrigger value="catalog" className="px-3">
-                <span>Catalog</span>
+                <span>{t("companySkills.production.tabCatalog", { defaultValue: "Catalog" })}</span>
                 <span className="ml-1.5 text-(length:--text-micro) text-muted-foreground">{tabCounts.catalog}</span>
               </TabsTrigger>
               <TabsTrigger value="bundled" className="px-3">
-                <span>Bundled</span>
+                <span>{t("companySkills.production.tabBundled", { defaultValue: "Bundled" })}</span>
                 <span className="ml-1.5 text-(length:--text-micro) text-muted-foreground">{tabCounts.bundled}</span>
               </TabsTrigger>
             </TabsList>
           </Tabs>
-          <Button variant="ghost" size="sm" asChild><Link to="/skills/sources">Sources</Link></Button>
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/skills/sources">{t("companySkills.production.sources", { defaultValue: "Sources" })}</Link>
+          </Button>
         </div>
 
         {/* Grid body */}
@@ -1391,7 +1447,7 @@ export function DiscoveryGrid({
                   title={`Refresh skills from ${activeProjectFolder.name}`}
                 >
                   <RefreshCw className={cn("h-3.5 w-3.5", scanPending && "animate-spin")} />
-                  Refresh
+                  {t("companySkills.scan.refresh", { defaultValue: "Refresh" })}
                 </Button>
               ) : null}
             </div>
@@ -1427,20 +1483,23 @@ export function DiscoveryGrid({
                 icon={LayoutGrid}
                 message={
                   totalCount === 0
-                    ? "No skills yet. Create one or install from the catalog."
+                    ? t("companySkills.production.emptyCreate", {
+                        defaultValue: "No skills yet. Create one or install from the catalog.",
+                      })
                     : search || activeCategory || sourceFilterActive
-                      ? "No skills match your filters."
-                      : "No skills in this tab yet."
+                      ? t("companySkills.view.emptyNoMatch", { defaultValue: "No skills match your filters." })
+                      : t("companySkills.production.emptyInTab", { defaultValue: "No skills in this tab yet." })
                 }
               />
               {totalCount === 0 ? (
                 <div className="mt-3 flex flex-col items-center gap-2">
                   <Button size="sm" onClick={onBrowseCatalog}>
-                    <Boxes className="mr-1.5 h-3.5 w-3.5" /> Browse catalog
+                    <Boxes className="mr-1.5 h-3.5 w-3.5" />{" "}
+                    {t("companySkills.production.browseCatalog", { defaultValue: "Browse catalog" })}
                   </Button>
-                  <Button size="sm" variant="outline" asChild><Link to="/skills/sources/new">Import from GitHub</Link></Button>
+                  <Button size="sm" variant="outline" asChild><Link to="/skills/sources/new">{t("companySkills.view.importFromGithub", { defaultValue: "Import from GitHub" })}</Link></Button>
                   <Button size="sm" variant="ghost" onClick={onCreate}>
-                    Create a skill
+                    {t("companySkills.view.createSkill", { defaultValue: "Create a skill" })}
                   </Button>
                 </div>
               ) : (search || activeCategory || sourceFilterActive) ? (
@@ -1454,7 +1513,7 @@ export function DiscoveryGrid({
                       setSourceBadgeFilter("all");
                     }}
                   >
-                    Clear filters
+                    {t("companySkills.view.clearFilters", { defaultValue: "Clear filters" })}
                   </Button>
                 </div>
               ) : null}
@@ -1503,11 +1562,17 @@ function NewSkillWizard({
   error: string | null;
   onCancel: () => void;
 }) {
+  const { t } = useTranslation();
   const [step, setStep] = useState(0);
   const [draft, setDraft] = useState<SkillCreateDraft>(initialDraft);
   const [slugDirty, setSlugDirty] = useState(initialDraft.slug.trim().length > 0);
   const categoryDraft = draft.categories.join(", ");
-  const steps = ["Basics", "Design", "Content", "Review"];
+  const steps = [
+    t("companySkills.wizard.steps.basics", { defaultValue: "Basics" }),
+    t("companySkills.wizard.steps.design", { defaultValue: "Design" }),
+    t("companySkills.wizard.steps.content", { defaultValue: "Content" }),
+    t("companySkills.wizard.steps.review", { defaultValue: "Review" }),
+  ];
 
   useEffect(() => {
     setStep(0);
@@ -1564,7 +1629,7 @@ function NewSkillWizard({
                   : draft.markdown,
               });
             }}
-            placeholder="Skill name"
+            placeholder={t("companySkills.wizard.namePlaceholder", { defaultValue: "Skill name" })}
             className="h-9"
           />
           <Input
@@ -1589,7 +1654,9 @@ function NewSkillWizard({
                   : draft.markdown,
               });
             }}
-            placeholder="One-line promise for the skill"
+            placeholder={t("companySkills.wizard.taglinePlaceholder", {
+              defaultValue: "One-line promise for the skill",
+            })}
             className="min-h-20"
           />
         </div>
@@ -1600,19 +1667,25 @@ function NewSkillWizard({
               size={48}
               card={{
                 key: effectiveSlug || draft.name || "new-skill",
-                name: draft.name || "New Skill",
+                name: draft.name || t("companySkills.wizard.newSkill", { defaultValue: "New Skill" }),
                 slug: effectiveSlug || "skill",
                 iconUrl: null,
                 color: draft.color,
               }}
             />
             <div className="min-w-0">
-              <div className="truncate text-sm font-medium">{draft.name || "New Skill"}</div>
-              <div className="truncate text-xs text-muted-foreground">{draft.tagline || "No tagline yet."}</div>
+              <div className="truncate text-sm font-medium">
+                {draft.name || t("companySkills.wizard.newSkill", { defaultValue: "New Skill" })}
+              </div>
+              <div className="truncate text-xs text-muted-foreground">
+                {draft.tagline || t("companySkills.wizard.noTagline", { defaultValue: "No tagline yet." })}
+              </div>
             </div>
           </div>
           <div>
-            <label className="mb-2 block text-xs font-medium uppercase tracking-wide text-muted-foreground">Color</label>
+            <label className="mb-2 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              {t("companySkills.wizard.color", { defaultValue: "Color" })}
+            </label>
             <div className="flex flex-wrap gap-2">
               {SKILL_CREATE_ACCENTS.map((color) => (
                 <button
@@ -1635,11 +1708,15 @@ function NewSkillWizard({
             </div>
           </div>
           <div>
-            <label className="mb-2 block text-xs font-medium uppercase tracking-wide text-muted-foreground">Categories</label>
+            <label className="mb-2 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              {t("companySkills.wizard.categories", { defaultValue: "Categories" })}
+            </label>
             <Input
               value={categoryDraft}
               onChange={(event) => patchDraft({ categories: splitCategoryDraft(event.target.value) })}
-              placeholder="engineering, review, memory"
+              placeholder={t("companySkills.wizard.categoriesPlaceholder", {
+                defaultValue: "engineering, review, memory",
+              })}
               className="h-9"
             />
           </div>
@@ -1655,17 +1732,29 @@ function NewSkillWizard({
       ) : (
         <div className="space-y-4 text-sm">
           <div className="grid grid-cols-(--gtc-26) gap-y-2">
-            <span className="text-muted-foreground">Name</span>
-            <span>{draft.name || "Untitled"}</span>
-            <span className="text-muted-foreground">Slug</span>
+            <span className="text-muted-foreground">{t("companySkills.wizard.name", { defaultValue: "Name" })}</span>
+            <span>{draft.name || t("companySkills.wizard.untitled", { defaultValue: "Untitled" })}</span>
+            <span className="text-muted-foreground">{t("companySkills.wizard.slug", { defaultValue: "Slug" })}</span>
             <span className="font-mono">{effectiveSlug || "skill"}</span>
-            <span className="text-muted-foreground">Scope</span>
-            <span>{draft.sharingScope === "private" ? "Private" : "Company"}</span>
-            <span className="text-muted-foreground">Categories</span>
-            <span>{draft.categories.length ? draft.categories.join(", ") : "none"}</span>
+            <span className="text-muted-foreground">{t("companySkills.wizard.scope", { defaultValue: "Scope" })}</span>
+            <span>
+              {draft.sharingScope === "private"
+                ? t("companySkills.wizard.private", { defaultValue: "Private" })
+                : t("companySkills.wizard.company", { defaultValue: "Company" })}
+            </span>
+            <span className="text-muted-foreground">
+              {t("companySkills.wizard.categories", { defaultValue: "Categories" })}
+            </span>
+            <span>
+              {draft.categories.length
+                ? draft.categories.join(", ")
+                : t("companySkills.wizard.none", { defaultValue: "none" })}
+            </span>
           </div>
           <div className="space-y-2">
-            <label className="block text-xs font-medium uppercase tracking-wide text-muted-foreground">Sharing</label>
+            <label className="block text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              {t("companySkills.wizard.sharing", { defaultValue: "Sharing" })}
+            </label>
             <div className="grid gap-2 sm:grid-cols-3">
               {(["company", "private"] as const).map((scope) => (
                 <button
@@ -1677,9 +1766,15 @@ function NewSkillWizard({
                     draft.sharingScope === scope ? "border-foreground bg-accent/50" : "border-border",
                   )}
                 >
-                  <span className="block font-medium">{scope === "company" ? "Company" : "Private"}</span>
+                  <span className="block font-medium">
+                    {scope === "company"
+                      ? t("companySkills.wizard.company", { defaultValue: "Company" })
+                      : t("companySkills.wizard.private", { defaultValue: "Private" })}
+                  </span>
                   <span className="mt-1 block text-xs text-muted-foreground">
-                    {scope === "company" ? "Visible inside this company." : "Only visible in your library."}
+                    {scope === "company"
+                      ? t("companySkills.wizard.visibleInCompany", { defaultValue: "Visible inside this company." })
+                      : t("companySkills.wizard.onlyYourLibrary", { defaultValue: "Only visible in your library." })}
                   </span>
                 </button>
               ))}
@@ -1688,8 +1783,12 @@ function NewSkillWizard({
                 disabled
                 className="rounded-md border border-dashed border-border px-3 py-2 text-left text-sm text-muted-foreground"
               >
-                <span className="block font-medium">Public link</span>
-                <span className="mt-1 block text-xs">Coming later.</span>
+                <span className="block font-medium">
+                  {t("companySkills.wizard.publicLink", { defaultValue: "Public link" })}
+                </span>
+                <span className="mt-1 block text-xs">
+                  {t("companySkills.wizard.comingLater", { defaultValue: "Coming later." })}
+                </span>
               </button>
             </div>
           </div>
@@ -1704,19 +1803,23 @@ function NewSkillWizard({
 
       <div className="flex items-center justify-between gap-2 border-t border-border pt-3">
         <Button variant="ghost" size="sm" onClick={onCancel} disabled={isPending}>
-          Cancel
+          {t("common.cancel", { defaultValue: "Cancel" })}
         </Button>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" onClick={() => setStep((value) => Math.max(0, value - 1))} disabled={isPending || step === 0}>
-            Back
+            {t("common.back", { defaultValue: "Back" })}
           </Button>
           {step < steps.length - 1 ? (
             <Button size="sm" onClick={() => setStep((value) => Math.min(steps.length - 1, value + 1))} disabled={!nameValid}>
-              Next
+              {t("common.next", { defaultValue: "Next" })}
             </Button>
           ) : (
             <Button size="sm" onClick={submit} disabled={isPending || !nameValid}>
-              {isPending ? "Creating..." : draft.forkedFromSkillId ? "Create fork" : "Create skill"}
+              {isPending
+                ? t("companySkills.wizard.creating", { defaultValue: "Creating..." })
+                : draft.forkedFromSkillId
+                  ? t("companySkills.wizard.createFork", { defaultValue: "Create fork" })
+                  : t("companySkills.wizard.createSkill", { defaultValue: "Create skill" })}
             </Button>
           )}
         </div>
@@ -1754,6 +1857,7 @@ function CatalogList({
   onToggleSkill: (catalogRef: string) => void;
   onToggleDir: (catalogRef: string, path: string) => void;
 }) {
+  const { t } = useTranslation();
   const lowered = catalogFilter.trim().toLowerCase();
   const filtered = skills.filter((skill) => {
     if (kindFilter !== "all" && skill.kind !== kindFilter) return false;
@@ -1766,7 +1870,7 @@ function CatalogList({
   if (filtered.length === 0) {
     return (
       <div className="px-4 py-6 text-sm text-muted-foreground">
-        No catalog skills match this filter.
+        {t("companySkills.catalog.noMatch", { defaultValue: "No catalog skills match this filter." })}
       </div>
     );
   }
@@ -1843,7 +1947,7 @@ function CatalogList({
       {bundled.length > 0 && kindFilter !== "optional" ? (
         <div>
           <div className="border-b border-border bg-background px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Bundled · {bundled.length}
+            {t("companySkills.filter.bundled", { defaultValue: "Bundled" })} · {bundled.length}
           </div>
           {bundled.map(renderRow)}
         </div>
@@ -1851,7 +1955,7 @@ function CatalogList({
       {optional.length > 0 && kindFilter !== "bundled" ? (
         <div>
           <div className="border-b border-border bg-background px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Optional · {optional.length}
+            {t("companySkills.filter.optional", { defaultValue: "Optional" })} · {optional.length}
           </div>
           {optional.map(renderRow)}
         </div>
@@ -1859,7 +1963,7 @@ function CatalogList({
       {installed.length > 0 ? (
         <div>
           <div className="border-b border-border bg-background px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Installed · {installed.length}
+            {t("companySkills.production.tabInstalled", { defaultValue: "Installed" })} · {installed.length}
           </div>
           {installed.map(renderRow)}
         </div>

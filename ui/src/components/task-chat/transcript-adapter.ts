@@ -5,6 +5,7 @@
  * thinking → tool → diff → responding while a run is in flight, rather than
  * only showing a response after the turn settles.
  */
+import { i18n } from "../../i18n";
 import { foldApprovedAutoReviews } from "./fold-auto-reviews";
 import { isFatalProviderError, isStatusNotice, isStatusNoticePayload, statusNoticeCategory } from "./status-notice-presentation";
 import type { TranscriptEntry } from "@/adapters";
@@ -254,7 +255,9 @@ export function summarizeToolInput(input: unknown): string | undefined {
  */
 export function toolDisplayName(name: string | undefined | null): string {
   const raw = (name ?? "").trim();
-  return isGenericToolName(raw) ? "Unnamed tool" : humanizeToolName(raw);
+  return isGenericToolName(raw)
+    ? i18n.t("toolVerbs.unnamedTool", { defaultValue: "Unnamed tool" })
+    : humanizeToolName(raw);
 }
 
 /** "Thought for Ns" once a coalesced thinking group spans ≥1s. */
@@ -2610,11 +2613,15 @@ export function deriveRunStatusLabel(entries: readonly TranscriptEntry[]): {
         }
       }
       const selfTalk = flattenSelfTalk(parts.join(""));
-      return { label: "Responding", selfTalk: selfTalk || undefined };
+      return {
+        label: i18n.t("taskChat.statusResponding", { defaultValue: "Responding" }),
+        selfTalk: selfTalk || undefined,
+      };
     }
-    if (entry.kind === "thinking") return { label: "Thinking" };
+    if (entry.kind === "thinking")
+      return { label: i18n.t("taskChat.statusThinking", { defaultValue: "Thinking" }) };
     if (entry.kind === "system" && entry.text === "Reasoning started")
-      return { label: "Thinking" };
+      return { label: i18n.t("taskChat.statusThinking", { defaultValue: "Thinking" }) };
   }
-  return { label: "Running" };
+  return { label: i18n.t("taskChat.statusRunning", { defaultValue: "Running" }) };
 }

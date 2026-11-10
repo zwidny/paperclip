@@ -6,6 +6,17 @@
       "newCompany": "新公司"
     }
   },
+  "sidebar": {
+    "companyMenu": {
+      "noOrganizations": "没有组织",
+      "loadFailed": "无法加载组织",
+      "createOrganization": "创建组织",
+      "invitePeople": "邀请成员",
+      "invitePeopleTo": "邀请成员加入 {{name}}",
+      "signOut": "退出登录",
+      "signingOut": "正在退出..."
+    }
+  },
   "settings": {
     "nav": {
       "invites": "邀请",

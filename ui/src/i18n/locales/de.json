@@ -6,6 +6,17 @@
       "newCompany": "Neues Unternehmen"
     }
   },
+  "sidebar": {
+    "companyMenu": {
+      "noOrganizations": "No organizations",
+      "loadFailed": "Couldn't load organizations",
+      "createOrganization": "Create organization",
+      "invitePeople": "Invite people",
+      "invitePeopleTo": "Invite people to {{name}}",
+      "signOut": "Sign out",
+      "signingOut": "Signing out..."
+    }
+  },
   "settings": {
     "nav": {
       "invites": "Invites",

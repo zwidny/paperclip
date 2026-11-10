@@ -7,6 +7,25 @@
     }
   },
   "settings": {
+    "nav": {
+      "invites": "Invites",
+      "heartbeats": "Heartbeats",
+      "company": "Company",
+      "general": "General",
+      "profile": "Profile",
+      "members": "Members",
+      "secrets": "Secrets",
+      "environments": "Environments",
+      "connections": "Connections",
+      "access": "Access",
+      "export": "Export",
+      "import": "Import",
+      "experimental": "Experimental",
+      "plugins": "Plugins",
+      "adapters": "Adapters",
+      "settings": "Settings",
+      "backToApp": "Back to app"
+    },
     "language": {
       "label": "Language",
       "hint": "Applies to this browser. Translating every screen is in progress; untranslated text stays in English."

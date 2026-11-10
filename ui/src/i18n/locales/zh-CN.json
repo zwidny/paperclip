@@ -7,6 +7,25 @@
     }
   },
   "settings": {
+    "nav": {
+      "invites": "邀请",
+      "heartbeats": "心跳",
+      "company": "公司",
+      "general": "通用",
+      "profile": "个人资料",
+      "members": "成员",
+      "secrets": "密钥",
+      "environments": "环境",
+      "connections": "连接",
+      "access": "访问权限",
+      "export": "导出",
+      "import": "导入",
+      "experimental": "实验性功能",
+      "plugins": "插件",
+      "adapters": "适配器",
+      "settings": "设置",
+      "backToApp": "返回应用"
+    },
     "language": {
       "label": "语言",
       "hint": "仅对当前浏览器生效。全站翻译仍在进行中，未翻译的内容会显示英文。"

@@ -7,6 +7,25 @@
     }
   },
   "settings": {
+    "nav": {
+      "invites": "Invites",
+      "heartbeats": "Heartbeats",
+      "company": "Company",
+      "general": "General",
+      "profile": "Profile",
+      "members": "Members",
+      "secrets": "Secrets",
+      "environments": "Environments",
+      "connections": "Connections",
+      "access": "Access",
+      "export": "Export",
+      "import": "Import",
+      "experimental": "Experimental",
+      "plugins": "Plugins",
+      "adapters": "Adapters",
+      "settings": "Settings",
+      "backToApp": "Back to app"
+    },
     "language": {
       "label": "語言",
       "hint": "僅對目前瀏覽器生效。全站翻譯仍在進行中，未翻譯的內容會顯示英文。"

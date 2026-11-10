@@ -2142,7 +2142,9 @@ function CatalogDetailPane({
         ) : fileView.kind === "error" ? (
           <QueryErrorState error={fileQuery.error} action="load the file" onRetry={fileView.retry} retrying={fileView.isFetching} />
         ) : !fileQuery.data ? (
-          <div className="text-sm text-muted-foreground">Select a file to inspect.</div>
+          <div className="text-sm text-muted-foreground">
+            {t("companySkills.common.selectFile", { defaultValue: "Select a file to inspect." })}
+          </div>
         ) : fileQuery.data.markdown ? (
           <MarkdownBody softBreaks={false} linkIssueReferences={false}>{body}</MarkdownBody>
         ) : (
@@ -2359,14 +2361,24 @@ export function InstallPreviewDialog({
                   setSelectedAgentIds(next);
                 }}
                 showSelectionPreview={false}
-                emptyMessage="No agents in this company support skills yet."
+                emptyMessage={t("companySkills.install.noAgentsSupportCompany", {
+                  defaultValue: "No agents in this company support skills yet.",
+                })}
                 isAgentDisabled={(agent) => {
                   const option = agent as AttachAgentOption;
                   return option.required || !option.supportsSkills;
                 }}
                 getDescription={(agent) => {
                   const option = agent as AttachAgentOption;
-                  return `${option.adapterType}${option.required ? " · required" : ""}${!option.supportsSkills ? " · skills not supported" : ""}`;
+                  return `${option.adapterType}${
+                    option.required
+                      ? ` · ${t("companySkills.install.required", { defaultValue: "required" })}`
+                      : ""
+                  }${
+                    !option.supportsSkills
+                      ? ` · ${t("companySkills.install.skillsNotSupported", { defaultValue: "skills not supported" })}`
+                      : ""
+                  }`;
                 }}
               />
             </div>
@@ -2509,7 +2521,13 @@ function AttachAgentsPopover({
       }}
       getDescription={(agent) => {
         const option = agent as AttachAgentOption;
-        return `${option.adapterType}${option.required ? " · required" : ""}${!option.supportsSkills ? " · skills not supported" : ""}`;
+        return `${option.adapterType}${
+          option.required ? ` · ${t("companySkills.install.required", { defaultValue: "required" })}` : ""
+        }${
+          !option.supportsSkills
+            ? ` · ${t("companySkills.install.skillsNotSupported", { defaultValue: "skills not supported" })}`
+            : ""
+        }`;
       }}
       renderNameSuffix={(agent) => (agent as AttachAgentOption).paused ? (
         <Badge variant="outline" className="[&>svg]:size-2.5 border-amber-500/30 bg-amber-500/10 px-1.5 text-(length:--text-nano) uppercase tracking-wide text-amber-500">
@@ -3326,7 +3344,7 @@ export function SkillDetailPage({
             <PageSkeleton variant="detail" />
           ) : !file ? (
             <div className="text-sm text-muted-foreground">
-              {t("common.selectFile", { defaultValue: "Select a file to inspect." })}
+              {t("companySkills.common.selectFile", { defaultValue: "Select a file to inspect." })}
             </div>
           ) : file.encoding === "base64" ? <SkillBinaryFile file={file} /> : editMode && file.editable ? (
             file.markdown ? (
@@ -3406,7 +3424,9 @@ export function SkillDetailPage({
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div className="text-sm text-muted-foreground">
-            {versionsLoading ? "Loading versions..." : `${versions.length} ${versions.length === 1 ? "version" : "versions"}`}
+            {versionsLoading
+              ? t("companySkills.version.loading", { defaultValue: "Loading versions..." })
+              : `${versions.length} ${versions.length === 1 ? "version" : "versions"}`}
           </div>
           <Button
             type="button"
@@ -3721,7 +3741,10 @@ export function SkillDetailPage({
                         <AgentAvatar agent={meta} size={16} className="h-4 w-4 shrink-0 text-muted-foreground"/>
                         <span className="min-w-0 flex-1 truncate text-foreground">{agent.name}</span>
                         {meta?.paused ? (
-                          <Pause className="h-3 w-3 shrink-0 text-amber-500" aria-label="Paused" />
+                          <Pause
+                            className="h-3 w-3 shrink-0 text-amber-500"
+                            aria-label={t("companySkills.detail.paused", { defaultValue: "Paused" })}
+                          />
                         ) : null}
                       </Link>
                     );
@@ -4326,7 +4349,7 @@ function SkillPane({
           <PageSkeleton variant="detail" />
         ) : !file ? (
           <div className="text-sm text-muted-foreground">
-            {t("common.selectFile", { defaultValue: "Select a file to inspect." })}
+            {t("companySkills.common.selectFile", { defaultValue: "Select a file to inspect." })}
           </div>
         ) : editMode && file.editable ? (
           file.markdown ? (
@@ -4365,6 +4388,7 @@ export function CompanySkills() {
   const { pushToast } = useToastActions();
   const adapterCaps = useAdapterCapabilities();
   const policyDenial = useSkillPolicyDenial();
+  const { t } = useTranslation();
   // Route a failed skill mutation to the persistent policy banner when it is an
   // explicit-policy (State B) or platform-safety (State C) denial; otherwise keep
   // the existing transient error toast. This is the core "actionable denial only
@@ -4668,13 +4692,19 @@ export function CompanySkills() {
   const activeDetail = detailQuery.data ?? displayedDetail;
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Skills", href: "/skills" },
+      { label: t("companySkills.page.breadcrumbSkills", { defaultValue: "Skills" }), href: "/skills" },
       ...(isStudioNew
-        ? [{ label: studioForkFromId ? "Fork skill" : "New skill" }]
+        ? [
+            {
+              label: studioForkFromId
+                ? t("companySkills.page.breadcrumbForkSkill", { defaultValue: "Fork skill" })
+                : t("companySkills.page.breadcrumbNewSkill", { defaultValue: "New skill" }),
+            },
+          ]
         : activeDetail
           ? skillDetailBreadcrumbs(activeDetail, skillFoldersQuery.data).slice(1)
           : routeSkillToken
-            ? [{ label: "Detail" }]
+            ? [{ label: t("companySkills.page.breadcrumbDetail", { defaultValue: "Detail" }) }]
             : []),
     ]);
   }, [activeDetail, isStudioNew, routeSkillToken, setBreadcrumbs, skillFoldersQuery.data, studioForkFromId]);
@@ -4711,16 +4741,25 @@ export function CompanySkills() {
       if (result.imported[0]) navigate(routeForSkill(result.imported[0]));
       pushToast({
         tone: "success",
-        title: "Skills imported",
+        title: t("companySkills.toast.imported", { defaultValue: "Skills imported" }),
         body: `${result.imported.length} skill${result.imported.length === 1 ? "" : "s"} added.`,
       });
       if (result.warnings[0]) {
-        pushToast({ tone: "warn", title: "Import warnings", body: result.warnings[0] });
+        pushToast({
+          tone: "warn",
+          title: t("companySkills.toast.importWarnings", { defaultValue: "Import warnings" }),
+          body: result.warnings[0],
+        });
       }
       setSource("");
     },
     onError: (error) => {
-      reportSkillError(error, "Skill import failed", "Failed to import skill source.", "Importing skills");
+      reportSkillError(
+        error,
+        t("companySkills.toast.importFailed", { defaultValue: "Skill import failed" }),
+        t("companySkills.toast.importFailedBody", { defaultValue: "Failed to import skill source." }),
+        t("companySkills.toast.importFailedAction", { defaultValue: "Importing skills" }),
+      );
     },
   });
 
@@ -4731,11 +4770,13 @@ export function CompanySkills() {
     ),
     onMutate: (projectId) => {
       setScanStatusMessage(
-        projectId ? "Refreshing project skills..." : "Scanning project workspaces for skills...",
+        projectId
+          ? t("companySkills.scan.refreshingProject", { defaultValue: "Refreshing project skills..." })
+          : t("companySkills.scan.scanningProjects", { defaultValue: "Scanning project workspaces for skills..." }),
       );
     },
     onSuccess: async (result) => {
-      setScanStatusMessage("Refreshing skills list...");
+      setScanStatusMessage(t("companySkills.scan.refreshing", { defaultValue: "Refreshing skills list..." }));
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.companySkills.list(selectedCompanyId!) }),
         queryClient.invalidateQueries({ queryKey: queryKeys.folders.list(selectedCompanyId!, "skill") }),
@@ -4744,26 +4785,31 @@ export function CompanySkills() {
       setScanStatusMessage(summary);
       pushToast({
         tone: "success",
-        title: "Project skill scan complete",
+        title: t("companySkills.toast.scanComplete", { defaultValue: "Project skill scan complete" }),
         body: summary,
       });
       if (result.conflicts[0]) {
         pushToast({
           tone: "warn",
-          title: "Skill conflicts found",
+          title: t("companySkills.toast.scanConflicts", { defaultValue: "Skill conflicts found" }),
           body: result.conflicts[0].reason,
         });
       } else if (result.warnings[0]) {
         pushToast({
           tone: "warn",
-          title: "Scan warnings",
+          title: t("companySkills.toast.scanWarnings", { defaultValue: "Scan warnings" }),
           body: result.warnings[0],
         });
       }
     },
     onError: (error) => {
       setScanStatusMessage(null);
-      reportSkillError(error, "Project skill scan failed", "Failed to scan project workspaces.", "Scanning projects for skills");
+      reportSkillError(
+        error,
+        t("companySkills.toast.scanFailed", { defaultValue: "Project skill scan failed" }),
+        t("companySkills.toast.scanFailedBody", { defaultValue: "Failed to scan project workspaces." }),
+        t("companySkills.toast.scanFailedAction", { defaultValue: "Scanning projects for skills" }),
+      );
     },
   });
 
@@ -4776,14 +4822,21 @@ export function CompanySkills() {
       setCreateError(null);
       pushToast({
         tone: "success",
-        title: skill.forkedFromSkillId ? "Skill fork created" : "Skill created",
+        title: skill.forkedFromSkillId
+          ? t("companySkills.toast.forkCreated", { defaultValue: "Skill fork created" })
+          : t("companySkills.toast.created", { defaultValue: "Skill created" }),
         body: `${skill.name} is now editable in the Paperclip workspace.`,
       });
     },
     onError: (error) => {
       const message = describeError(error).body;
       setCreateError(message);
-      reportSkillError(error, "Skill creation failed", "Failed to create skill.", "Creating a skill");
+      reportSkillError(
+        error,
+        t("companySkills.toast.createFailed", { defaultValue: "Skill creation failed" }),
+        t("companySkills.toast.createFailedBody", { defaultValue: "Failed to create skill." }),
+        t("companySkills.toast.createFailedAction", { defaultValue: "Creating a skill" }),
+      );
     },
   });
 
@@ -4804,14 +4857,14 @@ export function CompanySkills() {
       setEditMode(false);
       pushToast({
         tone: "success",
-        title: "Skill saved",
+        title: t("companySkills.toast.saved", { defaultValue: "Skill saved" }),
         body: result.path,
       });
     },
     onError: (error) => {
       pushToast({
         tone: "error",
-        title: "Save failed",
+        title: t("companySkills.toast.saveFailed", { defaultValue: "Save failed" }),
         body: describeError(error).body,
       });
     },
@@ -4819,7 +4872,9 @@ export function CompanySkills() {
 
   const toggleStar = useMutation({
     mutationFn: () => {
-      if (!activeDetail) throw new Error("Select a skill first.");
+      if (!activeDetail) {
+        throw new Error(t("companySkills.toast.selectSkillFirst", { defaultValue: "Select a skill first." }));
+      }
       return activeDetail.starredByCurrentActor
         ? companySkillsApi.unstar(selectedCompanyId!, activeDetail.id)
         : companySkillsApi.star(selectedCompanyId!, activeDetail.id);
@@ -4834,7 +4889,7 @@ export function CompanySkills() {
     onError: (error) => {
       pushToast({
         tone: "error",
-        title: "Star failed",
+        title: t("companySkills.toast.starFailed", { defaultValue: "Star failed" }),
         body: describeError(error).body,
       });
     },
@@ -4856,12 +4911,16 @@ export function CompanySkills() {
         queryClient.invalidateQueries({ queryKey: queryKeys.companySkills.list(selectedCompanyId!) }),
         queryClient.invalidateQueries({ queryKey: queryKeys.companySkills.detail(selectedCompanyId!, skill.id) }),
       ]);
-      pushToast({ tone: "success", title: "Skill settings updated", body: skillSettingsToastBody(skill) });
+      pushToast({
+        tone: "success",
+        title: t("companySkills.toast.settingsUpdated", { defaultValue: "Skill settings updated" }),
+        body: skillSettingsToastBody(skill),
+      });
     },
     onError: (error) => {
       pushToast({
         tone: "error",
-        title: "Skill settings update failed",
+        title: t("companySkills.toast.settingsFailed", { defaultValue: "Skill settings update failed" }),
         body: describeError(error).body,
       });
     },
@@ -4879,12 +4938,17 @@ export function CompanySkills() {
       navigate(routeForSkill(skill, selectedPath));
       pushToast({
         tone: "success",
-        title: "Skill updated",
+        title: t("companySkills.toast.updated", { defaultValue: "Skill updated" }),
         body: skill.sourceRef ? `Pinned to ${shortRef(skill.sourceRef)}` : skill.name,
       });
     },
     onError: (error) => {
-      reportSkillError(error, "Update failed", "Failed to install skill update.", "Updating this skill");
+      reportSkillError(
+        error,
+        t("companySkills.toast.updateFailed", { defaultValue: "Update failed" }),
+        t("companySkills.toast.updateFailedBody", { defaultValue: "Failed to install skill update." }),
+        t("companySkills.toast.updateFailedAction", { defaultValue: "Updating this skill" }),
+      );
     },
   });
 
@@ -5041,7 +5105,11 @@ export function CompanySkills() {
       setInstallDialogState((current) => ({ ...current, open: false, error: null }));
       pushToast({
         tone: "success",
-        title: result.action === "created" ? "Skill installed" : result.action === "updated" ? "Skill updated" : "Skill is up to date",
+        title: result.action === "created"
+          ? t("companySkills.toast.installed", { defaultValue: "Skill installed" })
+          : result.action === "updated"
+            ? t("companySkills.toast.updated", { defaultValue: "Skill updated" })
+            : t("companySkills.toast.upToDate", { defaultValue: "Skill is up to date" }),
         body: result.action === "created"
           ? enabledCount > 0
             ? `${result.skill.name} — enabled for ${enabledCount} agent${enabledCount === 1 ? "" : "s"}.`
@@ -5051,12 +5119,16 @@ export function CompanySkills() {
       if (enableFailures > 0) {
         pushToast({
           tone: "warn",
-          title: "Skill installed, but enabling failed",
+          title: t("companySkills.toast.enableFailed", { defaultValue: "Skill installed, but enabling failed" }),
           body: `Could not enable ${result.skill.name} for ${enableFailures} agent${enableFailures === 1 ? "" : "s"}. Use "Add to agent" on the skill page.`,
         });
       }
       if (result.warnings[0]) {
-        pushToast({ tone: "warn", title: "Install warnings", body: result.warnings[0] });
+        pushToast({
+          tone: "warn",
+          title: t("companySkills.toast.installWarnings", { defaultValue: "Install warnings" }),
+          body: result.warnings[0],
+        });
       }
       if (result.action === "created") {
         navigate(routeForSkill(result.skill));
@@ -5067,7 +5139,7 @@ export function CompanySkills() {
       setInstallDialogState((current) => ({ ...current, error: message }));
       // Also surface explicit-policy / platform denials in the persistent banner
       // so the reason stays visible after the dialog closes.
-      policyDenial.capture(error, "Installing this skill");
+      policyDenial.capture(error, t("companySkills.toast.installFailedAction", { defaultValue: "Installing this skill" }));
     },
   });
   const createFolder = useMutation({
@@ -5092,7 +5164,7 @@ export function CompanySkills() {
         } catch (moveError) {
           pushToast({
             tone: "error",
-            title: "Folder created, move failed",
+            title: t("companySkills.toast.folderCreatedMoveFailed", { defaultValue: "Folder created, move failed" }),
             body: describeError(moveError).body,
           });
           return;
@@ -5100,12 +5172,16 @@ export function CompanySkills() {
       } else {
         setFolderSelection(folder.id);
       }
-      pushToast({ tone: "success", title: "Folder created", body: folder.name });
+      pushToast({
+        tone: "success",
+        title: t("companySkills.toast.folderCreated", { defaultValue: "Folder created" }),
+        body: folder.name,
+      });
     },
     onError: (error) => {
       pushToast({
         tone: "error",
-        title: "Folder save failed",
+        title: t("companySkills.toast.folderSaveFailed", { defaultValue: "Folder save failed" }),
         body: describeError(error).body,
       });
     },
@@ -5121,7 +5197,7 @@ export function CompanySkills() {
     onError: (error) => {
       pushToast({
         tone: "error",
-        title: "Folder save failed",
+        title: t("companySkills.toast.folderSaveFailed", { defaultValue: "Folder save failed" }),
         body: describeError(error).body,
       });
     },
@@ -5134,14 +5210,14 @@ export function CompanySkills() {
       setFolderSelection(folder.id);
       pushToast({
         tone: "success",
-        title: "Folder moved",
+        title: t("companySkills.toast.folderMoved", { defaultValue: "Folder moved" }),
         body: skillFolderPathDisplayFallback(folder.path) ?? folder.name,
       });
     },
     onError: (error) => {
       pushToast({
         tone: "error",
-        title: "Folder move failed",
+        title: t("companySkills.toast.folderMoveFailed", { defaultValue: "Folder move failed" }),
         body: describeError(error).body,
       });
     },
@@ -5155,12 +5231,16 @@ export function CompanySkills() {
         queryClient.invalidateQueries({ queryKey: queryKeys.companySkills.list(selectedCompanyId!) }),
         queryClient.invalidateQueries({ queryKey: queryKeys.folders.list(selectedCompanyId!, "skill") }),
       ]);
-      pushToast({ tone: "success", title: "Folder deleted", body: "Skills moved to Unfiled." });
+      pushToast({
+        tone: "success",
+        title: t("companySkills.toast.folderDeleted", { defaultValue: "Folder deleted" }),
+        body: t("companySkills.toast.skillsMovedToUnfiled", { defaultValue: "Skills moved to Unfiled." }),
+      });
     },
     onError: (error) => {
       pushToast({
         tone: "error",
-        title: "Folder delete failed",
+        title: t("companySkills.toast.folderDeleteFailed", { defaultValue: "Folder delete failed" }),
         body: describeError(error).body,
       });
     },
@@ -5177,7 +5257,7 @@ export function CompanySkills() {
     onError: (error) => {
       pushToast({
         tone: "error",
-        title: "Move failed",
+        title: t("companySkills.toast.moveFailed", { defaultValue: "Move failed" }),
         body: describeError(error).body,
       });
     },
@@ -5194,11 +5274,15 @@ export function CompanySkills() {
         queryClient.invalidateQueries({ queryKey: queryKeys.companySkills.list(selectedCompanyId!) }),
         queryClient.invalidateQueries({ queryKey: queryKeys.folders.list(selectedCompanyId!, "skill") }),
       ]);
-      pushToast({ tone: "success", title: "Skills moved", body: `${ids.length} skill${ids.length === 1 ? "" : "s"} filed.` });
+      pushToast({
+        tone: "success",
+        title: t("companySkills.toast.skillsMoved", { defaultValue: "Skills moved" }),
+        body: `${ids.length} skill${ids.length === 1 ? "" : "s"} filed.`,
+      });
     } catch (moveError) {
       pushToast({
         tone: "error",
-        title: "Failed to move skills",
+        title: t("companySkills.toast.moveSkillsFailed", { defaultValue: "Failed to move skills" }),
         body: describeError(moveError).body,
       });
     }
@@ -5214,7 +5298,7 @@ export function CompanySkills() {
     onError: (error) => {
       pushToast({
         tone: "error",
-        title: "Couldn't open My Skills",
+        title: t("companySkills.toast.mySkillsOpenFailed", { defaultValue: "Couldn't open My Skills" }),
         body: describeError(error).body,
       });
     },
@@ -5273,7 +5357,7 @@ export function CompanySkills() {
     } catch (error) {
       pushToast({
         tone: "error",
-        title: "Folder create failed",
+        title: t("companySkills.toast.folderCreateFailed", { defaultValue: "Folder create failed" }),
         body: describeError(error).body,
       });
       return null;
@@ -5298,15 +5382,18 @@ export function CompanySkills() {
       setSelectMode(false);
       pushToast({
         tone: "success",
-        title: ids.length === 1 ? "Skill moved" : "Skills moved",
+        title: ids.length === 1
+          ? t("companySkills.toast.skillMoved", { defaultValue: "Skill moved" })
+          : t("companySkills.toast.skillsMoved", { defaultValue: "Skills moved" }),
         body: folderId
-          ? `Filed under ${skillFolderResult?.folders.find((folder) => folder.id === folderId)?.name ?? "folder"}.`
-          : "Moved to Unfiled.",
+          ? `Filed under ${skillFolderResult?.folders.find((folder) => folder.id === folderId)?.name
+              ?? t("companySkills.toast.folderFallback", { defaultValue: "folder" })}.`
+          : t("companySkills.toast.movedToUnfiled", { defaultValue: "Moved to Unfiled." }),
       });
     } catch (moveError) {
       pushToast({
         tone: "error",
-        title: "Move failed",
+        title: t("companySkills.toast.moveFailed", { defaultValue: "Move failed" }),
         body: describeError(moveError).body,
       });
     }
@@ -5374,9 +5461,17 @@ export function CompanySkills() {
         }
         await attachAgentsMutation.mutateAsync({ agentId, desiredSkills: currentEntries });
       }
-      pushToast({ tone: "success", title: "Agents updated", body: `${nextAgentIds.length} agent(s) attached.` });
+      pushToast({
+        tone: "success",
+        title: t("companySkills.toast.agentsUpdated", { defaultValue: "Agents updated" }),
+        body: `${nextAgentIds.length} agent(s) attached.`,
+      });
     } catch (error) {
-      pushToast({ tone: "error", title: "Update failed", body: describeError(error).body });
+      pushToast({
+        tone: "error",
+        title: t("companySkills.toast.updateFailed", { defaultValue: "Update failed" }),
+        body: describeError(error).body,
+      });
     }
   }
 
@@ -5426,12 +5521,17 @@ export function CompanySkills() {
       navigate("/skills", { replace: true });
       pushToast({
         tone: "success",
-        title: "Skill removed",
+        title: t("companySkills.toast.removed", { defaultValue: "Skill removed" }),
         body: `${skill.name} was removed from the company skill library.`,
       });
     },
     onError: (error) => {
-      reportSkillError(error, "Remove failed", "Failed to remove skill.", "Removing this skill");
+      reportSkillError(
+        error,
+        t("companySkills.toast.removeFailed", { defaultValue: "Remove failed" }),
+        t("companySkills.toast.removeFailedBody", { defaultValue: "Failed to remove skill." }),
+        t("companySkills.toast.removeFailedAction", { defaultValue: "Removing this skill" }),
+      );
     },
   });
 
@@ -5471,7 +5571,12 @@ export function CompanySkills() {
   );
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={Boxes} message="Select a company to manage skills." />;
+    return (
+      <EmptyState
+        icon={Boxes}
+        message={t("companySkills.page.selectCompany", { defaultValue: "Select a company to manage skills." })}
+      />
+    );
   }
 
   function handleAddSkillSource() {
@@ -5509,10 +5614,16 @@ export function CompanySkills() {
     ? (catalogListQuery.data ?? []).find((entry) => entry.key === activeDetail.key)?.source ?? null
     : null;
   const studioBackHref = studioForkDetailQuery.data ? routeForSkill(studioForkDetailQuery.data) : "/skills";
-  const studioTitle = studioForkFromId ? "Fork skill" : "Create a new skill";
+  const studioTitle = studioForkFromId
+    ? t("companySkills.page.studioForkTitle", { defaultValue: "Fork skill" })
+    : t("companySkills.page.studioCreateTitle", { defaultValue: "Create a new skill" });
   const studioDescription = studioForkFromId
-    ? "Review the fork metadata and create an editable company copy."
-    : "Create an editable company skill in the Paperclip workspace.";
+    ? t("companySkills.page.studioForkDescriptionCompany", {
+        defaultValue: "Review the fork metadata and create an editable company copy.",
+      })
+    : t("companySkills.page.studioCreateDescriptionCompany", {
+        defaultValue: "Create an editable company skill in the Paperclip workspace.",
+      });
   return (
     <>
       {policyDenial.denial ? (
@@ -5523,16 +5634,21 @@ export function CompanySkills() {
       <Dialog open={deleteOpen} onOpenChange={closeDeleteDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Remove skill</DialogTitle>
+            <DialogTitle>{t("companySkills.removeDialog.title", { defaultValue: "Remove skill" })}</DialogTitle>
             <DialogDescription>
-              Remove this skill from the company library. If any agents still use it, removal will be blocked until it is detached.
+              {t("companySkills.removeDialog.descriptionCompany", {
+                defaultValue:
+                  "Remove this skill from the company library. If any agents still use it, removal will be blocked until it is detached.",
+              })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 text-sm">
             <p>
               {deleteTargetDetail
                 ? `You are about to remove ${deleteTargetDetail.name}.`
-                : "You are about to remove this skill."}
+                : t("companySkills.removeDialog.aboutToRemove", {
+                    defaultValue: "You are about to remove this skill.",
+                  })}
             </p>
             {deleteTargetDetail?.usedByAgents?.length ? (
               <div className="rounded-md border border-border px-3 py-3 text-muted-foreground">
@@ -5541,26 +5657,30 @@ export function CompanySkills() {
             ) : null}
             {(deleteTargetDetail?.usedByAgents.length ?? 0) > 0 ? (
               <p className="text-muted-foreground">
-                Detach this skill from all agents to enable removal.
+                {t("companySkills.removeDialog.detachToEnable", {
+                  defaultValue: "Detach this skill from all agents to enable removal.",
+                })}
               </p>
             ) : null}
           </div>
           <DialogFooter>
             {(deleteTargetDetail?.usedByAgents.length ?? 0) > 0 ? (
               <Button variant="ghost" onClick={() => closeDeleteDialog(false)}>
-                Close
+                {t("companySkills.removeDialog.close", { defaultValue: "Close" })}
               </Button>
             ) : (
               <>
                 <Button variant="ghost" onClick={() => closeDeleteDialog(false)} disabled={deleteSkill.isPending}>
-                  Cancel
+                  {t("common.cancel", { defaultValue: "Cancel" })}
                 </Button>
                 <Button
                   variant="destructive"
                   onClick={() => deleteSkill.mutate()}
                   disabled={deleteSkill.isPending || !deleteTargetSkillId}
                 >
-                  {deleteSkill.isPending ? "Removing..." : "Remove skill"}
+                  {deleteSkill.isPending
+                    ? t("companySkills.removeDialog.removing", { defaultValue: "Removing..." })
+                    : t("companySkills.removeDialog.removeSkill", { defaultValue: "Remove skill" })}
                 </Button>
               </>
             )}
@@ -5571,9 +5691,11 @@ export function CompanySkills() {
       <Dialog open={emptySourceHelpOpen} onOpenChange={setEmptySourceHelpOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Add a skill source</DialogTitle>
+            <DialogTitle>{t("companySkills.sourceHelp.title", { defaultValue: "Add a skill source" })}</DialogTitle>
             <DialogDescription>
-              Paste a local path, GitHub URL, or `skills.sh` command into the field first.
+              {t("companySkills.sourceHelp.description", {
+                defaultValue: "Paste a local path, GitHub URL, or `skills.sh` command into the field first.",
+              })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 text-sm">
@@ -5584,9 +5706,11 @@ export function CompanySkills() {
               className="flex items-start justify-between rounded-md border border-border px-3 py-3 text-foreground no-underline transition-colors hover:bg-accent/40"
             >
               <span>
-                <span className="block font-medium">Browse skills.sh</span>
+                <span className="block font-medium">
+                  {t("companySkills.sourceHelp.browseSkillsSh", { defaultValue: "Browse skills.sh" })}
+                </span>
                 <span className="mt-1 block text-muted-foreground">
-                  Find install commands and paste one here.
+                  {t("companySkills.sourceHelp.browseSkillsShHint", { defaultValue: "Find install commands and paste one here." })}
                 </span>
               </span>
               <ExternalLink className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
@@ -5598,9 +5722,13 @@ export function CompanySkills() {
               className="flex items-start justify-between rounded-md border border-border px-3 py-3 text-foreground no-underline transition-colors hover:bg-accent/40"
             >
               <span>
-                <span className="block font-medium">Search GitHub</span>
+                <span className="block font-medium">
+                  {t("companySkills.sourceHelp.searchGithub", { defaultValue: "Search GitHub" })}
+                </span>
                 <span className="mt-1 block text-muted-foreground">
-                  Look for repositories with `SKILL.md`, then paste the repo URL here.
+                  {t("companySkills.sourceHelp.searchGithubHint", {
+                    defaultValue: "Look for repositories with `SKILL.md`, then paste the repo URL here.",
+                  })}
                 </span>
               </span>
               <ExternalLink className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
@@ -5637,9 +5765,12 @@ export function CompanySkills() {
       <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Import a skill</DialogTitle>
+            <DialogTitle>{t("companySkills.importDialog.title", { defaultValue: "Import a skill" })}</DialogTitle>
             <DialogDescription>
-              Paste a local path, GitHub URL, or `skills.sh` command to import a skill into this company.
+              {t("companySkills.importDialog.descriptionCompany", {
+                defaultValue:
+                  "Paste a local path, GitHub URL, or `skills.sh` command to import a skill into this company.",
+              })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
@@ -5647,11 +5778,17 @@ export function CompanySkills() {
               <Input
                 value={source}
                 onChange={(event) => setSource(event.target.value)}
-                placeholder="Paste path, GitHub URL, or skills.sh command"
+                placeholder={t("companySkills.importDialog.placeholder", {
+                  defaultValue: "Paste path, GitHub URL, or skills.sh command",
+                })}
                 className="h-9 rounded-none border-0 px-0 shadow-none focus-visible:ring-0"
               />
               <Button size="sm" onClick={handleAddSkillSource} disabled={importSkill.isPending}>
-                {importSkill.isPending ? <RefreshCw className="h-4 w-4 animate-spin" /> : "Import"}
+                {importSkill.isPending ? (
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                ) : (
+                  t("companySkills.importDialog.import", { defaultValue: "Import" })
+                )}
               </Button>
             </div>
             <a
@@ -5661,8 +5798,12 @@ export function CompanySkills() {
               className="flex items-start justify-between rounded-md border border-border px-3 py-3 text-sm text-foreground no-underline transition-colors hover:bg-accent/40"
             >
               <span>
-                <span className="block font-medium">Browse skills.sh</span>
-                <span className="mt-1 block text-muted-foreground">Find install commands and paste one here.</span>
+                <span className="block font-medium">
+                  {t("companySkills.sourceHelp.browseSkillsSh", { defaultValue: "Browse skills.sh" })}
+                </span>
+                <span className="mt-1 block text-muted-foreground">
+                  {t("companySkills.sourceHelp.browseSkillsShHint", { defaultValue: "Find install commands and paste one here." })}
+                </span>
               </span>
               <ExternalLink className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
             </a>
@@ -5673,8 +5814,14 @@ export function CompanySkills() {
               className="flex items-start justify-between rounded-md border border-border px-3 py-3 text-sm text-foreground no-underline transition-colors hover:bg-accent/40"
             >
               <span>
-                <span className="block font-medium">Search GitHub</span>
-                <span className="mt-1 block text-muted-foreground">Look for repositories with `SKILL.md`, then paste the repo URL.</span>
+                <span className="block font-medium">
+                  {t("companySkills.sourceHelp.searchGithub", { defaultValue: "Search GitHub" })}
+                </span>
+                <span className="mt-1 block text-muted-foreground">
+                  {t("companySkills.importDialog.searchGithubHint", {
+                    defaultValue: "Look for repositories with `SKILL.md`, then paste the repo URL.",
+                  })}
+                </span>
               </span>
               <ExternalLink className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
             </a>
@@ -5724,7 +5871,7 @@ export function CompanySkills() {
         onOpenChange={setMobileFoldersOpen}
         result={railSkillFolderResult}
         selection={folderSelection}
-        allLabel="All skills"
+        allLabel={t("companySkills.view.allSkills", { defaultValue: "All skills" })}
         itemLabelPlural="Skills"
         onSelect={setFolderSelection}
         onCreate={() => openCreateFolder()}
@@ -5735,7 +5882,7 @@ export function CompanySkills() {
           if (!open) setMoveDialog(null);
         }}
         result={railSkillFolderResult}
-        title={moveDialog?.title ?? "Move to folder"}
+        title={moveDialog?.title ?? t("companySkills.page.moveToFolder", { defaultValue: "Move to folder" })}
         subtitle={moveDialog?.subtitle ?? null}
         currentFolderId={moveDialog?.currentFolderId ?? null}
         onMove={(folderId) => void performDialogMove(folderId)}
@@ -5750,7 +5897,7 @@ export function CompanySkills() {
               className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground no-underline transition-colors hover:text-foreground"
             >
               <ChevronLeft className="h-4 w-4" />
-              Back
+              {t("common.back", { defaultValue: "Back" })}
             </Link>
             <h1 className="text-2xl font-semibold">{studioTitle}</h1>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{studioDescription}</p>
@@ -5760,7 +5907,10 @@ export function CompanySkills() {
               {studioForkFromId && studioForkDetailQuery.isLoading ? (
                 <PageSkeleton variant="detail" />
               ) : studioForkFromId && !studioForkDetailQuery.data ? (
-                <EmptyState icon={Boxes} message="Fork source skill not found." />
+                <EmptyState
+                  icon={Boxes}
+                  message={t("companySkills.page.forkSourceMissing", { defaultValue: "Fork source skill not found." })}
+                />
               ) : (
                 <NewSkillWizard
                   initialDraft={studioDraft}
@@ -5815,7 +5965,7 @@ export function CompanySkills() {
             setMoveDialog({
               skillIds: [card.skillId],
               title: `Move "${card.name}"`,
-              subtitle: "Choose a destination folder.",
+              subtitle: t("companySkills.page.chooseDestination", { defaultValue: "Choose a destination folder." }),
               currentFolderId: card.folderId ?? null,
             });
           } : undefined}
@@ -5845,12 +5995,13 @@ export function CompanySkills() {
             moveSkillToFolder.mutate({ itemId: skillId, folderId });
             pushToast({
               tone: "success",
-              title: "Skill moved",
+              title: t("companySkills.toast.skillMoved", { defaultValue: "Skill moved" }),
               body: folderId
-                ? `Moved "${card.name}" to ${skillFolderResult?.folders.find((folder) => folder.id === folderId)?.name ?? "folder"}.`
+                ? `Moved "${card.name}" to ${skillFolderResult?.folders.find((folder) => folder.id === folderId)?.name
+                    ?? t("companySkills.toast.folderFallback", { defaultValue: "folder" })}.`
                 : `Moved "${card.name}" to Unfiled.`,
               action: {
-                label: "Undo",
+                label: t("companySkills.toast.undo", { defaultValue: "Undo" }),
                 onClick: () => moveSkillToFolder.mutate({ itemId: skillId, folderId: previousFolderId }),
               },
             });
@@ -5934,17 +6085,22 @@ export function CompanySkills() {
               className="inline-flex items-center gap-1.5 text-sm text-muted-foreground no-underline transition-colors hover:text-foreground"
             >
               <ChevronLeft className="h-4 w-4" />
-              Back to store
+              {t("companySkills.page.backToStore", { defaultValue: "Back to store" })}
             </Link>
           </div>
           {catalogListQuery.isLoading || catalogDetailQuery.isLoading || catalogListView.kind === "reconnecting" || catalogDetailView.kind === "reconnecting" ? (
             <PageSkeleton variant="detail" />
           ) : !selectedCatalogSkill ? (
-            <EmptyState icon={Boxes} message="Catalog skill not found." />
+            <EmptyState
+              icon={Boxes}
+              message={t("companySkills.catalog.missing", { defaultValue: "Catalog skill not found." })}
+            />
           ) : (
             <div className="grid gap-0 xl:grid-cols-(--gtc-30)">
               <aside className="border-b border-border px-3 py-4 xl:border-b-0 xl:border-r">
-                <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Files</div>
+                <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {t("companySkills.detail.files", { defaultValue: "Files" })}
+                </div>
                 <SkillTree
                   nodes={buildTree(selectedCatalogSkill.files.map((file) => ({ path: file.path, kind: file.kind })))}
                   skillId={selectedCatalogSkill.id}
@@ -5985,7 +6141,7 @@ export function CompanySkills() {
           {skillsQuery.isLoading || skillsView.kind === "reconnecting" ? (
             <PageSkeleton variant="detail" />
           ) : (
-            <EmptyState icon={Boxes} message="Skill not found." />
+            <EmptyState icon={Boxes} message={t("companySkills.detail.notFound", { defaultValue: "Skill not found." })} />
           )}
         </div>
       )}

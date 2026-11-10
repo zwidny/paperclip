@@ -366,7 +366,7 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
 
       )}
 
-      {showSignOut && (
+      {showSignOut && healthQuery.data && healthQuery.data.deploymentMode !== "local_trusted" && (
       <section>
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1.5">

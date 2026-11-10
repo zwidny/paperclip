@@ -1197,7 +1197,11 @@ export function Secrets() {
 
   const rotateMutation = useMutation({
     mutationFn: () => {
-      if (!selectedSecret) throw new Error("Select a secret first");
+      if (!selectedSecret) {
+        throw new Error(
+          i18n.t("secrets.block.selectSecretFirst", { defaultValue: "Select a secret first" }),
+        );
+      }
       if (selectedSecret.managedMode === "external_reference" && rotateMode === "reference") {
         return secretsApi.rotate(selectedSecret.id, {
           externalRef: rotateExternalRef.trim() || selectedSecret.externalRef || undefined,
@@ -1540,8 +1544,8 @@ export function Secrets() {
 
   function rotateActionLabel(secret: CompanySecret) {
     return secret.managedMode === "external_reference" && !secretSupportsExternalValueWrite(secret)
-      ? t("secrets.rotate.submitUpdateReference", { defaultValue: "Update reference" })
-      : t("secrets.rotate.submitUpdateValue", { defaultValue: "Update value" });
+      ? t("secrets.actions.updateReference", { defaultValue: "Update reference" })
+      : t("secrets.actions.updateValue", { defaultValue: "Update value" });
   }
 
   function openRotateSecret(secret: CompanySecret) {
@@ -2325,7 +2329,12 @@ export function Secrets() {
                               t("secrets.list.memberOwnedValues", { defaultValue: "Member-owned values" })
                             )}
                           </span>
-                          <span>Updated {formatRelative(row.kind === "company" ? row.secret.updatedAt : row.definition.updatedAt)}</span>
+                          <span>
+                            {t("secrets.details.updated", { defaultValue: "Updated" })}{" "}
+                            {formatRelative(
+                              row.kind === "company" ? row.secret.updatedAt : row.definition.updatedAt,
+                            )}
+                          </span>
                         </div>
                       </div>
                     );
@@ -2647,7 +2656,7 @@ export function Secrets() {
                   <PageTabBar
                     items={[
                       { value: "details", label: t("secrets.usage.detailsTab", { defaultValue: "Details" }) },
-                      { value: "coverage", label: t("secrets.details.coverage", { defaultValue: "Coverage" }) },
+                      { value: "coverage", label: t("secrets.usage.coverageTab", { defaultValue: "Coverage" }) },
                       { value: "usage", label: t("secrets.usage.usageTab", { defaultValue: "Usage" }) },
                       { value: "events", label: t("secrets.usage.eventsTab", { defaultValue: "Access events" }) },
                     ]}
@@ -3677,7 +3686,11 @@ function SecretsFiltersPopover({
           variant="outline"
           size="icon"
           className={cn("relative h-8 w-8 shrink-0", activeFilterCount > 0 && "text-blue-600 dark:text-blue-400")}
-          title={activeFilterCount > 0 ? `Filters: ${activeFilterCount}` : "Filter"}
+          title={
+            activeFilterCount > 0
+              ? `Filters: ${activeFilterCount}`
+              : t("secrets.filters.filter", { defaultValue: "Filter" })
+          }
         >
           <Filter className="h-3.5 w-3.5" />
           {activeFilterCount > 0 ? (
@@ -4148,6 +4161,7 @@ function ProviderVaultFields({
   const setField = (key: keyof ProviderVaultForm, value: string | boolean) => {
     onChange((current) => ({ ...current, [key]: value }));
   };
+  const { t } = useTranslation();
 
   if (form.provider === "local_encrypted") {
     return (
@@ -4159,7 +4173,10 @@ function ProviderVaultFields({
           onChange={(event) => setField("backupReminderAcknowledged", event.target.checked)}
         />
         <span>
-          I understand backup and restore require both the database metadata and the local encrypted master key file.
+          {t("secrets.vaultFields.backupReminder", {
+            defaultValue:
+              "I understand backup and restore require both the database metadata and the local encrypted master key file.",
+          })}
         </span>
       </label>
     );
@@ -4168,12 +4185,12 @@ function ProviderVaultFields({
   if (form.provider === "aws_secrets_manager") {
     return (
       <div className="grid gap-3 sm:grid-cols-2">
-        <TextField label="AWS region" value={form.region} onChange={(value) => setField("region", value)} placeholder="us-east-1" required />
-        <TextField label="Namespace" value={form.namespace} onChange={(value) => setField("namespace", value)} placeholder="production" />
-        <TextField label="Secret name prefix" value={form.secretNamePrefix} onChange={(value) => setField("secretNamePrefix", value)} placeholder="paperclip" />
-        <TextField label="KMS key id" value={form.kmsKeyId} onChange={(value) => setField("kmsKeyId", value)} placeholder="alias/paperclip-secrets" />
-        <TextField label="Owner tag" value={form.ownerTag} onChange={(value) => setField("ownerTag", value)} placeholder="platform" />
-        <TextField label="Environment tag" value={form.environmentTag} onChange={(value) => setField("environmentTag", value)} placeholder="prod" />
+        <TextField label={t("secrets.vaultFields.awsRegion", { defaultValue: "AWS region" })} value={form.region} onChange={(value) => setField("region", value)} placeholder="us-east-1" required />
+        <TextField label={t("secrets.vaultFields.namespace", { defaultValue: "Namespace" })} value={form.namespace} onChange={(value) => setField("namespace", value)} placeholder="production" />
+        <TextField label={t("secrets.vaultFields.secretNamePrefix", { defaultValue: "Secret name prefix" })} value={form.secretNamePrefix} onChange={(value) => setField("secretNamePrefix", value)} placeholder="paperclip" />
+        <TextField label={t("secrets.vaultFields.kmsKeyId", { defaultValue: "KMS key id" })} value={form.kmsKeyId} onChange={(value) => setField("kmsKeyId", value)} placeholder="alias/paperclip-secrets" />
+        <TextField label={t("secrets.vaultFields.ownerTag", { defaultValue: "Owner tag" })} value={form.ownerTag} onChange={(value) => setField("ownerTag", value)} placeholder="platform" />
+        <TextField label={t("secrets.vaultFields.environmentTag", { defaultValue: "Environment tag" })} value={form.environmentTag} onChange={(value) => setField("environmentTag", value)} placeholder="prod" />
       </div>
     );
   }
@@ -4181,20 +4198,20 @@ function ProviderVaultFields({
   if (form.provider === "gcp_secret_manager") {
     return (
       <div className="grid gap-3 sm:grid-cols-2">
-        <TextField label="Project id" value={form.projectId} onChange={(value) => setField("projectId", value)} placeholder="paperclip-prod" />
-        <TextField label="Location" value={form.location} onChange={(value) => setField("location", value)} placeholder="global" />
-        <TextField label="Namespace" value={form.namespace} onChange={(value) => setField("namespace", value)} placeholder="production" />
-        <TextField label="Secret name prefix" value={form.secretNamePrefix} onChange={(value) => setField("secretNamePrefix", value)} placeholder="paperclip" />
+        <TextField label={t("secrets.vaultFields.projectId", { defaultValue: "Project id" })} value={form.projectId} onChange={(value) => setField("projectId", value)} placeholder="paperclip-prod" />
+        <TextField label={t("secrets.vaultFields.location", { defaultValue: "Location" })} value={form.location} onChange={(value) => setField("location", value)} placeholder="global" />
+        <TextField label={t("secrets.vaultFields.namespace", { defaultValue: "Namespace" })} value={form.namespace} onChange={(value) => setField("namespace", value)} placeholder="production" />
+        <TextField label={t("secrets.vaultFields.secretNamePrefix", { defaultValue: "Secret name prefix" })} value={form.secretNamePrefix} onChange={(value) => setField("secretNamePrefix", value)} placeholder="paperclip" />
       </div>
     );
   }
 
   return (
     <div className="grid gap-3 sm:grid-cols-2">
-      <TextField label="Address" value={form.address} onChange={(value) => setField("address", value)} placeholder="https://vault.example.com" />
-      <TextField label="Namespace" value={form.namespace} onChange={(value) => setField("namespace", value)} placeholder="admin" />
-      <TextField label="Mount path" value={form.mountPath} onChange={(value) => setField("mountPath", value)} placeholder="secret" />
-      <TextField label="Secret path prefix" value={form.secretPathPrefix} onChange={(value) => setField("secretPathPrefix", value)} placeholder="paperclip/prod" />
+      <TextField label={t("secrets.vaultFields.address", { defaultValue: "Address" })} value={form.address} onChange={(value) => setField("address", value)} placeholder="https://vault.example.com" />
+      <TextField label={t("secrets.vaultFields.namespace", { defaultValue: "Namespace" })} value={form.namespace} onChange={(value) => setField("namespace", value)} placeholder="admin" />
+      <TextField label={t("secrets.vaultFields.mountPath", { defaultValue: "Mount path" })} value={form.mountPath} onChange={(value) => setField("mountPath", value)} placeholder="secret" />
+      <TextField label={t("secrets.vaultFields.secretPathPrefix", { defaultValue: "Secret path prefix" })} value={form.secretPathPrefix} onChange={(value) => setField("secretPathPrefix", value)} placeholder="paperclip/prod" />
     </div>
   );
 }
@@ -4216,14 +4233,20 @@ function AwsProviderVaultDiscoveryPanel({
 }) {
   const canDiscover = Boolean(form.region.trim());
   const warnings = preview?.warnings ?? [];
+  const { t } = useTranslation();
 
   return (
     <div className="space-y-3 border-t border-border pt-3">
       <div className="flex flex-wrap items-center gap-2">
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium">AWS discovery</p>
+          <p className="text-sm font-medium">
+            {t("secrets.discovery.title", { defaultValue: "AWS discovery" })}
+          </p>
           <p className="text-xs text-muted-foreground">
-            Uses the current draft routing fields to inspect AWS Secrets Manager metadata. Values are not read.
+            {t("secrets.discovery.description", {
+              defaultValue:
+                "Uses the current draft routing fields to inspect AWS Secrets Manager metadata. Values are not read.",
+            })}
           </p>
         </div>
         <Button
@@ -4239,18 +4262,20 @@ function AwsProviderVaultDiscoveryPanel({
           ) : (
             <Search className="h-3.5 w-3.5 mr-1" />
           )}
-          Find existing AWS values
+          {t("secrets.discovery.find", { defaultValue: "Find existing AWS values" })}
         </Button>
       </div>
 
       {!canDiscover ? (
-        <p className="text-xs text-muted-foreground">Enter an AWS region before discovery.</p>
+        <p className="text-xs text-muted-foreground">
+          {t("secrets.discovery.enterRegion", { defaultValue: "Enter an AWS region before discovery." })}
+        </p>
       ) : null}
 
       {loading ? (
         <div className="flex items-center gap-2 rounded-md border border-border bg-muted/20 p-3 text-xs text-muted-foreground">
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          Searching AWS Secrets Manager metadata
+          {t("secrets.discovery.searching", { defaultValue: "Searching AWS Secrets Manager metadata" })}
         </div>
       ) : null}
 
@@ -4271,7 +4296,9 @@ function AwsProviderVaultDiscoveryPanel({
 
       {preview && preview.candidates.length === 0 && !loading ? (
         <div className="rounded-md border border-dashed border-border bg-muted/20 p-3 text-xs text-muted-foreground">
-          No AWS vault metadata candidates found. Manual entry is still available.
+          {t("secrets.discovery.noCandidates", {
+            defaultValue: "No AWS vault metadata candidates found. Manual entry is still available.",
+          })}
         </div>
       ) : null}
 
@@ -4304,10 +4331,15 @@ function AwsProviderVaultDiscoveryPanel({
  * into a bug report, so the button has to confirm the clipboard took it.
  */
 function CopyDetailsButton({ text }: { text: string }) {
+  const { t } = useTranslation();
   const { copied, failed, copy } = useCopyAction();
   return (
     <Button type="button" variant="ghost" size="sm" onClick={() => void copy(text)}>
-      {copied ? "Copied" : failed ? "Copy failed" : "Copy"}
+      {copied
+        ? t("secrets.discovery.copied", { defaultValue: "Copied" })
+        : failed
+          ? t("secrets.discovery.copyFailed", { defaultValue: "Copy failed" })
+          : t("secrets.discovery.copy", { defaultValue: "Copy" })}
     </Button>
   );
 }
@@ -4321,7 +4353,9 @@ function AwsProviderVaultDiscoveryError({
 }) {
   const details = apiErrorDetails(error);
   const isAccessDenied = isAwsDiscoveryAccessDenied(error);
-  const region = (details?.region ?? form.region.trim()) || "unspecified";
+  const region =
+    (details?.region ?? form.region.trim()) ||
+    i18n.t("secrets.discovery.unspecifiedRegion", { defaultValue: "unspecified" });
   const message = readableErrorMessage(error);
   const safeDetails = {
     message,
@@ -4336,6 +4370,7 @@ function AwsProviderVaultDiscoveryError({
     safeAlternative: details?.safeAlternative,
   };
   const detailsText = JSON.stringify(safeDetails, null, 2);
+  const { t } = useTranslation();
 
   return (
     <div
@@ -4348,42 +4383,56 @@ function AwsProviderVaultDiscoveryError({
         <div className="min-w-0 flex-1 space-y-2">
           <div>
             <p className="font-medium">
-              {isAccessDenied ? "AWS discovery needs ListSecrets permission" : "AWS discovery failed"}
+              {isAccessDenied
+                ? t("secrets.discovery.needsPermission", {
+                    defaultValue: "AWS discovery needs ListSecrets permission",
+                  })
+                : t("secrets.discovery.failed", { defaultValue: "AWS discovery failed" })}
             </p>
             <p className="mt-1 leading-relaxed text-destructive/85">
               {isAccessDenied
                 ? details?.actionableMessage ??
-                  "Discovery needs secretsmanager:ListSecrets in the selected region for the Paperclip server runtime/provider credential path."
+                  t("secrets.discovery.permissionDetail", {
+                    defaultValue:
+                      "Discovery needs secretsmanager:ListSecrets in the selected region for the Paperclip server runtime/provider credential path.",
+                  })
                 : message}
             </p>
           </div>
           {isAccessDenied ? (
             <p className="leading-relaxed text-destructive/85">
               {details?.safeAlternative ??
-                "If you already know the exact AWS Secrets Manager ARN, paste/link that ARN instead of using discovery. Exact-resource DescribeSecret and runtime read permissions are still required."}
+                t("secrets.discovery.safeAlternative", {
+                  defaultValue:
+                    "If you already know the exact AWS Secrets Manager ARN, paste/link that ARN instead of using discovery. Exact-resource DescribeSecret and runtime read permissions are still required.",
+                })}
             </p>
           ) : null}
           <dl className="grid gap-1 text-destructive/80 sm:grid-cols-2">
             <div>
-              <dt className="font-medium">Region</dt>
+              <dt className="font-medium">{t("secrets.discovery.region", { defaultValue: "Region" })}</dt>
               <dd>{region}</dd>
             </div>
             <div>
-              <dt className="font-medium">Operation</dt>
+              <dt className="font-medium">{t("secrets.discovery.operation", { defaultValue: "Operation" })}</dt>
               <dd>{details?.operation ?? "secret_provider_config.discovery.preview"}</dd>
             </div>
             <div>
-              <dt className="font-medium">Provider</dt>
+              <dt className="font-medium">{t("secrets.discovery.provider", { defaultValue: "Provider" })}</dt>
               <dd>{details?.provider ?? "aws_secrets_manager"}</dd>
             </div>
             <div>
-              <dt className="font-medium">Vault context</dt>
+              <dt className="font-medium">
+                {t("secrets.discovery.vaultContext", { defaultValue: "Vault context" })}
+              </dt>
               <dd>{details?.providerVaultContext ?? "draft_config"}</dd>
             </div>
           </dl>
           <div className="rounded-md border border-destructive/20 bg-background/70 p-2 text-foreground">
             <div className="mb-1 flex items-center justify-between gap-2">
-              <span className="font-medium text-muted-foreground">Safe request/error details</span>
+              <span className="font-medium text-muted-foreground">
+                {t("secrets.discovery.safeDetails", { defaultValue: "Safe request/error details" })}
+              </span>
               <CopyDetailsButton text={detailsText} />
             </div>
             <pre className="max-h-36 overflow-auto whitespace-pre-wrap break-words font-mono text-(length:--text-micro) leading-relaxed">
@@ -4423,6 +4472,7 @@ function SecretCreateError({
     safeAlternative: details?.safeAlternative,
   };
   const detailsText = JSON.stringify(safeDetails, null, 2);
+  const { t } = useTranslation();
 
   if (!isAwsCreateError) {
     return (
@@ -4443,7 +4493,11 @@ function SecretCreateError({
         <div className="min-w-0 flex-1 space-y-2">
           <div>
             <p className="font-medium">
-              {isAccessDenied ? "AWS secret creation needs CreateSecret permission" : "AWS secret creation failed"}
+              {isAccessDenied
+                ? t("secrets.discovery.needsCreatePermission", {
+                    defaultValue: "AWS secret creation needs CreateSecret permission",
+                  })
+                : t("secrets.discovery.createFailed", { defaultValue: "AWS secret creation failed" })}
             </p>
             <p className="mt-1 leading-relaxed text-destructive/85">
               {details?.actionableMessage ?? message}
@@ -4455,28 +4509,38 @@ function SecretCreateError({
           <dl className="grid gap-1 text-destructive/80 sm:grid-cols-2">
             {details?.requiredCapability ? (
               <div>
-                <dt className="font-medium">Required IAM capability</dt>
+                <dt className="font-medium">
+                  {t("secrets.discovery.requiredCapability", { defaultValue: "Required IAM capability" })}
+                </dt>
                 <dd className="font-mono">{details.requiredCapability}</dd>
               </div>
             ) : null}
             {details?.region ? (
               <div>
-                <dt className="font-medium">Region</dt>
+                <dt className="font-medium">{t("secrets.discovery.region", { defaultValue: "Region" })}</dt>
                 <dd>{details.region}</dd>
               </div>
             ) : null}
             <div>
-              <dt className="font-medium">Provider vault</dt>
-              <dd className="break-all">{details?.providerConfigId ?? providerConfigId ?? "Deployment default"}</dd>
+              <dt className="font-medium">
+                {t("secrets.discovery.providerVault", { defaultValue: "Provider vault" })}
+              </dt>
+              <dd className="break-all">
+                {details?.providerConfigId ??
+                  providerConfigId ??
+                  t("secrets.vault.deploymentDefault", { defaultValue: "Deployment default" })}
+              </dd>
             </div>
             <div>
-              <dt className="font-medium">Operation</dt>
+              <dt className="font-medium">{t("secrets.discovery.operation", { defaultValue: "Operation" })}</dt>
               <dd>{details?.operation ?? "secret.create"}</dd>
             </div>
           </dl>
           <div className="rounded-md border border-destructive/20 bg-background/70 p-2 text-foreground">
             <div className="mb-1 flex items-center justify-between gap-2">
-              <span className="font-medium text-muted-foreground">Safe request/error details</span>
+              <span className="font-medium text-muted-foreground">
+                {t("secrets.discovery.safeDetails", { defaultValue: "Safe request/error details" })}
+              </span>
               <CopyDetailsButton text={detailsText} />
             </div>
             <pre className="max-h-36 overflow-auto whitespace-pre-wrap break-words font-mono text-(length:--text-micro) leading-relaxed">
@@ -4501,6 +4565,7 @@ function AwsProviderVaultDiscoveryCandidateRow({
     providerConfigValue(candidate.config, "namespace"),
     providerConfigValue(candidate.config, "secretNamePrefix"),
   ].filter(Boolean);
+  const { t } = useTranslation();
 
   return (
     <div className="rounded-md border border-border bg-background p-3">
@@ -4513,7 +4578,11 @@ function AwsProviderVaultDiscoveryCandidateRow({
             </span>
           </div>
           <p className="mt-1 truncate text-xs text-muted-foreground">
-            {fieldSummary.length > 0 ? fieldSummary.join(" / ") : "No stable namespace or prefix detected"}
+            {fieldSummary.length > 0
+              ? fieldSummary.join(" / ")
+              : t("secrets.discovery.noStableNamespace", {
+                  defaultValue: "No stable namespace or prefix detected",
+                })}
           </p>
           {candidate.samples[0] ? (
             <p className="mt-1 truncate font-mono text-(length:--text-micro) text-muted-foreground">
@@ -4522,7 +4591,7 @@ function AwsProviderVaultDiscoveryCandidateRow({
           ) : null}
         </div>
         <Button type="button" variant="ghost" size="sm" onClick={onApply}>
-          Use values
+          {t("secrets.discovery.apply", { defaultValue: "Use values" })}
         </Button>
       </div>
       {candidate.warnings.length > 0 ? (
@@ -4553,11 +4622,16 @@ function TextField({
   required?: boolean;
 }) {
   const id = `provider-vault-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+  const { t } = useTranslation();
   return (
     <div>
       <label className="text-xs font-medium" htmlFor={id}>
         {label}
-        {required ? null : <span className="text-muted-foreground/70"> (optional)</span>}
+        {required ? null : (
+          <span className="text-muted-foreground/70">
+            {t("secrets.vaultFields.optional", { defaultValue: " (optional)" })}
+          </span>
+        )}
       </label>
       <Input id={id} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} />
     </div>
@@ -4580,10 +4654,21 @@ function CoverageInline({
   });
   const coverageView = useQueryView(coverageQuery);
   const summary = coverageQuery.data;
+  const { t } = useTranslation();
   if (coverageQuery.isPending || coverageView.kind === "reconnecting") {
-    return <span className="text-muted-foreground">Loading…</span>;
+    return (
+      <span className="text-muted-foreground">
+        {t("secrets.usage.loading", { defaultValue: "Loading…" })}
+      </span>
+    );
   }
-  if (coverageView.kind === "error") return <span className="text-destructive">Coverage unavailable</span>;
+  if (coverageView.kind === "error") {
+    return (
+      <span className="text-destructive">
+        {t("secrets.details.coverageUnavailable", { defaultValue: "Coverage unavailable" })}
+      </span>
+    );
+  }
   return (
     <span className="inline-flex min-w-0 items-center gap-1 text-muted-foreground">
       <Users className="h-3 w-3" />
@@ -4610,33 +4695,47 @@ function UserSecretDetailsTab({
   definition: UserSecretDefinition;
   onViewCoverage: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <dl className="divide-y divide-border/60 text-xs">
-      <DetailRow label="Description">
+      <DetailRow label={t("secrets.details.description", { defaultValue: "Description" })}>
         <span>{definition.description ?? <span className="text-muted-foreground">—</span>}</span>
       </DetailRow>
-      <DetailRow label="Provided by">Each user</DetailRow>
-      <DetailRow label="Key">
+      <DetailRow label={t("secrets.details.providedBy", { defaultValue: "Provided by" })}>
+        {t("secrets.details.eachUser", { defaultValue: "Each user" })}
+      </DetailRow>
+      <DetailRow label={t("secrets.details.key", { defaultValue: "Key" })}>
         <code>{definition.key}</code>
       </DetailRow>
-      <DetailRow label="Status"><StatusBadge status={definition.status} /></DetailRow>
-      <DetailRow label="Coverage">
+      <DetailRow label={t("secrets.details.status", { defaultValue: "Status" })}>
+        <StatusBadge status={definition.status} />
+      </DetailRow>
+      <DetailRow label={t("secrets.details.coverage", { defaultValue: "Coverage" })}>
         <button
           type="button"
           className="inline-flex min-w-0 items-center gap-1 text-left text-primary hover:underline"
           onClick={onViewCoverage}
         >
           <CoverageInline companyId={companyId} definitionId={definition.id} />
-          <span className="shrink-0 text-muted-foreground">· View in Coverage</span>
+          <span className="shrink-0 text-muted-foreground">
+            {t("secrets.details.viewInCoverage", { defaultValue: "· View in Coverage" })}
+          </span>
         </button>
       </DetailRow>
-      <DetailRow label="Created">{formatRelative(definition.createdAt)}</DetailRow>
-      <DetailRow label="Updated">{formatRelative(definition.updatedAt)}</DetailRow>
-      <DetailRow label="Usage guidance">
+      <DetailRow label={t("secrets.details.created", { defaultValue: "Created" })}>
+        {formatRelative(definition.createdAt)}
+      </DetailRow>
+      <DetailRow label={t("secrets.details.updated", { defaultValue: "Updated" })}>
+        {formatRelative(definition.updatedAt)}
+      </DetailRow>
+      <DetailRow label={t("secrets.details.usageGuidance", { defaultValue: "Usage guidance" })}>
         {definition.usageGuidance ?? <span className="text-muted-foreground">—</span>}
       </DetailRow>
       <div className="mt-3 rounded-md border border-violet-500/30 bg-violet-500/5 p-2 text-(length:--text-micro) text-violet-800 dark:text-violet-200">
-        No value is stored on this admin row. Each member manages their own value under My secrets.
+        {t("secrets.details.userNoValueNotice", {
+          defaultValue:
+            "No value is stored on this admin row. Each member manages their own value under My secrets.",
+        })}
       </div>
     </dl>
   );
@@ -4655,11 +4754,20 @@ function UserSecretCoverageTab({
     staleTime: 30_000,
   });
   const coverageView = useQueryView(coverageQuery);
+  const { t } = useTranslation();
   if (coverageQuery.isPending || coverageView.kind === "reconnecting") {
-    return <div className="py-6 text-center text-xs text-muted-foreground">Loading…</div>;
+    return (
+      <div className="py-6 text-center text-xs text-muted-foreground">
+        {t("secrets.usage.loading", { defaultValue: "Loading…" })}
+      </div>
+    );
   }
   if (coverageView.kind === "error" || !coverageQuery.data) {
-    return <div className="py-6 text-center text-xs text-destructive">Coverage unavailable.</div>;
+    return (
+      <div className="py-6 text-center text-xs text-destructive">
+        {t("secrets.details.coverageUnavailablePeriod", { defaultValue: "Coverage unavailable." })}
+      </div>
+    );
   }
   const summary: UserSecretCoverageSummary = coverageQuery.data;
   const total = summary.configuredCount + summary.missingCount + summary.inactiveCount;
@@ -4674,19 +4782,25 @@ function UserSecretCoverageTab({
           <div className="text-lg font-semibold text-emerald-700 dark:text-emerald-300">
             {summary.configuredCount}
           </div>
-          <div className="text-muted-foreground">Set</div>
+          <div className="text-muted-foreground">
+            {t("secrets.coverage.set", { defaultValue: "Set" })}
+          </div>
         </div>
         <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-3">
           <div className="text-lg font-semibold text-amber-700 dark:text-amber-300">
             {summary.missingCount}
           </div>
-          <div className="text-muted-foreground">Missing</div>
+          <div className="text-muted-foreground">
+            {t("secrets.coverage.missing", { defaultValue: "Missing" })}
+          </div>
         </div>
         <div className="rounded-md border border-border bg-muted/30 p-3">
           <div className="text-lg font-semibold text-muted-foreground">
             {summary.inactiveCount}
           </div>
-          <div className="text-muted-foreground">Inactive</div>
+          <div className="text-muted-foreground">
+            {t("secrets.coverage.inactive", { defaultValue: "Inactive" })}
+          </div>
         </div>
       </div>
       <p className="text-xs text-muted-foreground">
@@ -4697,16 +4811,25 @@ function UserSecretCoverageTab({
 }
 
 function UserSecretUsageTab({ definition }: { definition: UserSecretDefinition }) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-3 text-xs text-muted-foreground">
       <div className="rounded-md border border-border bg-muted/20 p-3">
-        Bind runtime environment variables to this user-provided secret by choosing{" "}
-        <span className="font-medium text-foreground">User secret</span> and selecting{" "}
-        <code className="font-mono">{definition.key}</code>.
+        {t("secrets.details.userUsageBefore", {
+          defaultValue: "Bind runtime environment variables to this user-provided secret by choosing ",
+        })}
+        <span className="font-medium text-foreground">
+          {t("secrets.details.userSecret", { defaultValue: "User secret" })}
+        </span>
+        {t("secrets.details.userUsageMiddle", { defaultValue: " and selecting " })}
+        <code className="font-mono">{definition.key}</code>
+        {t("secrets.details.userUsageAfter", { defaultValue: "." })}
       </div>
       {definition.usageGuidance ? (
         <div>
-          <p className="mb-1 text-(length:--text-micro) uppercase tracking-wide text-muted-foreground">Member guidance</p>
+          <p className="mb-1 text-(length:--text-micro) uppercase tracking-wide text-muted-foreground">
+            {t("secrets.details.memberGuidance", { defaultValue: "Member guidance" })}
+          </p>
           <p className="text-foreground">{definition.usageGuidance}</p>
         </div>
       ) : null}
@@ -4715,9 +4838,13 @@ function UserSecretUsageTab({ definition }: { definition: UserSecretDefinition }
 }
 
 function UserSecretAccessEventsTab() {
+  const { t } = useTranslation();
   return (
     <div className="py-6 text-center text-xs text-muted-foreground">
-      Access events are recorded on each member&apos;s stored value when runtime resolution occurs.
+      {t("secrets.details.accessEventsNote", {
+        defaultValue:
+          "Access events are recorded on each member's stored value when runtime resolution occurs.",
+      })}
     </div>
   );
 }
@@ -4771,6 +4898,7 @@ function AgentAccessSection({
 }) {
   const queryClient = useQueryClient();
   const { pushToast } = useToastActions();
+  const { t } = useTranslation();
   const [selectedAgentId, setSelectedAgentId] = useState("");
   const [envKey, setEnvKey] = useState("");
   const [envKeyDirty, setEnvKeyDirty] = useState(false);
@@ -4854,7 +4982,11 @@ function AgentAccessSection({
       setEnvKeyDirty(false);
       setAccessError(null);
       invalidateAfterChange(variables.agentId);
-      pushToast({ title: "Access granted", body: `${agent.name} now receives ${variables.key}`, tone: "success" });
+      pushToast({
+        title: t("secrets.toast.accessGranted", { defaultValue: "Access granted" }),
+        body: `${agent.name} now receives ${variables.key}`,
+        tone: "success",
+      });
     },
     onError: (error) => setAccessError(readableErrorMessage(error)),
   });
@@ -4878,7 +5010,11 @@ function AgentAccessSection({
     onSuccess: (agent, variables) => {
       setAccessError(null);
       invalidateAfterChange(variables.agentId);
-      pushToast({ title: "Access removed", body: agent.name, tone: "info" });
+      pushToast({
+        title: t("secrets.toast.accessRemoved", { defaultValue: "Access removed" }),
+        body: agent.name,
+        tone: "info",
+      });
     },
     onError: (error) => setAccessError(readableErrorMessage(error)),
   });
@@ -4890,18 +5026,31 @@ function AgentAccessSection({
     <section className="rounded-md border border-border bg-muted/20 p-3">
       <div className="flex items-center gap-1.5">
         <Users className="h-3.5 w-3.5 text-muted-foreground" />
-        <h3 className="text-xs font-medium text-foreground">Agent access</h3>
+        <h3 className="text-xs font-medium text-foreground">
+          {t("secrets.agentAccess.title", { defaultValue: "Agent access" })}
+        </h3>
       </div>
       <p className="mt-0.5 text-(length:--text-micro) text-muted-foreground">
         {reference.kind === "company"
-          ? "Add here to inject this secret as an environment variable at run start. API-access grants (fetched on demand, no env var) are managed from each agent's Secret access settings and shown below."
-          : "These agents resolve the responsible user's value as an environment variable at run start."}
+          ? t("secrets.agentAccess.descriptionCompany", {
+              defaultValue:
+                "Add here to inject this secret as an environment variable at run start. API-access grants (fetched on demand, no env var) are managed from each agent's Secret access settings and shown below.",
+            })
+          : t("secrets.agentAccess.descriptionUser", {
+              defaultValue:
+                "These agents resolve the responsible user's value as an environment variable at run start.",
+            })}
       </p>
       {agentsQuery.isPending || agentsView.kind === "reconnecting" ? (
-        <p className="mt-2 text-(length:--text-micro) text-muted-foreground">Loading agents…</p>
+        <p className="mt-2 text-(length:--text-micro) text-muted-foreground">
+          {t("secrets.agentAccess.loadingAgents", { defaultValue: "Loading agents…" })}
+        </p>
       ) : agentsView.kind === "error" ? (
         <p className="mt-2 text-(length:--text-micro) text-muted-foreground">
-          Agent list unavailable. Manage access from each agent&apos;s configuration instead.
+          {t("secrets.agentAccess.listUnavailable", {
+            defaultValue:
+              "Agent list unavailable. Manage access from each agent's configuration instead.",
+          })}
         </p>
       ) : (
         <>
@@ -4946,7 +5095,9 @@ function AgentAccessSection({
               ))}
             </ul>
           ) : (
-            <p className="mt-2 text-(length:--text-micro) text-muted-foreground">No agents have access yet.</p>
+            <p className="mt-2 text-(length:--text-micro) text-muted-foreground">
+              {t("secrets.agentAccess.noAccess", { defaultValue: "No agents have access yet." })}
+            </p>
           )}
           <div className="mt-2 flex items-end gap-2">
             <div className="min-w-0 flex-1">
@@ -4954,7 +5105,7 @@ function AgentAccessSection({
                 className="text-(length:--text-micro) font-medium text-muted-foreground"
                 htmlFor="agent-access-agent"
               >
-                Agent
+                {t("secrets.agentAccess.agentLabel", { defaultValue: "Agent" })}
               </label>
               <AgentSelect
                 id="agent-access-agent"
@@ -4962,7 +5113,7 @@ function AgentAccessSection({
                 value={selectedAgentId}
                 onChange={setSelectedAgentId}
                 triggerClassName="h-8 text-xs"
-                emptyMessage="No agents available."
+                emptyMessage={t("secrets.agentAccess.noAgents", { defaultValue: "No agents available." })}
               />
             </div>
             <div className="min-w-0 flex-1">
@@ -4970,7 +5121,7 @@ function AgentAccessSection({
                 className="text-(length:--text-micro) font-medium text-muted-foreground"
                 htmlFor="agent-access-env-key"
               >
-                Env var
+                {t("secrets.agentAccess.envVarLabel", { defaultValue: "Env var" })}
               </label>
               <Input
                 id="agent-access-env-key"
@@ -4980,7 +5131,7 @@ function AgentAccessSection({
                   setEnvKey(event.target.value.toUpperCase());
                 }}
                 className="h-8 font-mono text-xs"
-                placeholder="MY_SECRET"
+                placeholder={t("secrets.agentAccess.envVarPlaceholder", { defaultValue: "MY_SECRET" })}
               />
             </div>
             <Button
@@ -4995,12 +5146,15 @@ function AgentAccessSection({
               ) : (
                 <Plus className="mr-1 h-3.5 w-3.5" />
               )}
-              Add
+              {t("secrets.agentAccess.add", { defaultValue: "Add" })}
             </Button>
           </div>
           {effectiveEnvKey && !envKeyValid ? (
             <p className="mt-1 text-(length:--text-micro) text-destructive">
-              Env keys use letters, digits, and underscores, and cannot start with a digit.
+              {t("secrets.agentAccess.envKeyInvalid", {
+                defaultValue:
+                  "Env keys use letters, digits, and underscores, and cannot start with a digit.",
+              })}
             </p>
           ) : null}
           {accessError ? (
@@ -5026,38 +5180,59 @@ function SecretDetailsTab({
   const bindingLabel = (secret.referenceCount ?? 0) === 1
     ? "1 binding"
     : `${secret.referenceCount ?? 0} bindings`;
+  const { t } = useTranslation();
 
   return (
     <dl className="divide-y divide-border/60 text-xs">
-      <DetailRow label="Description">
+      <DetailRow label={t("secrets.details.description", { defaultValue: "Description" })}>
         <span>{secret.description ?? <span className="text-muted-foreground">—</span>}</span>
       </DetailRow>
-      <DetailRow label="Provided by">Organization</DetailRow>
-      <DetailRow label="Custody">{modeLabel(secret.managedMode)}</DetailRow>
-      <DetailRow label="Provider">{providerLabel(providers, secret.provider)}</DetailRow>
-      <DetailRow label="Provider vault">{providerVaultLabel(providerConfigs, secret.providerConfigId)}</DetailRow>
-      <DetailRow label="External ARN">
+      <DetailRow label={t("secrets.details.providedBy", { defaultValue: "Provided by" })}>
+        {t("secrets.details.organization", { defaultValue: "Organization" })}
+      </DetailRow>
+      <DetailRow label={t("secrets.details.custody", { defaultValue: "Custody" })}>
+        {modeLabel(secret.managedMode)}
+      </DetailRow>
+      <DetailRow label={t("secrets.details.provider", { defaultValue: "Provider" })}>
+        {providerLabel(providers, secret.provider)}
+      </DetailRow>
+      <DetailRow label={t("secrets.details.providerVault", { defaultValue: "Provider vault" })}>
+        {providerVaultLabel(providerConfigs, secret.providerConfigId)}
+      </DetailRow>
+      <DetailRow label={t("secrets.details.externalArn", { defaultValue: "External ARN" })}>
         {secret.externalRef ? (
           <span className="break-all font-mono">{secret.externalRef}</span>
         ) : (
           <span className="text-muted-foreground">—</span>
         )}
       </DetailRow>
-      <DetailRow label="Latest version">v{secret.latestVersion}</DetailRow>
-      <DetailRow label="References">
+      <DetailRow label={t("secrets.details.latestVersion", { defaultValue: "Latest version" })}>
+        v{secret.latestVersion}
+      </DetailRow>
+      <DetailRow label={t("secrets.details.references", { defaultValue: "References" })}>
         <button
           type="button"
           className="inline-flex items-center gap-1 text-left text-primary hover:underline"
           onClick={onViewUsage}
         >
           {bindingLabel}
-          <span className="text-muted-foreground">· View in Usage</span>
+          <span className="text-muted-foreground">
+            {t("secrets.details.viewInUsage", { defaultValue: "· View in Usage" })}
+          </span>
         </button>
       </DetailRow>
-      <DetailRow label="Created">{formatRelative(secret.createdAt)}</DetailRow>
-      <DetailRow label="Updated">{formatRelative(secret.updatedAt)}</DetailRow>
-      <DetailRow label="Last rotated">{formatRelative(secret.lastRotatedAt)}</DetailRow>
-      <DetailRow label="Last resolved">{formatRelative(secret.lastResolvedAt)}</DetailRow>
+      <DetailRow label={t("secrets.details.created", { defaultValue: "Created" })}>
+        {formatRelative(secret.createdAt)}
+      </DetailRow>
+      <DetailRow label={t("secrets.details.updated", { defaultValue: "Updated" })}>
+        {formatRelative(secret.updatedAt)}
+      </DetailRow>
+      <DetailRow label={t("secrets.details.lastRotated", { defaultValue: "Last rotated" })}>
+        {formatRelative(secret.lastRotatedAt)}
+      </DetailRow>
+      <DetailRow label={t("secrets.details.lastResolved", { defaultValue: "Last resolved" })}>
+        {formatRelative(secret.lastResolvedAt)}
+      </DetailRow>
       <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/5 p-2 text-(length:--text-micro) text-amber-700 dark:text-amber-300">
         {modeDescription(
           secret.managedMode,
@@ -5066,7 +5241,9 @@ function SecretDetailsTab({
               providers.find((provider) => provider.id === secret.provider)?.supportsExternalValueWrites,
           ),
         )}{" "}
-        Paperclip never re-displays stored values.
+        {t("secrets.details.neverRedisplayed", {
+          defaultValue: "Paperclip never re-displays stored values.",
+        })}
       </div>
     </dl>
   );
@@ -5082,13 +5259,21 @@ function DetailRow({ label, children }: { label: string; children: React.ReactNo
 }
 
 export function SecretUsageTab({ loading, bindings }: { loading: boolean; bindings: CompanySecretUsageBinding[] }) {
+  const { t } = useTranslation();
   if (loading) {
-    return <div className="py-6 text-center text-xs text-muted-foreground">Loading…</div>;
+    return (
+      <div className="py-6 text-center text-xs text-muted-foreground">
+        {t("secrets.usage.loading", { defaultValue: "Loading…" })}
+      </div>
+    );
   }
   if (bindings.length === 0) {
     return (
       <div className="py-6 text-center text-xs text-muted-foreground">
-        No active bindings. Add this secret in agent, project, environment, or plugin config to start using it.
+        {t("secrets.usage.empty", {
+          defaultValue:
+            "No active bindings. Add this secret in agent, project, environment, or plugin config to start using it.",
+        })}
       </div>
     );
   }
@@ -5139,11 +5324,16 @@ export function SecretUsageTab({ loading, bindings }: { loading: boolean; bindin
             </div>
             <div className="text-(length:--text-micro) text-muted-foreground">
               {deliveryMode === "api" ? (
-                <>API alias <span className="font-mono">{aliasFromConfigPath(binding.configPath)}</span></>
+                <>
+                  {t("secrets.usage.apiAlias", { defaultValue: "API alias " })}
+                  <span className="font-mono">{aliasFromConfigPath(binding.configPath)}</span>
+                </>
               ) : (
                 <span className="font-mono">{binding.configPath}</span>
               )}{" "}
-              {binding.required ? "· required" : "· optional"}
+              {binding.required
+                ? t("secrets.usage.required", { defaultValue: "· required" })
+                : t("secrets.usage.optional", { defaultValue: "· optional" })}
             </div>
           </div>
         );
@@ -5172,6 +5362,7 @@ export function SecretEventsTab({
     enabled: anyUserScoped,
     staleTime: 60_000,
   });
+  const { t } = useTranslation();
   const userLabel = (userId: string | null): string => {
     if (!userId) return "—";
     const entry: CompanyUserDirectoryEntry | undefined = directory?.users.find(
@@ -5181,12 +5372,19 @@ export function SecretEventsTab({
   };
 
   if (loading) {
-    return <div className="py-6 text-center text-xs text-muted-foreground">Loading…</div>;
+    return (
+      <div className="py-6 text-center text-xs text-muted-foreground">
+        {t("secrets.usage.loading", { defaultValue: "Loading…" })}
+      </div>
+    );
   }
   if (events.length === 0) {
     return (
       <div className="py-6 text-center text-xs text-muted-foreground">
-        No access events recorded yet. Each runtime resolution writes a redacted entry here.
+        {t("secrets.events.empty", {
+          defaultValue:
+            "No access events recorded yet. Each runtime resolution writes a redacted entry here.",
+        })}
       </div>
     );
   }
@@ -5203,7 +5401,7 @@ export function SecretEventsTab({
                   variant="outline"
                   className="border-violet-500/30 bg-violet-500/10 text-(length:--text-nano) text-violet-700 dark:text-violet-300"
                 >
-                  User secret
+                  {t("secrets.events.userSecret", { defaultValue: "User secret" })}
                 </Badge>
               ) : null}
             </span>
@@ -5214,13 +5412,15 @@ export function SecretEventsTab({
           </div>
           {event.responsibleUserId ? (
             <div className="text-(length:--text-micro) text-muted-foreground">
-              Responsible user: <span className="text-foreground">{userLabel(event.responsibleUserId)}</span>
+              {t("secrets.events.responsibleUser", { defaultValue: "Responsible user: " })}
+              <span className="text-foreground">{userLabel(event.responsibleUserId)}</span>
             </div>
           ) : null}
           {event.credentialOwnerUserId &&
           event.credentialOwnerUserId !== event.responsibleUserId ? (
             <div className="text-(length:--text-micro) text-muted-foreground">
-              Credential owner: <span className="text-foreground">{userLabel(event.credentialOwnerUserId)}</span>
+              {t("secrets.events.credentialOwner", { defaultValue: "Credential owner: " })}
+              <span className="text-foreground">{userLabel(event.credentialOwnerUserId)}</span>
             </div>
           ) : null}
           {event.errorCode ? (

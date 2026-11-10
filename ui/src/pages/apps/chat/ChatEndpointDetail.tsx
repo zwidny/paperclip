@@ -72,6 +72,7 @@ import { queryKeys } from "@/lib/queryKeys";
 import { copyTextToClipboard } from "@/lib/clipboard";
 import { Link, Navigate, useLocation, useNavigate, useParams } from "@/lib/router";
 import { describeError } from "@/api/errors";
+import { useTranslation } from "../../../i18n";
 
 const tabs = ["settings", "access", "reviews", "conversations", "activity"] as const;
 type ChatTab = (typeof tabs)[number];
@@ -247,6 +248,7 @@ export function connectionHealthPresentation(
 }
 
 export function ChatEndpointDetail() {
+  const { t } = useTranslation();
   const { userId, settled: identitySettled } = useAccountIdentity();
   const { endpointId = "", tab: routeTab, reviewId } = useParams<{
     endpointId: string;
@@ -287,15 +289,15 @@ export function ChatEndpointDetail() {
   useEffect(() => {
     if (!endpoint || !activeTab) return;
     setBreadcrumbs([
-      { label: "Connectors", href: "/apps" },
+      { label: t("chatDetail.breadcrumbConnectors", { defaultValue: "Connectors" }), href: "/apps" },
       {
         label: `${endpoint.assignedAgentName} · ${providerNames[endpoint.provider]}`,
         href: `/apps/chat/${endpoint.id}/settings`,
       },
-      ...(reviewId ? [{ label: "Reviews", href: `/apps/chat/${endpoint.id}/reviews` }, { label: "Review" }] : [{
+      ...(reviewId ? [{ label: t("chatDetail.breadcrumbReviews", { defaultValue: "Reviews" }), href: `/apps/chat/${endpoint.id}/reviews` }, { label: t("chatDetail.breadcrumbReview", { defaultValue: "Review" }) }] : [{
         label:
           tabItems.find((item) => item.value === activeTab)?.label ??
-          "Settings",
+          t("chatDetail.tabSettings", { defaultValue: "Settings" }),
       }]),
     ]);
     return () => setBreadcrumbs([]);
@@ -307,7 +309,7 @@ export function ChatEndpointDetail() {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Loader2 className="h-4 w-4 animate-spin" />
-        Loading connection…
+        {t("chatDetail.loadingConnection", { defaultValue: "Loading connection…" })}
       </div>
     );
   if (endpointView.kind === "error" || !endpoint)
@@ -339,10 +341,10 @@ export function ChatEndpointDetail() {
           <div className="min-w-0">
           <h1 ref={heading} tabIndex={-1} className={endpoint.provider === "speko" ? "flex items-center gap-3 text-xl font-bold" : "text-xl font-bold"}>
             {endpoint.provider === "speko" && <AppLogo name="Speko" brandKey="speko" size={36} />}
-            {endpoint.provider === "github" ? (endpoint.botLabel ?? endpoint.assignedAgentName) : endpoint.assignedAgentName}{endpoint.provider === "speko" ? " in Speko" : ""}
+            {endpoint.provider === "github" ? (endpoint.botLabel ?? endpoint.assignedAgentName) : endpoint.assignedAgentName}{endpoint.provider === "speko" ? t("chatDetail.inSpeko", { defaultValue: " in Speko" }) : ""}
           </h1>
           <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            {endpoint.provider === "github" ? <><AppLogo name="GitHub" brandKey="github" compact className="size-4! rounded-sm bg-transparent" /><Link to={`/agents/${endpoint.assignedAgentId}`} className="hover:underline">{endpoint.assignedAgentName}</Link>{endpoint.providerAccountLabel && <span>· {endpoint.providerAccountLabel}</span>}</> : endpoint.providerAccountLabel ?? (endpoint.provider === "agentmail" ? endpoint.botExternalId ?? "Email connection" : "Chat connection")}
+            {endpoint.provider === "github" ? <><AppLogo name="GitHub" brandKey="github" compact className="size-4! rounded-sm bg-transparent" /><Link to={`/agents/${endpoint.assignedAgentId}`} className="hover:underline">{endpoint.assignedAgentName}</Link>{endpoint.providerAccountLabel && <span>· {endpoint.providerAccountLabel}</span>}</> : endpoint.providerAccountLabel ?? (endpoint.provider === "agentmail" ? endpoint.botExternalId ?? t("chatDetail.emailConnection", { defaultValue: "Email connection" }) : t("chatDetail.chatConnection", { defaultValue: "Chat connection" }))}
           </p>
           {endpoint.provider === "github" && <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
             <GitHubBotMention endpoint={endpoint} />
@@ -351,19 +353,19 @@ export function ChatEndpointDetail() {
           {endpoint.provider === "imessage-photon" && endpoint.botExternalId && endpoint.photonAllocation !== "shared" && (
             <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
               <span>{endpoint.botExternalId}</span>
-              <Button variant="ghost" size="sm" aria-label="Copy dedicated number" onClick={async () => {
-                try { await copyTextToClipboard(endpoint.botExternalId!); setCopyStatus("Number copied"); }
-                catch { setCopyStatus("Could not copy the number. Select and copy it manually."); }
-              }}><Copy className="size-4" />Copy number</Button>
+              <Button variant="ghost" size="sm" aria-label={t("chatDetail.copyNumberAria", { defaultValue: "Copy dedicated number" })} onClick={async () => {
+                try { await copyTextToClipboard(endpoint.botExternalId!); setCopyStatus(t("chatDetail.numberCopied", { defaultValue: "Number copied" })); }
+                catch { setCopyStatus(t("chatDetail.numberCopyFailed", { defaultValue: "Could not copy the number. Select and copy it manually." })); }
+              }}><Copy className="size-4" />{t("chatDetail.copyNumber", { defaultValue: "Copy number" })}</Button>
               <span role="status" className="text-muted-foreground">{copyStatus}</span>
             </div>
           )}
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {endpoint.provider === "speko" && <a href="https://platform.speko.ai/agents" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-sm text-primary underline">Open Speko<ExternalLink className="size-3.5" aria-hidden="true" /></a>}
+          {endpoint.provider === "speko" && <a href="https://platform.speko.ai/agents" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-sm text-primary underline">{t("chatDetail.openSpeko", { defaultValue: "Open Speko" })}<ExternalLink className="size-3.5" aria-hidden="true" /></a>}
           {endpoint.provider === "slack" && !setupIncomplete && <Button asChild variant="outline"><a href={slackConversationUrl(endpoint, identitySettled ? userId : null)} target="_blank" rel="noopener noreferrer">Open Slack <ExternalLink className="size-4" /></a></Button>}
-          {slackUrl && <Button asChild variant="outline"><a href={slackUrl} target="_blank" rel="noopener noreferrer">Open Slack configuration <ExternalLink className="size-4" /></a></Button>}
+          {slackUrl && <Button asChild variant="outline"><a href={slackUrl} target="_blank" rel="noopener noreferrer">{t("chatDetail.openSlackConfig", { defaultValue: "Open Slack configuration" })} <ExternalLink className="size-4" /></a></Button>}
           {setupIncomplete ? (
             <Button
               variant="outline"
@@ -373,7 +375,7 @@ export function ChatEndpointDetail() {
                 )
               }
             >
-              Continue setup
+              {t("chatDetail.continueSetup", { defaultValue: "Continue setup" })}
             </Button>
           ) : null}
           {endpoint.status !== "active" && <StatusBadge status={endpoint.status} className={endpoint.provider === "speko" ? "text-foreground" : undefined} />}
@@ -390,9 +392,9 @@ export function ChatEndpointDetail() {
       {activeTab === "reviews" && endpoint.provider === "github" && <GitHubReviews endpointId={endpoint.id} reviewId={reviewId} />}
       {activeTab === "access" && endpoint.provider === "speko" && (
         <section className="max-w-3xl space-y-3">
-          <h2 className="text-lg font-semibold">Private voice access</h2>
-          <p className="text-sm text-muted-foreground">Browser calls use the signed-in Paperclip user’s current company access. Each call stays bound to its selected agent and task.</p>
-          <p className="text-sm text-muted-foreground">Outgoing calls use your saved callback number and opt-in. For a private incoming call, enter the code spoken on the phone in signed-in Paperclip and select a task to approve that live call. Incoming calls can start a new conversation task without sign-in, under a task-scoped low-trust policy. Private mode is optional and requires approval before accessing existing tasks.</p>
+          <h2 className="text-lg font-semibold">{t("chatDetail.privateVoice", { defaultValue: "Private voice access" })}</h2>
+          <p className="text-sm text-muted-foreground">{t("chatDetail.voiceBrowser", { defaultValue: "Browser calls use the signed-in Paperclip user’s current company access. Each call stays bound to its selected agent and task." })}</p>
+          <p className="text-sm text-muted-foreground">{t("chatDetail.voicePolicy", { defaultValue: "Outgoing calls use your saved callback number and opt-in. For a private incoming call, enter the code spoken on the phone in signed-in Paperclip and select a task to approve that live call. Incoming calls can start a new conversation task without sign-in, under a task-scoped low-trust policy. Private mode is optional and requires approval before accessing existing tasks." })}</p>
         </section>
       )}
 {activeTab === "access" && endpoint.provider === "agentmail" && <EmailAccess endpoint={endpoint} />}
@@ -440,6 +442,7 @@ function EndpointExecutionDefaults({ endpoint }: { endpoint: ChatEndpoint }) {
 }
 
 function EmailAccess({ endpoint }: { endpoint: ChatEndpoint }) {
+  const { t } = useTranslation();
   const connection = useQuery({
     queryKey: queryKeys.tools.connection(endpoint.connectionId ?? ""),
     queryFn: () => toolsApi.getConnection(endpoint.connectionId!),
@@ -451,7 +454,7 @@ function EmailAccess({ endpoint }: { endpoint: ChatEndpoint }) {
   });
   const agentsView = useQueryView(agents);
   const connectionView = useQueryView(connection);
-  if (!endpoint.connectionId) return <p role="alert" className="text-sm text-destructive">Connection access could not be loaded.</p>;
+  if (!endpoint.connectionId) return <p role="alert" className="text-sm text-destructive">{t("chatDetail.accessLoadFailed", { defaultValue: "Connection access could not be loaded." })}</p>;
   if (agentsView.kind === "error" || connectionView.kind === "error") return (
     <QueryErrorState
       error={agentsView.kind === "error" ? agents.error : connection.error}
@@ -461,13 +464,13 @@ function EmailAccess({ endpoint }: { endpoint: ChatEndpoint }) {
     />
   );
   if (agents.isPending || connection.isPending || agentsView.kind === "reconnecting" || connectionView.kind === "reconnecting") {
-    return <p role="status" className="text-sm text-muted-foreground">Loading access…</p>;
+    return <p role="status" className="text-sm text-muted-foreground">{t("chatDetail.loadingAccess", { defaultValue: "Loading access…" })}</p>;
   }
   const sourceId = connection.data?.config?.credentialConnectionId;
   const credentialId = typeof sourceId === "string" ? sourceId : endpoint.connectionId;
   return <section className="max-w-3xl space-y-4">
-    <h2 className="text-lg font-semibold">Access</h2>
-    {credentialId !== endpoint.connectionId && <p className="text-sm text-muted-foreground">These settings apply to the saved AgentMail account and all inboxes using it.</p>}
+    <h2 className="text-lg font-semibold">{t("chatDetail.access", { defaultValue: "Access" })}</h2>
+    {credentialId !== endpoint.connectionId && <p className="text-sm text-muted-foreground">{t("chatDetail.accessHint", { defaultValue: "These settings apply to the saved AgentMail account and all inboxes using it." })}</p>}
     <EmailConnectionAccess key={credentialId} companyId={endpoint.companyId} connectionId={credentialId} agents={agents.data ?? []} />
   </section>;
 }
@@ -479,6 +482,7 @@ function Settings({
   endpointId: string;
   endpoint: Awaited<ReturnType<typeof chatEndpointsApi.get>>;
 }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { pushToast } = useToast();
   const resourcesQuery = useQuery({
@@ -498,7 +502,7 @@ function Settings({
       ),
     onError: (error) =>
       pushToast({
-        title: "Couldn't update destination",
+        title: t("chatDetail.updateDestinationFailed", { defaultValue: "Couldn't update destination" }),
         body: describeError(error).body,
         tone: "error",
       }),
@@ -512,7 +516,7 @@ function Settings({
       ),
     onError: (error) =>
       pushToast({
-        title: "Couldn't update settings",
+        title: t("chatDetail.updateSettingsFailed", { defaultValue: "Couldn't update settings" }),
         body: describeError(error).body,
         tone: "error",
       }),
@@ -527,10 +531,10 @@ function Settings({
     saveResources.mutate({ id: resource.id, enabled });
   return (
     <section className="max-w-3xl space-y-7">
-      {endpoint.provider === "imessage-photon" && <p className="text-sm text-muted-foreground">{endpoint.photonAllocation === "shared" ? "Shared Photon project · direct messages only. Enroll senders in Photon and link their Messages identities in Access. Groups cannot be enabled." : "Enable each group individually. Agent replies are visible to everyone in that group; only authorized senders can start work."}</p>}
+      {endpoint.provider === "imessage-photon" && <p className="text-sm text-muted-foreground">{endpoint.photonAllocation === "shared" ? t("chatDetail.imessageShared", { defaultValue: "Shared Photon project · direct messages only. Enroll senders in Photon and link their Messages identities in Access. Groups cannot be enabled." }) : t("chatDetail.imessageGroups", { defaultValue: "Enable each group individually. Agent replies are visible to everyone in that group; only authorized senders can start work." })}</p>}
       {endpoint.provider === "telegram" && (
         <div className="space-y-2">
-          <h2 className="text-lg font-semibold">Telegram group command</h2>
+          <h2 className="text-lg font-semibold">{t("chatDetail.telegramCommand", { defaultValue: "Telegram group command" })}</h2>
           <div className="rounded-lg border border-border p-3 text-sm">
             <code>
               /task@
@@ -538,20 +542,18 @@ function Settings({
               &lt;request&gt;
             </code>
             <p className="mt-2 text-muted-foreground">
-              Telegram&apos;s default privacy mode does not deliver ordinary
-              mentions to bots. Use this command to start or continue group
-              work, or reply directly to a message from the bot.
+              {t("chatDetail.telegramPrivacyHint", { defaultValue: "Telegram's default privacy mode does not deliver ordinary mentions to bots. Use this command to start or continue group work, or reply directly to a message from the bot." })}
             </p>
           </div>
         </div>
       )}
       <div className="space-y-2">
-        <h3 className="text-sm font-semibold">{endpoint.provider === "slack" ? "Allowed Channels" : "Destinations"}</h3>
+        <h3 className="text-sm font-semibold">{endpoint.provider === "slack" ? t("chatDetail.allowedChannels", { defaultValue: "Allowed Channels" }) : t("chatDetail.destinations", { defaultValue: "Destinations" })}</h3>
         {resourcesView.kind === "error" ? <QueryErrorState size="inline" error={resourcesQuery.error} action={endpoint.provider === "slack" ? "load the channels" : "load the destinations"} onRetry={resourcesView.retry} retrying={resourcesView.isFetching} /> : resourcesQuery.isLoading || resourcesView.kind === "reconnecting" ? (
-          <p className="text-sm text-muted-foreground">Loading destinations…</p>
+          <p className="text-sm text-muted-foreground">{t("chatDetail.loadingDestinations", { defaultValue: "Loading destinations…" })}</p>
         ) : destinationResources.length === 0 && endpoint.provider !== "slack" ? (
           <p className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
-            No destinations yet.
+            {t("chatDetail.noDestinations", { defaultValue: "No destinations yet." })}
           </p>
         ) : (
           <div className={endpoint.provider === "slack" ? "space-y-1" : "divide-y divide-border border-y border-border"}>
@@ -565,7 +567,7 @@ function Settings({
                   {(resource.availability !== "available" || resource.detail) && <p className="text-xs text-muted-foreground">
                     {resource.availability === "available"
                       ? resource.detail
-                      : "Unavailable at the provider"}
+                      : t("chatDetail.unavailableAtProvider", { defaultValue: "Unavailable at the provider" })}
                   </p>}
                   {resource.participants?.length ? <p className="mt-1 break-words text-xs text-muted-foreground">Participants: {resource.participants.join(", ")}</p> : null}
                 </div>
@@ -583,7 +585,7 @@ function Settings({
                 />
               </div>
               <details className="text-sm">
-                <summary className="cursor-pointer text-muted-foreground">Task defaults</summary>
+                <summary className="cursor-pointer text-muted-foreground">{t("chatDetail.taskDefaults", { defaultValue: "Task defaults" })}</summary>
                 <div className="pt-3"><ChatExecutionDefaults
                   companyId={endpoint.companyId}
                   value={resource.executionDefaults}
@@ -607,10 +609,10 @@ function Settings({
       {endpoint.provider !== "github" && (
         <div className="space-y-3">
           <SettingToggle
-            label="Allow direct messages"
+            label={t("chatDetail.allowDms", { defaultValue: "Allow direct messages" })}
             detail={
               endpoint.provider === "discord"
-                ? "People must also enable Direct Messages in their shared Discord server’s Privacy Settings."
+                ? t("chatDetail.discordDmsDetail", { defaultValue: "People must also enable Direct Messages in their shared Discord server’s Privacy Settings." })
                 : undefined
             }
             checked={endpoint.allowDirectMessages ?? false}
@@ -621,8 +623,8 @@ function Settings({
           />
           {endpoint.provider === "slack" && (
             <SettingToggle
-              label="Require at-mention"
-              detail="In channels, only respond to messages that @mention this bot, including thread replies. Direct messages never require an @mention and must be allowed above."
+              label={t("chatDetail.requireMention", { defaultValue: "Require at-mention" })}
+              detail={t("chatDetail.requireMentionDetail", { defaultValue: "In channels, only respond to messages that @mention this bot, including thread replies. Direct messages never require an @mention and must be allowed above." })}
               checked={endpoint.requireAtMention ?? false}
               pending={updateEndpoint.isPending}
               onChange={(requireAtMention) =>
@@ -632,8 +634,8 @@ function Settings({
           )}
           {endpoint.provider === "microsoft-teams" && (
             <SettingToggle
-              label="Allow group chats"
-              detail="The bot may participate in group chats where it is installed."
+              label={t("chatDetail.allowGroupChats", { defaultValue: "Allow group chats" })}
+              detail={t("chatDetail.groupChatsDetail", { defaultValue: "The bot may participate in group chats where it is installed." })}
               checked={endpoint.allowGroupChats ?? false}
               pending={updateEndpoint.isPending}
               onChange={(allowGroupChats) =>
@@ -651,7 +653,7 @@ function Settings({
           queryClient.setQueryData(queryKeys.chatEndpoints.detail(endpointId), next);
         }}
       />}
-      {endpoint.provider === "slack" && <SlackSetupAdvanced label="Slack tools"><SlackToolsSettings companyId={endpoint.companyId} endpointId={endpointId} /></SlackSetupAdvanced>}
+      {endpoint.provider === "slack" && <SlackSetupAdvanced label={t("chatDetail.slackTools", { defaultValue: "Slack tools" })}><SlackToolsSettings companyId={endpoint.companyId} endpointId={endpointId} /></SlackSetupAdvanced>}
     </section>
   );
 }
@@ -694,6 +696,7 @@ function Access({
   allowUnlinked: boolean;
   endpoint: ChatEndpoint;
 }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { pushToast } = useToast();
   const [confirmationUrl, setConfirmationUrl] = useState<string | null>(null);
@@ -715,7 +718,7 @@ function Access({
         queryKeys.chatEndpoints.detail(endpointId),
         next,
       ),
-    onError: (error) => pushToast({ title: "Couldn’t update access", body: describeError(error).body, tone: "error" }),
+    onError: (error) => pushToast({ title: t("chatDetail.updateAccessFailed", { defaultValue: "Couldn’t update access" }), body: describeError(error).body, tone: "error" }),
   });
   const createIntent = useMutation({
     mutationFn: (principalId: string) =>
@@ -728,7 +731,7 @@ function Access({
     },
     onError: (error) =>
       pushToast({
-        title: "Couldn't create identity link",
+        title: t("chatDetail.createIdentityLinkFailed", { defaultValue: "Couldn't create identity link" }),
         body: describeError(error).body,
         tone: "error",
       }),
@@ -737,45 +740,45 @@ function Access({
     mutationFn: (principalId: string) =>
       chatEndpointsApi.revokeLink(endpointId, principalId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.chatEndpoints.principals(endpointId) }),
-    onError: (error) => pushToast({ title: "Couldn't disconnect account", body: describeError(error).body, tone: "error" }),
+    onError: (error) => pushToast({ title: t("chatDetail.disconnectAccountFailed", { defaultValue: "Couldn't disconnect account" }), body: describeError(error).body, tone: "error" }),
   });
   const links = linksQuery.data ?? [];
   return (
     <section className="max-w-3xl space-y-7">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold">People</h2>
+        <h2 className="text-lg font-semibold">{t("chatDetail.people", { defaultValue: "People" })}</h2>
         {endpoint.provider === "slack" && <Dialog>
-          <DialogTrigger asChild><Button>Invite people</Button></DialogTrigger>
+          <DialogTrigger asChild><Button>{t("access.invitePeople", { defaultValue: "Invite people" })}</Button></DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Invite people to talk to {endpoint.assignedAgentName}</DialogTitle>
-              <DialogDescription>Share these instructions with someone in your Slack workspace.</DialogDescription>
+              <DialogDescription>{t("chatDetail.shareInstructions", { defaultValue: "Share these instructions with someone in your Slack workspace." })}</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 text-sm">
               <ol className="list-decimal space-y-3 pl-5">
-                <li>Send <code className="font-mono">{joinCommand}</code> in Slack.</li>
-                <li>Open the bot’s private link and sign in to Paperclip to confirm your Slack account.</li>
-                <li>If you’re new to this organization, request access and wait for an admin to approve.</li>
+                <li>{t("chatDetail.inviteStepSendPrefix", { defaultValue: "Send" })} <code className="font-mono">{joinCommand}</code> {t("chatDetail.inviteStepSendSuffix", { defaultValue: "in Slack." })}</li>
+                <li>{t("chatDetail.inviteStepOpen", { defaultValue: "Open the bot’s private link and sign in to Paperclip to confirm your Slack account." })}</li>
+                <li>{t("chatDetail.inviteStepRequestAccess", { defaultValue: "If you’re new to this organization, request access and wait for an admin to approve." })}</li>
               </ol>
-              <p className="text-muted-foreground">The confirmation link is personal and expires after 15 minutes.</p>
+              <p className="text-muted-foreground">{t("chatDetail.confirmLinkHint", { defaultValue: "The confirmation link is personal and expires after 15 minutes." })}</p>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <Button variant="ghost" onClick={() => {
-                  void copyTextToClipboard(joinCommand).then(() => setJoinCommandCopied(true), () => pushToast({ title: "Couldn't copy the command", tone: "error" }));
-                }}>{joinCommandCopied ? <Check className="size-4" /> : <Copy className="size-4" />}{joinCommandCopied ? "Copied" : "Copy command"}</Button>
+                  void copyTextToClipboard(joinCommand).then(() => setJoinCommandCopied(true), () => pushToast({ title: t("chatDetail.copyCommandFailed", { defaultValue: "Couldn't copy the command" }), tone: "error" }));
+                }}>{joinCommandCopied ? <Check className="size-4" /> : <Copy className="size-4" />}{joinCommandCopied ? t("chatDetail.copied", { defaultValue: "Copied" }) : t("chatDetail.copyCommand", { defaultValue: "Copy command" })}</Button>
                 <Button onClick={() => {
                   const workspace = endpoint.providerAccountId ? `https://app.slack.com/client/${encodeURIComponent(endpoint.providerAccountId)}` : "https://app.slack.com/";
-                  void copyTextToClipboard(`Talk to ${endpoint.assignedAgentName} in Slack: ${workspace}\nSend ${joinCommand}, then open the bot’s private link and sign in to Paperclip to confirm your account. If you’re new to the organization, request access for an admin to approve.`).then(() => setInviteCopied(true), () => pushToast({ title: "Couldn't copy invitation", tone: "error" }));
-                }}>{inviteCopied ? <Check className="size-4" /> : <Copy className="size-4" />}{inviteCopied ? "Invitation copied" : "Copy invitation"}</Button>
+                  void copyTextToClipboard(`Talk to ${endpoint.assignedAgentName} in Slack: ${workspace}\nSend ${joinCommand}, then open the bot’s private link and sign in to Paperclip to confirm your account. If you’re new to the organization, request access for an admin to approve.`).then(() => setInviteCopied(true), () => pushToast({ title: t("chatDetail.copyInvitationFailed", { defaultValue: "Couldn't copy invitation" }), tone: "error" }));
+                }}>{inviteCopied ? <Check className="size-4" /> : <Copy className="size-4" />}{inviteCopied ? t("chatDetail.invitationCopied", { defaultValue: "Invitation copied" }) : t("chatDetail.copyInvitation", { defaultValue: "Copy invitation" })}</Button>
               </div>
             </div>
           </DialogContent>
         </Dialog>}
       </div>
-      <p className="text-sm text-muted-foreground">People with linked accounts use their own Paperclip permissions. <Link className="underline underline-offset-4" to="/company/settings/members">Manage members</Link></p>
+      <p className="text-sm text-muted-foreground">{t("chatDetail.linkedAccountsPermissions", { defaultValue: "People with linked accounts use their own Paperclip permissions." })} <Link className="underline underline-offset-4" to="/company/settings/members">{t("chatDetail.manageMembers", { defaultValue: "Manage members" })}</Link></p>
       {confirmationUrl && (
         <div className="space-y-2 border-y border-border py-3">
-          <p className="text-sm font-medium">Confirm {confirmationFor ?? "this account"}</p>
-          <p className="text-xs text-muted-foreground">Share only with this person. They must sign in and confirm their own account.</p>
+          <p className="text-sm font-medium">Confirm {confirmationFor ?? t("chatDetail.thisAccount", { defaultValue: "this account" })}</p>
+          <p className="text-xs text-muted-foreground">{t("chatDetail.confirmShareHint", { defaultValue: "Share only with this person. They must sign in and confirm their own account." })}</p>
           <p className="break-all text-xs text-muted-foreground">
             {confirmationUrl}
           </p>
@@ -786,30 +789,30 @@ function Access({
               void copyTextToClipboard(confirmationUrl).then(
                 () =>
                   pushToast({
-                    title: "Confirmation link copied",
+                    title: t("chatDetail.confirmationLinkCopied", { defaultValue: "Confirmation link copied" }),
                     tone: "success",
                   }),
                 () =>
                   pushToast({
-                    title: "Couldn't copy the link",
-                    body: "Select and copy it manually.",
+                    title: t("chatDetail.copyLinkFailed", { defaultValue: "Couldn't copy the link" }),
+                    body: t("chatDetail.copyLinkManually", { defaultValue: "Select and copy it manually." }),
                     tone: "error",
                   }),
               );
             }}
           >
             <Copy />
-            Copy link
+            {t("chatDetail.copyLink", { defaultValue: "Copy link" })}
           </Button>
         </div>
       )}
       <div className="space-y-2">
-        {linksQuery.isPending || linksView.kind === "reconnecting" ? <p role="status" className="text-sm text-muted-foreground">Loading people…</p> : linksView.kind === "error" ? <QueryErrorState size="inline" error={linksQuery.error} action="load people" onRetry={linksView.retry} retrying={linksView.isFetching} /> : links.length === 0 ? (
+        {linksQuery.isPending || linksView.kind === "reconnecting" ? <p role="status" className="text-sm text-muted-foreground">{t("chatDetail.loadingPeople", { defaultValue: "Loading people…" })}</p> : linksView.kind === "error" ? <QueryErrorState size="inline" error={linksQuery.error} action="load people" onRetry={linksView.retry} retrying={linksView.isFetching} /> : links.length === 0 ? (
           <p className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
-            No linked accounts yet. Invite someone to connect.
+            {t("chatDetail.noLinkedAccounts", { defaultValue: "No linked accounts yet. Invite someone to connect." })}
           </p>
         ) : (
-          <div role="list" aria-label="People" className="divide-y divide-border border-y border-border">
+          <div role="list" aria-label={t("chatDetail.people", { defaultValue: "People" })} className="divide-y divide-border border-y border-border">
             {links.map((link) => (
               <div
                 key={link.id}
@@ -824,9 +827,9 @@ function Access({
                   <div className="min-w-0">
                     <p className="truncate text-sm" title={link.paperclipUserLabel ?? link.externalLabel}>{link.paperclipUserLabel ?? link.externalLabel}</p>
                     {(link.status !== "linked" || link.externalLabel !== link.paperclipUserLabel) && <p className="text-xs text-muted-foreground">
-                      {link.status === "revoked" ? "Disconnected" : link.status === "linked"
+                      {link.status === "revoked" ? t("chatDetail.disconnected", { defaultValue: "Disconnected" }) : link.status === "linked"
                         ? link.externalLabel
-                        : "Waiting for account confirmation"}
+                        : t("chatDetail.waitingConfirmation", { defaultValue: "Waiting for account confirmation" })}
                     </p>}
                   </div>
                 </div>
@@ -838,7 +841,7 @@ function Access({
                     onClick={() => revoke.mutate(link.principalId)}
                   >
                     <Unlink />
-                    Disconnect
+                    {t("chatDetail.disconnect", { defaultValue: "Disconnect" })}
                   </Button>
                 ) : (
                   <Button
@@ -847,7 +850,7 @@ function Access({
                     disabled={createIntent.isPending}
                     onClick={() => { setConfirmationUrl(null); setConfirmationFor(link.externalLabel); createIntent.mutate(link.principalId); }}
                   >
-                    Create confirmation link
+                    {t("chatDetail.createConfirmationLink", { defaultValue: "Create confirmation link" })}
                   </Button>
                 )}
               </div>
@@ -855,12 +858,12 @@ function Access({
           </div>
         )}
       </div>
-      <SlackSetupAdvanced label="Guest access">
-        <SettingToggle label="Allow unlinked people"
-          detail="People without linked accounts can start isolated tasks. They cannot approve actions, spend, or manage access. Requests are refused when isolation is unavailable."
+      <SlackSetupAdvanced label={t("chatDetail.guestAccess", { defaultValue: "Guest access" })}>
+        <SettingToggle label={t("chatDetail.allowUnlinkedPeople", { defaultValue: "Allow unlinked people" })}
+          detail={t("chatDetail.allowUnlinkedDetail", { defaultValue: "People without linked accounts can start isolated tasks. They cannot approve actions, spend, or manage access. Requests are refused when isolation is unavailable." })}
           checked={allowUnlinked} pending={updatePolicy.isPending} onChange={value => updatePolicy.mutate(value)} />
       </SlackSetupAdvanced>
-      {endpoint.provider === "slack" && <SlackSetupAdvanced label="Personal Slack search"><SlackSearchAccess companyId={endpoint.companyId} endpointId={endpointId} /></SlackSetupAdvanced>}
+      {endpoint.provider === "slack" && <SlackSetupAdvanced label={t("chatDetail.personalSlackSearch", { defaultValue: "Personal Slack search" })}><SlackSearchAccess companyId={endpoint.companyId} endpointId={endpointId} /></SlackSetupAdvanced>}
     </section>
   );
 }
@@ -872,6 +875,7 @@ function Conversations({
   endpointId: string;
   provider: ChatProvider;
 }) {
+  const { t } = useTranslation();
   const query = useQuery({
     queryKey: queryKeys.chatEndpoints.conversations(endpointId),
     queryFn: () => chatEndpointsApi.listConversations(endpointId),
@@ -880,7 +884,7 @@ function Conversations({
   const view = useQueryView(query);
   return (
     <section className="space-y-4">
-      {query.isPending || view.kind === "reconnecting" ? <p role="status" className="text-sm text-muted-foreground">Loading conversations…</p> : view.kind === "error" ? (
+      {query.isPending || view.kind === "reconnecting" ? <p role="status" className="text-sm text-muted-foreground">{t("chatDetail.loadingConversations", { defaultValue: "Loading conversations…" })}</p> : view.kind === "error" ? (
         <QueryErrorState error={query.error} action="load the conversations" onRetry={view.retry} retrying={view.isFetching} />
       ) : <ChatConversationList rows={query.data ?? []} provider={provider} />}
     </section>
@@ -894,6 +898,7 @@ function Activity({
   endpointId: string;
   endpoint: Awaited<ReturnType<typeof chatEndpointsApi.get>>;
 }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { pushToast } = useToast();
@@ -923,13 +928,15 @@ function Activity({
         queryKey: queryKeys.chatEndpoints.activity(endpointId),
       });
       pushToast({
-        title: `${item.kind === "publication" ? "Publication" : "Delivery"} queued for replay`,
+        title: item.kind === "publication"
+          ? t("chatDetail.publicationQueuedForReplay", { defaultValue: "Publication queued for replay" })
+          : t("chatDetail.deliveryQueuedForReplay", { defaultValue: "Delivery queued for replay" }),
         tone: "success",
       });
     },
     onError: (error) =>
       pushToast({
-        title: "Couldn't replay activity",
+        title: t("chatDetail.replayActivityFailed", { defaultValue: "Couldn't replay activity" }),
         body: describeError(error).body,
         tone: "error",
       }),
@@ -967,28 +974,28 @@ function Activity({
         title:
           input.item.actionType === "slash_task_start" &&
           input.action === "retry_anyway"
-            ? "Task start retried"
+            ? t("chatDetail.taskStartRetried", { defaultValue: "Task start retried" })
             : input.item.actionType === "slash_task_start"
-              ? "Task start cancelled"
+              ? t("chatDetail.taskStartCancelled", { defaultValue: "Task start cancelled" })
               : input.item.actionType === "provider_effect" &&
                   input.action === "mark_delivered"
-                ? "Provider reply marked delivered"
+                ? t("chatDetail.providerReplyMarkedDelivered", { defaultValue: "Provider reply marked delivered" })
                 : input.item.actionType === "provider_effect" &&
                     input.action === "retry_anyway"
-                  ? "Provider reply retried"
+                  ? t("chatDetail.providerReplyRetried", { defaultValue: "Provider reply retried" })
                   : input.item.actionType === "provider_effect"
-                    ? "Provider reply cancelled"
+                    ? t("chatDetail.providerReplyCancelled", { defaultValue: "Provider reply cancelled" })
                     : input.action === "mark_delivered"
-                      ? "Publication marked delivered"
+                      ? t("chatDetail.publicationMarkedDelivered", { defaultValue: "Publication marked delivered" })
                       : input.action === "retry_anyway"
-                        ? "Publication queued for retry"
-                        : "Publication cancelled",
+                        ? t("chatDetail.publicationQueuedForRetry", { defaultValue: "Publication queued for retry" })
+                        : t("chatDetail.publicationCancelled", { defaultValue: "Publication cancelled" }),
         tone: "success",
       });
     },
     onError: (error) =>
       pushToast({
-        title: "Couldn't resolve activity",
+        title: t("chatDetail.resolveActivityFailed", { defaultValue: "Couldn't resolve activity" }),
         body: describeError(error).body,
         tone: "error",
       }),
@@ -1014,13 +1021,15 @@ function Activity({
       }
       if (endpoint.provider !== "agentmail") queryClient.setQueryData(queryKeys.chatEndpoints.detail(endpointId), next);
       pushToast({
-        title: action === "pause" ? "Connection paused" : "Connection resumed",
+        title: action === "pause"
+          ? t("chatDetail.connectionPaused", { defaultValue: "Connection paused" })
+          : t("chatDetail.connectionResumed", { defaultValue: "Connection resumed" }),
         tone: "success",
       });
     },
     onError: (error) =>
       pushToast({
-        title: "Couldn't update connection",
+        title: t("chatDetail.updateConnectionFailed", { defaultValue: "Couldn't update connection" }),
         body: describeError(error).body,
         tone: "error",
       }),
@@ -1039,14 +1048,14 @@ function Activity({
   const lifecycleAction = lifecycle.variables;
   const callbackSurfaceRows = endpoint.setup?.callbackSurfaces
     ? ([
-        ["Events API", endpoint.setup.callbackSurfaces.events],
-        ["Interactivity", endpoint.setup.callbackSurfaces.interactivity],
-        ["Slash command", endpoint.setup.callbackSurfaces.slashCommands],
+        [t("chatDetail.callbackEventsApi", { defaultValue: "Events API" }), endpoint.setup.callbackSurfaces.events],
+        [t("chatDetail.callbackInteractivity", { defaultValue: "Interactivity" }), endpoint.setup.callbackSurfaces.interactivity],
+        [t("chatDetail.callbackSlashCommand", { defaultValue: "Slash command" }), endpoint.setup.callbackSurfaces.slashCommands],
       ] as const)
     : [];
   return (
-    <section className="space-y-5" aria-label="Connection activity">
-      <h2 className="text-lg font-semibold">Connection activity</h2>
+    <section className="space-y-5" aria-label={t("chatDetail.connectionActivity", { defaultValue: "Connection activity" })}>
+      <h2 className="text-lg font-semibold">{t("chatDetail.connectionActivity", { defaultValue: "Connection activity" })}</h2>
       {((status !== "active" && health.message) || health.error) && (
         <div
           className={`flex items-start gap-2 rounded-lg border p-3 text-sm ${status === "attention" || status === "revoked" ? "border-destructive/40 bg-destructive/5 text-destructive" : "border-border bg-muted/30 text-foreground"}`}
@@ -1058,7 +1067,7 @@ function Activity({
             {health.message && <p>{health.message}</p>}
             {health.previousHealth && (
               <p className="mt-1 text-xs opacity-80">
-                <span className="font-medium">Last reported health:</span>{" "}
+                <span className="font-medium">{t("chatDetail.lastHealth", { defaultValue: "Last reported health:" })}</span>{" "}
                 {health.previousHealth}
               </p>
             )}
@@ -1073,9 +1082,9 @@ function Activity({
       )}
       <details className="group rounded-lg border border-border">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 text-sm font-medium chat-connection-health-summary">
-          <span>Connection health and controls</span>
+          <span>{t("chatDetail.healthControls", { defaultValue: "Connection health and controls" })}</span>
           <span className="flex items-center gap-2">
-            {endpoint.setup?.callbacksNeedUpdate && <span className="text-xs text-(--status-task-blocked)">Callback URLs need attention</span>}
+            {endpoint.setup?.callbacksNeedUpdate && <span className="text-xs text-(--status-task-blocked)">{t("chatDetail.callbackAttention", { defaultValue: "Callback URLs need attention" })}</span>}
             <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
           </span>
         </summary>
@@ -1084,11 +1093,11 @@ function Activity({
         <div
           className="space-y-3 text-sm"
         >
-          <p className="font-medium">Slack callback health</p>
+          <p className="font-medium">{t("chatDetail.slackCallbackHealth", { defaultValue: "Slack callback health" })}</p>
           <p className="text-xs text-muted-foreground">
             {endpoint.setup?.callbacksNeedUpdate
-              ? "Slack callback URLs need an update. Save the current App Manifest, then exercise Events, Interactivity, and the registered command again."
-              : "Paperclip records each callback surface independently after Slack successfully calls it."}
+              ? t("chatDetail.callbacksNeedUpdate", { defaultValue: "Slack callback URLs need an update. Save the current App Manifest, then exercise Events, Interactivity, and the registered command again." })
+              : t("chatDetail.callbacksRecorded", { defaultValue: "Paperclip records each callback surface independently after Slack successfully calls it." })}
           </p>
           <div className="divide-y divide-border border-y border-border">
             {callbackSurfaceRows.map(([label, surface]) => (
@@ -1096,14 +1105,14 @@ function Activity({
                 <p className="text-xs font-medium">{label}</p>
                 <p className="text-xs text-muted-foreground">
                   {surface.status === "current"
-                    ? "Current"
+                    ? t("chatDetail.surfaceCurrent", { defaultValue: "Current" })
                     : surface.status === "stale"
-                      ? "Stale URL"
-                      : "Not observed"}
+                      ? t("chatDetail.surfaceStale", { defaultValue: "Stale URL" })
+                      : t("chatDetail.surfaceNotObserved", { defaultValue: "Not observed" })}
                 </p>
                 {surface.observedAt && (
                   <p className="text-xs text-muted-foreground">
-                    Last observed{" "}
+                    {t("chatDetail.lastObserved", { defaultValue: "Last observed" })}{" "}
                     <time
                       dateTime={surface.observedAt}
                       title={surface.observedAt}
@@ -1134,7 +1143,7 @@ function Activity({
                 ) : (
                   <Pause />
                 )}
-                Pause
+                {t("chatDetail.pause", { defaultValue: "Pause" })}
               </Button>
             )}
             {status === "paused" && (
@@ -1148,7 +1157,7 @@ function Activity({
                 ) : (
                   <Play />
                 )}
-                Resume
+                {t("chatDetail.resume", { defaultValue: "Resume" })}
               </Button>
             )}
             {[
@@ -1172,8 +1181,8 @@ function Activity({
               >
                 <RefreshCw />
                 {status === "draft" || status === "verifying"
-                  ? "Finish setup"
-                  : "Reconnect"}
+                  ? t("chatDetail.finishSetup", { defaultValue: "Finish setup" })
+                  : t("chatDetail.reconnect", { defaultValue: "Reconnect" })}
               </Button>
             )}
             <Button
@@ -1183,7 +1192,7 @@ function Activity({
               onClick={() => setRemoveOpen(true)}
             >
               <Trash2 />
-              Remove connection
+              {t("chatDetail.removeConnectionAction", { defaultValue: "Remove connection" })}
             </Button>
           </div>
           {status !== "draft" && status !== "verifying" && (
@@ -1197,20 +1206,20 @@ function Activity({
       </details>
       <div className="space-y-2">
         <div className="flex items-center justify-between gap-3">
-          <h3 className="text-sm font-semibold">Recent activity</h3>
-          {endpoint.provider === "speko" && !cursor && <Button size="sm" variant="ghost" onClick={() => { void query.refetch(); calls.onRetry(); }} disabled={query.isFetching || calls.loading}>Refresh</Button>}
+          <h3 className="text-sm font-semibold">{t("chatDetail.recentActivity", { defaultValue: "Recent activity" })}</h3>
+          {endpoint.provider === "speko" && !cursor && <Button size="sm" variant="ghost" onClick={() => { void query.refetch(); calls.onRetry(); }} disabled={query.isFetching || calls.loading}>{t("chatDetail.refresh", { defaultValue: "Refresh" })}</Button>}
         </div>
         {endpoint.provider === "agentmail" && rows.some((item) => item.kind === "publication" && item.status === "delivery_unknown") && (
           <p className="text-sm text-muted-foreground">
-            Review unconfirmed email delivery in the{" "}
-            <Link to={`/apps/chat/${endpointId}/conversations`} className="underline underline-offset-4">conversation’s task</Link>.
+            {t("chatDetail.reviewUnconfirmedEmailPrefix", { defaultValue: "Review unconfirmed email delivery in the" })}{" "}
+            <Link to={`/apps/chat/${endpointId}/conversations`} className="underline underline-offset-4">{t("chatDetail.conversationTaskLink", { defaultValue: "conversation’s task" })}</Link>{t("chatDetail.reviewUnconfirmedEmailSuffix", { defaultValue: "." })}
           </p>
         )}
         <div className="divide-y divide-border border-y border-border">
           {(query.isLoading || view.kind === "reconnecting" || calls.loading) && (
             <div className="flex items-center gap-2 py-5 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
-              Loading activity…
+              {t("chatDetail.loadingActivity", { defaultValue: "Loading activity…" })}
             </div>
           )}
           {view.kind === "error" && (
@@ -1224,10 +1233,10 @@ function Activity({
             </div>
           )}
           {endpoint.provider === "speko" && !cursor && [
-            calls.error && `Call activity could not be loaded. ${calls.error}`,
-            calls.incomingError && `Unapproved calls could not be loaded. ${calls.incomingError}`,
-            calls.endError && `The call could not be ended. ${calls.endError}`,
-          ].filter(Boolean).map((message) => <div key={String(message)} className="flex flex-wrap items-center justify-between gap-3 py-4"><p role="alert" className="text-sm text-destructive">{message}</p><Button size="sm" variant="outline" onClick={calls.onRetry}>Retry calls</Button></div>)}
+            calls.error && `${t("chatDetail.callActivityLoadFailed", { defaultValue: "Call activity could not be loaded." })} ${calls.error}`,
+            calls.incomingError && `${t("chatDetail.unapprovedCallsLoadFailed", { defaultValue: "Unapproved calls could not be loaded." })} ${calls.incomingError}`,
+            calls.endError && `${t("chatDetail.callEndFailed", { defaultValue: "The call could not be ended." })} ${calls.endError}`,
+          ].filter(Boolean).map((message) => <div key={String(message)} className="flex flex-wrap items-center justify-between gap-3 py-4"><p role="alert" className="text-sm text-destructive">{message}</p><Button size="sm" variant="outline" onClick={calls.onRetry}>{t("chatDetail.retryCalls", { defaultValue: "Retry calls" })}</Button></div>)}
           {activityEntries.map(entry => {
             if (entry.kind === "call") return <SpekoCallActivityItem key={entry.id} entry={entry.entry} presentation="activity" onEnd={calls.onEnd} ending={calls.endingSessionId === entry.entry.session.id} />;
             if (entry.kind === "unapproved_call") return <SpekoUnapprovedCallActivityItem key={entry.id} call={entry.call} presentation="activity" />;
@@ -1278,7 +1287,7 @@ function Activity({
                     ) : (
                       <RefreshCw />
                     )}
-                    Replay
+                    {t("chatDetail.replay", { defaultValue: "Replay" })}
                   </Button>
                 )}
                 {endpoint.provider !== "agentmail" && isResolutionEligible(item) && (
@@ -1287,7 +1296,7 @@ function Activity({
                     variant="outline"
                     onClick={() => setResolutionItem(item)}
                   >
-                    Resolve
+                    {t("chatDetail.resolve", { defaultValue: "Resolve" })}
                   </Button>
                 )}
               </div>
@@ -1295,16 +1304,16 @@ function Activity({
           })}
           {activityLoaded && !calls.loading && !calls.error && !calls.incomingError && activityEntries.length === 0 && (
             <p className="py-5 text-sm text-muted-foreground">
-              No connection activity yet.
+              {t("chatDetail.noActivity", { defaultValue: "No connection activity yet." })}
             </p>
           )}
         </div>
       </div>
-      <nav aria-label="Activity pagination" className="flex items-center justify-between gap-3">
+      <nav aria-label={t("chatDetail.activityPagination", { defaultValue: "Activity pagination" })} className="flex items-center justify-between gap-3">
         <span className="text-xs text-muted-foreground">Page {cursors.length}</span>
         <div className="flex items-center gap-2">
-          <Button size="sm" variant="outline" disabled={cursors.length === 1 || query.isFetching} onClick={() => setCursors((pages) => pages.slice(0, -1))}>Previous</Button>
-          <Button size="sm" variant="outline" disabled={!query.data?.nextCursor || query.isFetching || view.kind === "error"} onClick={() => { if (query.data?.nextCursor) setCursors((pages) => [...pages, query.data.nextCursor!]); }}>Next</Button>
+          <Button size="sm" variant="outline" disabled={cursors.length === 1 || query.isFetching} onClick={() => setCursors((pages) => pages.slice(0, -1))}>{t("common.previous", { defaultValue: "Previous" })}</Button>
+          <Button size="sm" variant="outline" disabled={!query.data?.nextCursor || query.isFetching || view.kind === "error"} onClick={() => { if (query.data?.nextCursor) setCursors((pages) => [...pages, query.data.nextCursor!]); }}>{t("common.next", { defaultValue: "Next" })}</Button>
         </div>
       </nav>
       <AlertDialog
@@ -1315,16 +1324,16 @@ function Activity({
           <AlertDialogHeader>
             <AlertDialogTitle>
               {resolutionItem?.actionType === "slash_task_start"
-                ? "Resolve unconfirmed task start"
+                ? t("chatDetail.resolveTaskStartTitle", { defaultValue: "Resolve unconfirmed task start" })
                 : resolutionItem?.actionType === "provider_effect"
-                  ? "Resolve unconfirmed provider reply"
-                  : "Resolve unconfirmed delivery"}
+                  ? t("chatDetail.resolveProviderReplyTitle", { defaultValue: "Resolve unconfirmed provider reply" })
+                  : t("chatDetail.resolveDeliveryTitle", { defaultValue: "Resolve unconfirmed delivery" })}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {resolutionItem?.actionType === "slash_task_start"
-                ? "Paperclip lost confirmation after asking Slack to start the task. Check Slack first. Retrying can create a duplicate starter message and task."
+                ? t("chatDetail.resolveTaskStartBody", { defaultValue: "Paperclip lost confirmation after asking Slack to start the task. Check Slack first. Retrying can create a duplicate starter message and task." })
                 : resolutionItem?.actionType === "provider_effect"
-                  ? "Paperclip lost confirmation after sending this provider reply. Check the provider first. Marking it delivered applies any pending Paperclip state change; retrying can create a duplicate message."
+                  ? t("chatDetail.resolveProviderReplyBody", { defaultValue: "Paperclip lost confirmation after sending this provider reply. Check the provider first. Marking it delivered applies any pending Paperclip state change; retrying can create a duplicate message." })
                   : resolutionItem
                     ? activityResolutionDescription(resolutionItem)
                     : ""}
@@ -1332,7 +1341,7 @@ function Activity({
           </AlertDialogHeader>
           <AlertDialogFooter className="sm:flex-wrap">
             <AlertDialogCancel disabled={resolveActivity.isPending}>
-              Keep unresolved
+              {t("chatDetail.keepUnresolved", { defaultValue: "Keep unresolved" })}
             </AlertDialogCancel>
             {resolutionItem &&
               activityResolutionActions(resolutionItem).includes("cancel") && (
@@ -1348,12 +1357,12 @@ function Activity({
                   }
                 >
                   {resolutionItem.actionType === "slash_task_start"
-                    ? "Cancel task start"
+                    ? t("chatDetail.cancelTaskStart", { defaultValue: "Cancel task start" })
                     : resolutionItem.actionType === "provider_effect"
-                      ? "Cancel provider reply"
+                      ? t("chatDetail.cancelProviderReply", { defaultValue: "Cancel provider reply" })
                       : resolutionItem.fileTransfer
-                        ? "Cancel file transfer"
-                        : "Cancel publication"}
+                        ? t("chatDetail.cancelFileTransfer", { defaultValue: "Cancel file transfer" })
+                        : t("chatDetail.cancelPublication", { defaultValue: "Cancel publication" })}
                 </Button>
               )}
             {resolutionItem &&
@@ -1372,8 +1381,8 @@ function Activity({
                   }
                 >
                   {resolutionItem.fileTransfer
-                    ? "Retry file notification"
-                    : "Retry anyway"}
+                    ? t("chatDetail.retryFileNotification", { defaultValue: "Retry file notification" })
+                    : t("chatDetail.retryAnyway", { defaultValue: "Retry anyway" })}
                 </Button>
               )}
             {resolutionItem &&
@@ -1392,7 +1401,7 @@ function Activity({
                     }
                   }}
                 >
-                  Mark delivered
+                  {t("chatDetail.markDelivered", { defaultValue: "Mark delivered" })}
                 </AlertDialogAction>
               )}
           </AlertDialogFooter>
@@ -1401,7 +1410,7 @@ function Activity({
       <AlertDialog open={removeOpen} onOpenChange={setRemoveOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove this connection?</AlertDialogTitle>
+            <AlertDialogTitle>{t("chatDetail.removeConnection", { defaultValue: "Remove this connection?" })}</AlertDialogTitle>
             <AlertDialogDescription>
               {endpoint.assignedAgentName} will stop receiving new work from
               {` ${providerNames[endpoint.provider]}`}. Existing Paperclip tasks
@@ -1413,12 +1422,12 @@ function Activity({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline underline-offset-4"
-                >Open Slack app settings</a> to manage or delete the Slack app.</>
+                >{t("chatDetail.openSlackAppSettings", { defaultValue: "Open Slack app settings" })}</a> {t("chatDetail.manageSlackAppSuffix", { defaultValue: "to manage or delete the Slack app." })}</>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel", { defaultValue: "Cancel" })}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               disabled={lifecycle.isPending}
@@ -1427,7 +1436,7 @@ function Activity({
               {lifecycle.isPending && (
                 <Loader2 className="h-4 w-4 animate-spin" />
               )}
-              Remove connection
+              {t("chatDetail.removeConnectionAction", { defaultValue: "Remove connection" })}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

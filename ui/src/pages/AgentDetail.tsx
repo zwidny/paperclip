@@ -1941,6 +1941,7 @@ export function PromptsTab({
   onCancelActionChange: (cancel: (() => void) | null) => void;
   onSavingChange: (saving: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { selectedCompanyId } = useCompany();
   const { isMobile } = useSidebar();
@@ -2068,7 +2069,7 @@ export function PromptsTab({
   const preservedCandidates = candidates.data?.filter((candidate) => candidate.contract !== "agent_files") ?? [];
   const loadCandidate = useMutation({
     mutationFn: async (candidate: AgentInstructionCandidate) => {
-      if (candidate.content === null) throw new Error("These instruction edits have not been retrieved yet.");
+      if (candidate.content === null) throw new Error(t("agentDetail.prompts.notRetrieved", { defaultValue: "These instruction edits have not been retrieved yet." }));
       const file = await agentsApi.instructionsFile(agent.id, candidate.entryFile, companyId).catch((error) => {
         if (error instanceof ApiError && error.status === 404 && candidate.baseRevisionId === null) return null;
         throw error;
@@ -2181,7 +2182,7 @@ export function PromptsTab({
 
   const uploadMarkdownImage = useMutation({
     mutationFn: async ({ file, namespace }: { file: File; namespace: string }) => {
-      if (!selectedCompanyId) throw new Error("Select an organization to upload images");
+      if (!selectedCompanyId) throw new Error(t("agentDetail.prompts.selectOrganizationForImages", { defaultValue: "Select an organization to upload images" }));
       return assetsApi.uploadImage(selectedCompanyId, file, namespace);
     },
   });
@@ -2398,7 +2399,7 @@ export function PromptsTab({
     return (
       <div className="max-w-3xl">
         <p className="text-sm text-muted-foreground">
-          Instructions bundles are only available for local adapters.
+          {t("agentDetail.prompts.localAdaptersOnly", { defaultValue: "Instructions bundles are only available for local adapters." })}
         </p>
       </div>
     );
@@ -2420,7 +2421,7 @@ export function PromptsTab({
         </div>
       )}
       {showSaveNotice && <p className="text-xs text-muted-foreground">
-        Saved instructions affect the next run. Active runs keep the instructions they started with, and instruction changes may start a fresh adapter session.
+        {t("agentDetail.prompts.saveNotice", { defaultValue: "Saved instructions affect the next run. Active runs keep the instructions they started with, and instruction changes may start a fresh adapter session." })}
       </p>}
 
       <InstructionsBundleSettings
@@ -2449,14 +2450,14 @@ export function PromptsTab({
           isMobile && !showFilePanel && "hidden",
         )}>
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-semibold text-foreground">Files</h4>
+            <h4 className="text-sm font-semibold text-foreground">{t("agentDetail.prompts.files", { defaultValue: "Files" })}</h4>
             <div className="flex items-center gap-1">
               {!showNewFileInput && (
                 <Button
                   type="button"
                   size="icon-xs"
                   variant="ghost"
-                  aria-label="Add agent file"
+                  aria-label={t("agentDetail.prompts.addAgentFile", { defaultValue: "Add agent file" })}
                   onClick={() => setShowNewFileInput(true)}
                 >
                   <Plus className="size-4" />
@@ -2516,7 +2517,7 @@ export function PromptsTab({
                     setShowNewFileInput(false);
                   }}
                 >
-                  Create
+                  {t("agentDetail.prompts.create", { defaultValue: "Create" })}
                 </Button>
                 <Button
                   type="button"
@@ -2528,7 +2529,7 @@ export function PromptsTab({
                     setNewFilePath("");
                   }}
                 >
-                  Cancel
+                  {t("common.cancel", { defaultValue: "Cancel" })}
                 </Button>
               </div>
             </div>
@@ -2566,11 +2567,11 @@ export function PromptsTab({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <span className="ml-3 shrink-0 rounded border border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-200 px-1.5 py-0.5 text-(length:--text-nano) uppercase tracking-wide cursor-help">
-                        virtual file
+                        {t("agentDetail.prompts.virtualFile", { defaultValue: "virtual file" })}
                       </span>
                     </TooltipTrigger>
                     <TooltipContent side="right" sideOffset={4}>
-                      Legacy inline prompt — this deprecated virtual file preserves the old promptTemplate content
+                      {t("agentDetail.prompts.virtualFileHelp", { defaultValue: "Legacy inline prompt — this deprecated virtual file preserves the old promptTemplate content" })}
                     </TooltipContent>
                   </Tooltip>
                 );
@@ -2614,16 +2615,16 @@ export function PromptsTab({
                 <p className="text-xs text-muted-foreground">
                   {selectedFileExists
                     ? selectedFileSummary?.deprecated
-                      ? "Deprecated virtual file"
+                      ? t("agentDetail.prompts.deprecatedVirtualFile", { defaultValue: "Deprecated virtual file" })
                       : instructionFileDateLabel(selectedFileDetail ?? selectedFileSummary)
-                    : "New file in this bundle"}
+                    : t("agentDetail.prompts.newFileInBundle", { defaultValue: "New file in this bundle" })}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <span role="status" aria-hidden={!copyVisible} className={cn("agent-file-copy-notice flex items-center gap-1.5 whitespace-nowrap text-xs text-muted-foreground", !copyVisible && "opacity-0", copyNotice === "error" && "text-destructive")}>
                 {copyNotice === "copied" && <CheckCircle2 className="size-3.5" aria-hidden />}
-                {copyNotice === "copied" ? "File copied" : copyNotice === "error" ? "Copy failed" : null}
+                {copyNotice === "copied" ? "File copied" : copyNotice === "error" ? t("agentDetail.keys.copyFailed", { defaultValue: "Copy failed" }) : null}
               </span>
               <Button
                 type="button"
@@ -2640,7 +2641,8 @@ export function PromptsTab({
               </Button>
               {!fileLoading && (
                 <Button type="button" variant="ghost" size="icon-xs" className="size-8"
-                  aria-label="Copy instructions file as markdown" title="Copy as markdown"
+                  aria-label={t("agentDetail.prompts.copyInstructionsMarkdown", { defaultValue: "Copy instructions file as markdown" })}
+                  title={t("agentDetail.prompts.copyAsMarkdown", { defaultValue: "Copy as markdown" })}
                   onClick={async () => {
                     clearTimeout(copyTimer.current);
                     setCopyVisible(true);
@@ -2660,7 +2662,7 @@ export function PromptsTab({
                   aria-label={`Delete ${selectedOrEntryFile}`}
                   title="Delete file"
                   onClick={() => {
-                    if (confirm(`Delete ${selectedOrEntryFile}?`)) {
+                    if (confirm(t("agentDetail.prompts.deleteConfirm", { defaultValue: "Delete {{path}}?", path: selectedOrEntryFile }))) {
                       deleteFile.mutate(selectedOrEntryFile, {
                         onSuccess: () => {
                           setSelectedFile(currentEntryFile);
@@ -2681,8 +2683,8 @@ export function PromptsTab({
           <div className="space-y-3 px-(--agent-identity-panel-gap) pt-4 empty:hidden">
           {currentMode === "managed" && preservedCandidates.length > 0 && (
             <div className="space-y-3">
-              <p className="text-sm font-medium">Preserved instruction edits</p>
-              <p className="text-sm text-muted-foreground">Older instruction-only sessions have edits to review.</p>
+              <p className="text-sm font-medium">{t("agentDetail.prompts.preservedEdits", { defaultValue: "Preserved instruction edits" })}</p>
+              <p className="text-sm text-muted-foreground">{t("agentDetail.prompts.preservedEditsHint", { defaultValue: "Older instruction-only sessions have edits to review." })}</p>
               {preservedCandidates.map((candidate) => (
                 <div key={candidate.runId} className="flex flex-wrap items-center gap-3">
                   <span className="font-mono text-xs text-muted-foreground">{candidate.runId.slice(0, 8)}</span>
@@ -2696,15 +2698,21 @@ export function PromptsTab({
                       } else {
                         loadCandidate.mutate(candidate);
                       }
-                    }}>Review preserved edits</Button>
+                    }}>{t("agentDetail.prompts.reviewPreservedEdits", { defaultValue: "Review preserved edits" })}</Button>
                   {candidate.errorMessage && <p className="text-sm text-muted-foreground">{candidate.errorMessage}</p>}
-                  {candidate.entryFile !== currentEntryFile && <p className="text-sm text-muted-foreground">The instruction entry changed. These edits remain preserved for the original file.</p>}
+                  {candidate.entryFile !== currentEntryFile && <p className="text-sm text-muted-foreground">{t("agentDetail.prompts.entryChanged", { defaultValue: "The instruction entry changed. These edits remain preserved for the original file." })}</p>}
                   {candidate.entryFile !== currentEntryFile && candidate.content !== null && readOnlyCandidateRunId === candidate.runId && (
-                    <div role="region" aria-label={`Preserved edits for ${candidate.entryFile}`} className="w-full space-y-3">
-                      <p className="text-sm text-muted-foreground">Read only: {candidate.entryFile}. To keep any of these edits in {currentEntryFile}, copy them and edit the current entry explicitly.</p>
-                      <CopyText text={candidate.content} ariaLabel={`Copy preserved edits for ${candidate.entryFile}`}
+                    <div role="region" aria-label={t("agentDetail.prompts.preservedEditsFor", { defaultValue: "Preserved edits for {{file}}", file: candidate.entryFile })} className="w-full space-y-3">
+                      <p className="text-sm text-muted-foreground">
+                        {t("agentDetail.prompts.readOnlyCopy", {
+                          defaultValue: "Read only: {{file}}. To keep any of these edits in {{entry}}, copy them and edit the current entry explicitly.",
+                          file: candidate.entryFile,
+                          entry: currentEntryFile,
+                        })}
+                      </p>
+                      <CopyText text={candidate.content} ariaLabel={t("agentDetail.prompts.copyPreservedEditsFor", { defaultValue: "Copy preserved edits for {{file}}", file: candidate.entryFile })}
                         className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-foreground">
-                        <Copy className="h-3.5 w-3.5" />Copy preserved edits
+                        <Copy className="h-3.5 w-3.5" />{t("agentDetail.prompts.copyPreservedEdits", { defaultValue: "Copy preserved edits" })}
                       </CopyText>
                       <pre className="overflow-x-auto whitespace-pre-wrap break-words rounded-md border border-border bg-muted p-3 font-mono text-sm">{candidate.content}</pre>
                     </div>
@@ -2714,16 +2722,18 @@ export function PromptsTab({
             </div>
           )}
           {candidateRunId && <div role="status" className="space-y-3">
-            <p className="text-sm text-muted-foreground">Reviewing preserved edits. Save to apply your resolved draft and close this preserved edit.</p>
-            <details><summary className="cursor-pointer text-sm text-muted-foreground">Compare current instructions</summary>
+            <p className="text-sm text-muted-foreground">{t("agentDetail.prompts.reviewingPreserved", { defaultValue: "Reviewing preserved edits. Save to apply your resolved draft and close this preserved edit." })}</p>
+            <details><summary className="cursor-pointer text-sm text-muted-foreground">{t("agentDetail.prompts.compareCurrent", { defaultValue: "Compare current instructions" })}</summary>
               <pre className="whitespace-pre-wrap break-words rounded-md border border-border p-3 font-mono text-sm">{currentContent}</pre>
             </details>
-            {draftBaseRevisionRef.current !== (selectedFileDetail?.revision?.id ?? null) && <p className="text-sm text-destructive">The current instructions changed after this draft was loaded. Refresh the current revision, compare the instructions, and save your resolved draft again.</p>}
-            {(resolveCandidate.error || draftBaseRevisionRef.current !== (selectedFileDetail?.revision?.id ?? null)) && <Button type="button" variant="outline" size="sm" disabled={isSaving} onClick={() => refreshCandidateBase.mutate()}>Refresh current revision</Button>}
+            {draftBaseRevisionRef.current !== (selectedFileDetail?.revision?.id ?? null) && <p className="text-sm text-destructive">{t("agentDetail.prompts.staleDraft", { defaultValue: "The current instructions changed after this draft was loaded. Refresh the current revision, compare the instructions, and save your resolved draft again." })}</p>}
+            {(resolveCandidate.error || draftBaseRevisionRef.current !== (selectedFileDetail?.revision?.id ?? null)) && <Button type="button" variant="outline" size="sm" disabled={isSaving} onClick={() => refreshCandidateBase.mutate()}>{t("agentDetail.prompts.refreshCurrentRevision", { defaultValue: "Refresh current revision" })}</Button>}
           </div>}
-          {(candidates.error || loadCandidate.error || resolveCandidate.error || refreshCandidateBase.error) && <p role="alert" className="text-sm text-destructive">{(candidates.error ?? loadCandidate.error ?? resolveCandidate.error ?? refreshCandidateBase.error)?.message} Your preserved edits remain available.</p>}
-          {(saveFile.error || fileError || updateBundle.error) && <p role="alert" className="text-sm text-destructive">{(saveFile.error ?? fileError ?? updateBundle.error)?.message} Your unsaved edits are retained.</p>}
-          {selectedFileDetail?.receipt?.materialization === "pending" && <p role="status" className="text-sm text-muted-foreground">Revision saved. The instruction file still needs to be rebuilt from the saved revision.</p>}
+          {(candidates.error || loadCandidate.error || resolveCandidate.error || refreshCandidateBase.error) && <p role="alert" className="text-sm text-destructive">{(candidates.error ?? loadCandidate.error ?? resolveCandidate.error ?? refreshCandidateBase.error)?.message}{" "}
+            {t("agentDetail.prompts.preservedEditsAvailable", { defaultValue: "Your preserved edits remain available." })}</p>}
+          {(saveFile.error || fileError || updateBundle.error) && <p role="alert" className="text-sm text-destructive">{(saveFile.error ?? fileError ?? updateBundle.error)?.message}{" "}
+            {t("agentDetail.prompts.unsavedEditsRetained", { defaultValue: "Your unsaved edits are retained." })}</p>}
+          {selectedFileDetail?.receipt?.materialization === "pending" && <p role="status" className="text-sm text-muted-foreground">{t("agentDetail.prompts.revisionSaved", { defaultValue: "Revision saved. The instruction file still needs to be rebuilt from the saved revision." })}</p>}
           {selectedFileDetail?.revision && currentMode === "managed" && bundle?.persistence !== "agent_files" && <InstructionHistory
             key={selectedOrEntryFile} agentId={agent.id} companyId={companyId} path={selectedOrEntryFile}
             currentRevisionId={selectedFileDetail.revision.id} disabled={isDirty || isSaving}
@@ -2738,8 +2748,8 @@ export function PromptsTab({
           </div>
           {selectedFileDetail?.binary ? (
             <div className="space-y-3 px-(--agent-identity-panel-gap) py-5">
-              <p className="text-sm text-muted-foreground">This file is preserved with the agent directory. Download it to view its contents.</p>
-              <a className="text-sm text-primary underline" href={agentsApi.downloadInstructionsFile(agent.id, selectedOrEntryFile, companyId)} download>Download {selectedOrEntryFile}</a>
+              <p className="text-sm text-muted-foreground">{t("agentDetail.prompts.binaryFile", { defaultValue: "This file is preserved with the agent directory. Download it to view its contents." })}</p>
+              <a className="text-sm text-primary underline" href={agentsApi.downloadInstructionsFile(agent.id, selectedOrEntryFile, companyId)} download>{t("agentDetail.prompts.downloadFile", { defaultValue: "Download {{file}}", file: selectedOrEntryFile })}</a>
             </div>
           ) : selectedFileExists && fileLoading && !selectedFileDetail ? (
             <div className="px-(--agent-identity-panel-gap) py-5">
@@ -2747,7 +2757,7 @@ export function PromptsTab({
             </div>
           ) : instructionMode === "edit" ? (
             <textarea
-              aria-label="Instruction file editor"
+              aria-label={t("agentDetail.prompts.editorAriaLabel", { defaultValue: "Instruction file editor" })}
               autoFocus
               value={displayValue}
               spellCheck={false}
@@ -2757,7 +2767,7 @@ export function PromptsTab({
                 setDraft(event.target.value);
               }}
               className="block min-h-(--sz-420px) w-full field-sizing-content resize-none bg-transparent p-(--agent-identity-panel-gap) font-mono text-xs leading-5 whitespace-pre-wrap text-foreground outline-none"
-              placeholder="File contents"
+              placeholder={t("agentDetail.prompts.fileContents", { defaultValue: "File contents" })}
             />
           ) : (
             <div role="button" tabIndex={0} aria-label={`Edit ${selectedOrEntryFile} contents`}
@@ -2769,7 +2779,7 @@ export function PromptsTab({
               className="block min-h-(--sz-420px) w-full overflow-x-auto p-(--agent-identity-panel-gap) font-mono text-xs leading-5 whitespace-pre-wrap break-words text-muted-foreground"
             >
               {displayValue}
-            </pre> : <p className="min-h-(--sz-420px) p-(--agent-identity-panel-gap) text-sm text-muted-foreground">This instruction file is empty.</p>}
+            </pre> : <p className="min-h-(--sz-420px) p-(--agent-identity-panel-gap) text-sm text-muted-foreground">{t("agentDetail.prompts.emptyFile", { defaultValue: "This instruction file is empty." })}</p>}
             </div>
           )}
         </div>

@@ -1997,9 +1997,15 @@ function CatalogDetailPane({
   onOpenInstalled: (skillId: string) => void;
   loadingPrimaryAction: boolean;
 }) {
+  const { t } = useTranslation();
   const fileView = useQueryView(fileQuery);
   if (!skill) {
-    return <EmptyState icon={Boxes} message="Select a catalog skill to inspect." />;
+    return (
+      <EmptyState
+        icon={Boxes}
+        message={t("companySkills.catalog.selectToInspect", { defaultValue: "Select a catalog skill to inspect." })}
+      />
+    );
   }
 
   const installedHash = installedSkill?.originHash ?? null;
@@ -2014,32 +2020,38 @@ function CatalogDetailPane({
           <span>
             <Button disabled>
               <Download className="mr-1.5 h-3.5 w-3.5" />
-              Install skill
+              {t("companySkills.install.installSkill", { defaultValue: "Install skill" })}
             </Button>
           </span>
         </TooltipTrigger>
-        <TooltipContent>This skill cannot be installed — its content is not valid Agent Skills markdown.</TooltipContent>
+        <TooltipContent>
+          {t("companySkills.compat.invalidInstallTooltip", {
+            defaultValue: "This skill cannot be installed — its content is not valid Agent Skills markdown.",
+          })}
+        </TooltipContent>
       </Tooltip>
     );
   } else if (!isInstalled) {
     cta = (
       <Button onClick={onInstall} disabled={loadingPrimaryAction}>
         {skill.trustLevel === "scripts_executables" ? <AlertTriangle className="mr-1.5 h-3.5 w-3.5" /> : <Download className="mr-1.5 h-3.5 w-3.5" />}
-        {loadingPrimaryAction ? "Preparing..." : "Install skill in this organization"}
+        {loadingPrimaryAction
+          ? t("companySkills.install.preparing", { defaultValue: "Preparing..." })
+          : t("companySkills.install.installInOrg", { defaultValue: "Install skill in this organization" })}
       </Button>
     );
   } else if (hashOutOfSync) {
     cta = (
       <Button onClick={onUpdate} disabled={loadingPrimaryAction} className="border-amber-500/40 bg-amber-500/20 text-amber-900 dark:text-amber-100 hover:bg-amber-500/30">
         <ArrowUpCircle className="mr-1.5 h-3.5 w-3.5" />
-        Update from catalog
+        {t("companySkills.install.updateFromCatalog", { defaultValue: "Update from catalog" })}
       </Button>
     );
   } else {
     cta = (
       <Button variant="ghost" onClick={() => installedSkillId && onOpenInstalled(installedSkillId)}>
         <Check className="mr-1.5 h-3.5 w-3.5" />
-        Installed · Open in library
+        {t("companySkills.install.installedOpenLibrary", { defaultValue: "Installed · Open in library" })}
       </Button>
     );
   }
@@ -2075,40 +2087,44 @@ function CatalogDetailPane({
               <TooltipTrigger asChild>
                 <Badge variant="outline" className="border-amber-500/40 bg-amber-500/10 text-(length:--text-micro) text-amber-800 dark:text-amber-200">
                   <ArrowUpCircle className="h-3 w-3" aria-hidden="true" />
-                  Update available
+                  {t("companySkills.install.updateAvailable", { defaultValue: "Update available" })}
                 </Badge>
               </TooltipTrigger>
-              <TooltipContent>Catalog content hash has changed since this skill was installed.</TooltipContent>
+              <TooltipContent>
+                {t("companySkills.install.updateAvailableTooltip", {
+                  defaultValue: "Catalog content hash has changed since this skill was installed.",
+                })}
+              </TooltipContent>
             </Tooltip>
           ) : null}
           {skill.requires.length > 0 ? (
             <Badge variant="outline" className="border-border bg-muted/40 text-(length:--text-micro) text-muted-foreground">
-              Requires: {skill.requires.join(", ")}
+              {t("companySkills.install.requiresLabel", { defaultValue: "Requires" })}: {skill.requires.join(", ")}
             </Badge>
           ) : null}
           {skill.recommendedForRoles.length > 0 ? (
             <Badge variant="outline" className="border-border bg-muted/40 text-(length:--text-micro) text-muted-foreground">
-              Roles: {skill.recommendedForRoles.join(" · ")}
+              {t("companySkills.install.rolesLabel", { defaultValue: "Roles" })}: {skill.recommendedForRoles.join(" · ")}
             </Badge>
           ) : null}
           {skill.tags.length > 0 ? (
             <Badge variant="outline" className="border-border bg-muted/40 text-(length:--text-micro) text-muted-foreground">
-              Tags: {skill.tags.join(" · ")}
+              {t("companySkills.tags.title", { defaultValue: "Tags" })}: {skill.tags.join(" · ")}
             </Badge>
           ) : null}
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-          <span className="uppercase tracking-(--tracking-caps)">Key</span>
+          <span className="uppercase tracking-(--tracking-caps)">{t("companySkills.detail.key", { defaultValue: "Key" })}</span>
           <span className="font-mono">{skill.key}</span>
           <span className="uppercase tracking-(--tracking-caps)">·</span>
-          <span className="uppercase tracking-(--tracking-caps)">Hash</span>
+          <span className="uppercase tracking-(--tracking-caps)">{t("companySkills.install.hash", { defaultValue: "Hash" })}</span>
           <span className="font-mono">{skill.contentHash.slice(0, 24)}…</span>
           <CopyText
             text={skill.contentHash}
-            copiedLabel="Copied hash"
-            ariaLabel="Copy content hash"
-            title="Copy content hash"
+            copiedLabel={t("companySkills.install.copiedHash", { defaultValue: "Copied hash" })}
+            ariaLabel={t("companySkills.install.copyHash", { defaultValue: "Copy content hash" })}
+            title={t("companySkills.install.copyHash", { defaultValue: "Copy content hash" })}
             className="inline-flex h-6 w-6 items-center justify-center rounded-sm border border-border text-muted-foreground hover:bg-accent hover:text-foreground"
           >
             <Copy className="h-3 w-3" />
@@ -2188,6 +2204,7 @@ export function InstallPreviewDialog({
   // install the skill for nobody.
   const [selectionTouched, setSelectionTouched] = useState(false);
   const wasOpenRef = useRef(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!open) return;
@@ -2210,22 +2227,29 @@ export function InstallPreviewDialog({
 
   if (!skill) return null;
 
-  let confirmLabel = "Install skill";
+  let confirmLabel = t("companySkills.install.installSkill", { defaultValue: "Install skill" });
   let confirmVariant: "default" | "destructive" = "default";
   if (defaultAction === "update") {
-    confirmLabel = "Install update";
+    confirmLabel = t("companySkills.install.confirmUpdate", { defaultValue: "Install update" });
   } else if (defaultAction === "replace") {
-    confirmLabel = "Replace existing skill";
+    confirmLabel = t("companySkills.install.confirmReplace", { defaultValue: "Replace existing skill" });
     confirmVariant = "destructive";
   }
-  if (isPending) confirmLabel = "Installing…";
+  if (isPending) {
+    confirmLabel = t("companySkills.install.confirmInstalling", { defaultValue: "Installing…" });
+  }
 
   return (
     <Dialog open={open} onOpenChange={(value) => (!isPending ? onOpenChange(value) : null)}>
       <DialogContent className="sm:max-w-2xl" showCloseButton={!isPending}>
         <DialogHeader>
           <DialogTitle>
-            {defaultAction === "update" ? "Update" : defaultAction === "replace" ? "Replace" : "Install"} · {skill.name}
+            {defaultAction === "update"
+              ? t("companySkills.install.actionUpdate", { defaultValue: "Update" })
+              : defaultAction === "replace"
+                ? t("companySkills.install.actionReplace", { defaultValue: "Replace" })
+                : t("companySkills.install.actionInstall", { defaultValue: "Install" })}{" "}
+            · {skill.name}
           </DialogTitle>
           <DialogDescription>
             <span className="capitalize">{skill.kind}</span> · {skill.category}
@@ -2236,33 +2260,53 @@ export function InstallPreviewDialog({
         <div className="space-y-4 text-sm">
           <div className="rounded-md border border-border p-3">
             <div className="grid grid-cols-(--gtc-26) gap-y-2 text-xs">
-              <div className="text-muted-foreground">Trust</div>
+              <div className="text-muted-foreground">{t("companySkills.trust.label", { defaultValue: "Trust" })}</div>
               <div className="flex items-center gap-2">
                 <TrustChip level={skill.trustLevel} />
                 {skill.trustLevel === "markdown_only" ? (
-                  <span className="text-muted-foreground">Safe</span>
+                  <span className="text-muted-foreground">{t("companySkills.trust.safe", { defaultValue: "Safe" })}</span>
                 ) : skill.trustLevel === "scripts_executables" ? (
-                  <span className="text-amber-800 dark:text-amber-200">Review required</span>
+                  <span className="text-amber-800 dark:text-amber-200">
+                    {t("companySkills.trust.reviewRequired", { defaultValue: "Review required" })}
+                  </span>
                 ) : (
-                  <span className="text-muted-foreground">Non-script assets</span>
+                  <span className="text-muted-foreground">
+                    {t("companySkills.trust.nonScriptAssets", { defaultValue: "Non-script assets" })}
+                  </span>
                 )}
               </div>
-              <div className="text-muted-foreground">Compatibility</div>
+              <div className="text-muted-foreground">
+                {t("companySkills.compat.label", { defaultValue: "Compatibility" })}
+              </div>
               <div className="flex items-center gap-2">
                 {skill.compatibility === "compatible" ? (
                   <span className="inline-flex items-center gap-1 text-muted-foreground">
                     <Check className="h-3 w-3" aria-hidden="true" />
-                    Compatible
+                    {t("companySkills.compat.compatible", { defaultValue: "Compatible" })}
                   </span>
                 ) : (
                   <CompatChip compatibility={skill.compatibility} />
                 )}
               </div>
-              <div className="text-muted-foreground">Requires</div>
-              <div className="text-foreground">{skill.requires.length === 0 ? "none" : skill.requires.join(", ")}</div>
-              <div className="text-muted-foreground">Roles</div>
-              <div className="text-foreground">{skill.recommendedForRoles.length === 0 ? "any" : skill.recommendedForRoles.join(" · ")}</div>
-              <div className="text-muted-foreground">Provenance</div>
+              <div className="text-muted-foreground">
+                {t("companySkills.install.requiresLabel", { defaultValue: "Requires" })}
+              </div>
+              <div className="text-foreground">
+                {skill.requires.length === 0
+                  ? t("companySkills.install.none", { defaultValue: "none" })
+                  : skill.requires.join(", ")}
+              </div>
+              <div className="text-muted-foreground">
+                {t("companySkills.install.rolesLabel", { defaultValue: "Roles" })}
+              </div>
+              <div className="text-foreground">
+                {skill.recommendedForRoles.length === 0
+                  ? t("companySkills.install.any", { defaultValue: "any" })
+                  : skill.recommendedForRoles.join(" · ")}
+              </div>
+              <div className="text-muted-foreground">
+                {t("companySkills.provenance.label", { defaultValue: "Provenance" })}
+              </div>
               <div className="min-w-0">
                 <div className="truncate">{packageName ?? "—"}{packageVersion ? ` v${packageVersion}` : ""}</div>
                 <div className="truncate font-mono text-(length:--text-micro) text-muted-foreground">{skill.contentHash}</div>
@@ -2272,7 +2316,7 @@ export function InstallPreviewDialog({
 
           <div className="rounded-md border border-border">
             <div className="border-b border-border px-3 py-2 text-xs uppercase tracking-wide text-muted-foreground">
-              Files ({skill.files.length})
+              {t("companySkills.detail.files", { defaultValue: "Files" })} ({skill.files.length})
             </div>
             <div className="max-h-48 overflow-y-auto">
               {skill.files.map((file) => (
@@ -2288,15 +2332,24 @@ export function InstallPreviewDialog({
           {conflict ? (
             <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-200">
               An existing skill with key <span className="font-mono">{conflict.key}</span> is installed (
-              {conflict.sourceLabel ?? conflict.sourceType}). Installing will {defaultAction === "update" ? "overwrite the catalog content" : "replace the existing skill"}.
+              {conflict.sourceLabel ?? conflict.sourceType}). Installing will{" "}
+              {defaultAction === "update"
+                ? t("companySkills.install.conflictOverwrite", { defaultValue: "overwrite the catalog content" })
+                : t("companySkills.install.conflictReplace", { defaultValue: "replace the existing skill" })}
+              .
             </div>
           ) : null}
 
           {defaultAction === "install" ? (
             <div className="rounded-md border border-border p-3">
-              <div className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">Enable for agents</div>
+              <div className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">
+                {t("companySkills.install.enableForAgents", { defaultValue: "Enable for agents" })}
+              </div>
               <p className="mb-2 text-xs text-muted-foreground">
-                Installing adds the skill to the company library. Agents can only use it once it is enabled for them.
+                {t("companySkills.install.enableHintCompany", {
+                  defaultValue:
+                    "Installing adds the skill to the company library. Agents can only use it once it is enabled for them.",
+                })}
               </p>
               <AgentMultiSelect
                 agents={agents}
@@ -2325,17 +2378,21 @@ export function InstallPreviewDialog({
             className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
           >
             {advancedOpen ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-            Advanced
+            {t("companySkills.install.advanced", { defaultValue: "Advanced" })}
           </button>
           {advancedOpen ? (
             <div className="space-y-3 rounded-md border border-border p-3 text-xs">
               <div>
-                <label className="mb-1 block uppercase tracking-wide text-muted-foreground">Slug override</label>
+                <label className="mb-1 block uppercase tracking-wide text-muted-foreground">
+                  {t("companySkills.install.slugOverride", { defaultValue: "Slug override" })}
+                </label>
                 <Input value={slug} onChange={(event) => setSlug(event.target.value)} placeholder={defaultSlug ?? skill.slug} className="h-8" />
               </div>
               <label className="flex items-center gap-2">
                 <Checkbox checked={force} onCheckedChange={(value) => setForce(Boolean(value))} />
-                <span>Force replace existing same-key skill</span>
+                <span>
+                  {t("companySkills.install.forceReplace", { defaultValue: "Force replace existing same-key skill" })}
+                </span>
               </label>
             </div>
           ) : null}
@@ -2349,7 +2406,7 @@ export function InstallPreviewDialog({
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={isPending}>
-            Cancel
+            {t("common.cancel", { defaultValue: "Cancel" })}
           </Button>
           <Button
             variant={confirmVariant}
@@ -2397,6 +2454,7 @@ function AttachAgentsPopover({
   onSubmit: (nextIds: string[], versionId: string | null) => void;
   fullWidth?: boolean;
 }) {
+  const { t } = useTranslation();
   const [draftVersionId, setDraftVersionId] = useState<string | null>(selectedVersionId);
   const attachedIds = useMemo(() => new Set(attachedAgentIds), [attachedAgentIds]);
   const eligible = agents.filter((agent) => agent.supportsSkills);
@@ -2408,7 +2466,7 @@ function AttachAgentsPopover({
       selectedAgentIds={attachedIds}
       onSave={(nextIds) => onSubmit(Array.from(nextIds), draftVersionId)}
       pending={pending}
-      triggerLabel="Add to agent"
+      triggerLabel={t("companySkills.install.addToAgent", { defaultValue: "Add to agent" })}
       triggerIcon={<Plus className="mr-1.5 h-3.5 w-3.5" />}
       triggerVariant="default"
       triggerSize="sm"
@@ -2421,13 +2479,15 @@ function AttachAgentsPopover({
       }}
       headerContent={sortedVersions.length > 0 ? (
         <div className="mt-2 flex items-center gap-2 text-xs">
-          <span className="shrink-0 text-muted-foreground">Version</span>
+          <span className="shrink-0 text-muted-foreground">
+            {t("companySkills.install.version", { defaultValue: "Version" })}
+          </span>
           <select
             value={draftVersionId ?? "__latest__"}
             onChange={(event) => setDraftVersionId(event.target.value === "__latest__" ? null : event.target.value)}
             className="h-8 min-w-0 flex-1 rounded-md border border-border bg-background px-2 text-xs text-foreground"
           >
-            <option value="__latest__">Latest</option>
+            <option value="__latest__">{t("companySkills.install.latest", { defaultValue: "Latest" })}</option>
             {sortedVersions.map((version) => (
               <option key={version.id} value={version.id}>
                 v{version.revisionNumber}{version.label ? ` · ${version.label}` : ""}
@@ -2436,7 +2496,13 @@ function AttachAgentsPopover({
           </select>
         </div>
       ) : null}
-      emptyMessage={eligible.length === 0 ? "No agents in this company support skills yet." : "No agents yet."}
+      emptyMessage={
+        eligible.length === 0
+          ? t("companySkills.install.noAgentsSupportCompany", {
+              defaultValue: "No agents in this company support skills yet.",
+            })
+          : t("companySkills.install.noAgents", { defaultValue: "No agents yet." })
+      }
       isAgentDisabled={(agent) => {
         const option = agent as AttachAgentOption;
         return option.required || !option.supportsSkills;
@@ -2448,7 +2514,7 @@ function AttachAgentsPopover({
       renderNameSuffix={(agent) => (agent as AttachAgentOption).paused ? (
         <Badge variant="outline" className="[&>svg]:size-2.5 border-amber-500/30 bg-amber-500/10 px-1.5 text-(length:--text-nano) uppercase tracking-wide text-amber-500">
           <Pause className="h-2.5 w-2.5" aria-hidden="true" />
-          Paused
+          {t("companySkills.install.paused", { defaultValue: "Paused" })}
         </Badge>
       ) : null}
     />
@@ -2573,6 +2639,7 @@ function SkillList({
   onSelectPath: (skillId: string, path: string) => void;
   onClearFilters: () => void;
 }) {
+  const { t } = useTranslation();
   const filteredSkills = skills.filter((skill) => {
     const haystack = `${skill.name} ${skill.key} ${skill.slug} ${skill.sourceLabel ?? ""}`.toLowerCase();
     if (!haystack.includes(skillFilter.toLowerCase())) return false;
@@ -2587,14 +2654,14 @@ function SkillList({
         <div className="px-4 py-6 text-sm text-muted-foreground">
           No {SOURCE_FILTER_LABELS[sourceFilter].toLowerCase()} skills installed.{" "}
           <button type="button" className="text-foreground underline" onClick={onClearFilters}>
-            Clear filter
+            {t("companySkills.list.clearFilter", { defaultValue: "Clear filter" })}
           </button>
         </div>
       );
     }
     return (
       <div className="px-4 py-6 text-sm text-muted-foreground">
-        No skills match this filter.
+        {t("companySkills.list.noMatch", { defaultValue: "No skills match this filter." })}
       </div>
     );
   }
@@ -2675,9 +2742,9 @@ type SkillDetailTab = "overview" | "files" | "versions" | "agents";
 
 const SKILL_DETAIL_TABS: Array<{ value: SkillDetailTab; label: string; icon: typeof FileText }> = [
   { value: "overview", label: "Overview", icon: FileText },
-  { value: "files", label: "Files", icon: FolderOpen },
+  { value: "files", label: i18n.t("companySkills.detail.files", { defaultValue: "Files" }), icon: FolderOpen },
   { value: "versions", label: "Versions", icon: History },
-  { value: "agents", label: "Agents", icon: Users },
+  { value: "agents", label: i18n.t("companySkills.tabs.agents", { defaultValue: "Agents" }), icon: Users },
 ];
 
 function currentVersionSelection(detail: CompanySkillDetail | null | undefined) {
@@ -2686,7 +2753,7 @@ function currentVersionSelection(detail: CompanySkillDetail | null | undefined) 
 }
 
 function versionLabel(version: CompanySkillVersionSummary | null | undefined) {
-  if (!version) return "Latest";
+  if (!version) return i18n.t("companySkills.version.latest", { defaultValue: "Latest" });
   return `v${version.revisionNumber}${version.label ? ` · ${version.label}` : ""}`;
 }
 
@@ -2721,6 +2788,7 @@ function SkillVersionDiffDialog({
   onLeftVersionChange: (id: string | null) => void;
   onRightVersionChange: (id: string | null) => void;
 }) {
+  const { t } = useTranslation();
   const sorted = [...versions].sort((a, b) => b.revisionNumber - a.revisionNumber);
   const selectedLeft = sorted.find((version) => version.id === leftVersionId);
   const selectedRight = sorted.find((version) => version.id === rightVersionId);
@@ -2776,26 +2844,32 @@ function SkillVersionDiffDialog({
       <DialogContent className="flex max-h-(--sz-85vh) w-full !max-w-(--pct-90) flex-col overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <DialogHeader className="shrink-0">
-            <DialogTitle>Diff · skill files</DialogTitle>
+            <DialogTitle>{t("companySkills.version.diffTitle", { defaultValue: "Diff · skill files" })}</DialogTitle>
             {(leftQuery.error || rightQuery.error) && <p role="alert" className="text-sm text-destructive">{(leftQuery.error ?? rightQuery.error)?.message}</p>}
-            {(leftQuery.isLoading || rightQuery.isLoading) && <p className="text-sm text-muted-foreground">Loading selected versions…</p>}
+            {(leftQuery.isLoading || rightQuery.isLoading) && <p className="text-sm text-muted-foreground">
+                {t("companySkills.version.diffLoading", { defaultValue: "Loading selected versions…" })}
+              </p>}
           </DialogHeader>
           <div className="flex flex-wrap items-center gap-3 text-xs">
             <label className="flex items-center gap-2">
-              <Badge variant="outline" className="border-red-500/30 bg-red-500/10 uppercase tracking-wider text-red-400">Old</Badge>
+              <Badge variant="outline" className="border-red-500/30 bg-red-500/10 uppercase tracking-wider text-red-400">
+                {t("companySkills.version.old", { defaultValue: "Old" })}
+              </Badge>
               <select
                 value={leftVersionId ?? ""}
                 onChange={(event) => onLeftVersionChange(event.target.value || null)}
                 className="h-8 w-44 rounded-md border border-border bg-background px-2 text-xs"
               >
-                <option value="">Initial</option>
+                <option value="">{t("companySkills.version.initial", { defaultValue: "Initial" })}</option>
                 {sorted.map((version) => (
                   <option key={version.id} value={version.id}>{versionLabel(version)}</option>
                 ))}
               </select>
             </label>
             <label className="flex items-center gap-2">
-              <Badge variant="outline" className="border-green-500/30 bg-green-500/10 uppercase tracking-wider text-green-400">New</Badge>
+              <Badge variant="outline" className="border-green-500/30 bg-green-500/10 uppercase tracking-wider text-green-400">
+                {t("companySkills.version.new", { defaultValue: "New" })}
+              </Badge>
               <select
                 value={right?.id ?? ""}
                 onChange={(event) => onRightVersionChange(event.target.value || null)}
@@ -2827,14 +2901,18 @@ function SkillVersionDiffDialog({
           </aside>
           <div className="min-w-0 flex-1 overflow-auto rounded-md border border-border text-xs">
             {!right ? (
-              <div className="p-6 text-center text-sm text-muted-foreground">Select a version to compare.</div>
+              <div className="p-6 text-center text-sm text-muted-foreground">
+                {t("companySkills.version.selectToCompare", { defaultValue: "Select a version to compare." })}
+              </div>
             ) : left?.id === right.id ? (
-              <div className="p-6 text-center text-sm text-muted-foreground">Both sides are the same version.</div>
+              <div className="p-6 text-center text-sm text-muted-foreground">
+                {t("companySkills.version.sameVersion", { defaultValue: "Both sides are the same version." })}
+              </div>
             ) : (
               <div className="font-mono text-xs leading-6">
                 <div className="grid grid-cols-(--gtc-1) border-b border-border/60 bg-muted/30 px-3 py-2 text-(length:--text-micro) uppercase tracking-wide text-muted-foreground">
-                  <span>Old</span>
-                  <span>New</span>
+                  <span>{t("companySkills.version.old", { defaultValue: "Old" })}</span>
+                  <span>{t("companySkills.version.new", { defaultValue: "New" })}</span>
                   <span />
                   <span>{effectivePath}</span>
                 </div>
@@ -2870,11 +2948,16 @@ function SkillLocationCard({
   folderPath: string | null | undefined;
   onMove?: () => void;
 }) {
+  const { t } = useTranslation();
   const { copied, failed, copy } = useCopyAction();
-  const canonical = folderPath && folderPath.length > 0 ? folderPath : "Unfiled";
+  const canonical = folderPath && folderPath.length > 0
+    ? folderPath
+    : t("companySkills.location.unfiled", { defaultValue: "Unfiled" });
   return (
     <section>
-      <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Location</div>
+      <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        {t("companySkills.location.title", { defaultValue: "Location" })}
+      </div>
       <div className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-2.5 py-1.5">
         <FolderOpen className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
         <span className="min-w-0 flex-1 truncate font-mono text-xs text-foreground" title={canonical}>{canonical}</span>
@@ -2888,12 +2971,16 @@ function SkillLocationCard({
           }}
         >
           <Copy className="mr-1.5 h-3.5 w-3.5" />
-          {copied ? "Copied" : failed ? "Copy failed" : "Copy path"}
+          {copied
+            ? t("companySkills.location.copied", { defaultValue: "Copied" })
+            : failed
+              ? t("companySkills.location.copyFailed", { defaultValue: "Copy failed" })
+              : t("companySkills.location.copyPath", { defaultValue: "Copy path" })}
         </Button>
         {onMove ? (
           <Button size="sm" variant="outline" onClick={onMove}>
             <FolderInput className="mr-1.5 h-3.5 w-3.5" />
-            Move
+            {t("companySkills.location.move", { defaultValue: "Move" })}
           </Button>
         ) : null}
       </div>
@@ -2914,6 +3001,7 @@ function SkillTagsEditor({
   pending: boolean;
   onSave: (categories: string[]) => void;
 }) {
+  const { t } = useTranslation();
   const [draft, setDraft] = useState("");
   function addTag(raw: string) {
     const tag = raw.trim().toLowerCase();
@@ -2928,7 +3016,7 @@ function SkillTagsEditor({
     <section>
       <div className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
         <Hash className="h-3 w-3" />
-        Tags
+        {t("companySkills.tags.title", { defaultValue: "Tags" })}
       </div>
       <div className="flex flex-wrap gap-1.5">
         {categories.map((tag) => (
@@ -2949,7 +3037,9 @@ function SkillTagsEditor({
           </span>
         ))}
         {categories.length === 0 ? (
-          <span className="text-xs text-muted-foreground">No tags yet.</span>
+          <span className="text-xs text-muted-foreground">
+            {t("companySkills.tags.none", { defaultValue: "No tags yet." })}
+          </span>
         ) : null}
       </div>
       <Input
@@ -2962,7 +3052,7 @@ function SkillTagsEditor({
           }
         }}
         onBlur={() => draft.trim() && addTag(draft)}
-        placeholder="Add a tag…"
+        placeholder={t("companySkills.tags.placeholder", { defaultValue: "Add a tag…" })}
         disabled={pending}
         className="mt-2 h-8 text-sm"
       />
@@ -3056,6 +3146,7 @@ export function SkillDetailPage({
   deletePending: boolean;
   studioHref?: string;
 }) {
+  const { t } = useTranslation();
   const [diffOpen, setDiffOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsSharingScope, setSettingsSharingScope] = useState<Exclude<CompanySkillSharingScope, "public_link">>("company");
@@ -3104,7 +3195,11 @@ export function SkillDetailPage({
   }, [isDirty]);
 
   if (!detail) {
-    return loading ? <PageSkeleton variant="detail" /> : <EmptyState icon={Boxes} message="Skill not found." />;
+    return loading ? (
+      <PageSkeleton variant="detail" />
+    ) : (
+      <EmptyState icon={Boxes} message={t("companySkills.detail.notFound", { defaultValue: "Skill not found." })} />
+    );
   }
 
   const skill = detail;
@@ -3155,7 +3250,9 @@ export function SkillDetailPage({
     return (
       <div className="grid min-h-(--sz-560px) gap-0 lg:grid-cols-(--gtc-28)">
         <aside className="border-b border-border pb-3 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-3">
-          <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Files</div>
+          <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            {t("companySkills.detail.files", { defaultValue: "Files" })}
+          </div>
           <SkillTree
             nodes={buildTree(skill.fileInventory)}
             skillId={skill.id}
@@ -3176,28 +3273,37 @@ export function SkillDetailPage({
                     className={cn("px-3 py-1.5 text-sm", viewMode === "preview" ? "text-foreground" : "text-muted-foreground")}
                     onClick={() => setViewMode("preview")}
                   >
-                    <span className="flex items-center gap-1.5"><Eye className="h-3.5 w-3.5" /> View</span>
+                    <span className="flex items-center gap-1.5">
+                      <Eye className="h-3.5 w-3.5" /> {t("companySkills.detail.view", { defaultValue: "View" })}
+                    </span>
                   </button>
                   <button
                     className={cn("border-l border-border px-3 py-1.5 text-sm", viewMode === "code" ? "text-foreground" : "text-muted-foreground")}
                     onClick={() => setViewMode("code")}
                   >
-                    <span className="flex items-center gap-1.5"><Code2 className="h-3.5 w-3.5" /> Code</span>
+                    <span className="flex items-center gap-1.5">
+                      <Code2 className="h-3.5 w-3.5" /> {t("companySkills.detail.code", { defaultValue: "Code" })}
+                    </span>
                   </button>
                 </div>
               ) : null}
               {skill.editable && file?.editable ? (
                 editMode ? (
                   <>
-                    <Button variant="ghost" size="sm" onClick={() => setEditMode(false)} disabled={savePending}>Cancel</Button>
+                    <Button variant="ghost" size="sm" onClick={() => setEditMode(false)} disabled={savePending}>
+                      {t("common.cancel", { defaultValue: "Cancel" })}
+                    </Button>
                     <Button size="sm" onClick={onSave} disabled={savePending || !isDirty}>
                       <Save className="mr-1.5 h-3.5 w-3.5" />
-                      {savePending ? "Saving..." : "Save"}
+                      {savePending
+                        ? t("companySkills.detail.saving", { defaultValue: "Saving..." })
+                        : t("companySkills.detail.save", { defaultValue: "Save" })}
                     </Button>
                   </>
                 ) : (
                   <Button variant="ghost" size="sm" onClick={() => setEditMode(true)}>
-                    <Pencil className="mr-1.5 h-3.5 w-3.5" /> Edit
+                    <Pencil className="mr-1.5 h-3.5 w-3.5" />{" "}
+                    {t("companySkills.detail.edit", { defaultValue: "Edit" })}
                   </Button>
                 )
               ) : !skill.editable ? (
@@ -3206,10 +3312,12 @@ export function SkillDetailPage({
                   variant="outline"
                   size="sm"
                   onClick={onFork}
-                  title={skill.editableReason ?? "Fork this skill to edit it."}
+                  title={skill.editableReason ?? t("companySkills.detail.forkToEdit", { defaultValue: "Fork this skill to edit it." })}
                 >
                   <GitFork className="mr-1.5 h-3.5 w-3.5" />
-                  {skill.sourceType === "github" ? "Make a copy" : "Fork"}
+                  {skill.sourceType === "github"
+                    ? t("companySkills.detail.makeCopy", { defaultValue: "Make a copy" })
+                    : t("companySkills.detail.fork", { defaultValue: "Fork" })}
                 </Button>
               ) : null}
             </div>
@@ -3244,36 +3352,40 @@ export function SkillDetailPage({
     return (
       <div className="space-y-6">
         <section>
-          <h2 className="mb-2 text-sm font-medium">About</h2>
+          <h2 className="mb-2 text-sm font-medium">{t("companySkills.detail.about", { defaultValue: "About" })}</h2>
           {fileLoading ? (
             <PageSkeleton variant="detail" />
           ) : file?.markdown ? (
-            <MarkdownBody softBreaks={false} linkIssueReferences={false}>{body || skill.description || "No overview yet."}</MarkdownBody>
+            <MarkdownBody softBreaks={false} linkIssueReferences={false}>
+              {body || skill.description || t("companySkills.detail.noOverview", { defaultValue: "No overview yet." })}
+            </MarkdownBody>
           ) : (
-            <p className="text-sm text-muted-foreground">{skill.description ?? "No overview yet."}</p>
+            <p className="text-sm text-muted-foreground">
+              {skill.description ?? t("companySkills.detail.noOverview", { defaultValue: "No overview yet." })}
+            </p>
           )}
         </section>
         <section className="grid min-w-0 gap-3 text-sm sm:grid-cols-2">
           <div className="min-w-0 border-b border-border py-2">
-            <div className="text-xs text-muted-foreground">Key</div>
+            <div className="text-xs text-muted-foreground">{t("companySkills.detail.key", { defaultValue: "Key" })}</div>
             <div className="mt-1 truncate font-mono">{skill.key}</div>
           </div>
           <div className="min-w-0 border-b border-border py-2">
-            <div className="text-xs text-muted-foreground">Source</div>
+            <div className="text-xs text-muted-foreground">{t("companySkills.detail.source", { defaultValue: "Source" })}</div>
             <div className="mt-1 min-w-0 [overflow-wrap:anywhere]">{sourceLocatorText ?? source.label}</div>
           </div>
           <div className="min-w-0 border-b border-border py-2">
-            <div className="text-xs text-muted-foreground">Version</div>
+            <div className="text-xs text-muted-foreground">{t("companySkills.detail.version", { defaultValue: "Version" })}</div>
             <div className="mt-1">{versionLabel(skill.currentVersion ?? null)}</div>
           </div>
           <div className="min-w-0 border-b border-border py-2">
-            <div className="text-xs text-muted-foreground">Mode</div>
+            <div className="text-xs text-muted-foreground">{t("companySkills.detail.mode", { defaultValue: "Mode" })}</div>
             <div className="mt-1 flex flex-wrap items-center gap-2">
               {skill.editable ? (
-                "Editable"
+                t("companySkills.detail.editable", { defaultValue: "Editable" })
               ) : (
                 <>
-                  <span>Read only</span>
+                  <span>{t("companySkills.detail.readOnly", { defaultValue: "Read only" })}</span>
                   <Button type="button" variant="outline" size="xs" onClick={onFork}>
                     <GitFork className="mr-1 h-3 w-3" />
                     {skill.sourceType === "github" ? "Make a copy" : "Fork"}
@@ -3301,14 +3413,16 @@ export function SkillDetailPage({
             onClick={() => openVersionDiff()}
             disabled={sortedVersions.length < 2}
           >
-            <History className="mr-1.5 h-3.5 w-3.5" /> Compare
+            <History className="mr-1.5 h-3.5 w-3.5" /> {t("companySkills.version.compare", { defaultValue: "Compare" })}
           </Button>
         </div>
         <div className="border-y border-border">
           {versionsLoading ? (
             <PageSkeleton variant="list" />
           ) : sortedVersions.length === 0 ? (
-            <div className="py-6 text-sm text-muted-foreground">No saved versions yet.</div>
+            <div className="py-6 text-sm text-muted-foreground">
+              {t("companySkills.version.none", { defaultValue: "No saved versions yet." })}
+            </div>
           ) : (
             sortedVersions.map((version) => (
               <div key={version.id} className="grid gap-2 border-b border-border px-0 py-3 text-sm last:border-b-0 sm:grid-cols-(--gtc-13)">
@@ -3324,7 +3438,7 @@ export function SkillDetailPage({
                   size="sm"
                   onClick={() => openVersionDiff(version.id)}
                 >
-                  View diff
+                  {t("companySkills.version.viewDiff", { defaultValue: "View diff" })}
                 </Button>
               </div>
             ))
@@ -3365,7 +3479,9 @@ export function SkillDetailPage({
         </div>
         {attached.length === 0 ? (
           <div className="rounded-md border border-dashed border-border py-8 text-center text-sm text-muted-foreground">
-            No agents are using this skill yet. Use “Add to agent” to attach it.
+            {t("companySkills.detail.noAgentsUsing", {
+              defaultValue: "No agents are using this skill yet. Use “Add to agent” to attach it.",
+            })}
           </div>
         ) : (
           <div className="border-y border-border">
@@ -3380,7 +3496,7 @@ export function SkillDetailPage({
                       {meta?.paused ? (
                         <Badge variant="outline" className="[&>svg]:size-2.5 border-amber-500/30 bg-amber-500/10 px-1.5 text-(length:--text-nano) uppercase tracking-wide text-amber-500">
                           <Pause className="h-2.5 w-2.5" aria-hidden="true" />
-                          Paused
+                          {t("companySkills.detail.paused", { defaultValue: "Paused" })}
                         </Badge>
                       ) : null}
                     </div>
@@ -3390,7 +3506,7 @@ export function SkillDetailPage({
                     to={`/agents/${agent.urlKey}/skills`}
                     className="shrink-0 text-xs text-muted-foreground no-underline hover:text-foreground"
                   >
-                    View
+                    {t("companySkills.detail.viewAgent", { defaultValue: "View" })}
                   </Link>
                 </div>
               );

@@ -3603,19 +3603,33 @@ export function Secrets() {
 }
 
 function SecretsHowToUse() {
+  const { t } = useTranslation();
   return (
     <div className="flex items-start gap-2 rounded-md border border-border bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
       <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
       <div className="space-y-1">
-        <p className="font-medium text-foreground">Use secrets by binding them to runtime environment variables.</p>
-        <p>
-          Create or link a secret here, then open an agent&apos;s Environment variables or a project&apos;s Env field.
-          Add the env key the process expects, for example <code className="font-mono">GH_TOKEN</code>, choose{" "}
-          <span className="font-medium text-foreground">Secret</span>, and select the stored secret version.
+        <p className="font-medium text-foreground">
+          {t("secrets.howToUse.title", {
+            defaultValue: "Use secrets by binding them to runtime environment variables.",
+          })}
         </p>
         <p>
-          Paperclip resolves the value server-side when the run starts and injects it as that env var. Project env
-          applies to every task in the project and overrides agent env on matching keys.
+          {t("secrets.howToUse.bodyLead", {
+            defaultValue:
+              "Create or link a secret here, then open an agent's Environment variables or a project's Env field. Add the env key the process expects, for example",
+          })}{" "}
+          <code className="font-mono">GH_TOKEN</code>
+          {t("secrets.howToUse.bodyMiddle", { defaultValue: ", choose" })}{" "}
+          <span className="font-medium text-foreground">
+            {t("secrets.howToUse.secretLabel", { defaultValue: "Secret" })}
+          </span>
+          {t("secrets.howToUse.bodyTail", { defaultValue: ", and select the stored secret version." })}
+        </p>
+        <p>
+          {t("secrets.howToUse.bodyResolve", {
+            defaultValue:
+              "Paperclip resolves the value server-side when the run starts and injects it as that env var. Project env applies to every task in the project and overrides agent env on matching keys.",
+          })}
         </p>
       </div>
     </div>
@@ -3647,11 +3661,13 @@ function SecretsFiltersPopover({
     onProvidedByChange("all");
   };
 
+  const { t } = useTranslation();
+
   const statusOptions: Array<{ value: SecretStatus | "all"; label: string }> = [
-    { value: "active", label: "Active" },
-    { value: "all", label: "All statuses" },
-    { value: "disabled", label: "Disabled" },
-    { value: "archived", label: "Archived" },
+    { value: "active", label: t("secrets.status.active", { defaultValue: "Active" }) },
+    { value: "all", label: t("secrets.filters.allStatuses", { defaultValue: "All statuses" }) },
+    { value: "disabled", label: t("secrets.status.disabled", { defaultValue: "Disabled" }) },
+    { value: "archived", label: t("secrets.status.archived", { defaultValue: "Archived" }) },
   ];
 
   return (
@@ -3677,7 +3693,9 @@ function SecretsFiltersPopover({
       >
         <div className="space-y-3 p-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Filters</span>
+            <span className="text-sm font-medium">
+              {t("secrets.filters.title", { defaultValue: "Filters" })}
+            </span>
             {activeFilterCount > 0 ? (
               <button
                 type="button"
@@ -3685,14 +3703,16 @@ function SecretsFiltersPopover({
                 onClick={resetFilters}
               >
                 <X className="h-3 w-3" />
-                Clear
+                {t("secrets.filters.clear", { defaultValue: "Clear" })}
               </button>
             ) : null}
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="space-y-1">
-              <span className="text-xs text-muted-foreground">Status</span>
+              <span className="text-xs text-muted-foreground">
+                {t("secrets.filters.status", { defaultValue: "Status" })}
+              </span>
               <div className="space-y-0.5">
                 {statusOptions.map((option) => (
                   <label key={option.value} className="flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1 hover:bg-accent/50">
@@ -3707,12 +3727,14 @@ function SecretsFiltersPopover({
             </div>
 
             <div className="space-y-1">
-              <span className="text-xs text-muted-foreground">Provided by</span>
+              <span className="text-xs text-muted-foreground">
+                {t("secrets.filters.providedBy", { defaultValue: "Provided by" })}
+              </span>
               <div className="space-y-0.5">
                 {[
-                  { value: "all" as const, label: "All sources" },
-                  { value: "company" as const, label: "Organization" },
-                  { value: "user" as const, label: "Each user" },
+                  { value: "all" as const, label: t("secrets.filters.allSources", { defaultValue: "All sources" }) },
+                  { value: "company" as const, label: t("secrets.filters.organization", { defaultValue: "Organization" }) },
+                  { value: "user" as const, label: t("secrets.filters.eachUser", { defaultValue: "Each user" }) },
                 ].map((option) => (
                   <label key={option.value} className="flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1 hover:bg-accent/50">
                     <Checkbox
@@ -3726,14 +3748,18 @@ function SecretsFiltersPopover({
             </div>
 
             <div className="space-y-1">
-              <span className="text-xs text-muted-foreground">Provider</span>
+              <span className="text-xs text-muted-foreground">
+                {t("secrets.filters.provider", { defaultValue: "Provider" })}
+              </span>
               <div className="max-h-48 space-y-0.5 overflow-y-auto pr-1">
                 <label className="flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1 hover:bg-accent/50">
                   <Checkbox
                     checked={providerFilter === "all"}
                     onCheckedChange={() => onProviderChange("all")}
                   />
-                  <span className="text-sm">All providers</span>
+                  <span className="text-sm">
+                    {t("secrets.filters.allProviders", { defaultValue: "All providers" })}
+                  </span>
                 </label>
                 {providers.map((provider) => (
                   <label key={provider.id} className="flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1 hover:bg-accent/50">
@@ -3784,12 +3810,16 @@ function providerFamilyIcon(provider: SecretProvider) {
 }
 
 function ProviderVaultInlineWarning({ config }: { config: CompanySecretProviderConfig }) {
+  const { t } = useTranslation();
   const blockReason = getProviderConfigBlockReason(config);
   const message = blockReason ?? config.healthMessage;
   if (!message) {
     return (
       <p className="mt-1 text-(length:--text-micro) text-muted-foreground">
-        {config.isDefault ? "Default vault" : "Vault"} · {config.status.replace("_", " ")}
+        {config.isDefault
+          ? t("secrets.vault.inlineDefault", { defaultValue: "Default vault" })
+          : t("secrets.vault.inlineVault", { defaultValue: "Vault" })}{" "}
+        · {config.status.replace("_", " ")}
       </p>
     );
   }
@@ -3816,6 +3846,7 @@ function ImportFromVaultButton({
   onManageVaults,
   className,
 }: ImportFromVaultButtonProps) {
+  const { t } = useTranslation();
   const awsConfigs = providerConfigs.filter(
     (config) => config.provider === "aws_secrets_manager",
   );
@@ -3833,9 +3864,12 @@ function ImportFromVaultButton({
         size="sm"
         onClick={onManageVaults}
         className={cn("text-xs text-muted-foreground", className)}
-        title="Configure an AWS provider vault to enable remote import"
+        title={t("secrets.importButton.configure", {
+          defaultValue: "Configure an AWS provider vault to enable remote import",
+        })}
       >
-        <Cloud className="h-3.5 w-3.5 mr-1" /> AWS vault disabled — manage
+        <Cloud className="h-3.5 w-3.5 mr-1" />{" "}
+        {t("secrets.importButton.disabledManage", { defaultValue: "AWS vault disabled — manage" })}
       </Button>
     );
   }
@@ -3848,7 +3882,8 @@ function ImportFromVaultButton({
       className={className}
       data-testid="import-from-vault-button"
     >
-      <Cloud className="h-3.5 w-3.5 mr-1" /> Import from vault
+      <Cloud className="h-3.5 w-3.5 mr-1" />{" "}
+      {t("secrets.importButton.import", { defaultValue: "Import from vault" })}
     </Button>
   );
 }
@@ -3885,11 +3920,12 @@ export function ProviderVaultsTab({
   onImportSecrets: (config: CompanySecretProviderConfig) => void;
   pendingActionId: string | null;
 }) {
+  const { t } = useTranslation();
   if (loading) {
     return (
       <div className="flex items-center gap-2 py-4 text-sm text-muted-foreground">
         <Loader2 className="h-4 w-4 animate-spin" />
-        Loading provider vaults
+        {t("secrets.vaults.loading", { defaultValue: "Loading provider vaults" })}
       </div>
     );
   }
@@ -3935,19 +3971,24 @@ export function ProviderVaultsTab({
               <Icon className="h-4 w-4 text-muted-foreground" />
               <h2 className="text-sm font-semibold">{provider?.label ?? id.replaceAll("_", " ")}</h2>
               {isComingSoonFamily ? (
-                <span className="ml-auto text-xs text-muted-foreground">Coming soon</span>
+                <span className="ml-auto text-xs text-muted-foreground">
+                  {t("secrets.vaults.comingSoon", { defaultValue: "Coming soon" })}
+                </span>
               ) : (
                 <Button variant="outline" size="sm" className="ml-auto" onClick={() => onCreate(id)}>
                   <Plus className="h-3.5 w-3.5 mr-1" />
-                  Add vault
+                  {t("secrets.vaults.addVault", { defaultValue: "Add vault" })}
                 </Button>
               )}
             </div>
             {configs.length === 0 ? (
               <div className="rounded-md border border-dashed border-border bg-muted/20 p-4 text-sm text-muted-foreground">
                 {isComingSoonFamily
-                  ? "Not yet supported."
-                  : "No organization-specific vaults yet. Secrets can still use the deployment default provider settings."}
+                  ? t("secrets.vaults.notSupported", { defaultValue: "Not yet supported." })
+                  : t("secrets.vaults.none", {
+                      defaultValue:
+                        "No organization-specific vaults yet. Secrets can still use the deployment default provider settings.",
+                    })}
               </div>
             ) : (
               <div className="space-y-3">
@@ -3992,6 +4033,7 @@ function ProviderVaultCard({
   onHealthCheck: () => void;
   onImportSecrets: () => void;
 }) {
+  const { t } = useTranslation();
   const blockReason = getProviderConfigBlockReason(config);
   const details = config.healthDetails;
   return (
@@ -4003,7 +4045,7 @@ function ProviderVaultCard({
             {config.isDefault ? (
               <span className="inline-flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
                 <Star className="h-3 w-3 fill-current" />
-                Default
+                {t("secrets.vaults.default", { defaultValue: "Default" })}
               </span>
             ) : null}
           </div>
@@ -4016,7 +4058,9 @@ function ProviderVaultCard({
                 Health {config.healthStatus.replace("_", " ")} · {formatRelative(config.healthCheckedAt)}
               </span>
             ) : (
-              <span className="text-xs text-muted-foreground">Health not checked</span>
+              <span className="text-xs text-muted-foreground">
+                {t("secrets.vaults.healthNotChecked", { defaultValue: "Health not checked" })}
+              </span>
             )}
           </div>
         </div>
@@ -4039,7 +4083,7 @@ function ProviderVaultCard({
       <div className="mt-3 flex flex-wrap gap-2">
         <Button variant="outline" size="sm" onClick={onHealthCheck} disabled={pending}>
           {pending ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <RefreshCw className="h-3.5 w-3.5 mr-1" />}
-          Check health
+          {t("secrets.vaults.checkHealth", { defaultValue: "Check health" })}
         </Button>
         {config.provider === "aws_secrets_manager" ? (
           <Button
@@ -4050,12 +4094,14 @@ function ProviderVaultCard({
             title={
               blockReason
                 ? blockReason
-                : "Refresh AWS metadata and import existing secrets"
+                : t("secrets.vaults.refreshSecretsTitle", {
+                    defaultValue: "Refresh AWS metadata and import existing secrets",
+                  })
             }
             data-testid={`provider-vault-refresh-secrets-${config.id}`}
           >
             <Cloud className="h-3.5 w-3.5 mr-1" />
-            Refresh secrets
+            {t("secrets.vaults.refreshSecrets", { defaultValue: "Refresh secrets" })}
           </Button>
         ) : null}
         <Button
@@ -4065,7 +4111,7 @@ function ProviderVaultCard({
           disabled={pending || Boolean(blockReason) || config.isDefault}
         >
           <Star className="h-3.5 w-3.5 mr-1" />
-          Make default
+          {t("secrets.vaults.makeDefault", { defaultValue: "Make default" })}
         </Button>
         <Button
           variant="outline"
@@ -4075,7 +4121,7 @@ function ProviderVaultCard({
           disabled={pending || config.status === "disabled"}
         >
           <Ban className="h-3.5 w-3.5 mr-1" />
-          Disable
+          {t("secrets.vaults.disable", { defaultValue: "Disable" })}
         </Button>
         <Button
           variant="outline"
@@ -4085,7 +4131,7 @@ function ProviderVaultCard({
           disabled={pending}
         >
           <Trash2 className="h-3.5 w-3.5 mr-1" />
-          Remove
+          {t("secrets.vaults.remove", { defaultValue: "Remove" })}
         </Button>
       </div>
     </div>

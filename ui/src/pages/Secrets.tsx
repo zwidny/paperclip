@@ -2409,12 +2409,14 @@ export function Secrets() {
                     className="h-7 shrink-0 px-2 text-xs"
                     onClick={() => copySecretKey(selectedSecret.key)}
                   >
-                    <Copy className="mr-1 h-3.5 w-3.5" /> Copy
+                    <Copy className="mr-1 h-3.5 w-3.5" />{" "}
+                    {t("secrets.actions.copy", { defaultValue: "Copy" })}
                   </Button>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   <MetaChip>
-                    <ShieldCheck className="h-3 w-3" /> Organization
+                    <ShieldCheck className="h-3 w-3" />{" "}
+                    {t("secrets.list.organization", { defaultValue: "Organization" })}
                   </MetaChip>
                   <MetaChip>{modeLabel(selectedSecret.managedMode)}</MetaChip>
                   <MetaChip>{providerLabel(providers, selectedSecret.provider)}</MetaChip>
@@ -2430,12 +2432,14 @@ export function Secrets() {
                   {rotateActionLabel(selectedSecret)}
                 </Button>
                 <Button variant="outline" size="sm" onClick={copyDetailLink}>
-                  <Link2 className="h-3.5 w-3.5 mr-1" /> Copy link
+                  <Link2 className="h-3.5 w-3.5 mr-1" />{" "}
+                  {t("secrets.actions.copyLink", { defaultValue: "Copy link" })}
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" aria-label={`More actions for ${selectedSecret.name}`}>
-                      <MoreHorizontal className="mr-1 h-3.5 w-3.5" /> More
+                      <MoreHorizontal className="mr-1 h-3.5 w-3.5" />{" "}
+                      {t("secrets.actions.more", { defaultValue: "More" })}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-52">
@@ -2453,7 +2457,9 @@ export function Secrets() {
                       ) : (
                         <CheckCircle2 className="h-4 w-4" />
                       )}
-                      {selectedSecret.status === "active" ? "Disable" : "Activate"}
+                      {selectedSecret.status === "active"
+                        ? t("secrets.actions.disable", { defaultValue: "Disable" })
+                        : t("secrets.actions.activate", { defaultValue: "Activate" })}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       disabled={statusMutation.isPending}
@@ -2469,11 +2475,14 @@ export function Secrets() {
                       ) : (
                         <Archive className="h-4 w-4" />
                       )}
-                      {selectedSecret.status === "archived" ? "Unarchive" : "Archive"}
+                      {selectedSecret.status === "archived"
+                        ? t("secrets.actions.unarchive", { defaultValue: "Unarchive" })
+                        : t("secrets.actions.archive", { defaultValue: "Archive" })}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem variant="destructive" onSelect={() => setDeleteConfirm(selectedSecret)}>
-                      <Trash2 className="h-4 w-4" /> Delete secret
+                      <Trash2 className="h-4 w-4" />{" "}
+                      {t("secrets.actions.deleteSecret", { defaultValue: "Delete secret" })}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -2482,9 +2491,14 @@ export function Secrets() {
                 <div className="border-b border-border px-4">
                   <PageTabBar
                     items={[
-                      { value: "details", label: "Details" },
-                      { value: "usage", label: usageQuery.data ? `Usage (${usageQuery.data.bindings.length})` : "Usage" },
-                      { value: "events", label: "Access events" },
+                      { value: "details", label: t("secrets.usage.detailsTab", { defaultValue: "Details" }) },
+                      {
+                        value: "usage",
+                        label: usageQuery.data
+                          ? `${t("secrets.usage.usageTab", { defaultValue: "Usage" })} (${usageQuery.data.bindings.length})`
+                          : t("secrets.usage.usageTab", { defaultValue: "Usage" }),
+                      },
+                      { value: "events", label: t("secrets.usage.eventsTab", { defaultValue: "Access events" }) },
                     ]}
                     align="start"
                     value={secretDetailTab}
@@ -2543,11 +2557,14 @@ export function Secrets() {
                     className="h-7 shrink-0 px-2 text-xs"
                     onClick={() => copySecretKey(selectedDefinition.key)}
                   >
-                    <Copy className="mr-1 h-3.5 w-3.5" /> Copy
+                    <Copy className="mr-1 h-3.5 w-3.5" />{" "}
+                    {t("secrets.actions.copy", { defaultValue: "Copy" })}
                   </Button>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
-                  <UserSecretChip label="Each user" />
+                  <UserSecretChip
+                    label={t("secrets.list.eachUser", { defaultValue: "Each user" })}
+                  />
                   <MetaChip>
                     <CoverageInline companyId={selectedCompanyId} definitionId={selectedDefinition.id} compact />
                   </MetaChip>
@@ -2564,17 +2581,21 @@ export function Secrets() {
                   disabled={selectedDefinition.status !== "active"}
                 >
                   <KeyRound className="h-3.5 w-3.5 mr-1" />
-                  {selectedDefinitionMyEntry?.secret ? "Update my value" : "Set my value"}
+                  {selectedDefinitionMyEntry?.secret
+                    ? t("secrets.actions.updateMyValue", { defaultValue: "Update my value" })
+                    : t("secrets.actions.setMyValue", { defaultValue: "Set my value" })}
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" aria-label={`More actions for ${selectedDefinition.name}`}>
-                      <MoreHorizontal className="mr-1 h-3.5 w-3.5" /> More
+                      <MoreHorizontal className="mr-1 h-3.5 w-3.5" />{" "}
+                      {t("secrets.actions.more", { defaultValue: "More" })}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-52">
                     <DropdownMenuItem onSelect={() => openEditDefinition(selectedDefinition)}>
-                      <Pencil className="h-4 w-4" /> Edit definition
+                      <Pencil className="h-4 w-4" />{" "}
+                      {t("secrets.actions.editDefinition", { defaultValue: "Edit definition" })}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
@@ -2591,7 +2612,9 @@ export function Secrets() {
                       ) : (
                         <CheckCircle2 className="h-4 w-4" />
                       )}
-                      {selectedDefinition.status === "active" ? "Disable" : "Activate"}
+                      {selectedDefinition.status === "active"
+                        ? t("secrets.actions.disable", { defaultValue: "Disable" })
+                        : t("secrets.actions.activate", { defaultValue: "Activate" })}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       disabled={definitionStatusMutation.isPending}
@@ -2607,11 +2630,14 @@ export function Secrets() {
                       ) : (
                         <Archive className="h-4 w-4" />
                       )}
-                      {selectedDefinition.status === "archived" ? "Unarchive" : "Archive"}
+                      {selectedDefinition.status === "archived"
+                        ? t("secrets.actions.unarchive", { defaultValue: "Unarchive" })
+                        : t("secrets.actions.archive", { defaultValue: "Archive" })}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem variant="destructive" onSelect={() => setDefinitionDeleteConfirm(selectedDefinition)}>
-                      <Trash2 className="h-4 w-4" /> Delete definition
+                      <Trash2 className="h-4 w-4" />{" "}
+                      {t("secrets.actions.deleteDefinition", { defaultValue: "Delete definition" })}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -2620,10 +2646,10 @@ export function Secrets() {
                 <div className="border-b border-border px-4">
                   <PageTabBar
                     items={[
-                      { value: "details", label: "Details" },
-                      { value: "coverage", label: "Coverage" },
-                      { value: "usage", label: "Usage" },
-                      { value: "events", label: "Access events" },
+                      { value: "details", label: t("secrets.usage.detailsTab", { defaultValue: "Details" }) },
+                      { value: "coverage", label: t("secrets.details.coverage", { defaultValue: "Coverage" }) },
+                      { value: "usage", label: t("secrets.usage.usageTab", { defaultValue: "Usage" }) },
+                      { value: "events", label: t("secrets.usage.eventsTab", { defaultValue: "Access events" }) },
                     ]}
                     align="start"
                     value={secretDetailTab}
@@ -2669,7 +2695,7 @@ export function Secrets() {
       >
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Secret references</DialogTitle>
+            <DialogTitle>{t("secrets.usage.dialogTitle", { defaultValue: "Secret references" })}</DialogTitle>
             <DialogDescription>
               {usageDialogSecret
                 ? `${usageDialogSecret.name} is referenced by ${usageDialogSecret.referenceCount ?? 0} ${
@@ -2720,15 +2746,24 @@ export function Secrets() {
       >
         <DialogContent className="max-h-(--sz-calc-18) overflow-y-auto p-4 sm:max-w-lg sm:p-6">
           <DialogHeader>
-            <DialogTitle>{editingDefinition ? "Edit user-provided secret" : "Create secret"}</DialogTitle>
+            <DialogTitle>
+              {editingDefinition
+                ? t("secrets.create.editTitle", { defaultValue: "Edit user-provided secret" })
+                : t("secrets.create.title", { defaultValue: "Create secret" })}
+            </DialogTitle>
             <DialogDescription>
-              Choose who provides the value. Shared fields keep their values when you switch modes.
+              {t("secrets.create.description", {
+                defaultValue:
+                  "Choose who provides the value. Shared fields keep their values when you switch modes.",
+              })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             {!editingDefinition ? (
               <div className="space-y-1.5">
-                <p className="text-xs font-medium text-foreground">Who provides the value?</p>
+                <p className="text-xs font-medium text-foreground">
+                  {t("secrets.create.whoProvides", { defaultValue: "Who provides the value?" })}
+                </p>
                 <Tabs
                   value={secretValueProvider}
                   onValueChange={(value) => {
@@ -2746,12 +2781,19 @@ export function Secrets() {
                   }}
                 >
                   <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="company">Organization</TabsTrigger>
-                    <TabsTrigger value="user">Each user</TabsTrigger>
+                    <TabsTrigger value="company">
+                      {t("secrets.create.organizationTab", { defaultValue: "Organization" })}
+                    </TabsTrigger>
+                    <TabsTrigger value="user">
+                      {t("secrets.create.eachUserTab", { defaultValue: "Each user" })}
+                    </TabsTrigger>
                   </TabsList>
                 </Tabs>
                 <p className="text-(length:--text-micro) text-muted-foreground">
-                  Organization stores one shared value. Each user lets every member supply their own value under My secrets.
+                  {t("secrets.create.whoProvidesHint", {
+                    defaultValue:
+                      "Organization stores one shared value. Each user lets every member supply their own value under My secrets.",
+                  })}
                 </p>
               </div>
             ) : null}
@@ -2759,14 +2801,20 @@ export function Secrets() {
             {secretValueProvider === "company" && !editingDefinition ? (
               <Tabs value={createMode} onValueChange={(value) => setCreateMode(value as CreateMode)}>
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="managed">Managed value</TabsTrigger>
-                  <TabsTrigger value="external">External reference</TabsTrigger>
+                  <TabsTrigger value="managed">
+                    {t("secrets.create.managedTab", { defaultValue: "Managed value" })}
+                  </TabsTrigger>
+                  <TabsTrigger value="external">
+                    {t("secrets.create.externalTab", { defaultValue: "External reference" })}
+                  </TabsTrigger>
                 </TabsList>
               </Tabs>
             ) : null}
 
             <div>
-              <label className="text-xs font-medium" htmlFor="new-secret-name">Name</label>
+              <label className="text-xs font-medium" htmlFor="new-secret-name">
+                {t("secrets.create.nameLabel", { defaultValue: "Name" })}
+              </label>
               {createNamePrefix && !editingDefinition ? (
                 <div className="flex h-9 w-full min-w-0 items-center gap-1.5 rounded-md border border-input bg-transparent px-2 shadow-xs transition-[color,box-shadow] focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-3">
                   <span
@@ -2777,7 +2825,9 @@ export function Secrets() {
                     <button
                       type="button"
                       className="shrink-0 rounded-full text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                      aria-label="Remove folder prefix"
+                      aria-label={t("secrets.create.removeFolderPrefixAria", {
+                        defaultValue: "Remove folder prefix",
+                      })}
                       onClick={() => setCreateNamePrefix(null)}
                     >
                       <X className="h-3 w-3" />
@@ -2799,7 +2849,9 @@ export function Secrets() {
                             : normalizeSecretKeyForPreview(name),
                       }));
                     }}
-                    placeholder="clientsecret"
+                    placeholder={t("secrets.create.namePlaceholderPrefix", {
+                      defaultValue: "clientsecret",
+                    })}
                     autoFocus
                   />
                 </div>
@@ -2819,7 +2871,11 @@ export function Secrets() {
                           : normalizeSecretKeyForPreview(name),
                     }));
                   }}
-                  placeholder={secretValueProvider === "user" ? "Personal GitHub token" : "/dev/foo/bar"}
+                  placeholder={
+                    secretValueProvider === "user"
+                      ? t("secrets.create.namePlaceholderUser", { defaultValue: "Personal GitHub token" })
+                      : t("secrets.create.namePlaceholderCompany", { defaultValue: "/dev/foo/bar" })
+                  }
                   autoFocus
                 />
               )}
@@ -2832,7 +2888,9 @@ export function Secrets() {
 
             {secretValueProvider === "company" && createMode === "managed" ? (
               <div>
-                <label className="text-xs font-medium" htmlFor="new-secret-value">Value</label>
+                <label className="text-xs font-medium" htmlFor="new-secret-value">
+                  {t("secrets.create.valueLabel", { defaultValue: "Value" })}
+                </label>
                 <Textarea
                   id="new-secret-value"
                   value={createForm.value}
@@ -2841,37 +2899,50 @@ export function Secrets() {
                   }
                   rows={3}
                   className="min-w-0 overflow-x-hidden break-all font-mono text-xs"
-                  placeholder="Stored once, never re-displayed"
+                  placeholder={t("secrets.create.valuePlaceholder", {
+                    defaultValue: "Stored once, never re-displayed",
+                  })}
                 />
               </div>
             ) : null}
             {secretValueProvider === "company" && createMode === "external" ? (
               <div>
-                <label className="text-xs font-medium" htmlFor="new-secret-ref">External reference</label>
+                <label className="text-xs font-medium" htmlFor="new-secret-ref">
+                  {t("secrets.create.externalRefLabel", { defaultValue: "External reference" })}
+                </label>
                 <Input
                   id="new-secret-ref"
                   value={createForm.externalRef}
                   onChange={(event) =>
                     setCreateForm((current) => ({ ...current, externalRef: event.target.value }))
                   }
-                  placeholder="arn:aws:secretsmanager:..."
+                  placeholder={t("secrets.create.externalRefPlaceholder", {
+                    defaultValue: "arn:aws:secretsmanager:...",
+                  })}
                   className="font-mono text-xs"
                 />
                 <p className="text-(length:--text-micro) text-muted-foreground mt-1">
-                  Existing provider secrets are resolve-only in Paperclip. Rotate the value in the provider,
-                  then update this reference only if the path, ARN, or version changes.
+                  {t("secrets.create.externalRefHint", {
+                    defaultValue:
+                      "Existing provider secrets are resolve-only in Paperclip. Rotate the value in the provider, then update this reference only if the path, ARN, or version changes.",
+                  })}
                 </p>
               </div>
             ) : null}
             {secretValueProvider === "user" ? (
               <>
                 <div className="rounded-md border border-violet-500/30 bg-violet-500/5 p-2 text-(length:--text-micro) text-violet-800 dark:text-violet-200">
-                  Every member supplies their own value under My secrets. Agents resolve the responsible
-                  user&apos;s value at runtime.
+                  {t("secrets.create.userNotice", {
+                    defaultValue:
+                      "Every member supplies their own value under My secrets. Agents resolve the responsible user's value at runtime.",
+                  })}
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-foreground" htmlFor="new-secret-usage-guidance">
-                    Usage guidance <span className="text-muted-foreground/70">(optional)</span>
+                    {t("secrets.create.usageGuidanceLabel", { defaultValue: "Usage guidance" })}
+                    <span className="text-muted-foreground/70">
+                      {t("secrets.vaultFields.optional", { defaultValue: " (optional)" })}
+                    </span>
                   </label>
                   <Textarea
                     id="new-secret-usage-guidance"
@@ -2879,7 +2950,9 @@ export function Secrets() {
                     onChange={(event) =>
                       setCreateForm((current) => ({ ...current, usageGuidance: event.target.value }))
                     }
-                    placeholder="Tell members how to create their token, required scopes, etc."
+                    placeholder={t("secrets.create.usageGuidancePlaceholder", {
+                      defaultValue: "Tell members how to create their token, required scopes, etc.",
+                    })}
                     className="min-h-(--sz-70px) text-sm"
                   />
                 </div>
@@ -2888,7 +2961,9 @@ export function Secrets() {
 
             <div>
               <div className="flex items-center justify-between">
-                <label className="text-xs font-medium" htmlFor="new-secret-key">Key</label>
+                <label className="text-xs font-medium" htmlFor="new-secret-key">
+                  {t("secrets.create.keyLabel", { defaultValue: "Key" })}
+                </label>
                 {!createKeyEditable && !editingDefinition ? (
                   <Button
                     type="button"
@@ -2897,7 +2972,8 @@ export function Secrets() {
                     className="h-5 px-1.5 text-(length:--text-micro) text-muted-foreground"
                     onClick={() => setCreateKeyEditable(true)}
                   >
-                    <Pencil className="mr-1 h-3 w-3" /> Edit
+                    <Pencil className="mr-1 h-3 w-3" />{" "}
+                    {t("secrets.create.editKey", { defaultValue: "Edit" })}
                   </Button>
                 ) : null}
               </div>
@@ -2911,7 +2987,11 @@ export function Secrets() {
                   setCreateKeyDirty(true);
                   setCreateForm((current) => ({ ...current, key: event.target.value }));
                 }}
-                placeholder={secretValueProvider === "user" ? "PERSONAL_GH_TOKEN" : "auto from name"}
+                placeholder={
+                  secretValueProvider === "user"
+                    ? t("secrets.create.keyPlaceholderUser", { defaultValue: "PERSONAL_GH_TOKEN" })
+                    : t("secrets.create.keyPlaceholderAuto", { defaultValue: "auto from name" })
+                }
                 disabled={Boolean(editingDefinition)}
                 className={cn(
                   "font-mono text-sm",
@@ -2920,18 +3000,29 @@ export function Secrets() {
               />
               <p className="mt-1 text-(length:--text-micro) text-muted-foreground">
                 {editingDefinition
-                  ? "Stable env binding key. Cannot be changed."
+                  ? t("secrets.create.keyHintEditing", {
+                      defaultValue: "Stable env binding key. Cannot be changed.",
+                    })
                   : !createKeyEditable
-                    ? "Generated from the name."
+                    ? t("secrets.create.keyHintGenerated", {
+                        defaultValue: "Generated from the name.",
+                      })
                     : secretValueProvider === "user"
-                      ? "Env-style key used by user-secret bindings."
-                      : "Shared secret keys keep lowercase dash normalization."}
+                      ? t("secrets.create.keyHintUser", {
+                          defaultValue: "Env-style key used by user-secret bindings.",
+                        })
+                      : t("secrets.create.keyHintShared", {
+                          defaultValue: "Shared secret keys keep lowercase dash normalization.",
+                        })}
               </p>
             </div>
 
             <div>
               <label className="text-xs font-medium" htmlFor="new-secret-description">
-                Description <span className="text-muted-foreground/70">(optional)</span>
+                {t("secrets.create.descriptionLabel", { defaultValue: "Description" })}
+                <span className="text-muted-foreground/70">
+                  {t("secrets.vaultFields.optional", { defaultValue: " (optional)" })}
+                </span>
               </label>
               <Input
                 id="new-secret-description"
@@ -2939,7 +3030,9 @@ export function Secrets() {
                 onChange={(event) =>
                   setCreateForm((current) => ({ ...current, description: event.target.value }))
                 }
-                placeholder="What is this secret used for? (no values)"
+                placeholder={t("secrets.create.descriptionPlaceholder", {
+                  defaultValue: "What is this secret used for? (no values)",
+                })}
               />
             </div>
 
@@ -2947,7 +3040,9 @@ export function Secrets() {
               <>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="text-xs font-medium" htmlFor="new-secret-provider">Provider</label>
+                  <label className="text-xs font-medium" htmlFor="new-secret-provider">
+                    {t("secrets.create.providerLabel", { defaultValue: "Provider" })}
+                  </label>
                   <select
                     id="new-secret-provider"
                     className="h-9 w-full rounded-md border border-border bg-background px-2 text-sm outline-none"
@@ -2979,9 +3074,13 @@ export function Secrets() {
                         {provider.label}
                         {provider.configured === false &&
                         !getSelectableProviderConfig(providerConfigs, provider.id)
-                          ? " (deployment default missing)"
+                          ? t("secrets.create.providerSuffixMissing", {
+                              defaultValue: " (deployment default missing)",
+                            })
                           : provider.requiresExternalRef
-                            ? " (external only)"
+                            ? t("secrets.create.providerSuffixExternal", {
+                                defaultValue: " (external only)",
+                              })
                             : ""}
                       </option>
                     ))}
@@ -2996,7 +3095,9 @@ export function Secrets() {
                   ) : null}
                 </div>
                 <div>
-                  <label className="text-xs font-medium" htmlFor="new-secret-vault">Provider vault</label>
+                  <label className="text-xs font-medium" htmlFor="new-secret-vault">
+                    {t("secrets.create.vaultLabel", { defaultValue: "Provider vault" })}
+                  </label>
                   <select
                     id="new-secret-vault"
                     className="h-9 w-full rounded-md border border-border bg-background px-2 text-sm outline-none"
@@ -3005,13 +3106,17 @@ export function Secrets() {
                       setCreateForm((current) => ({ ...current, providerConfigId: event.target.value }))
                     }
                   >
-                    <option value="">Deployment default</option>
+                    <option value="">
+                      {t("secrets.create.vaultDefault", { defaultValue: "Deployment default" })}
+                    </option>
                     {createProviderConfigs.map((config) => {
                       const blockReason = getProviderConfigBlockReason(config);
                       return (
                         <option key={config.id} value={config.id} disabled={Boolean(blockReason)}>
                           {config.displayName}
-                          {config.isDefault ? " (default)" : ""}
+                          {config.isDefault
+                            ? t("secrets.create.vaultDefaultSuffix", { defaultValue: " (default)" })
+                            : ""}
                           {blockReason ? ` (${blockReason})` : ""}
                         </option>
                       );
@@ -3024,11 +3129,13 @@ export function Secrets() {
                 </div>
                 {createMode === "managed" ? (
                   <div className="rounded-md border border-emerald-500/30 bg-emerald-500/5 p-2 text-(length:--text-micro) text-emerald-700 dark:text-emerald-300">
-                    Paperclip-managed secrets are created in the selected provider and future rotations
-                    write a new provider version through Paperclip.
+                    {t("secrets.create.managedNotice", {
+                      defaultValue:
+                        "Paperclip-managed secrets are created in the selected provider and future rotations write a new provider version through Paperclip.",
+                    })}
                     {awsManagedPathPreview ? (
                       <div className="mt-1">
-                        AWS managed path:{" "}
+                        {t("secrets.create.awsManagedPath", { defaultValue: "AWS managed path: " })}
                         <code className="break-all rounded bg-background/70 px-1 py-0.5">
                           {awsManagedPathPreview}
                         </code>
@@ -3048,7 +3155,7 @@ export function Secrets() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)}>
-              Cancel
+              {t("common.cancel", { defaultValue: "Cancel" })}
             </Button>
             <Button
               onClick={() => {
@@ -3066,12 +3173,12 @@ export function Secrets() {
             >
               {createMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : null}
               {editingDefinition
-                ? "Save changes"
+                ? t("secrets.create.saveChanges", { defaultValue: "Save changes" })
                 : secretValueProvider === "user"
-                  ? "Create user-provided secret"
+                  ? t("secrets.create.createUserSecret", { defaultValue: "Create user-provided secret" })
                   : createMode === "managed"
-                    ? "Create secret"
-                    : "Link reference"}
+                    ? t("secrets.create.createSecret", { defaultValue: "Create secret" })
+                    : t("secrets.create.linkReference", { defaultValue: "Link reference" })}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -3080,15 +3187,24 @@ export function Secrets() {
       <Dialog open={vaultDialogOpen} onOpenChange={setVaultDialogOpen}>
         <DialogContent className="max-h-(--sz-85vh) overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{editingVault ? "Edit provider vault" : "Create provider vault"}</DialogTitle>
+            <DialogTitle>
+              {editingVault
+                ? t("secrets.vaultDialog.editTitle", { defaultValue: "Edit provider vault" })
+                : t("secrets.vaultDialog.createTitle", { defaultValue: "Create provider vault" })}
+            </DialogTitle>
             <DialogDescription>
-              Save only non-sensitive routing metadata. Credentials stay in the runtime environment or provider identity.
+              {t("secrets.vaultDialog.description", {
+                defaultValue:
+                  "Save only non-sensitive routing metadata. Credentials stay in the runtime environment or provider identity.",
+              })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="text-xs font-medium" htmlFor="vault-provider">Provider</label>
+                <label className="text-xs font-medium" htmlFor="vault-provider">
+                  {t("secrets.vaultDialog.provider", { defaultValue: "Provider" })}
+                </label>
                 <select
                   id="vault-provider"
                   className="h-9 w-full rounded-md border border-border bg-background px-2 text-sm outline-none disabled:opacity-60"
@@ -3109,18 +3225,24 @@ export function Secrets() {
                 </select>
               </div>
               <div>
-                <label className="text-xs font-medium" htmlFor="vault-name">Display name</label>
+                <label className="text-xs font-medium" htmlFor="vault-name">
+                  {t("secrets.vaultDialog.displayName", { defaultValue: "Display name" })}
+                </label>
                 <Input
                   id="vault-name"
                   value={vaultForm.displayName}
                   onChange={(event) =>
                     setVaultForm((current) => ({ ...current, displayName: event.target.value }))
                   }
-                  placeholder="Production local vault"
+                  placeholder={t("secrets.vaultDialog.displayNamePlaceholder", {
+                    defaultValue: "Production local vault",
+                  })}
                 />
               </div>
               <div>
-                <label className="text-xs font-medium" htmlFor="vault-status">Status</label>
+                <label className="text-xs font-medium" htmlFor="vault-status">
+                  {t("secrets.vaultDialog.status", { defaultValue: "Status" })}
+                </label>
                 <select
                   id="vault-status"
                   className="h-9 w-full rounded-md border border-border bg-background px-2 text-sm outline-none"
@@ -3136,13 +3258,17 @@ export function Secrets() {
                   }}
                 >
                   <option value="ready" disabled={vaultForm.provider === "gcp_secret_manager" || vaultForm.provider === "vault"}>
-                    Ready
+                    {t("secrets.vaultDialog.statusReady", { defaultValue: "Ready" })}
                   </option>
                   <option value="warning" disabled={vaultForm.provider === "gcp_secret_manager" || vaultForm.provider === "vault"}>
-                    Warning
+                    {t("secrets.vaultDialog.statusWarning", { defaultValue: "Warning" })}
                   </option>
-                  <option value="coming_soon">Coming soon</option>
-                  <option value="disabled">Disabled</option>
+                  <option value="coming_soon">
+                    {t("secrets.vaultDialog.statusComingSoon", { defaultValue: "Coming soon" })}
+                  </option>
+                  <option value="disabled">
+                    {t("secrets.vaultDialog.statusDisabled", { defaultValue: "Disabled" })}
+                  </option>
                 </select>
               </div>
               <label className="flex items-center gap-2 pt-6 text-sm">
@@ -3178,15 +3304,17 @@ export function Secrets() {
 
             {vaultForm.provider === "gcp_secret_manager" || vaultForm.provider === "vault" ? (
               <div className="rounded-md border border-sky-500/30 bg-sky-500/5 p-3 text-xs text-sky-700 dark:text-sky-300">
-                This provider can save draft routing metadata, but runtime writes and resolution stay disabled until
-                the provider module is implemented and reviewed.
+                {t("secrets.vaultDialog.draftNotice", {
+                  defaultValue:
+                    "This provider can save draft routing metadata, but runtime writes and resolution stay disabled until the provider module is implemented and reviewed.",
+                })}
               </div>
             ) : null}
             {vaultError ? <p className="text-xs text-destructive">{vaultError}</p> : null}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setVaultDialogOpen(false)}>
-              Cancel
+              {t("common.cancel", { defaultValue: "Cancel" })}
             </Button>
             <Button
               onClick={() => {
@@ -3200,7 +3328,9 @@ export function Secrets() {
               }
             >
               {saveVaultMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : null}
-              {editingVault ? "Save vault" : "Create vault"}
+              {editingVault
+                ? t("secrets.vaultDialog.saveVault", { defaultValue: "Save vault" })
+                : t("secrets.vaultDialog.createVault", { defaultValue: "Create vault" })}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -3211,40 +3341,61 @@ export function Secrets() {
           <DialogHeader>
             <DialogTitle>
               {selectedSecret?.managedMode === "external_reference" && rotateMode === "reference"
-                ? "Update external reference"
-                : "Update secret value"}
+                ? t("secrets.rotate.updateExternalRefTitle", {
+                    defaultValue: "Update external reference",
+                  })
+                : t("secrets.rotate.updateValueTitle", { defaultValue: "Update secret value" })}
             </DialogTitle>
             <DialogDescription>
               {selectedSecret?.managedMode !== "external_reference"
-                ? "Creates a new provider-backed version. Consumers pinned to latest pick up the new value on the next run."
+                ? t("secrets.rotate.descriptionManaged", {
+                    defaultValue:
+                      "Creates a new provider-backed version. Consumers pinned to latest pick up the new value on the next run.",
+                  })
                 : rotateMode === "reference"
-                  ? "Creates a new Paperclip metadata version that points at an existing provider secret. Paperclip does not write a new provider value."
-                  : "Writes a new version of the referenced provider secret. The new value becomes current for every consumer of that secret, in and outside Paperclip."}
+                  ? t("secrets.rotate.descriptionReference", {
+                      defaultValue:
+                        "Creates a new Paperclip metadata version that points at an existing provider secret. Paperclip does not write a new provider value.",
+                    })
+                  : t("secrets.rotate.descriptionExternalValue", {
+                      defaultValue:
+                        "Writes a new version of the referenced provider secret. The new value becomes current for every consumer of that secret, in and outside Paperclip.",
+                    })}
             </DialogDescription>
           </DialogHeader>
           {selectedSecret && secretSupportsExternalValueWrite(selectedSecret) ? (
             <Tabs value={rotateMode} onValueChange={(value) => setRotateMode(value as RotateMode)}>
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="value">Write new value</TabsTrigger>
-                <TabsTrigger value="reference">Change reference</TabsTrigger>
+                <TabsTrigger value="value">
+                  {t("secrets.rotate.writeNewValue", { defaultValue: "Write new value" })}
+                </TabsTrigger>
+                <TabsTrigger value="reference">
+                  {t("secrets.rotate.changeReference", { defaultValue: "Change reference" })}
+                </TabsTrigger>
               </TabsList>
             </Tabs>
           ) : null}
           <div>
-            <label className="text-xs font-medium" htmlFor="rotate-secret-vault">Provider vault</label>
+            <label className="text-xs font-medium" htmlFor="rotate-secret-vault">
+              {t("secrets.rotate.providerVaultLabel", { defaultValue: "Provider vault" })}
+            </label>
             <select
               id="rotate-secret-vault"
               className="h-9 w-full rounded-md border border-border bg-background px-2 text-sm outline-none"
               value={rotateProviderConfigId}
               onChange={(event) => setRotateProviderConfigId(event.target.value)}
             >
-              <option value="">Deployment default</option>
+              <option value="">
+                {t("secrets.vault.deploymentDefault", { defaultValue: "Deployment default" })}
+              </option>
               {selectedRotateProviderConfigs.map((config) => {
                 const blockReason = getProviderConfigBlockReason(config);
                 return (
                   <option key={config.id} value={config.id} disabled={Boolean(blockReason)}>
                     {config.displayName}
-                    {config.isDefault ? " (default)" : ""}
+                    {config.isDefault
+                      ? t("secrets.create.vaultDefaultSuffix", { defaultValue: " (default)" })
+                      : ""}
                     {blockReason ? ` (${blockReason})` : ""}
                   </option>
                 );
@@ -3254,38 +3405,54 @@ export function Secrets() {
               <ProviderVaultInlineWarning config={selectedRotateProviderConfig} />
             ) : (
               <p className="mt-1 text-(length:--text-micro) text-muted-foreground">
-                Rotating with the deployment default preserves current fallback behavior.
+                {t("secrets.rotate.defaultPreservesFallback", {
+                  defaultValue: "Rotating with the deployment default preserves current fallback behavior.",
+                })}
               </p>
             )}
           </div>
           {selectedSecret?.managedMode === "external_reference" && rotateMode === "reference" ? (
             <div>
-              <label className="text-xs font-medium" htmlFor="rotate-ref">External reference</label>
+              <label className="text-xs font-medium" htmlFor="rotate-ref">
+                {t("secrets.rotate.externalRefLabel", { defaultValue: "External reference" })}
+              </label>
               <Input
                 id="rotate-ref"
                 value={rotateExternalRef}
                 onChange={(event) => setRotateExternalRef(event.target.value)}
-                placeholder={selectedSecret.externalRef ?? "Updated reference"}
+                placeholder={
+                  selectedSecret.externalRef ??
+                  t("secrets.rotate.updatedReferencePlaceholder", { defaultValue: "Updated reference" })
+                }
                 className="font-mono text-xs"
               />
               <p className="mt-1 text-(length:--text-micro) text-muted-foreground">
-                Rotate the actual value in the provider before changing this Paperclip reference.
+                {t("secrets.rotate.rotateFirstHint", {
+                  defaultValue:
+                    "Rotate the actual value in the provider before changing this Paperclip reference.",
+                })}
               </p>
             </div>
           ) : (
             <div>
-              <label className="text-xs font-medium" htmlFor="rotate-value">New value</label>
+              <label className="text-xs font-medium" htmlFor="rotate-value">
+                {t("secrets.rotate.newValueLabel", { defaultValue: "New value" })}
+              </label>
               <Textarea
                 id="rotate-value"
                 value={rotateValue}
                 onChange={(event) => setRotateValue(event.target.value)}
                 rows={3}
                 className="font-mono text-xs"
-                placeholder="Paste the new value"
+                placeholder={t("secrets.rotate.newValuePlaceholder", {
+                  defaultValue: "Paste the new value",
+                })}
               />
               {selectedSecret?.managedMode === "external_reference" ? (
                 <p className="mt-1 text-(length:--text-micro) text-muted-foreground">
-                  Written to <code className="font-mono">{selectedSecret.externalRef}</code> in the provider.
+                  {t("secrets.rotate.writtenToPrefix", { defaultValue: "Written to " })}
+                  <code className="font-mono">{selectedSecret.externalRef}</code>
+                  {t("secrets.rotate.writtenToSuffix", { defaultValue: " in the provider." })}
                 </p>
               ) : null}
             </div>
@@ -3293,7 +3460,7 @@ export function Secrets() {
           {rotateError ? <p className="text-xs text-destructive">{rotateError}</p> : null}
           <DialogFooter>
             <Button variant="outline" onClick={() => setRotateOpen(false)}>
-              Cancel
+              {t("common.cancel", { defaultValue: "Cancel" })}
             </Button>
             <Button
               onClick={() => {
@@ -3310,8 +3477,8 @@ export function Secrets() {
             >
               {rotateMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : null}
               {selectedSecret?.managedMode === "external_reference" && rotateMode === "reference"
-                ? "Update reference"
-                : "Update value"}
+                ? t("secrets.rotate.submitUpdateReference", { defaultValue: "Update reference" })
+                : t("secrets.rotate.submitUpdateValue", { defaultValue: "Update value" })}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -3320,20 +3487,26 @@ export function Secrets() {
       <Dialog open={Boolean(deleteConfirm)} onOpenChange={(open) => !open && setDeleteConfirm(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Delete secret</DialogTitle>
+            <DialogTitle>{t("secrets.delete.title", { defaultValue: "Delete secret" })}</DialogTitle>
             <DialogDescription>
-              Permanently removes <strong>{deleteConfirm?.name}</strong>. Active bindings will fail until you remap them.
+              {t("secrets.delete.descriptionBefore", { defaultValue: "Permanently removes " })}
+              <strong>{deleteConfirm?.name}</strong>
+              {t("secrets.delete.descriptionAfter", {
+                defaultValue: ". Active bindings will fail until you remap them.",
+              })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
+              {t("common.cancel", { defaultValue: "Cancel" })}
+            </Button>
             <Button
               variant="destructive"
               onClick={() => deleteConfirm && deleteMutation.mutate(deleteConfirm.id)}
               disabled={deleteMutation.isPending}
             >
               {deleteMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : null}
-              Delete
+              {t("secrets.delete.deleteButton", { defaultValue: "Delete" })}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -3345,14 +3518,22 @@ export function Secrets() {
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Delete user-provided secret</DialogTitle>
+            <DialogTitle>
+              {t("secrets.delete.definitionTitle", { defaultValue: "Delete user-provided secret" })}
+            </DialogTitle>
             <DialogDescription>
-              Permanently removes <strong>{definitionDeleteConfirm?.name}</strong> for the whole organization.
-              Existing member values become unreferenced and active bindings must be remapped.
+              {t("secrets.delete.descriptionBefore", { defaultValue: "Permanently removes " })}
+              <strong>{definitionDeleteConfirm?.name}</strong>
+              {t("secrets.delete.definitionAfter", {
+                defaultValue:
+                  " for the whole organization. Existing member values become unreferenced and active bindings must be remapped.",
+              })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDefinitionDeleteConfirm(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setDefinitionDeleteConfirm(null)}>
+              {t("common.cancel", { defaultValue: "Cancel" })}
+            </Button>
             <Button
               variant="destructive"
               onClick={() =>
@@ -3361,7 +3542,7 @@ export function Secrets() {
               disabled={deleteDefinitionMutation.isPending}
             >
               {deleteDefinitionMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : null}
-              Delete
+              {t("secrets.delete.deleteButton", { defaultValue: "Delete" })}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -3380,24 +3561,38 @@ export function Secrets() {
       <Dialog open={Boolean(removeVaultConfirm)} onOpenChange={(open) => !open && setRemoveVaultConfirm(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Remove provider vault</DialogTitle>
+            <DialogTitle>
+              {t("secrets.delete.removeVaultTitle", { defaultValue: "Remove provider vault" })}
+            </DialogTitle>
             <DialogDescription>
-              Removes <strong>{removeVaultConfirm?.displayName}</strong> from Paperclip only.{" "}
+              {t("secrets.delete.removeVaultBefore", { defaultValue: "Removes " })}
+              <strong>{removeVaultConfirm?.displayName}</strong>
+              {t("secrets.delete.removeVaultAfter", { defaultValue: " from Paperclip only." })}{" "}
               {removeVaultConfirm?.provider === "aws_secrets_manager"
-                ? "This does not delete the remote AWS Secrets Manager vault, secrets, or any AWS data."
-                : "This does not delete any remote provider data."}{" "}
-              Secrets using this vault will lose the vault association until you assign another one.
+                ? t("secrets.delete.awsNotDeleted", {
+                    defaultValue:
+                      "This does not delete the remote AWS Secrets Manager vault, secrets, or any AWS data.",
+                  })
+                : t("secrets.delete.providerNotDeleted", {
+                    defaultValue: "This does not delete any remote provider data.",
+                  })}{" "}
+              {t("secrets.delete.vaultLoseAssociation", {
+                defaultValue:
+                  "Secrets using this vault will lose the vault association until you assign another one.",
+              })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRemoveVaultConfirm(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setRemoveVaultConfirm(null)}>
+              {t("common.cancel", { defaultValue: "Cancel" })}
+            </Button>
             <Button
               variant="destructive"
               onClick={() => removeVaultConfirm && removeVaultMutation.mutate(removeVaultConfirm.id)}
               disabled={removeVaultMutation.isPending}
             >
               {removeVaultMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : null}
-              Remove from Paperclip
+              {t("secrets.delete.removeFromPaperclip", { defaultValue: "Remove from Paperclip" })}
             </Button>
           </DialogFooter>
         </DialogContent>

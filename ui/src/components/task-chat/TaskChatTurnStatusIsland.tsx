@@ -7,6 +7,7 @@ import {
   LoaderCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { t as translate, useTranslation } from "../../i18n";
 import type {
   TaskChatItem,
   TaskChatProtocolStep,
@@ -193,7 +194,10 @@ const STEP_STATUS_LABEL: Record<TaskChatProtocolStep["status"], string> = {
 };
 
 function fileCountLabel(files: number): string {
-  return `${files} ${files === 1 ? "file" : "files"} changed`;
+  return translate("taskChat.filesChanged", {
+    count: files,
+    defaultValue: files === 1 ? "{{count}} file changed" : "{{count}} files changed",
+  });
 }
 
 function WorkspaceStats({ workspace, compact }: { workspace: WorkspaceSegment; compact?: boolean }) {
@@ -275,6 +279,7 @@ export interface TaskChatTurnPlanProps {
 }
 
 export function TaskChatTurnPlan({ plan, workspace = null, defaultCollapsed = false, compact = false }: TaskChatTurnPlanProps) {
+  const { t } = useTranslation();
   const listId = useId();
   const [expandedOverride, setExpandedOverride] = useState<boolean | null>(null);
   const [showAll, setShowAll] = useState(false);
@@ -304,14 +309,14 @@ export function TaskChatTurnPlan({ plan, workspace = null, defaultCollapsed = fa
         data-testid="task-chat-turn-plan-progress"
       >
         <span aria-hidden>{completed}/{total}</span>
-        <span className="sr-only">{completed} of {total} steps done</span>
+        <span className="sr-only">{t("taskChat.stepOf", { current: completed, total, defaultValue: "Step {{current}} of {{total}}" })}</span>
       </span>
     </>
   );
 
   return (
     <section
-      aria-label="Agent plan"
+      aria-label={t("taskChat.turnPlan", { defaultValue: "Turn plan" })}
       className="mx-auto w-full max-w-(--sz-turn-status-island) overflow-hidden rounded-xl border border-border bg-popover/95 text-foreground shadow-sm backdrop-blur"
       data-testid="task-chat-turn-status-island"
       data-plan-state={plan.complete ? "complete" : problem ? "blocked" : "active"}
@@ -359,7 +364,7 @@ export function TaskChatTurnPlan({ plan, workspace = null, defaultCollapsed = fa
       {expanded ? (
         <ol
           id={listId}
-          aria-label="Within-turn checklist"
+          aria-label={t("taskChat.withinTurnChecklist", { defaultValue: "Within-turn checklist" })}
           className="flex max-h-(--sz-turn-plan-list-max-h) flex-col gap-0.5 overflow-y-auto p-1.5"
         >
           {rows.map((row) => (

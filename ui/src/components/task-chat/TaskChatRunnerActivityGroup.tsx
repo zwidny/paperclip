@@ -35,6 +35,7 @@ import { toolActivityPresentation, type ToolIcon } from "./tool-taxonomy";
 import { useTaskChatShimmer } from "./TaskChatShimmer";
 import { TaskChatDiffCounts, TaskChatDiffView } from "./TaskChatDiffView";
 import { useTaskReferenceLabel, withTaskReference } from "./task-reference";
+import { t as translate, useTranslation } from "../../i18n";
 
 type Activity = TaskChatActivityPhaseItem["items"][number];
 type ToolActivity = Extract<Activity, { kind: "tool" }>;
@@ -159,7 +160,9 @@ function presentation(item: Activity, active: boolean, taskLabel?: string): Acti
     const running = active && Boolean(item.streaming);
     return {
       icon: Brain,
-      label: running ? "Thinking" : "Thought",
+      label: running
+        ? translate("taskChat.thinking", { defaultValue: "Thinking" })
+        : translate("taskChat.thought", { defaultValue: "Thought" }),
       target:
         latestReasoningHeadline(item.lines.join("\n")) ??
         item.lines
@@ -206,7 +209,7 @@ function presentation(item: Activity, active: boolean, taskLabel?: string): Acti
     .join(" · ");
   return {
     icon: Gauge,
-    label: item.label ?? "Token usage",
+    label: item.label ?? translate("taskChat.tokenUsage", { defaultValue: "Token usage" }),
     target: usage || item.detail,
     mono: false,
     running: false,
@@ -407,6 +410,7 @@ function ActivityDetails({ item }: { item: Activity }) {
 }
 
 function ActivityDetailsBody({ item }: { item: Activity }) {
+  const { t } = useTranslation();
   if (item.kind === "thinking")
     return <TaskChatReasoningSummary text={item.lines.join("\n")} streaming={Boolean(item.streaming)} />;
   if (item.kind === "usage") return <TaskChatUsageReadout item={item} />;
@@ -434,7 +438,7 @@ function ActivityDetailsBody({ item }: { item: Activity }) {
           {item.detail}
         </pre>
       ) : null}
-      {item.decision ? <p>Permission {item.decision}</p> : null}
+      {item.decision ? <p>{t("taskChat.permissionDecision", { decision: item.decision, defaultValue: "Permission {{decision}}" })}</p> : null}
       {item.diff ? (
         <p className="break-all font-mono">
           {item.diff.path} · +{item.diff.added} −{item.diff.removed}
@@ -590,6 +594,7 @@ export function TaskChatRunnerActivityGroup({
   item: TaskChatActivityPhaseItem;
   defaultExpanded?: boolean;
 }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useTaskChatExpansion(
     item.id,
     defaultExpanded,
@@ -636,7 +641,10 @@ export function TaskChatRunnerActivityGroup({
             onClick={() => setExpanded(!expanded)}
             aria-expanded={expanded}
             aria-controls={expanded ? historyId : undefined}
-            aria-label={`${expanded ? "Collapse" : "Expand"} ${item.active ? countLabel : `${summary.fullLabel.toLowerCase()} (${countLabel})`}`}
+            aria-label={t(expanded ? "taskChat.collapseGroupAria" : "taskChat.expandGroupAria", {
+              label: item.active ? countLabel : `${summary.fullLabel.toLowerCase()} (${countLabel})`,
+              defaultValue: expanded ? "Collapse {{label}}" : "Expand {{label}}",
+            })}
           >
             {!item.active ? (
               <span
@@ -679,7 +687,7 @@ export function TaskChatRunnerActivityGroup({
             <ol
               id={historyId}
               className="flex min-w-0 flex-col gap-1"
-              aria-label="Activity history"
+              aria-label={t("taskChat.activityHistory", { defaultValue: "Activity history" })}
               data-testid="task-chat-runner-activity-list"
             >
               {foldReadRuns(activities).map((row) =>

@@ -1571,7 +1571,7 @@ export function AgentOverview({
           title={t("agentDetail.tabs.skills", { defaultValue: "Skills" })}
           meta={<span>{skillNames.length} enabled</span>}
           className="min-h-(--agent-detail-tile-min-h) sm:col-span-2"
-          aria-label="Skills"
+          aria-label={t("agentDetail.tabs.skills", { defaultValue: "Skills" })}
         >
           {skillNames.length > 0 ? (
             <div className="flex flex-wrap gap-1.5 px-(--agent-detail-module-inset) pt-1 pb-(--agent-detail-module-inset)">
@@ -2508,7 +2508,7 @@ export function PromptsTab({
                   onClick={() => {
                     const candidate = markdownFileName(newFilePath);
                     if (!candidate || visibleFilePaths.includes(candidate)) return;
-                    if (isDirty && !window.confirm(DISCARD_AGENT_CONFIG_CHANGES_MESSAGE)) return;
+                    if (isDirty && !window.confirm(t("agentDetail.discardChanges", { defaultValue: DISCARD_AGENT_CONFIG_CHANGES_MESSAGE }))) return;
                     setPendingFiles([candidate]);
                     setSelectedFile(candidate);
                     setDraft("");
@@ -2547,7 +2547,7 @@ export function PromptsTab({
             })}
             onSelectFile={(filePath) => {
               if (filePath === selectedOrEntryFile) return;
-              if (isDirty && !window.confirm(DISCARD_AGENT_CONFIG_CHANGES_MESSAGE)) return;
+              if (isDirty && !window.confirm(t("agentDetail.discardChanges", { defaultValue: DISCARD_AGENT_CONFIG_CHANGES_MESSAGE }))) return;
               setDraft(null);
               setPendingFiles([]);
               setSelectedFile(filePath);

@@ -21,6 +21,7 @@ import {
 } from "@/lib/search-filters";
 import { buildSearchFilterOptions, type SearchFilterDataProps } from "./SearchFilterBar";
 import type { FilterMenuOption } from "./SearchFilterMenu";
+import { useTranslation } from "../../i18n";
 
 function ChipToggleGroup({
   title,
@@ -93,7 +94,8 @@ export function SearchFilterSheet({
   onSortChange: (next: CompanySearchSort) => void;
 }) {
   const [draft, setDraft] = useState<SearchFilters>(filters);
-  const options = buildSearchFilterOptions(data);
+  const { t } = useTranslation();
+  const options = buildSearchFilterOptions(data, t);
 
   // Re-seed the draft from committed filters each time the sheet opens.
   useEffect(() => {

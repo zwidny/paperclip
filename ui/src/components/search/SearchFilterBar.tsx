@@ -13,6 +13,8 @@ import { PriorityIcon } from "@/components/PriorityIcon";
 import { SHOW_TASK_PRIORITY_UI } from "@/lib/ui-flags";
 import { SearchFilterMenu, type FilterMenuOption } from "./SearchFilterMenu";
 import { SearchSortMenu } from "./SearchSortMenu";
+import type { TFunction } from "i18next";
+import { useTranslation } from "../../i18n";
 import {
   applyAssigneeToken,
   assigneeToken,
@@ -51,6 +53,14 @@ function humanize(value: string): string {
   return value.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
+function statusOptionLabel(status: string, t?: TFunction): string {
+  return t ? t(`searchFilters.statusOptions.${status}`, { defaultValue: humanize(status) }) : humanize(status);
+}
+
+function priorityOptionLabel(priority: string, t?: TFunction): string {
+  return t ? t(`searchFilters.priority.${priority}`, { defaultValue: humanize(priority) }) : humanize(priority);
+}
+
 function count(record: Record<string, number> | undefined, key: string): number | undefined {
   return record?.[key];
 }
@@ -71,17 +81,17 @@ export function buildSearchFilterOptions({
   projects,
   labels,
   currentUserId,
-}: SearchFilterDataProps): SearchFilterOptionGroups {
+}: SearchFilterDataProps, t?: TFunction): SearchFilterOptionGroups {
   const status: FilterMenuOption[] = ISSUE_DISPLAY_STATUSES.map((value) => ({
     value,
-    label: humanize(value),
+    label: statusOptionLabel(value, t),
     icon: <StatusIcon status={value} />,
     count: count((counts?.displayStatus ?? counts?.status) as Record<string, number> | undefined, value),
   }));
 
   const priority: FilterMenuOption[] = ISSUE_PRIORITIES.map((value) => ({
     value,
-    label: humanize(value),
+    label: priorityOptionLabel(value, t),
     icon: <PriorityIcon priority={value} />,
     count: count(counts?.priority as Record<string, number> | undefined, value),
   }));
@@ -148,7 +158,8 @@ export function SearchFilterBar({
   onSortChange: (next: CompanySearchSort) => void;
   data: SearchFilterDataProps;
 }) {
-  const options = useMemo(() => buildSearchFilterOptions(data), [data]);
+  const { t } = useTranslation();
+  const options = useMemo(() => buildSearchFilterOptions(data, t), [data, t]);
 
   function toggleMulti(dimension: "status" | "priority", value: string) {
     const current = (filters[dimension] ?? []) as string[];

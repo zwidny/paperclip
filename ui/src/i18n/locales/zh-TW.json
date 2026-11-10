@@ -17227,6 +17227,17 @@
     "saveAndExit": "儲存並離開"
   },
   "sidebarAccountMenu": {
+    "signedIn": "Signed in",
+    "localWorkspaceBoard": "Local workspace board",
+    "openMenu": "Open account menu",
+    "account": "Account",
+    "viewProfile": "View profile",
+    "settings": "Settings",
+    "invite": "Invite",
+    "documentation": "Documentation",
+    "signOut": "Sign out",
+    "signingOut": "Signing out...",
+    "shareFeedback": "Share feedback",
     "viewCommitOnGithub": "在 GitHub 上檢視提交 {{commit}}"
   },
   "sidebarShell": {

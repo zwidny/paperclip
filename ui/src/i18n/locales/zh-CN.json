@@ -17227,6 +17227,17 @@
     "saveAndExit": "保存并退出"
   },
   "sidebarAccountMenu": {
+    "signedIn": "已登录",
+    "localWorkspaceBoard": "本地工作区看板",
+    "openMenu": "打开账号菜单",
+    "account": "账号",
+    "viewProfile": "查看个人资料",
+    "settings": "设置",
+    "invite": "邀请",
+    "documentation": "文档",
+    "signOut": "退出登录",
+    "signingOut": "正在退出...",
+    "shareFeedback": "分享反馈",
     "viewCommitOnGithub": "在 GitHub 上查看提交 {{commit}}"
   },
   "sidebarShell": {

@@ -165,6 +165,7 @@ import {
   Loader2,
   ChevronDown,
 } from "lucide-react";
+import { createUuid } from "../lib/uuid";
 
 type Step = 0 | 1 | 2 | 3 | 4 | 5;
 // Plugin/external adapters use arbitrary type ids, so this mirrors the master
@@ -1364,7 +1365,7 @@ function OnboardingWizardInner({
           return null;
         }
       }
-      const id = reusableSetupId ?? crypto.randomUUID();
+      const id = reusableSetupId ?? createUuid();
       const provisionalAdapter = disabledTypes.has("process") ? recommendedAdapters[0]?.type : "process";
       if (!sourceSelected && !provisionalAdapter) throw new Error("No agent adapters are available on this instance.");
       const createAdapter = sourceSelected ? adapterType : provisionalAdapter!;

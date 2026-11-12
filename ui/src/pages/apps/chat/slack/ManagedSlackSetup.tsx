@@ -13,6 +13,7 @@ import { SetupWizardFooter } from "@/components/SetupWizard";
 import type { OwnSlackAppSetup } from "./OwnSlackAppSetup";
 import { sanitizedSetupErrorMessage } from "../chat-setup-error";
 import { useTranslation } from "../../../../i18n";
+import { createUuid } from "../../../../lib/uuid";
 
 export function ManagedSlackSetup({ endpoint, disabled, saveDetails, onSaved, onBusy, onSaveExit, autoStart = false, reconnect = false }: ComponentProps<typeof OwnSlackAppSetup> & { autoStart?: boolean; reconnect?: boolean }) {
   const { t } = useTranslation();
@@ -25,7 +26,7 @@ export function ManagedSlackSetup({ endpoint, disabled, saveDetails, onSaved, on
   const [authorizationRequested, setAuthorizationRequested] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
   const inFlight = useRef(false);
-  const requestId = useRef(crypto.randomUUID());
+  const requestId = useRef(createUuid());
   const registration = endpoint.setup?.slackRegistration;
   const started = Boolean(registration);
   const workspaces = choices.data?.workspaces ?? [];
@@ -98,7 +99,7 @@ export function ManagedSlackSetup({ endpoint, disabled, saveDetails, onSaved, on
     }
     authorizationWindow.reserve();
     if (!started) await saveDetails();
-    if (confirmed || registration?.status === "failed") requestId.current = crypto.randomUUID();
+    if (confirmed || registration?.status === "failed") requestId.current = createUuid();
     const input = { requestId: requestId.current, grantId, ...(reconnect ? { reconnect: true } : {}), ...(confirmed ? { confirmedNoAppCreated: true } : {}) };
     setConfirmed(false);
     const result = await chatEndpointsApi.provisionManagedSlack(endpoint.id, input);

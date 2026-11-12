@@ -9,11 +9,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { queryKeys } from "@/lib/queryKeys";
 import { useTranslation } from "../../../i18n";
+import { createUuid } from "../../../lib/uuid";
 
 export function SlackTestMessageButton({ endpointId }: { endpointId: string }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const [requestId, setRequestId] = useState(() => crypto.randomUUID());
+  const [requestId, setRequestId] = useState(() => createUuid());
   const [accounts, setAccounts] = useState<Extract<SlackTestMessageResult, { status: "connection_required" }>["accounts"] | null>(null);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [selected, setSelected] = useState("");
@@ -48,10 +49,10 @@ export function SlackTestMessageButton({ endpointId }: { endpointId: string }) {
   useEffect(() => {
     if (confirmed && !send.isPending && !send.error) send.mutate({ slackUserId: selected });
   }, [confirmed, send.isPending, send.error]);
-  const reset = () => { setRequestId(crypto.randomUUID()); send.reset(); };
+  const reset = () => { setRequestId(createUuid()); send.reset(); };
   const startTest = () => {
     if (invitationExpired) {
-      const next = crypto.randomUUID(); setRequestId(next);
+      const next = createUuid(); setRequestId(next);
       send.mutate({ requestId: next, slackUserId: selected });
     } else send.mutate({});
   };

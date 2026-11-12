@@ -84,6 +84,7 @@ import { useCoordinatorPresentation } from "@/components/coordinator/Coordinator
 import type { TFunction } from "i18next";
 import { useTranslation } from "../../i18n";
 import type { Agent, IssueAssigneeAdapterOverrides } from "@paperclipai/shared";
+import { createUuid } from "../../lib/uuid";
 
 /** Structurally identical to IssueChatThread's module-private CommentReassignment. */
 export interface CommentReassignment {
@@ -726,7 +727,7 @@ export function TaskChatComposer({
   }
 
   async function uploadImage(file: File): Promise<string> {
-    const id = crypto.randomUUID();
+    const id = createUuid();
     setAttachments((prev) => [
       ...prev,
       {
@@ -1072,7 +1073,7 @@ export function TaskChatComposer({
         setBody(submittedBody);
         return;
       }
-      attemptId = crypto.randomUUID();
+      attemptId = createUuid();
       if (requestOwner === undefined) markRequestUnbound(attemptId);
       // IDs come only from this composer's upload receipts, never from parsing
       // arbitrary Markdown. A removed inline image no longer selects its receipt.

@@ -29,12 +29,15 @@ import type {
   IssueQueuedCommentQueue,
 } from "@paperclipai/shared";
 import { cn } from "@/lib/utils";
+import { MarkdownBody } from "@/components/MarkdownBody";
+import { extractImageRefs, stripStandaloneImageEmbeds } from "./task-chat-attachments";
 import { TaskChatComposerBar } from "./TaskChatComposerBar";
 import {
   queuedMessageAutoSteerDeadline,
   queuedMessageAutoSteerEligible,
   queuedMessageAutoSteerKey,
 } from "./queued-message-auto-steer";
+import { isQueuedInterruptHandoff } from "@/lib/issue-queued-comment-queue";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -123,7 +126,10 @@ function SortableQueuedMessage({
 }) {
   const { t } = useTranslation();
   const immutableResponse = entry.source?.kind === "interaction";
-  const label = queuedMessageLabel(entry);
+  const body = queuedMessageLabel(entry);
+  const images = extractImageRefs(body).filter(image =>
+    /^\/api\/(?:attachments|assets)\/[^/?#\\]+\/content(?:\?[^#\\]*)?$/.test(image.url));
+  const label = stripStandaloneImageEmbeds(body);
   const sortable = useSortable({
     id: entry.comment.id,
     disabled: queueMutationDisabled || immutableResponse,
@@ -146,7 +152,7 @@ function SortableQueuedMessage({
       ref={sortable.setNodeRef}
       style={style}
       className={cn(
-        "group flex h-11 min-w-0 items-center gap-1 border-b border-border/55 bg-card/95 px-2.5 text-sm last:border-b-0",
+        "group flex min-h-11 min-w-0 flex-wrap items-center gap-1 border-b border-border/55 bg-card/95 px-2.5 py-1 text-sm last:border-b-0",
         sortable.isDragging &&
           "relative z-20 rounded-lg border border-border shadow-lg",
       )}
@@ -158,7 +164,7 @@ function SortableQueuedMessage({
         {...sortable.attributes}
         {...sortable.listeners}
         disabled={queueMutationDisabled || immutableResponse}
-        aria-label={t("taskChat.reorderQueuedAria", { defaultValue: "Reorder queued message: {{message}}", message: label })}
+        aria-label={t("taskChat.reorderQueuedAria", { defaultValue: "Reorder queued message: {{message}}", message: label || t("taskChat.imagesLabel", { defaultValue: "Images" }) })}
         className="flex h-7 w-7 shrink-0 cursor-grab items-center justify-center rounded-md text-muted-foreground/70 transition-colors hover:bg-accent hover:text-foreground active:cursor-grabbing disabled:cursor-default disabled:opacity-40"
       >
         <GripVertical className="h-3.5 w-3.5" aria-hidden />
@@ -168,9 +174,20 @@ function SortableQueuedMessage({
         className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
         aria-hidden
       />
-      <span className="min-w-0 flex-1 truncate px-1" title={label}>
-        {label}
-      </span>
+      <div className="flex min-w-24 max-w-full flex-1 flex-col items-start gap-1 overflow-hidden px-1 sm:flex-row sm:items-center sm:gap-2" title={label || undefined}>
+        {label ? <MarkdownBody
+          className="w-full min-w-0 line-clamp-2 sm:w-auto sm:flex-1 sm:line-clamp-1 [&_p]:m-0!"
+          linkIssueReferences={false}
+          mediaMode="omit"
+        >{label}</MarkdownBody> : null}
+        {images.length ? <div className="flex min-w-0 max-w-full flex-wrap items-center gap-1" role="group" aria-label={t("taskChat.queuedImages", { defaultValue: "Queued images" })}>
+          {images.slice(0, 3).map(image => <img
+            key={image.url} src={image.url} alt={image.name} loading="lazy"
+            className="size-8 shrink-0 rounded-md border border-border object-cover"
+          />)}
+          {images.length > 3 ? <span className="text-xs text-muted-foreground">+{images.length - 3}</span> : null}
+        </div> : null}
+      </div>
 
       {autoSteerSecondsLeft !== null ? (
         <span className="flex shrink-0 items-center gap-1" data-testid={`task-chat-queued-auto-steer-${entry.comment.id}`}>
@@ -242,11 +259,7 @@ function SortableQueuedMessage({
       <button
         type="button"
         onClick={onDiscard}
-        disabled={
-          busy ||
-          (!queue.queueId && !entry.comment.id.startsWith("optimistic-")) ||
-          !entry.canDiscard
-        }
+        disabled={busy || !entry.canDiscard}
         title={t("taskChat.discardQueuedTitle", { defaultValue: "Discard queued message" })}
         aria-label={t("taskChat.discardQueuedAria", { defaultValue: "Discard queued message: {{message}}", message: label })}
         className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
@@ -451,12 +464,10 @@ export function TaskChatQueuedMessages({
     commentId: string,
     action: Exclude<QueueAction, null>,
   ) {
-    const locallyDiscardable =
-      action === "discard" && commentId.startsWith("optimistic-");
     if (
       pending ||
       reordering ||
-      (!queue.queueId && action !== "interrupt" && !locallyDiscardable)
+      (!queue.queueId && action !== "interrupt" && action !== "discard")
     ) {
       return;
     }
@@ -482,7 +493,8 @@ export function TaskChatQueuedMessages({
       if (action === "steer") await onSteer(commentId, queue.revision);
       else if (action === "interrupt") {
         const updatedQueue = await onInterrupt?.();
-        if (updatedQueue?.state === "deferred") {
+        // The stopped turn is handing off to these messages: they are sent.
+        if (updatedQueue?.state === "deferred" && !isQueuedInterruptHandoff(updatedQueue)) {
           for (const entry of updatedQueue.entries) optimisticDeliveryIds.current.delete(entry.comment.id);
           setEntries(updatedQueue.entries.filter(entry => !optimisticDeliveryIds.current.has(entry.comment.id)));
           setDeferredStatus({
@@ -544,7 +556,14 @@ export function TaskChatQueuedMessages({
     }
   }
 
-  if (entries.length === 0 && !visibleError && !deferredStatus) return null;
+  // A chat message held in the outbox (for example by the agent's daily
+  // limit) has no receipt or run whose task status could explain the wait,
+  // so the queue says why it waits. Receipt-backed waits keep the task status.
+  const statusMessage = deferredStatus?.message
+    ?? (queue.state === "deferred" && !queue.queueId && !queue.targetRunId && entries.length > 0
+      ? queue.executionWait?.message ?? null : null);
+
+  if (entries.length === 0 && !visibleError && !statusMessage) return null;
 
   return (
     <TaskChatComposerBar
@@ -596,7 +615,7 @@ export function TaskChatQueuedMessages({
           </div>
         </SortableContext>
       </DndContext>
-      {deferredStatus ? <p role="status" className="border-t border-border px-3 py-1.5 text-xs text-muted-foreground">{deferredStatus.message}</p> : null}
+      {statusMessage ? <p role="status" className="border-t border-border px-3 py-1.5 text-xs text-muted-foreground">{statusMessage}</p> : null}
       {visibleError ? (
         <div
           role="status"

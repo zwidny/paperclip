@@ -146,6 +146,28 @@ describe("trigger firing", () => {
     expect(observer.record.triggerMissed).toEqual(["comment"]);
   });
 
+  it("clicks Retry through the board UI when the wave drives a browser, and records what the user saw", async () => {
+    const state = { runs: [{ runId: "r1", status: "failed", finishedAt: new Date().toISOString() }] as Json[],
+      issue: { id: "i1", status: "blocked", interruption: { state: "failed", canRetry: true, observedRunId: "r1" } } };
+    const clicks: string[] = [];
+    const board = { clickRetry: async (issue: string) => { clicks.push(issue);
+      return { clicked: true, httpStatus: 202, accepted: true, error: null, bannerText: "Couldn’t finish this attempt." }; } };
+    const observer = new TaskObserver(base, scriptedApi(state), lab, new Timeline(null), ready, undefined, board);
+    await observer.launch();
+    const start = observer.record.createdAt!;
+    await observer.poll(start + 1_000);
+    await observer.poll(start + 1_000 + 12_001);
+    expect(clicks).toEqual(["CHA-1"]);
+    expect(observer.record.retry).toMatchObject({ via: "ui", accepted: true, httpStatus: 202, bannerText: "Couldn’t finish this attempt." });
+
+    const missing = { clickRetry: async () => ({ clicked: false, httpStatus: null, accepted: null, error: "ui_retry_button_missing", bannerText: "Saving files from the previous attempt" }) };
+    const blind = new TaskObserver(base, scriptedApi(state), lab, new Timeline(null), ready, undefined, missing);
+    await blind.launch();
+    await blind.poll(blind.record.createdAt! + 1_000);
+    await blind.poll(blind.record.createdAt! + 1_000 + 12_001);
+    expect(blind.record.retry).toMatchObject({ via: "ui", accepted: null, error: "ui_retry_button_missing" });
+  });
+
   it("retry: fires the extra K1 right after an accepted Retry click, and closes unfired triggers at sweep", async () => {
     const state = { runs: [{ runId: "r1", status: "failed", finishedAt: new Date().toISOString() }] as Json[],
       issue: { id: "i1", status: "blocked", interruption: { state: "needs_retry", canRetry: true, observedRunId: "r1" } } };
@@ -392,6 +414,30 @@ describe("R5 live evidence", () => {
     expect(gradeR5(quietB5({ toolInFlight: true })).verdict).toBe("pass");
     expect(gradeR5(quietB5({ processAlive: true })).verdict).toBe("pass");
     expect(gradeR5(quietB5({}))).toMatchObject({ verdict: "fail", detail: expect.stringMatching(/^silent_dead_run r1/) });
+  });
+
+  it("does not flag a slow model request while the provider turn is active with no tool running (w-20261115T044649-s7106/t028)", () => {
+    const slow = JSON.parse(readFileSync(path.join(import.meta.dirname, "fixtures/t028-slow-provider-turn.json"), "utf8")) as { samples: TaskSample[] };
+    const gap = slow.samples.filter(sample => sample.runs?.[0]?.lastEvidenceAt === "2026-11-15T05:22:13.005Z");
+    expect(gap.at(-1)!.at - gap[0]!.at).toBeGreaterThan(300_000);
+    expect(gap.every(sample => sample.runs![0]!.providerTurnActive && !sample.runs![0]!.toolInFlight)).toBe(true);
+    expect(gradeR5(record(slow.samples)).verdict).toBe("pass");
+  });
+
+  const quietTurn = (live: { providerTurnActive?: boolean }, quietMs: number) => {
+    const start = Date.parse("2026-11-15T05:00:00Z");
+    const run = { id: "r1", status: "running", createdAt: null, startedAt: new Date(start - 600_000).toISOString(), finishedAt: null,
+      errorCode: null, retryOfRunId: null, wakeCommentIds: [], livenessState: null, lastEvidenceAt: new Date(start).toISOString(), ...live };
+    const offsets = Array.from({ length: Math.floor(quietMs / 30_000) + 1 }, (_, index) => index * 30_000);
+    return record(offsets.map(offset => ({ at: start + offset, reachable: true, serverReady: true, issueStatus: "in_progress", runs: [run] })));
+  };
+
+  it("still fails a silent run with no active provider turn, and a provider turn silent past the provider-latency bound", () => {
+    expect(gradeR5(quietTurn({}, 240_000))).toMatchObject({ verdict: "fail", detail: expect.stringMatching(/^silent_dead_run r1/) });
+    expect(gradeR5(quietTurn({ providerTurnActive: false }, 240_000))).toMatchObject({ verdict: "fail", detail: expect.stringMatching(/^silent_dead_run r1/) });
+    expect(gradeR5(quietTurn({ providerTurnActive: true }, 570_000)).verdict).toBe("pass");
+    expect(gradeR5(quietTurn({ providerTurnActive: true }, 630_000))).toMatchObject({ verdict: "fail",
+      detail: expect.stringMatching(/^silent_dead_run r1 .* for 630s/) });
   });
 
   it("derives tool-in-flight and process liveness from run events", async () => {

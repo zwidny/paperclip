@@ -1,3 +1,4 @@
+import { createUuid } from "@/lib/uuid";
 import { useCurrentAccountGuard } from "../hooks/useAccountBoundMutation";
 import { resolveIssueChatHumanAuthor } from "@/lib/issue-chat-human-author";
 import type { TFunction } from "i18next";
@@ -280,7 +281,6 @@ import { SourceTrustBadge } from "./SourceTrustBadge";
 import { CommentAttributionChip } from "./CommentAttributionChip";
 import { resolveCommentAttribution } from "../lib/comment-attribution";
 import { useTranslation } from "../i18n";
-import { createUuid } from "../lib/uuid";
 
 interface IssueChatMessageContext {
   feedbackDataSharingPreference: FeedbackDataSharingPreference;
@@ -835,6 +835,10 @@ export function IssueAssigneePausedNotice({
 }) {
   const { t } = useTranslation();
   if (!agent || agent.status !== "paused" || issueStatusIsTerminalDisposition(issueStatus)) return null;
+
+  // Lifecycle setup is shown by the queued turn and its inline connection card.
+  // Resume changes operator holds; it cannot complete verification.
+  if (!agent.pauseReason && ["preparing", "verifying", "resuming"].includes(agent.lifecycleState ?? "")) return null;
 
   // A freshly created agent is stored as paused with pauseReason "setup" until
   // its setup finishes. That is not an operator pause, so say what is actually
@@ -6386,7 +6390,7 @@ export function IssueChatThread({
     async (body, reopen, reassignment, attachmentIds, clientRequestId, runSettings) => {
       pendingSubmitScrollRef.current = true;
       clientRequestId ??= createUuid();
-      const attempt = beginSubmission(clientRequestId);
+      const attempt = beginSubmission(clientRequestId, undefined, reopen);
       try {
         await (runSettings
           ? onAdd(body, reopen, reassignment, attachmentIds, clientRequestId, runSettings)
@@ -7085,7 +7089,9 @@ export function IssueChatThread({
                 mentions={mentions}
                 agentMap={agentMap}
                 hasActiveRun={!!hasActiveRun}
-                onStop={hasActiveRun ? onCancelRun : undefined}
+                // A run still waiting in line is stoppable too: Stop takes the
+                // task out of the agent's queue before it ever starts.
+                onStop={activeRunIds.size > 0 ? onCancelRun : undefined}
                 stopPending={stopPending}
                 stopScope={stopScope}
                 currentUserId={currentUserId}

@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { CompanySecret, UserSecretDefinition } from "@paperclipai/shared";
+import { Eye, EyeOff } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -15,15 +16,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { secretsApi } from "../../api/secrets";
 import { queryKeys } from "../../lib/queryKeys";
 import { useToastActions } from "../../context/ToastContext";
-import { UserSecretChip } from "./user-secret-presentation";
 import { describeError } from "@/api/errors";
 import { useTranslation } from "../../i18n";
 
+// Hides the pasted value like a password field while keeping a multi-line box.
+
 /**
- * Shared "set my value" dialog for a user-secret definition. Used both from the
- * Secrets → My secrets tab and from the missing-required-secret warning surfaces
- * (task run / issue failure), so a user can satisfy a required secret from either
- * place with identical behavior.
+ * Shared dialog where a person adds or replaces their own value for a secret.
+ * Used both from the Secrets → My secrets tab and from the missing-secret
+ * warning surfaces (task run / task failure), so both behave identically.
  */
 export function SetMyUserSecretDialog({
   companyId,
@@ -46,6 +47,8 @@ export function SetMyUserSecretDialog({
   const [value, setValue] = useState("");
   const [externalRef, setExternalRef] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [showValue, setShowValue] = useState(false);
+  const fieldId = useId();
 
   const isExternal = definition?.managedMode === "external_reference";
 
@@ -54,6 +57,7 @@ export function SetMyUserSecretDialog({
       setValue("");
       setExternalRef("");
       setError(null);
+      setShowValue(false);
     }
   }, [open, definition?.id]);
 
@@ -78,8 +82,8 @@ export function SetMyUserSecretDialog({
       queryClient.invalidateQueries({ queryKey: queryKeys.secrets.userDefinitions(companyId) });
       pushToast({
         title: existingSecret
-          ? t("setMyUserSecretDialog.toastUpdated", { defaultValue: "Value updated" })
-          : t("setMyUserSecretDialog.toastSaved", { defaultValue: "Value saved" }),
+          ? t("setMyUserSecretDialog.toastUpdated", { defaultValue: "Your value was replaced" })
+          : t("setMyUserSecretDialog.toastSaved", { defaultValue: "Your value was saved" }),
         body: definition?.name,
         tone: "success",
       });
@@ -99,68 +103,90 @@ export function SetMyUserSecretDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle>
             {existingSecret
-              ? t("setMyUserSecretDialog.updateTitle", { defaultValue: "Update your value" })
+              ? t("setMyUserSecretDialog.updateTitle", { defaultValue: "Replace your value" })
               : t("setMyUserSecretDialog.setTitle", { defaultValue: "Set your value" })}
-            <UserSecretChip />
+            {definition ? t("setMyUserSecretDialog.titleForName", { defaultValue: " for {{name}}", name: definition.name }) : ""}
           </DialogTitle>
           <DialogDescription>
-            {definition ? (
-              <>
-                {t("setMyUserSecretDialog.descriptionPrefix", { defaultValue: "This value is yours only. It is used when you are the user responsible for a run that needs " })}<span className="font-mono">{definition.key}</span>{t("setMyUserSecretDialog.descriptionSuffix", { defaultValue: "." })}
-              </>
-            ) : null}
+            {t("setMyUserSecretDialog.description", { defaultValue: "Only you provide this value. Agents use it when they work for you." })}
           </DialogDescription>
         </DialogHeader>
 
         {definition ? (
-          <div className="space-y-3">
-            <div className="rounded-md border border-border bg-muted/20 p-3 text-xs">
-              <div className="font-medium text-foreground">{definition.name}</div>
-              {definition.description ? (
-                <p className="mt-1 text-muted-foreground">{definition.description}</p>
-              ) : null}
-              {definition.usageGuidance ? (
-                <p className="mt-1 text-muted-foreground">{definition.usageGuidance}</p>
-              ) : null}
-            </div>
+          <div className="flex flex-col gap-3">
+            {definition.description || definition.usageGuidance ? (
+              <div className="flex flex-col gap-1 text-xs text-muted-foreground">
+                {definition.description ? <p>{definition.description}</p> : null}
+                {definition.usageGuidance ? <p>{definition.usageGuidance}</p> : null}
+              </div>
+            ) : null}
 
             {isExternal ? (
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-foreground">{t("secrets.create.externalRefLabel", { defaultValue: "External reference" })}</label>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-foreground" htmlFor={fieldId}>
+                  {t("setMyUserSecretDialog.externalRefStoredLabel", { defaultValue: "Where your value is stored" })}
+                </label>
                 <Input
+                  id={fieldId}
                   value={externalRef}
                   onChange={(event) => setExternalRef(event.target.value)}
-                  placeholder={t("setMyUserSecretDialog.externalRefPlaceholder", { defaultValue: "provider reference or ARN" })}
+                  placeholder={t("setMyUserSecretDialog.externalRefPlaceholder", { defaultValue: "Reference or ARN" })}
                   className="font-mono text-sm"
+                  autoComplete="off"
+                  spellCheck={false}
                   autoFocus
                 />
-                <p className="text-(length:--text-micro) text-muted-foreground">
-                  {t("setMyUserSecretDialog.externalRefHint", { defaultValue: "Points at your own credential in the configured provider. Paperclip stores the reference, not the value." })}
+                <p className="text-xs text-muted-foreground">
+                  {t("setMyUserSecretDialog.externalRefHint", { defaultValue: "Points to your own secret in your organization's vault. Paperclip saves the reference, not the value." })}
                 </p>
               </div>
             ) : (
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-foreground">{t("setMyUserSecretDialog.valueLabel", { defaultValue: "Your value" })}</label>
-                <Textarea
-                  value={value}
-                  onChange={(event) => setValue(event.target.value)}
-                  placeholder={t("setMyUserSecretDialog.valuePlaceholder", { defaultValue: "Paste your token or credential" })}
-                  className="font-mono text-sm min-h-(--sz-80px)"
-                  autoFocus
-                />
-                <p className="text-(length:--text-micro) text-muted-foreground">
-                  {t("setMyUserSecretDialog.valueHint", { defaultValue: "Stored encrypted. Never shown back to anyone, including admins." })}
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-foreground" htmlFor={fieldId}>
+                  {t("setMyUserSecretDialog.valueLabel", { defaultValue: "Your value" })}
+                </label>
+                <div className="relative">
+                  <Textarea
+                    id={fieldId}
+                    value={value}
+                    onChange={(event) => setValue(event.target.value)}
+                    placeholder={t("setMyUserSecretDialog.valuePlaceholder", { defaultValue: "Paste your token or key" })}
+                    className={`min-h-(--sz-80px) pr-11 font-mono text-sm${showValue ? "" : " secret-value-masked"}`}
+                    autoComplete="off"
+                    spellCheck={false}
+                    autoFocus
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-xs"
+                    className="absolute right-2 top-2"
+                    aria-label={showValue
+                      ? t("setMyUserSecretDialog.hideValue", { defaultValue: "Hide value" })
+                      : t("setMyUserSecretDialog.showValue", { defaultValue: "Show value" })}
+                    aria-pressed={showValue}
+                    onClick={() => setShowValue((current) => !current)}
+                  >
+                    {showValue ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {t("setMyUserSecretDialog.valueHint", { defaultValue: "Encrypted when saved. After that it can be replaced, never viewed." })}
                 </p>
               </div>
             )}
 
-            {error ? <p className="text-xs text-destructive">{error}</p> : null}
+            {error ? (
+              <p className="text-xs text-destructive" role="alert">
+                {error}
+              </p>
+            ) : null}
           </div>
         ) : null}
 
-        <DialogFooter>
+        <DialogFooter className="flex-row items-center justify-between sm:justify-between">
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={save.isPending}>
             {t("common.cancel", { defaultValue: "Cancel" })}
           </Button>
@@ -168,7 +194,7 @@ export function SetMyUserSecretDialog({
             {save.isPending
               ? t("common.saving", { defaultValue: "Saving…" })
               : existingSecret
-              ? t("secrets.actions.updateValue", { defaultValue: "Update value" })
+              ? t("setMyUserSecretDialog.replaceValue", { defaultValue: "Replace value" })
               : t("setMyUserSecretDialog.saveValue", { defaultValue: "Save value" })}
           </Button>
         </DialogFooter>

@@ -623,8 +623,8 @@ function Settings({
           />
           {endpoint.provider === "slack" && (
             <SettingToggle
-              label={t("chatDetail.requireMention", { defaultValue: "Require at-mention" })}
-              detail={t("chatDetail.requireMentionDetail", { defaultValue: "In channels, only respond to messages that @mention this bot, including thread replies. Direct messages never require an @mention and must be allowed above." })}
+              label={t("chatDetail.requireMention", { defaultValue: "Require at-mention in channels" })}
+              detail={t("chatDetail.requireMentionDetail", { defaultValue: "In channels, require an @mention to start a conversation with this bot. Replies in existing threads and direct messages do not require an @mention. Direct messages must be allowed above." })}
               checked={endpoint.requireAtMention ?? false}
               pending={updateEndpoint.isPending}
               onChange={(requireAtMention) =>

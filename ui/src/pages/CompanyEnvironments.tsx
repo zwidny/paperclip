@@ -27,6 +27,8 @@ import {
   type EnvironmentCustomImageSetupSessionResult,
   type EnvironmentUpdateResult,
 } from "@/api/environments";
+import { TailscaleSshMachine } from "@/components/TailscaleSshMachine";
+import { useTailscaleConnections } from "@/hooks/useTailscaleConnections";
 import { agentsApi } from "@/api/agents";
 import { ApiError } from "@/api/client";
 import { describeError } from "@/api/errors";
@@ -71,6 +73,11 @@ type EnvironmentFormState = {
   name: string;
   description: string;
   driver: "local" | "ssh" | "sandbox";
+  sshNetwork: "direct" | "tailscale";
+  sshUseHostAuth: boolean;
+  tailscaleConnectionId: string;
+  tailscaleDeviceId: string;
+  tailscaleAuthKeySecretId: string;
   sshHost: string;
   sshPort: string;
   sshUsername: string;
@@ -127,6 +134,11 @@ function buildEnvironmentPayload(form: EnvironmentFormState) {
     config:
       form.driver === "ssh"
         ? {
+            useHostAuth: form.sshUseHostAuth,
+            ...(form.sshNetwork === "tailscale" ? { network: "tailscale" as const,
+              ...(form.tailscaleConnectionId ? { tailscaleConnectionId: form.tailscaleConnectionId, tailscaleDeviceId: form.tailscaleDeviceId } :
+                { tailscaleAuthKeySecretRef: form.tailscaleAuthKeySecretId ? { type: "secret_ref" as const, secretId: form.tailscaleAuthKeySecretId, version: "latest" as const } : null }),
+            } : { network: "direct" as const }),
             host: form.sshHost.trim(),
             port: Number.parseInt(form.sshPort || "22", 10) || 22,
             username: form.sshUsername.trim(),
@@ -149,10 +161,17 @@ function buildEnvironmentPayload(form: EnvironmentFormState) {
 }
 
 function createEmptyEnvironmentForm(): EnvironmentFormState {
+  const connectionId = typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("tailscale_connection") ?? "";
+  const tailscaleSetup = Boolean(connectionId) || (typeof window !== "undefined" && new URLSearchParams(window.location.search).has("tailscale_setup"));
   return {
     name: "",
     description: "",
     driver: "ssh",
+    sshUseHostAuth: false,
+    sshNetwork: tailscaleSetup ? "tailscale" : "direct",
+    tailscaleConnectionId: connectionId,
+    tailscaleDeviceId: "",
+    tailscaleAuthKeySecretId: "",
     sshHost: "",
     sshPort: "22",
     sshUsername: "",
@@ -183,6 +202,10 @@ function normalizeNonLocalEnvironmentId(
 function readSshConfig(environment: Environment) {
   const config = environment.config ?? {};
   return {
+    useHostAuth: config.useHostAuth !== false,
+    network: config.network === "tailscale" ? "tailscale" as const : "direct" as const,
+    tailscaleAuthKeySecretId: typeof (config.tailscaleAuthKeySecretRef as { secretId?: unknown } | null)?.secretId === "string"
+      ? (config.tailscaleAuthKeySecretRef as { secretId: string }).secretId : "",
     host: typeof config.host === "string" ? config.host : "",
     port:
       typeof config.port === "number"
@@ -228,6 +251,11 @@ function createEnvironmentFormFromEnvironment(environment: Environment): Environ
       name: environment.name,
       description: environment.description ?? "",
       driver: "ssh",
+      tailscaleConnectionId: typeof environment.config.tailscaleConnectionId === "string" ? environment.config.tailscaleConnectionId : "",
+      tailscaleDeviceId: typeof environment.config.tailscaleDeviceId === "string" ? environment.config.tailscaleDeviceId : "",
+      sshUseHostAuth: ssh.useHostAuth,
+      sshNetwork: ssh.network,
+      tailscaleAuthKeySecretId: ssh.tailscaleAuthKeySecretId,
       sshHost: ssh.host,
       sshPort: ssh.port,
       sshUsername: ssh.username,
@@ -1311,6 +1339,7 @@ export function CompanyEnvironments({ mode = "list" }: CompanyEnvironmentsProps)
   const { environmentId: routeEnvironmentId } = useParams<{ environmentId?: string }>();
   const navigate = useNavigate();
   const { selectedCompanyId } = useCompany();
+  const tailscaleConnections = useTailscaleConnections(selectedCompanyId);
   const { setBreadcrumbs } = useBreadcrumbs();
   const { pushToast } = useToast();
   const { t } = useTranslation();
@@ -1318,6 +1347,7 @@ export function CompanyEnvironments({ mode = "list" }: CompanyEnvironmentsProps)
   const isEnvironmentFormPage = mode === "create" || mode === "edit";
   const editingEnvironmentId = mode === "edit" ? routeEnvironmentId ?? null : null;
   const [environmentForm, setEnvironmentForm] = useState<EnvironmentFormState>(createEmptyEnvironmentForm);
+  const hasConnectedTailnet = tailscaleConnections.data?.some(connection => connection.status === "connected") ?? false;
   const environmentVariablesEditorRef = useRef<EnvironmentVariablesEditorHandle | null>(null);
   const initializedFormKeyRef = useRef<string | null>(null);
   // Fingerprint of the form as initialized; null until the form page has loaded its data.
@@ -1863,7 +1893,8 @@ export function CompanyEnvironments({ mode = "list" }: CompanyEnvironmentsProps)
       (
         environmentForm.sshHost.trim().length > 0 &&
         environmentForm.sshUsername.trim().length > 0 &&
-        environmentForm.sshRemoteWorkspacePath.trim().length > 0
+        environmentForm.sshRemoteWorkspacePath.trim().length > 0 &&
+        (environmentForm.sshNetwork !== "tailscale" || Boolean(environmentForm.tailscaleConnectionId && environmentForm.tailscaleDeviceId))
       )) &&
     (environmentForm.driver !== "sandbox" ||
       environmentForm.sandboxProvider.trim().length > 0 &&
@@ -2057,7 +2088,7 @@ export function CompanyEnvironments({ mode = "list" }: CompanyEnvironmentsProps)
                       <span>
                         {environment.name}
                         {isPlatformManagedEnvironment(environment) ? null : (
-                          <span className="text-muted-foreground"> · {environment.driver}</span>
+                          <span className="text-muted-foreground"> · {environment.driver === "ssh" && environment.config.network === "tailscale" ? t("environments.row.sshViaTailscale", { defaultValue: "ssh via Tailscale" }) : environment.driver}</span>
                         )}
                       </span>
                       {isPlatformManagedEnvironment(environment) ? (
@@ -2193,6 +2224,7 @@ export function CompanyEnvironments({ mode = "list" }: CompanyEnvironmentsProps)
             >
               <EnvironmentVariablesEditor
                 ref={environmentVariablesEditorRef}
+                footerHint={null}
                 value={environmentForm.envVars}
                 secrets={secrets ?? []}
                 onCreateSecret={async (name, value) => await createSecret.mutateAsync({ name, value })}
@@ -2256,9 +2288,6 @@ export function CompanyEnvironments({ mode = "list" }: CompanyEnvironmentsProps)
               ) : null}
             </div>
             <h1 className="text-lg font-semibold">{editingEnvironmentId ? t("environments.editEnvironment", { defaultValue: "Edit environment" }) : t("environments.addEnvironment", { defaultValue: "Add environment" })}</h1>
-            <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-              {t("environments.form.description", { defaultValue: "Configure a reusable execution target for your agents. Saved changes affect future runs; Paperclip may start fresh sessions or sandbox leases after environment config changes." })}
-            </p>
           </div>
 
           <div className="py-4">
@@ -2279,7 +2308,7 @@ export function CompanyEnvironments({ mode = "list" }: CompanyEnvironmentsProps)
                   onChange={(e) => setEnvironmentForm((current) => ({ ...current, description: e.target.value }))}
                 />
               </Field>
-              <Field label={t("environments.field.driver", { defaultValue: "Driver" })} hint={t("environments.field.driverHint", { defaultValue: "Sandbox stores plugin-backed provider config on the shared environment seam. SSH stores a remote machine target." })}>
+              <Field label={t("environments.field.driver", { defaultValue: "Driver" })} hint={t("environments.field.driverHint", { defaultValue: "Choose where agent tasks run. SSH connects to a machine you own." })}>
                 <select
                   className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
                   value={environmentForm.driver}
@@ -2315,11 +2344,35 @@ export function CompanyEnvironments({ mode = "list" }: CompanyEnvironmentsProps)
 
               {environmentForm.driver === "ssh" ? (
                 <div className="grid gap-3 md:grid-cols-2">
-                  <Field label={t("environments.field.host", { defaultValue: "Host" })} hint={t("environments.field.hostHint", { defaultValue: "DNS name or IP address for the remote machine." })}>
+                  <div className="md:col-span-2">
+                    {environmentForm.sshNetwork === "tailscale" || hasConnectedTailnet ? <Field label={t("environments.field.network", { defaultValue: "Network" })} hint={t("environments.field.networkHint", { defaultValue: "Choose how Paperclip reaches this SSH server." })}>
+                      <select aria-label={t("environments.field.sshNetwork", { defaultValue: "SSH network" })} className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm" value={environmentForm.sshNetwork}
+                        onChange={event => setEnvironmentForm(current => ({ ...current, sshNetwork: event.target.value === "tailscale" ? "tailscale" : "direct",
+                          tailscaleConnectionId: "", tailscaleDeviceId: "", tailscaleAuthKeySecretId: "", sshHost: "", sshPrivateKey: "", sshPrivateKeySecretId: "", sshKnownHosts: "" }))}>
+                        <option value="direct">{t("environments.field.networkDirect", { defaultValue: "Direct connection" })}</option>
+                        <option value="tailscale">{t("environments.field.networkTailscale", { defaultValue: "Tailscale" })}</option>
+                      </select>
+                    </Field> : null}
+                    {tailscaleConnections.error ? <p role="alert" className="text-sm text-destructive">{describeError(tailscaleConnections.error, { action: "load Tailscale connections" }).body}</p> : null}
+                    {tailscaleConnections.data !== undefined && !hasConnectedTailnet && environmentForm.sshNetwork === "direct" ?
+                      <p className="text-sm text-muted-foreground"><Link className="underline" to="/apps/tailscale">{t("environments.tailscale.connectLink", { defaultValue: "Connect Tailscale Network" })}</Link>{" "}{t("environments.tailscale.chooseMachinesSuffix", { defaultValue: "to choose machines from your tailnet." })}</p> : null}
+                  </div>
+                  {environmentForm.sshNetwork === "tailscale" && selectedCompanyId ? (
+                    <div className="md:col-span-2">
+                      <TailscaleSshMachine companyId={selectedCompanyId} connectionId={environmentForm.tailscaleConnectionId} deviceId={environmentForm.tailscaleDeviceId}
+                        port={Number(environmentForm.sshPort) || 22} onPrivateKey={secretId => {
+                          setEnvironmentForm(current => ({ ...current, sshPrivateKey: "", sshPrivateKeySecretId: secretId }));
+                          void queryClient.invalidateQueries({ queryKey: queryKeys.secrets.list(selectedCompanyId) });
+                        }}
+                        onChange={selection => setEnvironmentForm(current => ({ ...current, tailscaleConnectionId: selection.connectionId, tailscaleDeviceId: selection.deviceId, sshHost: selection.host, sshPrivateKey: "", sshPrivateKeySecretId: "", sshKnownHosts: "" }))} />
+                    </div>
+                  ) : null}
+                  <Field label={t("environments.field.host", { defaultValue: "Host" })} hint={environmentForm.sshNetwork === "tailscale" ? t("environments.field.hostTailscaleHint", { defaultValue: "Tailscale IP address or MagicDNS name of your machine." }) : t("environments.field.hostHint", { defaultValue: "DNS name or IP address for the remote machine." })}>
                     <input
                       className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
                       type="text"
                       value={environmentForm.sshHost}
+                      readOnly={environmentForm.sshNetwork === "tailscale" && Boolean(environmentForm.tailscaleConnectionId)}
                       onChange={(e) => setEnvironmentForm((current) => ({ ...current, sshHost: e.target.value }))}
                     />
                   </Field>
@@ -2390,6 +2443,17 @@ export function CompanyEnvironments({ mode = "list" }: CompanyEnvironmentsProps)
                       onChange={(e) => setEnvironmentForm((current) => ({ ...current, sshKnownHosts: e.target.value }))}
                     />
                   </Field>
+                  <details className="md:col-span-2">
+                    <summary className="cursor-pointer text-sm font-medium">{t("environments.field.advanced", { defaultValue: "Advanced" })}</summary>
+                    <div className="pt-3">
+                      <ToggleField
+                        label={t("environments.field.sshUseHostAuth", { defaultValue: "Use authentication configured on the remote machine" })}
+                        hint={t("environments.field.sshUseHostAuthHint", { defaultValue: "Use the remote user's provider login instead of the agent's Paperclip AI account." })}
+                        checked={environmentForm.sshUseHostAuth}
+                        onChange={(checked) => setEnvironmentForm((current) => ({ ...current, sshUseHostAuth: checked }))}
+                      />
+                    </div>
+                  </details>
                   <div className="md:col-span-2">
                     <ToggleField
                       label={t("environments.field.strictHostKeyChecking", { defaultValue: "Strict host key checking" })}
@@ -2485,6 +2549,7 @@ export function CompanyEnvironments({ mode = "list" }: CompanyEnvironmentsProps)
               >
                 <EnvironmentVariablesEditor
                   ref={environmentVariablesEditorRef}
+                  footerHint={null}
                   value={environmentForm.envVars}
                   secrets={secrets ?? []}
                   onCreateSecret={async (name, value) => await createSecret.mutateAsync({ name, value })}
@@ -2519,7 +2584,8 @@ export function CompanyEnvironments({ mode = "list" }: CompanyEnvironmentsProps)
               <Button
                 variant="outline"
                 onClick={() => draftEnvironmentProbeMutation.mutate(flushEnvironmentForm())}
-                disabled={draftEnvironmentProbeMutation.isPending || !environmentFormValid}
+                disabled={draftEnvironmentProbeMutation.isPending || !environmentFormValid || (environmentForm.driver === "ssh" && environmentForm.sshNetwork === "tailscale")}
+                title={environmentForm.driver === "ssh" && environmentForm.sshNetwork === "tailscale" ? "Save this environment, then test its connection from the list." : undefined}
               >
                 {draftEnvironmentProbeMutation.isPending ? t("environments.testing", { defaultValue: "Testing..." }) : t("environments.test", { defaultValue: "Test" })}
               </Button>

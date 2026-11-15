@@ -15,7 +15,6 @@ import { useToastActions } from "../context/ToastContext";
 import { agentsApi } from "../api/agents";
 import { authApi } from "../api/auth";
 import { companiesApi } from "../api/companies";
-import { projectsApi } from "../api/projects";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "../components/EmptyState";
 import { PageSkeleton } from "../components/PageSkeleton";
@@ -61,6 +60,7 @@ import {
 import { describeError } from "@/api/errors";
 import { useTranslation } from "../i18n";
 import type { TFunction } from "i18next";
+import { companyProjectsQuery } from "@/lib/company-projects-query";
 
 /**
  * Extract the set of agent/project/task slugs that are "checked" based on
@@ -647,8 +647,7 @@ export function CompanyExport() {
     enabled: !!selectedCompanyId,
   });
   const { data: projects = [] } = useQuery({
-    queryKey: queryKeys.projects.list(selectedCompanyId!),
-    queryFn: () => projectsApi.list(selectedCompanyId!),
+    ...companyProjectsQuery(selectedCompanyId!),
     enabled: !!selectedCompanyId,
   });
   const { data: fidelityReport } = useQuery({

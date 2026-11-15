@@ -41,6 +41,8 @@ export function AgentProviderConnection({
   adapterType,
   environmentId,
   canLogin,
+  requiresAgent = false,
+  agentId,
   localEnvironment = false,
   onConnected,
   onDraftChanged,
@@ -54,6 +56,8 @@ export function AgentProviderConnection({
   adapterType: "claude_local" | "codex_local" | "grok_local" | "antigravity_runtime";
   environmentId: string | null;
   canLogin: boolean;
+  requiresAgent?: boolean;
+  agentId?: string;
   localEnvironment?: boolean;
   onConnected: (connection: ProviderConnection) => void;
   onDraftChanged?: () => void;
@@ -91,11 +95,15 @@ export function AgentProviderConnection({
     setOpened(false);
     setAuthorizationUrl(null);
     setLoginPhase("preparing");
+    setLoginRequested(false);
   };
   const [methodChoice, setMethod] = useState<"subscription" | "api" | null>(managedAccount?.initialMethod === "api_key" ? "api" : managedAccount ? "subscription" : null);
   const [advanced, setAdvanced] = useState(false);
   // Connections already selected the provider before showing this step.
   const [opened, setOpened] = useState(Boolean(advancedConnection || managedAccount));
+  const [loginRequested, setLoginRequested] = useState(false);
+  const automaticComputer = requiresAgent && !agentId;
+  const awaitingLoginRequest = automaticComputer && !loginRequested;
   const [authorizationUrl, setAuthorizationUrl] = useState<string | null>(null);
   const [loginPhase, setLoginPhase] = useState<"preparing" | "ready" | "waiting" | "connecting">("preparing");
   const phaseBeforeSubmit = useRef<"ready" | "waiting">("ready");
@@ -372,8 +380,10 @@ export function AgentProviderConnection({
                   />
                 )}
               </OnboardingLoginCard>
-            ) : needsLogin ? (
+            ) : needsLogin ? !awaitingLoginRequest && (
               <AdapterLoginPanel
+                requiresAgent={requiresAgent}
+                agentId={agentId}
                 companyId={companyId}
                 adapterType={adapterType}
                 environmentId={environmentId}
@@ -445,13 +455,9 @@ export function AgentProviderConnection({
         }}
         primaryLabel={
           opened && needsLogin
-            ? loginPhase === "waiting"
-              ? adapterType === "codex_local"
-                ? t("onboarding.footer.waitingForAuth", { defaultValue: "Waiting for auth…" })
-                : t("onboarding.footer.waitingForCode", { defaultValue: "Waiting for code" })
-              : loginPhase === "connecting"
-                ? t("onboarding.footer.connecting", { defaultValue: "Connecting" })
-                : t("onboarding.footer.signInTo", { defaultValue: `Sign in to ${provider}`, source: provider })
+            ? loginPhase === "waiting" ? adapterType === "codex_local" ? t("onboarding.footer.waitingForAuth", { defaultValue: "Waiting for auth…" }) : t("onboarding.footer.waitingForCode", { defaultValue: "Waiting for code" })
+              : loginPhase === "connecting" ? t("onboarding.footer.connecting", { defaultValue: "Connecting" })
+              : automaticComputer && authorizationUrl ? t("onboarding.footer.continueTo", { defaultValue: "Continue to {{source}}", source: provider }) : t("onboarding.footer.signInTo", { defaultValue: `Sign in to ${provider}`, source: provider })
             : busy
             ? t("onboarding.footer.connecting", { defaultValue: "Connecting" })
             : method === "subscription" &&
@@ -472,16 +478,20 @@ export function AgentProviderConnection({
           // The saved-subscription chooser renders outside the opened section,
           // so reusing the visible choice must not wait for a tile click.
           (!opened && !(method === "subscription" && savedSubscription)) ||
-          (Boolean(needsLogin) && (!authorizationUrl || loginPhase !== "ready")) ||
+          (Boolean(needsLogin) && !awaitingLoginRequest && (!authorizationUrl || loginPhase !== "ready")) ||
           (method === "api" &&
             !apiKey.trim() &&
             !storedConnection &&
             !selectedKey)
         }
         loading={busy}
-        primaryIcon={opened && needsLogin ? loginPhase === "ready" ? "none" : "spinner" : undefined}
+        primaryIcon={opened && needsLogin && !awaitingLoginRequest ? loginPhase === "ready" ? "none" : "spinner" : undefined}
         onPrimary={() => {
           if (needsLogin) {
+            if (awaitingLoginRequest) {
+              setLoginRequested(true);
+              return;
+            }
             if (!authorizationUrl || loginPhase !== "ready") return;
             window.open(authorizationUrl, "_blank", "noreferrer,noopener");
             setLoginPhase("waiting");

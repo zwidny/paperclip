@@ -12,6 +12,7 @@ import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { useToastActions } from "../context/ToastContext";
 import { useInboxDismissals } from "../hooks/useInboxBadge";
 import { queryKeys } from "../lib/queryKeys";
+import { attentionObligationEvidence, foldAttentionObligations } from "../lib/attention-obligations";
 import {
   ATTENTION_AGING_DAYS,
   attentionIsAging,
@@ -146,9 +147,11 @@ export function DecisionQueuePage() {
     [feed?.generatedAt],
   );
 
+  // One card for each obligation (PAP-749 Rule 11): evidence folds into its lead.
+  const obligations = useMemo(() => foldAttentionObligations(feed?.items ?? []), [feed]);
   const activeItems = useMemo(
-    () => (feed?.items ?? []).filter((item) => !(item.dismissal?.isActive ?? false)),
-    [feed],
+    () => obligations.cards.filter((item) => !(item.dismissal?.isActive ?? false)),
+    [obligations],
   );
 
   // Aging shelf (§4.4): items the server flags as idle past retention leave the
@@ -323,9 +326,10 @@ export function DecisionQueuePage() {
                           currentUserId={currentUserId}
                           expanded={expandedId === item.id}
                           onToggleExpand={handleToggleExpand}
-                          onDismiss={(next) => dismiss(next.dismissalKey)}
-                          onSnooze={(next, until) => snooze(next.dismissalKey, until)}
+                          onDismiss={(next) => dismiss(next.dismissalKey, next.changeFingerprint)}
+                          onSnooze={(next, until) => snooze(next.dismissalKey, until, next.changeFingerprint)}
                           onExcluded={invalidate}
+                          evidence={attentionObligationEvidence(obligations, item)}
                         />
                       ))}
                     </div>
@@ -356,8 +360,9 @@ export function DecisionQueuePage() {
                   currentUserId={currentUserId}
                   expanded={expandedId === item.id}
                   onToggleExpand={handleToggleExpand}
-                  onDismiss={(next) => dismiss(next.dismissalKey)}
-                  onSnooze={(next, until) => snooze(next.dismissalKey, until)}
+                  onDismiss={(next) => dismiss(next.dismissalKey, next.changeFingerprint)}
+                  onSnooze={(next, until) => snooze(next.dismissalKey, until, next.changeFingerprint)}
+                  evidence={attentionObligationEvidence(obligations, item)}
                 />
               ))}
             </Curtain>
@@ -434,6 +439,7 @@ function QueueItemRow({
   onDismiss,
   onSnooze,
   onExcluded,
+  evidence,
 }: {
   item: AttentionItem;
   companyId: string;
@@ -446,6 +452,7 @@ function QueueItemRow({
   onDismiss: (item: AttentionItem) => void;
   onSnooze: (item: AttentionItem, snoozedUntil: string) => void;
   onExcluded: () => void;
+  evidence: readonly AttentionItem[];
 }) {
   const { t } = useTranslation();
   const { pushToast } = useToastActions();
@@ -522,6 +529,7 @@ function QueueItemRow({
         agents={agents}
         showTriage
         currentUserId={currentUserId}
+        evidence={evidence}
       />
     </div>
   );

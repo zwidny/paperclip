@@ -1,11 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { Project } from "@paperclipai/shared";
-import { projectsApi } from "../api/projects";
 import { useCompany } from "../context/CompanyContext";
 import { useDialogActions } from "../context/DialogContext";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
-import { queryKeys } from "../lib/queryKeys";
 import { EntityRow } from "../components/EntityRow";
 import { ProjectTile } from "../components/ProjectTile";
 import { StatusBadge } from "../components/StatusBadge";
@@ -27,6 +25,7 @@ import { Hexagon } from "lucide-react";
 import { Lock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useTranslation } from "../i18n";
+import { companyProjectsQuery } from "@/lib/company-projects-query";
 
 function compareProjectNames(left: Project, right: Project) {
   const nameDiff = left.name.localeCompare(right.name, undefined, { sensitivity: "base" });
@@ -83,8 +82,7 @@ export function Projects() {
   }, [setBreadcrumbs]);
 
   const projectsQuery = useQuery({
-    queryKey: queryKeys.projects.list(selectedCompanyId!),
-    queryFn: () => projectsApi.list(selectedCompanyId!),
+    ...companyProjectsQuery(selectedCompanyId!),
     enabled: !!selectedCompanyId,
   });
   const { data: allProjects, isLoading } = projectsQuery;

@@ -4055,6 +4055,43 @@
       "keepAgentsBody": "这些 Agent 将继续运行原始版本 — 你的副本不会改变它们的行为。",
       "nothingAssigned": "没有任何 Agent 使用它，因此你的副本不会改变任何 Agent 的行为。",
       "createAnother": "再创建一个副本"
+    },
+    "connectedApps": {
+      "status": {
+        "pendingReview": "待审阅",
+        "approved": "已批准",
+        "declined": "已拒绝",
+        "unavailable": "不可用"
+      },
+      "note": {
+        "changed": "{{app}} 更改了此技能。在你批准新版本之前，代理不会使用它。",
+        "dynamic": "此技能每次使用时都会生成，因此 Paperclip 无法检查其内容。它不会提供给代理。",
+        "tooLarge": "此技能超出了应用可依赖的大小（512 个文件或 16 MiB），因此不会提供给代理。",
+        "invalid": "此技能的清单不符合 MCP skills 格式，因此不会提供给代理。",
+        "verificationFailed": "{{app}} 发送的文件与其清单不符，因此 Paperclip 已停止使用此技能。刷新应用以查看其当前版本。",
+        "removed": "{{app}} 不再提供此技能。"
+      },
+      "heading": "来自已连接应用的技能",
+      "description": "使用某个应用的代理只有在你批准后才会获得它的技能。",
+      "fromApp": "来自 {{app}}",
+      "nameCollision": "另一个技能使用了此名称。代理会以 {{app}} 的名称获得此技能，因此两者不会互相替换。",
+      "alsoUse": "同时允许它使用：",
+      "canUse": "可以使用",
+      "askedButNotAllowed": "曾请求使用，未获允许",
+      "hideInstructions": "隐藏说明",
+      "readInstructions": "阅读说明",
+      "approve": "批准",
+      "turnOff": "关闭",
+      "decline": "拒绝",
+      "approveConsequence": "批准后，使用 {{app}} 的代理将遵循这些说明，包括其中描述的命令。",
+      "loadingInstructions": "正在加载说明…",
+      "approveFailed": "无法批准该技能",
+      "updateFailed": "无法更新该技能",
+      "loadFailed": "无法加载来自已连接应用的技能。{{error}}",
+      "waitingForReview_one": "{{count}} 个等待审阅。",
+      "waitingForReview_other": "{{count}} 个等待审阅。",
+      "fileCount_one": "{{count}} 个文件",
+      "fileCount_other": "{{count}} 个文件"
     }
   },
   "chatSetup": {
@@ -7236,7 +7273,12 @@
       "copiedBody": "访问 Token",
       "copyFailedTitle": "复制失败",
       "clipboardUnavailable": "剪贴板不可用。"
-    }
+    },
+    "pendingTokensAria": "等待揭晓的令牌",
+    "pendingTokensTitle": "等待你揭晓",
+    "pendingTokensBody": "代理为你创建了这些令牌。值在你揭晓时生成，并且只显示一次。",
+    "revealToken": "揭晓令牌",
+    "revealTokenAria": "揭晓令牌 {{name}}"
   },
   "gatewaysList": {
     "breadcrumbGateways": "网关",
@@ -17641,7 +17683,8 @@
       "review": "审阅",
       "failedRun": "失败的运行",
       "budgetAlert": "预算",
-      "agentErrorAlert": "智能体错误"
+      "agentErrorAlert": "智能体错误",
+      "recovery": "恢复"
     },
     "detail": {
       "optionCount_one": "{{count}} 个选项",
@@ -17689,6 +17732,87 @@
       "yesterday": "昨天",
       "thisWeek": "本周",
       "earlier": "更早"
+    },
+    "close": {
+      "menu": "关闭…",
+      "withdrawRequestEllipsis": "撤回请求…",
+      "restoreNow": "立即恢复",
+      "archiveForMe": "帮我归档",
+      "changeSnoozeTime": "更改稍后提醒时间",
+      "transferToEllipsis": "转交给…",
+      "transferBody": "这张卡片会从 @{{name}} 的列表中移出，转给 @{{target}}。历史记录会保留这次转交。",
+      "transferTo": "转交给 @{{name}}",
+      "withdrawTitle": "撤回这个请求？",
+      "withdrawBody": "这会为所有人关闭该请求，并告知智能体它已过期。这不算批准。此操作无法撤销。",
+      "withdrawReasonPlaceholder": "为什么已经过期？（选填，会显示在历史记录中并告知智能体）",
+      "withdrawReasonAria": "撤回原因",
+      "withdrawRequest": "撤回请求",
+      "snoozeForMe": "帮我稍后提醒",
+      "snoozeUntilAria": "稍后提醒时间",
+      "snoozedCardsAria": "稍后提醒的卡片",
+      "snoozedGroup": "稍后提醒（{{count}}）",
+      "continue": "继续",
+      "staleChip": "过期 · {{text}}",
+      "staleCardsAria": "过期卡片",
+      "staleGroup": "过期（{{count}}）",
+      "withdrawing": "正在撤回…",
+      "withdrawAllStale": "撤回所有过期请求",
+      "withdrawStaleTitle_one": "撤回 {{count}} 个过期请求？",
+      "withdrawStaleTitle_other": "撤回 {{count}} 个过期请求？",
+      "withdrawStaleBody": "每个请求都会为所有人关闭，并告知其智能体该请求已过期。它们都不会被算作已批准。此操作无法撤销。",
+      "staleForOthers": "其中 {{count}} 个是给其他人的。要继续吗？",
+      "willBeWithdrawn": "将被撤回",
+      "stayRequired": "保持打开：必须处理，请逐个撤回",
+      "stayNoRequest": "保持打开：没有可撤回的请求",
+      "staleReasonPlaceholder": "为什么它们已经过期？（选填，会显示在历史记录中并告知智能体）",
+      "staleReasonAria": "撤回过期请求的原因",
+      "withdrawStaleButton_one": "撤回 {{count}} 个请求",
+      "withdrawStaleButton_other": "撤回 {{count}} 个请求",
+      "forUser": "给 @{{name}}"
+    },
+    "inlineVerbs": {
+      "runFailed": "运行失败",
+      "retryDidNotStart": "重试未启动",
+      "retryRequested": "已请求重试",
+      "couldNotRetry": "无法重试这次运行",
+      "retryStartsNewRun": "重试会启动一次新的运行。",
+      "viewRun": "查看运行",
+      "retryRun": "重试运行",
+      "openRun": "打开运行",
+      "warningDismissed": "已忽略警告",
+      "keptPaused": "保持暂停",
+      "limitRaised": "已提高上限",
+      "couldNotUpdateBudget": "无法更新预算",
+      "newLimitLabel": "新上限（USD）",
+      "spentOf": "已花费 {{spent}}，上限 {{limit}}",
+      "percentUsed": "已使用 {{percent}}%",
+      "budgetUsedAria": "已使用预算",
+      "scopeLimit": "{{scope}}上限",
+      "limitDefault": "上限",
+      "workContinues": "在达到上限前工作会继续",
+      "newRunsPaused": "新的运行已暂停",
+      "limitTooLow": "新上限必须大于当前花费。",
+      "dismissWarning": "忽略警告",
+      "keepPaused": "保持暂停",
+      "raiseLimit": "提高上限",
+      "raiseLimitResume": "提高上限并继续",
+      "increaseLimit": "提高上限…",
+      "spendLineWarning": "已花费 {{spent}}，上限为 {{limit}}。此警告不会暂停工作。",
+      "spendLinePaused": "已花费 {{spent}}，上限为 {{limit}}。该范围内的工作已暂停。"
+    },
+    "views": {
+      "aria": "决策视图",
+      "openUnassigned": "打开未分配",
+      "whyMe": "为什么是我？",
+      "someone": "某人",
+      "anotherPerson": "另一位成员",
+      "forUser": "给 @{{name}}",
+      "openToAssign": "打开以分派",
+      "claiming": "正在认领…",
+      "claim": "认领",
+      "receiptsAria": "回执",
+      "dismissReceiptAria": "忽略回执",
+      "reason": "原因：{{reason}}"
     }
   },
   "secretDelivery": {
@@ -18432,7 +18556,13 @@
       "searchPlaceholderShort": "搜索…",
       "someoneElse": "其他人",
       "updates": "更新",
-      "viewMenu": "视图"
+      "viewMenu": "视图",
+      "noTaskGroup": "无任务",
+      "noProjectGroup": "无项目",
+      "historyScope": "谁的决策历史",
+      "handledForMe": "替我处理",
+      "noHandledYet": "还没有由你处理或替你处理的决策。",
+      "showEveryoneDecisions": "显示所有人的决策"
     },
     "taskCommitment": {
       "noTasksCreated": "未创建任何任务。"
@@ -18485,6 +18615,53 @@
       "minutesAgo": "{{value}} 分钟前",
       "hoursAgo": "{{value}} 小时前",
       "daysAgo": "{{value}} 天前"
+    },
+    "reviewPanel": {
+      "loadingDocument": "正在加载请求的文档…",
+      "documentLoadFailed": "无法加载请求的文档。",
+      "answerOnCard": "审阅此产物时请在收件箱卡片上答复。",
+      "openIn": "在 {{target}} 中打开",
+      "approvalsTarget": "审批",
+      "taskTarget": "任务",
+      "documentUnavailable": "无法加载此文档。请在任务中打开它。",
+      "loadingLabel": "正在加载{{label}}…",
+      "loadingApproval": "正在加载审批…",
+      "approvalUnavailable": "无法加载此审批。请改为打开它。",
+      "previewUnavailable": "无法预览此文件。请在下方打开原始文件。",
+      "attachments": "附件",
+      "attachment": "附件"
+    },
+    "needsYouCard": {
+      "teammate": "一位同事",
+      "fromName": "来自 {{name}}",
+      "someone": "某人",
+      "someoneCap": "某人",
+      "whyMe": "为什么是我？{{text}}",
+      "viewRequestUpdate": "查看请求更新",
+      "yourRequest": "你的请求",
+      "viewRequest": "查看请求",
+      "taskFallback": "任务",
+      "assignedTo": "已分派给 {{name}}",
+      "reviewStalled": "审阅已停滞",
+      "stalledNoReviewer": "没有审阅人、审批或运行在推进这次审阅。",
+      "blocks": "阻塞 {{task}}",
+      "blocksWithMore": "阻塞 {{task}} 以及另外 {{count}} 项",
+      "blocksTasks_one": "阻塞 {{count}} 个任务",
+      "blocksTasks_other": "阻塞 {{count}} 个任务",
+      "openBlockingTask": "打开阻塞任务",
+      "openRecovery": "打开恢复",
+      "recoveryEscalated": "恢复已升级",
+      "recoveryPaused": "恢复已暂停",
+      "recoveryNote": "请在任务上的恢复控件中解决、重新分派或取消它。",
+      "recoveryKind": {
+        "missing_disposition": "未选择下一步",
+        "deliberate_wait_without_target": "没有等待任何目标",
+        "stranded_assigned_issue": "任务停滞",
+        "workspace_validation": "工作区不可用",
+        "configuration_validation": "缺少配置",
+        "active_run_watchdog": "运行已无响应",
+        "issue_graph_liveness": "任务需要下一步"
+      }
     }
   },
   "apiErrors": {
@@ -18663,5 +18840,193 @@
   },
   "inlineEditor": {
     "clickToEdit": "Click to edit..."
+  },
+  "decisionResolver": {
+    "issueFallback": "任务 {{id}}",
+    "effect": {
+      "commentOn": "在 {{target}} 上评论",
+      "createIssue": "创建“{{title}}”",
+      "setStatus": "将 {{target}} 设为 {{status}}",
+      "reassign": "重新分派 {{target}}",
+      "unblock": "解除 {{target}} 的阻塞",
+      "cancelTree": "取消 {{target}} 及其子树",
+      "applyEffect": "应用效果"
+    },
+    "optionsAria": "选项",
+    "requiredSuffix": " · 必填",
+    "targetChangedSuffix": " · 目标已变更",
+    "staleNote": "提案之后有目标发生了变更，因此需要目标保持不变的操作已停用。",
+    "submitting": "正在提交…",
+    "submitChoice": "提交选择",
+    "unavailable": "此决策已不可用——可能已在别处处理。"
+  },
+  "connections": {
+    "machineSignIn": {
+      "intro": "用于你组织自有的自动化。代理会以此连接作为你为 Paperclip 配置的提供方客户端，而不是以任何人的身份。只有共享连接可以使用机器登录。",
+      "errorTitle": "机器登录未成功",
+      "methodAria": "Paperclip 如何证明自己的身份",
+      "paperclipKey": "Paperclip 密钥（推荐）",
+      "paperclipKeyHint": "Paperclip 创建密钥并保管私钥部分。你把公钥注册到提供方；不会复制任何机密内容。",
+      "clientSecretHint": "适用于只签发密钥的提供方。Paperclip 会安全保存，之后不再显示。",
+      "signInService": "登录服务",
+      "signInServiceHint": "留空则由 Paperclip 向 {{host}} 询问登录地址。否则填写提供方文档中的地址或令牌 URL。",
+      "signInServicePlaceholder": "自动查找",
+      "clientId": "客户端 ID",
+      "clientIdHint": "也可以在注册密钥之后再添加。",
+      "clientSecret": "客户端密钥",
+      "clientSecretReplaceHint": "已保存。仅在需要替换时输入新的密钥。",
+      "scopes": "作用域",
+      "scopesHint": "可选。按提供方文档列出的方式用空格分隔。",
+      "scopesConfirmHint": "可选。用空格分隔。",
+      "scopesPlaceholder": "可选",
+      "publicKeyIntro": "把这个公钥注册到提供方的 Paperclip 客户端。它不是机密，可以粘贴到提供方控制台，或发给管理它的人。",
+      "publicKeyPem": "公钥（PEM）",
+      "publicKeyJson": "公钥（JSON）",
+      "clientIdConfirmHint": "提供方为 Paperclip 客户端显示的 ID。",
+      "back": "返回",
+      "createKey": "创建密钥",
+      "creatingKey": "正在创建密钥…",
+      "saving": "正在保存…",
+      "testing": "正在测试…",
+      "testConnection": "测试连接",
+      "copy": "复制",
+      "copied": "已复制"
+    },
+    "genericMcp": {
+      "authOption": {
+        "auto": {
+          "title": "让 Paperclip 检查",
+          "description": "Paperclip 会询问服务器需要什么，并带你一步步完成。"
+        },
+        "bearer": {
+          "title": "密钥或令牌",
+          "description": "Paperclip 会把你的密钥作为 Authorization 头发送。"
+        },
+        "oauth": {
+          "title": "浏览器登录",
+          "description": "你将在提供方处登录。"
+        },
+        "customHeaders": {
+          "title": "自定义请求头",
+          "description": "适用于自行指定请求头的服务器。"
+        },
+        "none": {
+          "title": "无需登录",
+          "description": "只要知道地址，任何人都可以访问该服务器。"
+        }
+      },
+      "summary": {
+        "none": "无需登录。知道该地址的任何人都可以访问该服务器。",
+        "bearer": "使用密钥或令牌登录。",
+        "customHeaders": "使用自定义请求头登录。",
+        "oauthWithClientId": "你将在提供方处使用自己的客户端 ID 登录。",
+        "oauth": "你将在提供方处登录。",
+        "pending": "Paperclip 会询问服务器如何登录。",
+        "customHeadersCount_one": "使用 {{count}} 个自定义请求头登录。",
+        "customHeadersCount_other": "使用 {{count}} 个自定义请求头登录。"
+      },
+      "keyAria": "密钥或令牌",
+      "keyPlaceholder": "粘贴密钥或令牌",
+      "keyHint": "授予这把密钥你的代理所需的访问权限。Paperclip 无法提升它的权限。",
+      "headerName": "请求头名称",
+      "headerValue": "值",
+      "headerValueFor": "{{name}} 的值",
+      "headerValueAria": "请求头的值",
+      "removeHeaderNamed": "移除 {{name}}",
+      "removeHeader": "移除请求头",
+      "addHeader": "添加请求头",
+      "headersStoredAsSecrets": "值会作为机密存储，之后无法读取。",
+      "useOwnClientId": "使用你自己的客户端 ID",
+      "oauthClientFieldsIntro": "只要服务器允许，Paperclip 会自行完成登录设置。仅在服务器文档要求你先注册 Paperclip 时才填写这些内容。",
+      "clientId": "客户端 ID",
+      "clientSecret": "客户端密钥",
+      "optional": "可选",
+      "guidedSetupAvailable": "Paperclip 为 {{name}} 提供了引导式设置。",
+      "useMatchedEntry": "使用 {{name}}",
+      "appKey": "应用密钥",
+      "signInPrompt": "这台服务器如何登录？",
+      "done": "完成",
+      "change": "更改",
+      "signInAria": "这台服务器如何登录",
+      "machineSignIn": "机器登录",
+      "machineSignInDescription": "你组织的自动化会以自己注册的客户端身份登录。没有个人登录。",
+      "back": "返回",
+      "checking": "正在检查…",
+      "checkLink": "检查链接"
+    }
+  },
+  "tailscale": {
+    "card": {
+      "manage": "管理",
+      "connect": "连接",
+      "actionAria": "{{action}} Tailscale",
+      "description": "连接你的 tailnet，以便在 SSH 环境中使用其中的机器。",
+      "connected": "已连接"
+    },
+    "connector": {
+      "selectOrganization": "选择一个组织以连接 Tailscale。",
+      "checkingAccess": "正在检查 Tailscale 管理权限…",
+      "adminRequired": "请联系实例管理员来连接或管理 Tailscale 网络。",
+      "authorizationCancelled": "Tailscale 授权已取消。请重试以连接你的网络。",
+      "authorizationFailed": "Tailscale 授权未能完成。请重试。",
+      "description": "授予 Paperclip 访问你的 tailnet 的权限，然后在创建 SSH 环境时选择其中一台机器。代理可以使用该环境支持的任何 harness。",
+      "loadingConnections": "正在加载 tailnet 连接…",
+      "tryAgain": "重试",
+      "refreshConnections": "刷新连接",
+      "status": {
+        "connected": "已连接",
+        "authorizing": "等待登录",
+        "connecting": "正在连接",
+        "disconnected": "已断开",
+        "expired": "登录已过期",
+        "incomplete": "授权未完成"
+      },
+      "createSshEnvironment": "创建 SSH 环境",
+      "disconnect": "断开 {{name}}",
+      "reconnect": "重新连接 {{name}}",
+      "backToConnectors": "返回连接器",
+      "connecting": "正在连接…"
+    },
+    "deviceSignIn": {
+      "expired": "登录已过期。请取消并重新连接。",
+      "waitingForApproval": "正在等待 Tailscale 管理员批准此设备。",
+      "approveInTailscale": "请在 Tailscale 中批准该连接。完成后此页面会自动更新。",
+      "continueToTailscale": "继续前往 Tailscale",
+      "openDevices": "打开 Tailscale 设备",
+      "checkAgain": "再次检查",
+      "cancelSignIn": "取消登录"
+    },
+    "machine": {
+      "adminRequired": "需要实例管理员配置这台 Tailscale 机器。",
+      "manageConnector": "管理 Tailscale 连接器",
+      "tailnetConnection": "Tailnet 连接",
+      "chooseConnection": "选择连接",
+      "unavailableConnection": "不可用的连接",
+      "machine": "机器",
+      "loadingMachines": "正在加载机器…",
+      "chooseMachine": "选择机器",
+      "offline": " — 离线",
+      "preparePairing": "准备机器配对",
+      "pairingIntro": "在以运行任务的用户身份操作的所选计算机上运行此命令。在下方填入打印出的用户名、工作区和 known hosts。Paperclip 会把私钥保存在其保险库中。",
+      "pairingCommand": "机器配对命令"
+    }
+  },
+  "mcpApp": {
+    "proposalAria": "{{app}} 想要发送一条消息",
+    "proposalWantsToSend": "{{app}} 想要发送：",
+    "messageSendFailed": "消息无法发送。",
+    "dismiss": "忽略",
+    "sending": "正在发送…",
+    "send": "发送",
+    "unsupportedBrowser": "此浏览器无法安全显示该应用的组件。工具结果仍保留在活动记录中。",
+    "viewUnavailable": "无法显示此应用的视图。",
+    "appFallback": "应用",
+    "loadingViewAria": "正在加载 {{app}} 视图",
+    "showingFullScreen": "正在全屏显示",
+    "backToChat": "返回聊天",
+    "widgetFrom": "来自 {{app}} 的组件",
+    "exitFullScreen": "退出全屏",
+    "viewGone": "此 {{app}} 视图已不可用。",
+    "viewCouldNotShow": "{{app}} 无法显示此视图。工具结果仍在上一行中。"
   }
 }

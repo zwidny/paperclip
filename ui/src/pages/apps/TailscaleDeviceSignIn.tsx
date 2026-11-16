@@ -4,11 +4,13 @@ import type { TailscaleConnection } from "@paperclipai/shared";
 import { tailscaleApi } from "@/api/tailscale";
 import { describeError } from "@/api/errors";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/i18n";
 import { tailscaleConnectionsKey } from "@/hooks/useTailscaleConnections";
 
 export function TailscaleDeviceSignIn({ connection, cancel, disabled }: {
   connection: TailscaleConnection; cancel: () => void; disabled: boolean;
 }) {
+  const { t } = useTranslation();
   const client = useQueryClient();
   const [expired, setExpired] = useState(false);
   const status = useQuery({
@@ -29,15 +31,17 @@ export function TailscaleDeviceSignIn({ connection, cancel, disabled }: {
     return () => window.clearTimeout(timer);
   }, [status.data?.expiresAt]);
   return <div className="space-y-3">
-    <p className="text-sm text-muted-foreground" role="status">{expired ? "Sign-in expired. Cancel and connect again."
-      : status.data?.needsApproval ? "Waiting for a Tailscale administrator to approve this device."
-        : "Approve the connection in Tailscale. This page will update when you finish."}</p>
+    <p className="text-sm text-muted-foreground" role="status">{expired
+      ? t("tailscale.deviceSignIn.expired", { defaultValue: "Sign-in expired. Cancel and connect again." })
+      : status.data?.needsApproval
+        ? t("tailscale.deviceSignIn.waitingForApproval", { defaultValue: "Waiting for a Tailscale administrator to approve this device." })
+        : t("tailscale.deviceSignIn.approveInTailscale", { defaultValue: "Approve the connection in Tailscale. This page will update when you finish." })}</p>
     {status.error && <p role="alert" className="text-sm text-destructive">{describeError(status.error, { action: "check Tailscale sign-in" }).body}</p>}
     <div className="flex flex-wrap items-center gap-3">
-      {!expired && status.data?.authorizationUrl && <Button variant="outline" asChild><a href={status.data.authorizationUrl} target="_blank" rel="noopener noreferrer">Continue to Tailscale</a></Button>}
-      {status.data?.needsApproval && !expired && <Button variant="outline" asChild><a href="https://login.tailscale.com/admin/machines" target="_blank" rel="noopener noreferrer">Open Tailscale devices</a></Button>}
-      {status.error && !expired && <Button variant="outline" onClick={() => void status.refetch()}>Check again</Button>}
-      <Button variant="ghost" disabled={disabled} onClick={cancel}>Cancel sign-in</Button>
+      {!expired && status.data?.authorizationUrl && <Button variant="outline" asChild><a href={status.data.authorizationUrl} target="_blank" rel="noopener noreferrer">{t("tailscale.deviceSignIn.continueToTailscale", { defaultValue: "Continue to Tailscale" })}</a></Button>}
+      {status.data?.needsApproval && !expired && <Button variant="outline" asChild><a href="https://login.tailscale.com/admin/machines" target="_blank" rel="noopener noreferrer">{t("tailscale.deviceSignIn.openDevices", { defaultValue: "Open Tailscale devices" })}</a></Button>}
+      {status.error && !expired && <Button variant="outline" onClick={() => void status.refetch()}>{t("tailscale.deviceSignIn.checkAgain", { defaultValue: "Check again" })}</Button>}
+      <Button variant="ghost" disabled={disabled} onClick={cancel}>{t("tailscale.deviceSignIn.cancelSignIn", { defaultValue: "Cancel sign-in" })}</Button>
     </div>
   </div>;
 }

@@ -29,6 +29,7 @@ import {
 } from "./ui/dropdown-menu";
 import { IssueGroupHeader } from "./IssueGroupHeader";
 import { Textarea } from "./ui/textarea";
+import { useTranslation } from "../i18n";
 
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
@@ -42,11 +43,11 @@ function tomorrowMorningIso(): string {
 }
 
 /** Snooze presets, resolved to a future ISO timestamp at click time. */
-const SNOOZE_PRESETS: ReadonlyArray<{ label: string; resolve: () => string }> = [
-  { label: "1 hour", resolve: () => new Date(Date.now() + HOUR_MS).toISOString() },
-  { label: "4 hours", resolve: () => new Date(Date.now() + 4 * HOUR_MS).toISOString() },
-  { label: "Tomorrow morning", resolve: tomorrowMorningIso },
-  { label: "Next week", resolve: () => new Date(Date.now() + 7 * DAY_MS).toISOString() },
+const SNOOZE_PRESETS: ReadonlyArray<{ labelKey: string; label: string; resolve: () => string }> = [
+  { labelKey: "attentionQueueRow.snoozePresets.oneHour", label: "1 hour", resolve: () => new Date(Date.now() + HOUR_MS).toISOString() },
+  { labelKey: "attentionQueueRow.snoozePresets.fourHours", label: "4 hours", resolve: () => new Date(Date.now() + 4 * HOUR_MS).toISOString() },
+  { labelKey: "attentionQueueRow.snoozePresets.tomorrowMorning", label: "Tomorrow morning", resolve: tomorrowMorningIso },
+  { labelKey: "attentionQueueRow.snoozePresets.nextWeek", label: "Next week", resolve: () => new Date(Date.now() + 7 * DAY_MS).toISOString() },
 ];
 
 export interface AttentionCloseMenuProps {
@@ -87,6 +88,7 @@ export function AttentionCloseMenu({
   className,
 }: AttentionCloseMenuProps) {
   const [withdrawOpen, setWithdrawOpen] = useState(false);
+  const { t } = useTranslation();
   const [transferTo, setTransferTo] = useState<{ userId: string; label: string } | null>(null);
   const otherUserId = attentionOtherAudienceUserId(item, currentUserId);
   const otherName = otherUserId ? attentionUserLabel(otherUserId, userLabelMap) : null;
@@ -115,8 +117,8 @@ export function AttentionCloseMenu({
             size="icon-xs"
             disabled={busy}
             className={className ?? "text-muted-foreground"}
-            aria-label="Close…"
-            title="Close…"
+            aria-label={t("attention.close.menu", { defaultValue: "Close…" })}
+            title={t("attention.close.menu", { defaultValue: "Close…" })}
             data-attention-close-menu
             onClick={(event) => event.stopPropagation()}
           >
@@ -127,32 +129,32 @@ export function AttentionCloseMenu({
           {canWithdraw && (
             <DropdownMenuItem onSelect={() => setWithdrawOpen(true)} data-attention-close-mode="withdraw">
               <Ban className="h-4 w-4" />
-              Withdraw request…
+              {t("attention.close.withdrawRequestEllipsis", { defaultValue: "Withdraw request…" })}
             </DropdownMenuItem>
           )}
           {canRestore && (
             <DropdownMenuItem onSelect={() => onRestore?.(item)} data-attention-close-mode="restore">
               <RotateCcw className="h-4 w-4" />
-              {hidden?.kind === "snoozed" ? "Restore now" : "Restore"}
+              {hidden?.kind === "snoozed" ? t("attention.close.restoreNow", { defaultValue: "Restore now" }) : t("attentionQueueRow.restore", { defaultValue: "Restore" })}
             </DropdownMenuItem>
           )}
           {canArchive && (
             <DropdownMenuItem onSelect={() => onArchive?.(item)} data-attention-close-mode="archive">
               <Archive className="h-4 w-4" />
-              Archive for me
+              {t("attention.close.archiveForMe", { defaultValue: "Archive for me" })}
             </DropdownMenuItem>
           )}
           {canSnooze && (
             <SnoozeSubmenu
               onSnooze={(until) => onSnooze?.(item, until)}
-              label={hidden?.kind === "snoozed" ? "Change snooze time" : undefined}
+              label={hidden?.kind === "snoozed" ? t("attention.close.changeSnoozeTime", { defaultValue: "Change snooze time" }) : undefined}
             />
           )}
           {targets.length > 0 && (
             <DropdownMenuSub>
               <DropdownMenuSubTrigger data-attention-close-mode="transfer">
                 <ArrowRightLeft className="h-4 w-4" />
-                Transfer to…
+                {t("attention.close.transferToEllipsis", { defaultValue: "Transfer to…" })}
               </DropdownMenuSubTrigger>
               <DropdownMenuSubContent>
                 {targets.map((target) => (
@@ -170,7 +172,7 @@ export function AttentionCloseMenu({
               <DropdownMenuItem asChild>
                 <Link to={href}>
                   <ExternalLink className="h-4 w-4" />
-                  Open source
+                  {t("attentionQueueRow.openSource", { defaultValue: "Open source" })}
                 </Link>
               </DropdownMenuItem>
             </>
@@ -197,11 +199,11 @@ export function AttentionCloseMenu({
             <DialogHeader>
               <DialogTitle>{attentionForOtherText(otherName, "continue")}</DialogTitle>
               <DialogDescription>
-                The card leaves the list of @{otherName} and goes to @{transferTo.label}. The history records the transfer.
+                {t("attention.close.transferBody", { name: otherName, target: transferTo.label, defaultValue: "The card leaves the list of @{{name}} and goes to @{{target}}. The history records the transfer." })}
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="sm:justify-between">
-              <Button type="button" variant="outline" onClick={() => setTransferTo(null)}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={() => setTransferTo(null)}>{t("common.cancel", { defaultValue: "Cancel" })}</Button>
               <Button
                 type="button"
                 onClick={() => {
@@ -209,7 +211,7 @@ export function AttentionCloseMenu({
                   setTransferTo(null);
                 }}
               >
-                Transfer to @{transferTo.label}
+                {t("attention.close.transferTo", { name: transferTo.label, defaultValue: "Transfer to @{{name}}" })}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -238,27 +240,28 @@ function WithdrawRequestDialog({
   onConfirm: (reason: string) => void;
 }) {
   const [reason, setReason] = useState("");
+  const { t } = useTranslation();
   return (
     <Dialog open={open} onOpenChange={(next) => { if (!next) setReason(""); onOpenChange(next); }}>
       <DialogContent showCloseButton={false} onClick={(event) => event.stopPropagation()} data-attention-withdraw-dialog>
         <DialogHeader>
-          <DialogTitle>{otherName ? attentionForOtherText(otherName, "withdraw") : "Withdraw this request?"}</DialogTitle>
+          <DialogTitle>{otherName ? attentionForOtherText(otherName, "withdraw") : t("attention.close.withdrawTitle", { defaultValue: "Withdraw this request?" })}</DialogTitle>
           <DialogDescription>
             {title ? <><span className="font-medium text-foreground">{title}</span>{" — "}</> : null}
-            This closes the request for everyone and tells the agent it is out of date. It is not an approval. You cannot undo it.
+            {t("attention.close.withdrawBody", { defaultValue: "This closes the request for everyone and tells the agent it is out of date. It is not an approval. You cannot undo it." })}
           </DialogDescription>
         </DialogHeader>
         <Textarea
           value={reason}
           onChange={(event) => setReason(event.target.value)}
-          placeholder="Why is it out of date? (optional, shown in history and to the agent)"
-          aria-label="Reason for withdrawing"
+          placeholder={t("attention.close.withdrawReasonPlaceholder", { defaultValue: "Why is it out of date? (optional, shown in history and to the agent)" })}
+          aria-label={t("attention.close.withdrawReasonAria", { defaultValue: "Reason for withdrawing" })}
           className="min-h-16 text-sm"
         />
         <DialogFooter className="sm:justify-between">
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t("common.cancel", { defaultValue: "Cancel" })}</Button>
           <Button type="button" variant="destructive" onClick={() => { onConfirm(reason); setReason(""); }}>
-            Withdraw request
+            {t("attention.close.withdrawRequest", { defaultValue: "Withdraw request" })}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -267,7 +270,8 @@ function WithdrawRequestDialog({
 }
 
 /** Snooze submenu: presets + a custom date-time. Personal; it does not move a shared deadline. */
-export function SnoozeSubmenu({ onSnooze, label = "Snooze for me" }: { onSnooze: (snoozedUntil: string) => void; label?: string }) {
+export function SnoozeSubmenu({ onSnooze, label }: { onSnooze: (snoozedUntil: string) => void; label?: string }) {
+  const { t } = useTranslation();
   const [customValue, setCustomValue] = useState("");
   const applyCustom = () => {
     if (!customValue) return;
@@ -279,12 +283,12 @@ export function SnoozeSubmenu({ onSnooze, label = "Snooze for me" }: { onSnooze:
     <DropdownMenuSub>
       <DropdownMenuSubTrigger data-attention-close-mode="snooze">
         <AlarmClock className="h-4 w-4" />
-        {label}
+        {label ?? t("attention.close.snoozeForMe", { defaultValue: "Snooze for me" })}
       </DropdownMenuSubTrigger>
       <DropdownMenuSubContent>
         {SNOOZE_PRESETS.map((preset) => (
           <DropdownMenuItem key={preset.label} onSelect={() => onSnooze(preset.resolve())}>
-            {preset.label}
+            {t(preset.labelKey, { defaultValue: preset.label })}
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />
@@ -296,17 +300,17 @@ export function SnoozeSubmenu({ onSnooze, label = "Snooze for me" }: { onSnooze:
           onClick={(e) => e.stopPropagation()}
         >
           <span className="text-(length:--text-nano) font-medium uppercase tracking-(--tracking-eyebrow) text-muted-foreground">
-            Custom
+            {t("attentionQueueRow.snoozeCustom", { defaultValue: "Custom" })}
           </span>
           <input
             type="datetime-local"
             value={customValue}
             onChange={(e) => setCustomValue(e.target.value)}
-            aria-label="Snooze until"
+            aria-label={t("attention.close.snoozeUntilAria", { defaultValue: "Snooze until" })}
             className="w-full rounded-sm border border-border bg-background px-2 py-1 text-xs"
           />
           <Button type="button" size="xs" disabled={!customValue} onClick={applyCustom}>
-            Snooze until…
+            {t("attentionQueueRow.snoozeUntil", { defaultValue: "Snooze until…" })}
           </Button>
         </div>
       </DropdownMenuSubContent>
@@ -316,12 +320,13 @@ export function SnoozeSubmenu({ onSnooze, label = "Snooze for me" }: { onSnooze:
 
 /** "Stale · Waiting 30+ days" (PAP-749 plan §2, Rule 10). Nothing for a current card. */
 export function AttentionStaleChip({ item }: { item: AttentionItem }) {
+  const { t } = useTranslation();
   const text = attentionStaleChipText(item);
   if (!text || !item.stale) return null;
   return (
     <Badge variant="outline" data-attention-stale={item.stale.reason} className="text-muted-foreground">
       <Clock aria-hidden="true" />
-      Stale · {text}
+      {t("attention.close.staleChip", { text, defaultValue: "Stale · {{text}}" })}
     </Badge>
   );
 }
@@ -359,11 +364,12 @@ export function AttentionSnoozedGroup({
   onToggle: () => void;
   children: ReactNode;
 }) {
+  const { t } = useTranslation();
   if (count === 0) return null;
   return (
-    <section className="space-y-2" aria-label="Snoozed cards" data-attention-snoozed-group>
+    <section className="space-y-2" aria-label={t("attention.close.snoozedCardsAria", { defaultValue: "Snoozed cards" })} data-attention-snoozed-group>
       <IssueGroupHeader
-        label={`Snoozed (${count})`}
+        label={t("attention.close.snoozedGroup", { count, defaultValue: "Snoozed ({{count}})" })}
         collapsible
         collapsed={!open}
         onToggle={onToggle}
@@ -403,6 +409,7 @@ export function AttentionForOtherGate({
 }) {
   const otherUserId = attentionOtherAudienceUserId(item, currentUserId);
   const audienceKey = `${item.id}:${otherUserId ?? ""}`;
+  const { t } = useTranslation();
   const [confirmedAudience, setConfirmedAudience] = useState<string | null>(null);
   const confirmed = confirmedAudience === audienceKey;
   const [pending, setPending] = useState<HTMLElement | null>(null);
@@ -474,10 +481,10 @@ export function AttentionForOtherGate({
                 setSubmissionPending(false);
                 waiting?.reject(new DOMException("Action cancelled.", "AbortError"));
               }}>
-                Cancel
+                {t("common.cancel", { defaultValue: "Cancel" })}
               </Button>
               <Button type="button" variant="outline" size="xs" onClick={(event) => { event.stopPropagation(); setConfirmedAudience(audienceKey); }}>
-                Continue
+                {t("attention.close.continue", { defaultValue: "Continue" })}
               </Button>
             </span>
           </div>
@@ -517,16 +524,16 @@ export function AttentionStaleGroup({
 }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [reason, setReason] = useState("");
+  const { t } = useTranslation();
   const { withdrawable, required, kept } = planStaleWithdraw(items);
   if (items.length === 0) return null;
   const forOthers = withdrawable.filter((item) => attentionOtherAudienceUserId(item, currentUserId));
-  const noun = withdrawable.length === 1 ? "request" : "requests";
   const closeDialog = () => { setConfirmOpen(false); setReason(""); };
 
   return (
-    <section className="space-y-2" aria-label="Stale cards" data-attention-stale-group>
+    <section className="space-y-2" aria-label={t("attention.close.staleCardsAria", { defaultValue: "Stale cards" })} data-attention-stale-group>
       <IssueGroupHeader
-        label={`Stale (${items.length})`}
+        label={t("attention.close.staleGroup", { count: items.length, defaultValue: "Stale ({{count}})" })}
         collapsible
         collapsed={!open}
         onToggle={onToggle}
@@ -534,7 +541,7 @@ export function AttentionStaleGroup({
         trailing={onWithdrawAll && withdrawable.length > 0 ? (
           <Button type="button" variant="outline" size="xs" disabled={busy} onClick={() => setConfirmOpen(true)}>
             <Ban aria-hidden="true" />
-            {busy ? "Withdrawing…" : "Withdraw all stale"}
+            {busy ? t("attention.close.withdrawing", { defaultValue: "Withdrawing…" }) : t("attention.close.withdrawAllStale", { defaultValue: "Withdraw all stale" })}
           </Button>
         ) : null}
       />
@@ -543,34 +550,34 @@ export function AttentionStaleGroup({
       <Dialog open={confirmOpen} onOpenChange={(next) => { if (!next) closeDialog(); }}>
         <DialogContent showCloseButton={false} data-attention-stale-withdraw-dialog>
           <DialogHeader>
-            <DialogTitle>Withdraw {withdrawable.length} stale {noun}?</DialogTitle>
+            <DialogTitle>{t("attention.close.withdrawStaleTitle", { count: withdrawable.length, defaultValue: withdrawable.length === 1 ? "Withdraw {{count}} stale request?" : "Withdraw {{count}} stale requests?" })}</DialogTitle>
             <DialogDescription>
-              Each request closes for everyone and its agent is told it is out of date. None of them counts as approved. You cannot undo this.
+              {t("attention.close.withdrawStaleBody", { defaultValue: "Each request closes for everyone and its agent is told it is out of date. None of them counts as approved. You cannot undo this." })}
             </DialogDescription>
           </DialogHeader>
           {forOthers.length > 0 && (
             <p className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm" data-attention-stale-for-others>
               {forOthers.length === 1
                 ? attentionForOtherText(attentionUserLabel(attentionOtherAudienceUserId(forOthers[0]!, currentUserId)!, userLabelMap), "continue")
-                : `${forOthers.length} of these are for other people. Continue?`}
+                : t("attention.close.staleForOthers", { count: forOthers.length, defaultValue: "{{count}} of these are for other people. Continue?" })}
             </p>
           )}
-          <StaleItemList items={withdrawable} currentUserId={currentUserId} userLabelMap={userLabelMap} titleOf={titleOf} label="Will be withdrawn" />
+          <StaleItemList items={withdrawable} currentUserId={currentUserId} userLabelMap={userLabelMap} titleOf={titleOf} label={t("attention.close.willBeWithdrawn", { defaultValue: "Will be withdrawn" })} />
           {required.length > 0 && (
-            <StaleItemList items={required} currentUserId={currentUserId} userLabelMap={userLabelMap} titleOf={titleOf} label="Stay open: required, withdraw one at a time" />
+            <StaleItemList items={required} currentUserId={currentUserId} userLabelMap={userLabelMap} titleOf={titleOf} label={t("attention.close.stayRequired", { defaultValue: "Stay open: required, withdraw one at a time" })} />
           )}
           {kept.length > 0 && (
-            <StaleItemList items={kept} currentUserId={currentUserId} userLabelMap={userLabelMap} titleOf={titleOf} label="Stay open: no request to withdraw" />
+            <StaleItemList items={kept} currentUserId={currentUserId} userLabelMap={userLabelMap} titleOf={titleOf} label={t("attention.close.stayNoRequest", { defaultValue: "Stay open: no request to withdraw" })} />
           )}
           <Textarea
             value={reason}
             onChange={(event) => setReason(event.target.value)}
-            placeholder="Why are they out of date? (optional, shown in history and to the agents)"
-            aria-label="Reason for withdrawing stale requests"
+            placeholder={t("attention.close.staleReasonPlaceholder", { defaultValue: "Why are they out of date? (optional, shown in history and to the agents)" })}
+            aria-label={t("attention.close.staleReasonAria", { defaultValue: "Reason for withdrawing stale requests" })}
             className="min-h-16 text-sm"
           />
           <DialogFooter className="sm:justify-between">
-            <Button type="button" variant="outline" onClick={closeDialog}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={closeDialog}>{t("common.cancel", { defaultValue: "Cancel" })}</Button>
             <Button
               type="button"
               variant="destructive"
@@ -581,7 +588,7 @@ export function AttentionStaleGroup({
                 void onWithdrawAll?.(withdrawable, confirmedReason);
               }}
             >
-              Withdraw {withdrawable.length} {noun}
+              {t("attention.close.withdrawStaleButton", { count: withdrawable.length, defaultValue: withdrawable.length === 1 ? "Withdraw {{count}} request" : "Withdraw {{count}} requests" })}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -608,6 +615,7 @@ function StaleItemList({
   userLabelMap?: ReadonlyMap<string, string> | null;
   titleOf: (item: AttentionItem) => string;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-1">
       <p className="text-xs font-medium text-muted-foreground">{label}</p>
@@ -620,7 +628,7 @@ function StaleItemList({
               <span className="min-w-0 truncate font-medium text-foreground">{titleOf(item)}</span>
               {task && <span className="font-mono text-xs text-muted-foreground">{task}</span>}
               <span className="text-xs text-muted-foreground">{attentionStaleChipText(item)}</span>
-              {otherUserId && <span className="text-xs text-muted-foreground">For @{attentionUserLabel(otherUserId, userLabelMap)}</span>}
+              {otherUserId && <span className="text-xs text-muted-foreground">{t("attention.close.forUser", { name: attentionUserLabel(otherUserId, userLabelMap), defaultValue: "For @{{name}}" })}</span>}
             </li>
           );
         })}

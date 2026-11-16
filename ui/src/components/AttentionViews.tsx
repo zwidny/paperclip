@@ -22,6 +22,7 @@ import {
 import { Link } from "@/lib/router";
 import { timeAgo } from "@/lib/timeAgo";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "../i18n";
 
 /**
  * For you / Unassigned / Company / Archived (PAP-749 plan §1, Rule 3), plus
@@ -42,9 +43,10 @@ export function AttentionViewSwitch({
   everyone?: boolean;
   className?: string;
 }) {
+  const { t } = useTranslation();
   return (
     <Tabs value={value} onValueChange={(next) => onChange(next as AttentionPersonalView)} className={className}>
-      <TabsList variant="line" aria-label="Decision views" className="p-0">
+      <TabsList variant="line" aria-label={t("attention.views.aria", { defaultValue: "Decision views" })} className="p-0">
         {attentionViewsFor(everyone).map((view) => (
           <TabsTrigger key={view} value={view} data-attention-view={view}>
             {ATTENTION_VIEW_LABELS[view]}
@@ -62,6 +64,7 @@ export function AttentionViewSwitch({
 
 /** Shown in "For you" while ownerless cards wait (recommendation e). Not in the badge. */
 export function AttentionUnassignedBanner({ count, onOpen }: { count: number; onOpen: () => void }) {
+  const { t } = useTranslation();
   if (count <= 0) return null;
   return (
     <div
@@ -74,7 +77,7 @@ export function AttentionUnassignedBanner({ count, onOpen }: { count: number; on
         {unassignedBannerText(count)}
       </span>
       <Button type="button" variant="ghost" size="xs" onClick={onOpen}>
-        Open Unassigned
+        {t("attention.views.openUnassigned", { defaultValue: "Open Unassigned" })}
         <ArrowRight className="h-3 w-3" />
       </Button>
     </div>
@@ -102,6 +105,7 @@ export function AttentionAudienceLine({
   className?: string;
 }) {
   // Without the viewer there is no honest answer to "Why me?".
+  const { t } = useTranslation();
   const description = currentUserId ? describeAttentionAudience(item, currentUserId) : null;
   if (!description) return null;
   const base = cn("flex flex-wrap items-center gap-2 text-xs leading-5 text-muted-foreground", className);
@@ -110,10 +114,10 @@ export function AttentionAudienceLine({
   if (description.kind === "mine") {
     return (
       <p className={base} data-attention-audience="mine">
-        <span className="font-medium text-foreground">Why me?</span>
+        <span className="font-medium text-foreground">{t("attention.views.whyMe", { defaultValue: "Why me?" })}</span>
         <span data-attention-transferred-by={description.transferredByUserId}>
           {description.transferredByUserId
-            ? `${description.text} @${userLabelMap?.get(description.transferredByUserId) ?? "someone"}`
+            ? `${description.text} @${userLabelMap?.get(description.transferredByUserId) ?? t("attention.views.someone", { defaultValue: "someone" })}`
             : description.text}
           {responders ? <span data-attention-responders>. {responders}</span> : null}
         </span>
@@ -121,12 +125,12 @@ export function AttentionAudienceLine({
     );
   }
   if (description.kind === "other") {
-    const name = userLabelMap?.get(description.userId) ?? "another person";
+    const name = userLabelMap?.get(description.userId) ?? t("attention.views.anotherPerson", { defaultValue: "another person" });
     return (
       <div className={base} data-attention-audience="other">
         <Badge variant="outline" data-attention-for-user={description.userId}>
           <UserRound aria-hidden="true" />
-          For @{name}
+          {t("attention.views.forUser", { name, defaultValue: "For @{{name}}" })}
         </Badge>
         {responders ? <span data-attention-responders>{responders}</span> : null}
       </div>
@@ -143,7 +147,7 @@ export function AttentionAudienceLine({
         <Button asChild variant="outline" size="xs">
           <Link to={alternative.href} disableIssueQuicklook data-attention-open-to-assign onClick={(event) => event.stopPropagation()}>
             <UserRound className="h-3 w-3" />
-            Open to assign
+            {t("attention.views.openToAssign", { defaultValue: "Open to assign" })}
           </Link>
         </Button>
       ) : null}
@@ -159,7 +163,7 @@ export function AttentionAudienceLine({
           }}
         >
           <Hand className="h-3 w-3" />
-          {claiming ? "Claiming…" : "Claim"}
+          {claiming ? t("attention.views.claiming", { defaultValue: "Claiming…" }) : t("attention.views.claim", { defaultValue: "Claim" })}
         </Button>
       ) : null}
     </div>
@@ -187,9 +191,10 @@ export function AttentionReceiptList({
   dismissingId?: string | null;
   className?: string;
 }) {
+  const { t } = useTranslation();
   if (receipts.length === 0) return null;
   return (
-    <section aria-label="Receipts" data-attention-receipts className={cn("space-y-2", className)}>
+    <section aria-label={t("attention.views.receiptsAria", { defaultValue: "Receipts" })} data-attention-receipts className={cn("space-y-2", className)}>
       {receipts.map((receipt) => {
         const href = receipt.href ?? receipt.issue?.href ?? null;
         return (
@@ -203,7 +208,7 @@ export function AttentionReceiptList({
             <div className="min-w-0 flex-1 space-y-0.5">
               <p className="font-medium text-foreground">{attentionReceiptLine(receipt, userLabelMap)}</p>
               {receipt.title ? <p className="truncate text-muted-foreground">{receipt.title}</p> : null}
-              {receipt.reason ? <p className="text-muted-foreground">Reason: {receipt.reason}</p> : null}
+              {receipt.reason ? <p className="text-muted-foreground">{t("attention.views.reason", { reason: receipt.reason, defaultValue: "Reason: {{reason}}" })}</p> : null}
               <p className="text-xs text-muted-foreground">
                 {receipt.issue?.identifier ? `${receipt.issue.identifier} · ` : null}
                 <time dateTime={receipt.createdAt}>{timeAgo(receipt.createdAt)}</time>
@@ -211,7 +216,7 @@ export function AttentionReceiptList({
             </div>
             {href && onOpen ? (
               <Button type="button" variant="ghost" size="xs" onClick={() => onOpen(href)}>
-                Open
+                {t("attentionQueueRow.open", { defaultValue: "Open" })}
                 <ArrowUpRight className="h-3 w-3" />
               </Button>
             ) : null}
@@ -219,7 +224,7 @@ export function AttentionReceiptList({
               type="button"
               variant="ghost"
               size="icon-xs"
-              aria-label="Dismiss receipt"
+              aria-label={t("attention.views.dismissReceiptAria", { defaultValue: "Dismiss receipt" })}
               disabled={dismissingId === receipt.id}
               onClick={() => onDismiss(receipt)}
             >

@@ -311,11 +311,11 @@ export function TokensPanel({
       ) : null}
 
       {pendingTokens.length > 0 ? (
-        <section className="space-y-2 border-y border-border py-4" aria-label="Tokens waiting to be revealed">
+        <section className="space-y-2 border-y border-border py-4" aria-label={t("gatewayTokens.pendingTokensAria", { defaultValue: "Tokens waiting to be revealed" })}>
           <div>
-            <div className="text-sm font-semibold text-foreground">Waiting for you to reveal</div>
+            <div className="text-sm font-semibold text-foreground">{t("gatewayTokens.pendingTokensTitle", { defaultValue: "Waiting for you to reveal" })}</div>
             <div className="text-xs text-muted-foreground">
-              An agent created these tokens for you. A value is generated when you reveal it and is shown only once.
+              {t("gatewayTokens.pendingTokensBody", { defaultValue: "An agent created these tokens for you. A value is generated when you reveal it and is shown only once." })}
             </div>
           </div>
           {pendingTokens.map((token) => (
@@ -330,9 +330,9 @@ export function TokensPanel({
                 size="sm"
                 disabled={revealMutation.isPending}
                 onClick={() => revealMutation.mutate(token.id)}
-                aria-label={`Reveal token ${token.name}`}
+                aria-label={t("gatewayTokens.revealTokenAria", { name: token.name, defaultValue: "Reveal token {{name}}" })}
               >
-                Reveal token
+                {t("gatewayTokens.revealToken", { defaultValue: "Reveal token" })}
               </Button>
             </div>
           ))}

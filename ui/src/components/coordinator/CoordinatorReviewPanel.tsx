@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { useQueryView } from "@/components/QueryView";
 import { MarkdownBody } from "@/components/MarkdownBody";
 import { isImageFilename } from "@/components/task-chat/task-chat-attachments";
+import { i18n, useTranslation } from "../../i18n";
 
 /** The document a card asks you to review, when it has one (a plan approval today). */
 export function attentionReviewDocumentKey(item: AttentionItem): string | null {
@@ -77,10 +78,10 @@ export function needsYouArtifactId(artifact: NeedsYouArtifact, item: AttentionIt
 
 /** "Plan", "Approval" or "Attachments": the artifact's name on its tab and button. */
 export function needsYouArtifactLabel(artifact: NeedsYouArtifact) {
-  if (artifact.kind === "approval") return "Approval";
-  if (artifact.kind === "images") return "Attachments";
-  if (artifact.kind === "attachment") return artifact.name ?? "Attachment";
-  return artifact.key === "plan" ? "Plan" : artifact.title ?? artifact.key;
+  if (artifact.kind === "approval") return i18n.t("attention.source.approval", { defaultValue: "Approval" });
+  if (artifact.kind === "images") return i18n.t("coordinator.reviewPanel.attachments", { defaultValue: "Attachments" });
+  if (artifact.kind === "attachment") return artifact.name ?? i18n.t("coordinator.reviewPanel.attachment", { defaultValue: "Attachment" });
+  return artifact.key === "plan" ? i18n.t("coordinator.needsYou.planLabel", { defaultValue: "Plan" }) : artifact.title ?? artifact.key;
 }
 
 export interface CoordinatorReviewPanelProps {
@@ -102,6 +103,7 @@ export interface CoordinatorReviewPanelProps {
  */
 export function CoordinatorReviewPanel(props: CoordinatorReviewPanelProps) {
   const { artifact, item } = props;
+  const { t } = useTranslation();
   const requestIssueId = artifact.kind === "document" ? artifact.requestIssueId : undefined;
   const request = useQuery({
     queryKey: queryKeys.issues.interactions(requestIssueId ?? ""),
@@ -111,12 +113,12 @@ export function CoordinatorReviewPanel(props: CoordinatorReviewPanelProps) {
   const requestView = useQueryView(request);
   if (!requestIssueId) return <CoordinatorReviewPanelContent {...props} />;
   if (requestView.kind === "loading" || requestView.kind === "reconnecting") {
-    return <p role="status" className="text-sm text-muted-foreground">Loading the requested document…</p>;
+    return <p role="status" className="text-sm text-muted-foreground">{t("coordinator.reviewPanel.loadingDocument", { defaultValue: "Loading the requested document…" })}</p>;
   }
   const interaction = request.data?.find(entry => entry.id === item.subject.id);
   const target = interaction?.kind === "request_confirmation" ? interaction.payload.target : null;
   if (requestView.kind === "error" || !target || target.type !== "issue_document") {
-    return <div role="alert" className="space-y-2 text-sm"><p>The requested document could not be loaded.</p><Button variant="outline" onClick={() => void request.refetch()}>Retry</Button></div>;
+    return <div role="alert" className="space-y-2 text-sm"><p>{t("coordinator.reviewPanel.documentLoadFailed", { defaultValue: "The requested document could not be loaded." })}</p><Button variant="outline" onClick={() => void request.refetch()}>{t("common.retry", { defaultValue: "Retry" })}</Button></div>;
   }
   const resolved: NeedsYouArtifact = { kind: "document", key: target.key, issueId: target.issueId ?? requestIssueId, requestIssueId,
     documentTarget: { documentKey: target.key, revisionId: target.revisionId, interactionId: interaction!.id,
@@ -125,6 +127,7 @@ export function CoordinatorReviewPanel(props: CoordinatorReviewPanelProps) {
 }
 
 function CoordinatorReviewPanelContent({ companyId, item, artifact, agentMap, currentUserId, userLabelMap, onOpenTask, onResolved }: CoordinatorReviewPanelProps) {
+  const { t } = useTranslation();
   const task = item.relatedIssue;
   const label = needsYouArtifactLabel(artifact);
   const ownDocument = artifact.kind === "document" && (artifact.issueId === task?.id || artifact.requestIssueId === task?.id);
@@ -143,6 +146,11 @@ function CoordinatorReviewPanelContent({ companyId, item, artifact, agentMap, cu
   const requestKind = item.subject.metadata?.requestKind;
   const sharedInteractionActions = interactionIssueId && item.subject.metadata?.kind === "request_confirmation"
     && (requestKind == null || requestKind === "deliverable");
+  const openTarget = artifact.kind === "approval" && !task
+    ? t("coordinator.reviewPanel.approvalsTarget", { defaultValue: "approvals" })
+    : artifact.kind === "document" && !ownDocument
+      ? artifact.issueId
+      : task?.identifier ?? t("coordinator.reviewPanel.taskTarget", { defaultValue: "task" });
   return <div className="flex min-h-full flex-col gap-4" data-coordinator-review-panel={item.id} data-artifact={artifact.kind}>
     <div className="min-h-0 flex-1">
       {artifact.kind === "document" ? <DocumentArtifact issueId={artifact.issueId} documentKey={artifact.key} label={label} revisionId={artifact.documentTarget?.revisionId} />
@@ -151,9 +159,9 @@ function CoordinatorReviewPanelContent({ companyId, item, artifact, agentMap, cu
             : <ImagesArtifact item={item} />}
     </div>
     {exactHref ? artifact.kind === "attachment" ? <a href={exactHref} target="_blank" rel="noreferrer" className="flex max-w-full items-center gap-2 text-left text-sm text-muted-foreground hover:text-foreground">
-      <span className="shrink-0">Open file</span><ArrowUpRight className="size-4 shrink-0" />
+      <span className="shrink-0">{t("artifactCards.openFile", { defaultValue: "Open file" })}</span><ArrowUpRight className="size-4 shrink-0" />
     </a> : <button type="button" onClick={() => onOpenTask(exactHref)} className="flex max-w-full items-center gap-2 text-left text-sm text-muted-foreground hover:text-foreground">
-      <span className="shrink-0">{`Open in ${artifact.kind === "approval" && !task ? "approvals" : artifact.kind === "document" && !ownDocument ? artifact.issueId : task?.identifier ?? "task"}`}</span><ArrowUpRight className="size-4 shrink-0" />
+      <span className="shrink-0">{t("coordinator.reviewPanel.openIn", { target: openTarget, defaultValue: "Open in {{target}}" })}</span><ArrowUpRight className="size-4 shrink-0" />
     </button> : null}
     {/* The card's own actions, pinned to the bottom of the artifact. */}
     {/* Only the buttons the card itself offers (UX1). */}
@@ -164,11 +172,12 @@ function CoordinatorReviewPanelContent({ companyId, item, artifact, agentMap, cu
         onResolved={resolved => { if (resolved && resolved.status !== "pending") onResolved(); }} />
         : <ApprovalResolver item={item} companyId={companyId} toggle={null} presentation="panel" shareDraft onResolved={onResolved} />}
       </AttentionForOtherGate>
-    </div> : interactionIssueId ? <p className="text-sm text-muted-foreground">Answer on the inbox card while reviewing this artifact.</p> : null}
+    </div> : interactionIssueId ? <p className="text-sm text-muted-foreground">{t("coordinator.reviewPanel.answerOnCard", { defaultValue: "Answer on the inbox card while reviewing this artifact." })}</p> : null}
   </div>;
 }
 
 function DocumentArtifact({ issueId, documentKey, label, revisionId }: { issueId: string; documentKey: string; label: string; revisionId?: string }) {
+  const { t } = useTranslation();
   const doc = useQuery<{ title: string | null; body: string }>({
     queryKey: revisionId ? [...queryKeys.issues.document(issueId, documentKey), "revision", revisionId] : queryKeys.issues.document(issueId, documentKey),
     queryFn: () => revisionId ? issuesApi.getDocumentRevision(issueId, documentKey, revisionId) : issuesApi.getDocument(issueId, documentKey),
@@ -176,18 +185,19 @@ function DocumentArtifact({ issueId, documentKey, label, revisionId }: { issueId
   return <>
     {/* Say the title once (IA4): a body that opens with it already shows it. */}
     {doc.data?.body.trimStart().toLocaleLowerCase().startsWith(`# ${(doc.data.title ?? label).toLocaleLowerCase()}`) ? null : <h2 className="mb-4 text-lg font-medium">{doc.data?.title ?? label}</h2>}
-    {doc.isPending ? <p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" />Loading {label.toLocaleLowerCase()}…</p>
-      : doc.isError || !doc.data ? <p className="text-sm text-muted-foreground">This document couldn't be loaded. Open it in the task instead.</p>
+    {doc.isPending ? <p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" />{t("coordinator.reviewPanel.loadingLabel", { label: label.toLocaleLowerCase(), defaultValue: "Loading {{label}}…" })}</p>
+      : doc.isError || !doc.data ? <p className="text-sm text-muted-foreground">{t("coordinator.reviewPanel.documentUnavailable", { defaultValue: "This document couldn't be loaded. Open it in the task instead." })}</p>
       : <MarkdownBody>{doc.data.body}</MarkdownBody>}
   </>;
 }
 
 function ApprovalArtifact({ approvalId, title }: { approvalId: string; title: string | null }) {
+  const { t } = useTranslation();
   const approval = useQuery({ queryKey: queryKeys.approvals.detail(approvalId), queryFn: () => approvalsApi.get(approvalId) });
   return <>
-    <h2 className="mb-4 text-lg font-medium">{title ?? "Approval"}</h2>
-    {approval.isPending ? <p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" />Loading approval…</p>
-      : approval.isError || !approval.data ? <p className="text-sm text-muted-foreground">This approval couldn't be loaded. Open it instead.</p>
+    <h2 className="mb-4 text-lg font-medium">{title ?? t("attention.source.approval", { defaultValue: "Approval" })}</h2>
+    {approval.isPending ? <p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" />{t("coordinator.reviewPanel.loadingApproval", { defaultValue: "Loading approval…" })}</p>
+      : approval.isError || !approval.data ? <p className="text-sm text-muted-foreground">{t("coordinator.reviewPanel.approvalUnavailable", { defaultValue: "This approval couldn't be loaded. Open it instead." })}</p>
       : <ApprovalPayloadRenderer type={approval.data.type} payload={approval.data.payload} hidePrimaryTitle />}
   </>;
 }
@@ -195,18 +205,20 @@ function ApprovalArtifact({ approvalId, title }: { approvalId: string; title: st
 const attachmentUrl = (assetId: string) => `/api/attachments/${encodeURIComponent(assetId)}/content`;
 
 function AttachmentArtifact({ assetId, name }: { assetId: string; name: string }) {
+  const { t } = useTranslation();
   const [previewFailed, setPreviewFailed] = useState(false);
   return <>
     <h2 className="mb-4 text-lg font-medium">{name}</h2>
-    {previewFailed ? <p className="text-sm text-muted-foreground">This file cannot be previewed. Open the original file below.</p>
+    {previewFailed ? <p className="text-sm text-muted-foreground">{t("coordinator.reviewPanel.previewUnavailable", { defaultValue: "This file cannot be previewed. Open the original file below." })}</p>
       : <img src={attachmentUrl(assetId)} alt={name} onError={() => setPreviewFailed(true)} className="w-full rounded-md border border-border bg-muted object-contain" />}
   </>;
 }
 
 function ImagesArtifact({ item }: { item: AttentionItem }) {
+  const { t } = useTranslation();
   const images = attentionDetailImages(item);
   return <>
-    <h2 className="mb-4 text-lg font-medium">Attachments</h2>
+    <h2 className="mb-4 text-lg font-medium">{t("coordinator.reviewPanel.attachments", { defaultValue: "Attachments" })}</h2>
     <div className="space-y-3">
       {images.map((image, index) => <img key={`${image.assetId}-${index}`} src={attentionImageUrl(image.assetId)} alt={image.alt ?? ""} loading="lazy"
         className="w-full rounded-md border border-border bg-muted object-contain" />)}

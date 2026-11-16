@@ -4055,6 +4055,43 @@
       "keepAgentsBody": "這些 Agent 將繼續執行原始版本 — 你的副本不會改變它們的行為。",
       "nothingAssigned": "沒有任何 Agent 使用它，因此你的副本不會改變任何 Agent 的行為。",
       "createAnother": "再建立一個副本"
+    },
+    "connectedApps": {
+      "status": {
+        "pendingReview": "Needs review",
+        "approved": "Approved",
+        "declined": "Declined",
+        "unavailable": "Not available"
+      },
+      "note": {
+        "changed": "{{app}} changed this skill. Agents won't use it until you approve the new version.",
+        "dynamic": "This skill is generated each time it's used, so Paperclip can't check its content. It isn't offered to agents.",
+        "tooLarge": "This skill is bigger than apps can rely on (512 files or 16 MiB), so it isn't offered to agents.",
+        "invalid": "This skill's listing doesn't follow the MCP skills format, so it isn't offered to agents.",
+        "verificationFailed": "{{app}} sent files that didn't match what it listed, so Paperclip stopped using this skill. Refresh the app to see its current version.",
+        "removed": "{{app}} no longer offers this skill."
+      },
+      "heading": "Skills from connected apps",
+      "description": "Agents that use an app get its skills only after you approve them.",
+      "fromApp": "from {{app}}",
+      "nameCollision": "Another skill uses this name. Agents get this one under {{app}}'s name, so neither replaces the other.",
+      "alsoUse": "Also let it use:",
+      "canUse": "Can use",
+      "askedButNotAllowed": "Asked to use, not allowed",
+      "hideInstructions": "Hide instructions",
+      "readInstructions": "Read instructions",
+      "approve": "Approve",
+      "turnOff": "Turn off",
+      "decline": "Decline",
+      "approveConsequence": "Approving lets agents that use {{app}} follow these instructions, including commands they describe.",
+      "loadingInstructions": "Loading instructions…",
+      "approveFailed": "Couldn't approve the skill",
+      "updateFailed": "Couldn't update the skill",
+      "loadFailed": "Couldn't load skills from connected apps. {{error}}",
+      "waitingForReview_one": "{{count}} waiting for review.",
+      "waitingForReview_other": "{{count}} waiting for review.",
+      "fileCount_one": "{{count}} file",
+      "fileCount_other": "{{count}} files"
     }
   },
   "chatSetup": {
@@ -7236,7 +7273,12 @@
       "copiedBody": "存取 Token",
       "copyFailedTitle": "複製失敗",
       "clipboardUnavailable": "剪貼簿無法使用。"
-    }
+    },
+    "pendingTokensAria": "Tokens waiting to be revealed",
+    "pendingTokensTitle": "Waiting for you to reveal",
+    "pendingTokensBody": "An agent created these tokens for you. A value is generated when you reveal it and is shown only once.",
+    "revealToken": "Reveal token",
+    "revealTokenAria": "Reveal token {{name}}"
   },
   "gatewaysList": {
     "breadcrumbGateways": "閘道",
@@ -17641,7 +17683,8 @@
       "review": "審閱",
       "failedRun": "失敗的執行",
       "budgetAlert": "預算",
-      "agentErrorAlert": "代理程式錯誤"
+      "agentErrorAlert": "代理程式錯誤",
+      "recovery": "Recovery"
     },
     "detail": {
       "optionCount_one": "{{count}} 個選項",
@@ -17689,6 +17732,87 @@
       "yesterday": "昨天",
       "thisWeek": "本週",
       "earlier": "更早"
+    },
+    "close": {
+      "menu": "Close…",
+      "withdrawRequestEllipsis": "Withdraw request…",
+      "restoreNow": "Restore now",
+      "archiveForMe": "Archive for me",
+      "changeSnoozeTime": "Change snooze time",
+      "transferToEllipsis": "Transfer to…",
+      "transferBody": "The card leaves the list of @{{name}} and goes to @{{target}}. The history records the transfer.",
+      "transferTo": "Transfer to @{{name}}",
+      "withdrawTitle": "Withdraw this request?",
+      "withdrawBody": "This closes the request for everyone and tells the agent it is out of date. It is not an approval. You cannot undo it.",
+      "withdrawReasonPlaceholder": "Why is it out of date? (optional, shown in history and to the agent)",
+      "withdrawReasonAria": "Reason for withdrawing",
+      "withdrawRequest": "Withdraw request",
+      "snoozeForMe": "Snooze for me",
+      "snoozeUntilAria": "Snooze until",
+      "snoozedCardsAria": "Snoozed cards",
+      "snoozedGroup": "Snoozed ({{count}})",
+      "continue": "Continue",
+      "staleChip": "Stale · {{text}}",
+      "staleCardsAria": "Stale cards",
+      "staleGroup": "Stale ({{count}})",
+      "withdrawing": "Withdrawing…",
+      "withdrawAllStale": "Withdraw all stale",
+      "withdrawStaleTitle_one": "Withdraw {{count}} stale request?",
+      "withdrawStaleTitle_other": "Withdraw {{count}} stale requests?",
+      "withdrawStaleBody": "Each request closes for everyone and its agent is told it is out of date. None of them counts as approved. You cannot undo this.",
+      "staleForOthers": "{{count}} of these are for other people. Continue?",
+      "willBeWithdrawn": "Will be withdrawn",
+      "stayRequired": "Stay open: required, withdraw one at a time",
+      "stayNoRequest": "Stay open: no request to withdraw",
+      "staleReasonPlaceholder": "Why are they out of date? (optional, shown in history and to the agents)",
+      "staleReasonAria": "Reason for withdrawing stale requests",
+      "withdrawStaleButton_one": "Withdraw {{count}} request",
+      "withdrawStaleButton_other": "Withdraw {{count}} requests",
+      "forUser": "For @{{name}}"
+    },
+    "inlineVerbs": {
+      "runFailed": "The run failed",
+      "retryDidNotStart": "Retry did not start",
+      "retryRequested": "Retry requested",
+      "couldNotRetry": "Could not retry this run",
+      "retryStartsNewRun": "Retry starts a new run.",
+      "viewRun": "View run",
+      "retryRun": "Retry run",
+      "openRun": "Open run",
+      "warningDismissed": "Warning dismissed",
+      "keptPaused": "Kept paused",
+      "limitRaised": "Limit raised",
+      "couldNotUpdateBudget": "Could not update the budget",
+      "newLimitLabel": "New limit (USD)",
+      "spentOf": "{{spent}} spent of {{limit}}",
+      "percentUsed": "{{percent}}% used",
+      "budgetUsedAria": "Budget used",
+      "scopeLimit": "{{scope}} limit",
+      "limitDefault": "Limit",
+      "workContinues": "Work continues until the limit is reached",
+      "newRunsPaused": "New runs are paused",
+      "limitTooLow": "The new limit must be more than the current spend.",
+      "dismissWarning": "Dismiss warning",
+      "keepPaused": "Keep paused",
+      "raiseLimit": "Raise limit",
+      "raiseLimitResume": "Raise limit & resume",
+      "increaseLimit": "Increase limit…",
+      "spendLineWarning": "Spend is {{spent}} of a {{limit}} limit. This warning does not pause work.",
+      "spendLinePaused": "Spend is {{spent}} of a {{limit}} limit. Work in this scope is paused."
+    },
+    "views": {
+      "aria": "Decision views",
+      "openUnassigned": "Open Unassigned",
+      "whyMe": "Why me?",
+      "someone": "someone",
+      "anotherPerson": "another person",
+      "forUser": "For @{{name}}",
+      "openToAssign": "Open to assign",
+      "claiming": "Claiming…",
+      "claim": "Claim",
+      "receiptsAria": "Receipts",
+      "dismissReceiptAria": "Dismiss receipt",
+      "reason": "Reason: {{reason}}"
     }
   },
   "secretDelivery": {
@@ -18432,7 +18556,13 @@
       "searchPlaceholderShort": "Search…",
       "someoneElse": "Someone else",
       "updates": "Updates",
-      "viewMenu": "View"
+      "viewMenu": "View",
+      "noTaskGroup": "No task",
+      "noProjectGroup": "No project",
+      "historyScope": "Whose decision history",
+      "handledForMe": "Handled for me",
+      "noHandledYet": "No decisions handled by you or for you yet.",
+      "showEveryoneDecisions": "Show everyone's decisions"
     },
     "taskCommitment": {
       "noTasksCreated": "未建立任何任務。"
@@ -18485,6 +18615,53 @@
       "minutesAgo": "{{value}} 分鐘前",
       "hoursAgo": "{{value}} 小時前",
       "daysAgo": "{{value}} 天前"
+    },
+    "reviewPanel": {
+      "loadingDocument": "Loading the requested document…",
+      "documentLoadFailed": "The requested document could not be loaded.",
+      "answerOnCard": "Answer on the inbox card while reviewing this artifact.",
+      "openIn": "Open in {{target}}",
+      "approvalsTarget": "approvals",
+      "taskTarget": "task",
+      "documentUnavailable": "This document couldn't be loaded. Open it in the task instead.",
+      "loadingLabel": "Loading {{label}}…",
+      "loadingApproval": "Loading approval…",
+      "approvalUnavailable": "This approval couldn't be loaded. Open it instead.",
+      "previewUnavailable": "This file cannot be previewed. Open the original file below.",
+      "attachments": "Attachments",
+      "attachment": "Attachment"
+    },
+    "needsYouCard": {
+      "teammate": "A teammate",
+      "fromName": "from {{name}}",
+      "someone": "someone",
+      "someoneCap": "Someone",
+      "whyMe": "Why me? {{text}}",
+      "viewRequestUpdate": "View a request update",
+      "yourRequest": "Your request",
+      "viewRequest": "View request",
+      "taskFallback": "Task",
+      "assignedTo": "Assigned to {{name}}",
+      "reviewStalled": "Review stalled",
+      "stalledNoReviewer": "No reviewer, approval or run is moving this review.",
+      "blocks": "Blocks {{task}}",
+      "blocksWithMore": "Blocks {{task}} and {{count}} more",
+      "blocksTasks_one": "Blocks {{count}} task",
+      "blocksTasks_other": "Blocks {{count}} tasks",
+      "openBlockingTask": "Open blocking task",
+      "openRecovery": "Open recovery",
+      "recoveryEscalated": "Recovery escalated",
+      "recoveryPaused": "Recovery paused",
+      "recoveryNote": "Resolve, reassign or cancel it in the recovery control on the task.",
+      "recoveryKind": {
+        "missing_disposition": "No next step chosen",
+        "deliberate_wait_without_target": "Waiting on nothing",
+        "stranded_assigned_issue": "Task stranded",
+        "workspace_validation": "Workspace unavailable",
+        "configuration_validation": "Configuration missing",
+        "active_run_watchdog": "Run gone quiet",
+        "issue_graph_liveness": "Task needs a next step"
+      }
     }
   },
   "apiErrors": {
@@ -18663,5 +18840,193 @@
   },
   "inlineEditor": {
     "clickToEdit": "Click to edit..."
+  },
+  "decisionResolver": {
+    "issueFallback": "issue {{id}}",
+    "effect": {
+      "commentOn": "Comment on {{target}}",
+      "createIssue": "Create “{{title}}”",
+      "setStatus": "Set {{target}} to {{status}}",
+      "reassign": "Reassign {{target}}",
+      "unblock": "Unblock {{target}}",
+      "cancelTree": "Cancel {{target}} and its sub-tree",
+      "applyEffect": "Apply effect"
+    },
+    "optionsAria": "Options",
+    "requiredSuffix": " · Required",
+    "targetChangedSuffix": " · Target changed",
+    "staleNote": "A target changed since this was proposed, so options that need it unchanged are off.",
+    "submitting": "Submitting…",
+    "submitChoice": "Submit choice",
+    "unavailable": "This decision is no longer available — it may have been resolved elsewhere."
+  },
+  "connections": {
+    "machineSignIn": {
+      "intro": "For automation your organization owns. Agents use this connection as the provider client you set up for Paperclip, not as any person. Only shared connections can use machine sign-in.",
+      "errorTitle": "Machine sign-in didn’t work",
+      "methodAria": "How Paperclip proves who it is",
+      "paperclipKey": "Paperclip key (recommended)",
+      "paperclipKeyHint": "Paperclip creates a key and keeps its private half. You register the public key with the provider; nothing secret is copied.",
+      "clientSecretHint": "For providers that only issue a secret. Paperclip stores it securely and never shows it again.",
+      "signInService": "Sign-in service",
+      "signInServiceHint": "Leave blank and Paperclip asks {{host}} where to sign in. Otherwise enter the address or token URL from the provider’s docs.",
+      "signInServicePlaceholder": "Found automatically",
+      "clientId": "Client ID",
+      "clientIdHint": "You can add this after registering the key.",
+      "clientSecret": "Client secret",
+      "clientSecretReplaceHint": "Saved. Enter a new one only to replace it.",
+      "scopes": "Scopes",
+      "scopesHint": "Optional. Separate with spaces, as the provider’s docs list them.",
+      "scopesConfirmHint": "Optional. Separate with spaces.",
+      "scopesPlaceholder": "Optional",
+      "publicKeyIntro": "Register this public key with the provider for the Paperclip client. It isn’t secret, so you can paste it into the provider’s console or send it to whoever manages it.",
+      "publicKeyPem": "Public key (PEM)",
+      "publicKeyJson": "Public key (JSON)",
+      "clientIdConfirmHint": "The ID the provider shows for the Paperclip client.",
+      "back": "Back",
+      "createKey": "Create key",
+      "creatingKey": "Creating key…",
+      "saving": "Saving…",
+      "testing": "Testing…",
+      "testConnection": "Test connection",
+      "copy": "Copy",
+      "copied": "Copied"
+    },
+    "genericMcp": {
+      "authOption": {
+        "auto": {
+          "title": "Let Paperclip check",
+          "description": "Paperclip asks the server what it needs and walks you through it."
+        },
+        "bearer": {
+          "title": "Key or token",
+          "description": "Paperclip sends your key as an Authorization header."
+        },
+        "oauth": {
+          "title": "Browser sign-in",
+          "description": "You’ll sign in at the provider."
+        },
+        "customHeaders": {
+          "title": "Custom headers",
+          "description": "For servers that name their own headers."
+        },
+        "none": {
+          "title": "No sign-in needed",
+          "description": "The server is open to anyone with the address."
+        }
+      },
+      "summary": {
+        "none": "No sign-in. The server is open to anyone with the address.",
+        "bearer": "Signs in with a key or token.",
+        "customHeaders": "Signs in with custom headers.",
+        "oauthWithClientId": "You’ll sign in at the provider, using your own client ID.",
+        "oauth": "You’ll sign in at the provider.",
+        "pending": "Paperclip asks the server how to sign in.",
+        "customHeadersCount_one": "Signs in with {{count}} custom header.",
+        "customHeadersCount_other": "Signs in with {{count}} custom headers."
+      },
+      "keyAria": "Key or token",
+      "keyPlaceholder": "Paste the key or token",
+      "keyHint": "Grant this key access to what your agents need. Paperclip can’t increase its permissions.",
+      "headerName": "Header name",
+      "headerValue": "Value",
+      "headerValueFor": "Value for {{name}}",
+      "headerValueAria": "Header value",
+      "removeHeaderNamed": "Remove {{name}}",
+      "removeHeader": "Remove header",
+      "addHeader": "Add header",
+      "headersStoredAsSecrets": "Values are stored as secrets and can’t be read back.",
+      "useOwnClientId": "Use your own client ID",
+      "oauthClientFieldsIntro": "Paperclip sets sign-in up on its own whenever the server allows it. Fill these in only when the server’s docs tell you to register Paperclip yourself first.",
+      "clientId": "Client ID",
+      "clientSecret": "Client secret",
+      "optional": "Optional",
+      "guidedSetupAvailable": "Paperclip has a guided setup for {{name}}.",
+      "useMatchedEntry": "Use {{name}}",
+      "appKey": "App key",
+      "signInPrompt": "How does this server sign in?",
+      "done": "Done",
+      "change": "Change",
+      "signInAria": "How this server signs in",
+      "machineSignIn": "Machine sign-in",
+      "machineSignInDescription": "Your organization’s automation signs in as its own registered client. No person signs in.",
+      "back": "Back",
+      "checking": "Checking…",
+      "checkLink": "Check link"
+    }
+  },
+  "tailscale": {
+    "card": {
+      "manage": "Manage",
+      "connect": "Connect",
+      "actionAria": "{{action}} Tailscale",
+      "description": "Connect your tailnet to use its machines in SSH environments.",
+      "connected": "Connected"
+    },
+    "connector": {
+      "selectOrganization": "Select an organization to connect Tailscale.",
+      "checkingAccess": "Checking Tailscale management access…",
+      "adminRequired": "Ask an instance administrator to connect or manage Tailscale networks.",
+      "authorizationCancelled": "Tailscale authorization was canceled. Try again to connect your network.",
+      "authorizationFailed": "Tailscale authorization could not be completed. Try again.",
+      "description": "Give Paperclip access to your tailnet, then choose one of its machines when creating an SSH environment. Agents can use any harness supported by that environment.",
+      "loadingConnections": "Loading tailnet connections…",
+      "tryAgain": "Try again",
+      "refreshConnections": "Refresh connections",
+      "status": {
+        "connected": "Connected",
+        "authorizing": "Waiting for sign-in",
+        "connecting": "Connecting",
+        "disconnected": "Disconnected",
+        "expired": "Sign-in expired",
+        "incomplete": "Authorization not completed"
+      },
+      "createSshEnvironment": "Create SSH environment",
+      "disconnect": "Disconnect {{name}}",
+      "reconnect": "Reconnect {{name}}",
+      "backToConnectors": "Back to connectors",
+      "connecting": "Connecting…"
+    },
+    "deviceSignIn": {
+      "expired": "Sign-in expired. Cancel and connect again.",
+      "waitingForApproval": "Waiting for a Tailscale administrator to approve this device.",
+      "approveInTailscale": "Approve the connection in Tailscale. This page will update when you finish.",
+      "continueToTailscale": "Continue to Tailscale",
+      "openDevices": "Open Tailscale devices",
+      "checkAgain": "Check again",
+      "cancelSignIn": "Cancel sign-in"
+    },
+    "machine": {
+      "adminRequired": "An instance administrator must configure this Tailscale machine.",
+      "manageConnector": "Manage Tailscale connector",
+      "tailnetConnection": "Tailnet connection",
+      "chooseConnection": "Choose a connection",
+      "unavailableConnection": "Unavailable connection",
+      "machine": "Machine",
+      "loadingMachines": "Loading machines…",
+      "chooseMachine": "Choose a machine",
+      "offline": " — Offline",
+      "preparePairing": "Prepare machine pairing",
+      "pairingIntro": "Run this on the selected computer as the user who will run tasks. Enter the printed username, workspace, and known hosts below. Paperclip keeps the private key in its vault.",
+      "pairingCommand": "Machine pairing command"
+    }
+  },
+  "mcpApp": {
+    "proposalAria": "{{app}} wants to send a message",
+    "proposalWantsToSend": "{{app}} wants to send:",
+    "messageSendFailed": "The message could not be sent.",
+    "dismiss": "Dismiss",
+    "sending": "Sending…",
+    "send": "Send",
+    "unsupportedBrowser": "This browser can't show this app's widget safely. The tool result is still in the activity.",
+    "viewUnavailable": "This app's view could not be shown.",
+    "appFallback": "App",
+    "loadingViewAria": "Loading {{app}} view",
+    "showingFullScreen": "Showing full screen",
+    "backToChat": "Back to chat",
+    "widgetFrom": "Widget from {{app}}",
+    "exitFullScreen": "Exit full screen",
+    "viewGone": "This {{app}} view is no longer available.",
+    "viewCouldNotShow": "{{app}} could not show this view. The tool result is still in the row above."
   }
 }

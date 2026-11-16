@@ -2225,7 +2225,8 @@
     "noAgents": "沒有 Agent 可以使用此連線。",
     "actions": "操作",
     "findAction": "尋找操作",
-    "mixed": "混合"
+    "mixed": "混合",
+    "findActionPlaceholder": "Find an action…"
   },
   "gateways": {
     "loading": "正在載入閘道...",
@@ -12139,7 +12140,8 @@
     "uninstallTitle": "解除安裝外掛",
     "uninstalling": "正在解除安裝...",
     "viewFullError": "檢視完整錯誤",
-    "whatErrored": "出錯內容"
+    "whatErrored": "出錯內容",
+    "noDescription": "No description provided."
   },
   "userProfile": {
     "actions": "操作",
@@ -12272,7 +12274,15 @@
     "rename": "重新命名",
     "resizeAria": "調整 Skill 資料夾寬度",
     "searchFolders": "搜尋資料夾",
-    "system": "系統"
+    "system": "系統",
+    "allSkills": "All skills",
+    "mySkills": "My Skills",
+    "organization": "Organization",
+    "projects": "Projects",
+    "bundled": "Bundled",
+    "unfiled": "Unfiled",
+    "tags": "Tags",
+    "pickDestination": "Pick a destination folder."
   },
   "importSkills": {
     "addSkill": "新增 Skill",
@@ -12505,7 +12515,11 @@
     "taskFiles": "任務檔案 — 獨立資料夾",
     "useConnectionDefaults": "使用連線預設值",
     "useProjectOrTaskDefaults": "使用專案或任務預設值",
-    "useTaskDefaults": "使用任務預設值"
+    "useTaskDefaults": "使用任務預設值",
+    "title": "Task defaults",
+    "project": "Project",
+    "workspace": "Workspace",
+    "noProject": "No project"
   },
   "allowedProjectsEditor": {
     "accessBody_one": "{{agentName}} 將能夠存取此專案中的工作和儲存庫。現有專案存取權限和低信任限制保持不變。",
@@ -12528,7 +12542,8 @@
     "toAdd": "待新增",
     "trySavingAgain": "請重試儲存",
     "unavailableProject": "無法使用的專案",
-    "undoAdding": "復原新增 {{name}}"
+    "undoAdding": "復原新增 {{name}}",
+    "searchProjectsPlaceholder": "Search projects…"
   },
   "decisionsToolbar": {
     "controls": "決策控制項",
@@ -12810,7 +12825,16 @@
     "selected_one": "已選取 {{count}} 項",
     "selected_other": "已選取 {{count}} 項",
     "unfiled": "未歸檔",
-    "useColor": "使用資料夾顏色 {{color}}"
+    "useColor": "使用資料夾顏色 {{color}}",
+    "folders": "Folders",
+    "system": "System",
+    "organization": "Organization",
+    "projects": "Projects",
+    "newFolder": "New folder",
+    "rename": "Rename",
+    "editColor": "Edit color",
+    "delete": "Delete",
+    "searchFolders": "Search folders"
   },
   "githubBotManagement": {
     "accessRefreshNotice": "儲存庫存取權限已重新整理。新儲存庫保持停用。",
@@ -13303,7 +13327,17 @@
     "choiceMiddle": "，即可分享此投票及日後投過票的 AI 輸出。選擇 ",
     "choiceSuffix": "，將此投票及日後的投票保留在本機。",
     "changeLater": "您可以稍後在「設定 > 一般」中變更此設定。",
-    "readTerms": "閱讀我們的服務條款"
+    "readTerms": "閱讀我們的服務條款",
+    "addNote": "Add a short note",
+    "alwaysAllow": "Always allow",
+    "betterPrompt": "What could have been better?",
+    "copyMessage": "Copy message",
+    "dismiss": "Dismiss",
+    "dontAllow": "Don't allow",
+    "helpful": "Helpful",
+    "moreActions": "More actions",
+    "needsWork": "Needs work",
+    "saveNote": "Save note"
   },
   "workspaceCloseDialog": {
     "retryClose": "重試關閉",
@@ -19933,6 +19967,74 @@
       "autoApproveDevicePairing": "Automatically approve device pairing",
       "deviceAuth": "Device auth",
       "deviceAuthDescription": "When enabled, Paperclip persists a device key during onboarding so pairing approvals remain stable across runs."
+    },
+    "claudeLocal": {
+      "instructionsFile": "Agent instructions file",
+      "instructionsFileHint": "Absolute path to a markdown file (e.g. AGENTS.md) that defines this agent's behavior. Injected into the system prompt at runtime.",
+      "executionEngine": "Execution engine",
+      "executionEngineHint": "Default uses ACP. If ACP is unavailable, the run fails with a setup error. Choose CLI explicitly to use it.",
+      "engineDefault": "Default (ACP)",
+      "engineCli": "Claude CLI",
+      "acpServerCommand": "ACP server command",
+      "acpServerCommandHint": "Optional override for the Claude ACP server command. Defaults to the package-local claude-agent-acp binary.",
+      "acpSessionMode": "ACP session mode",
+      "acpSessionModeHint": "Persistent keeps ACP session state between runs. One-shot starts fresh each run.",
+      "acpSessionPersistent": "Persistent",
+      "acpSessionOneShot": "One-shot",
+      "acpNonInteractivePermissions": "ACP non-interactive permissions",
+      "acpNonInteractivePermissionsHint": "Fallback if the ACP agent asks for input outside an interactive session.",
+      "nonInteractiveDeny": "Deny",
+      "nonInteractiveFail": "Fail",
+      "acpStateDirectory": "ACP state directory",
+      "acpStateDirectoryHint": "Optional ACP session state directory. Defaults to Paperclip-managed organization/agent scoped storage.",
+      "acpWarmProcessIdleMs": "ACP warm process idle ms",
+      "acpWarmProcessIdleMsHint": "Defaults to 0, which closes the ACP process after each run while retaining persistent session state.",
+      "enableChrome": "Enable Chrome",
+      "skipPermissions": "Skip permissions",
+      "maxTurnsPerRun": "Max turns per run"
     }
+  },
+  "agentConfigHelp": {
+    "name": "Display name for this agent.",
+    "title": "Job title shown in the org chart.",
+    "role": "Organizational role. Determines position and capabilities.",
+    "reportsTo": "The agent this one reports to in the org hierarchy.",
+    "capabilities": "Describes what this agent can do. Shown in the org chart and used for task routing.",
+    "adapterType": "How this agent runs: local CLI (Claude/Codex/OpenCode), OpenClaw Gateway, spawned process, or generic HTTP webhook.",
+    "cwd": "Deprecated legacy working directory fallback for local adapters. Existing agents may still carry this value, but new configurations should use project workspaces instead.",
+    "promptTemplate": "Sent on every heartbeat. Keep this small and dynamic. Use it for current-task framing, not large static instructions. Supports {{ agent.id }}, {{ agent.name }}, {{ agent.role }} and other template variables.",
+    "model": "Override the default model used by the adapter.",
+    "thinkingEffort": "Control model reasoning depth. Supported values vary by adapter/model.",
+    "chrome": "Enable Claude's Chrome integration by passing --chrome.",
+    "dangerouslySkipPermissions": "Run unattended by auto-approving adapter permission prompts when supported.",
+    "dangerouslyBypassSandbox": "Run Codex without sandbox restrictions. Required for filesystem/network access.",
+    "search": "Enable Codex web search capability during runs.",
+    "fastMode": "Enable Codex Fast mode. This burns credits/tokens much faster and is supported on GPT-6, GPT-5.6, GPT-5.5, GPT-5.4, and manual Codex model IDs.",
+    "workspaceStrategy": "How Paperclip should realize an execution workspace for this agent. Keep project_primary for normal cwd execution, or use git_worktree for issue-scoped isolated checkouts.",
+    "workspaceBaseRef": "Base git ref used when creating a worktree branch. Leave blank to use the resolved workspace ref or HEAD.",
+    "workspaceBranchTemplate": "Template for naming derived branches. Supports {{issue.identifier}}, {{issue.title}}, {{agent.name}}, {{project.id}}, {{workspace.repoRef}}, and {{slug}}.",
+    "worktreeParentDir": "Directory where derived worktrees should be created. Absolute, ~-prefixed, and repo-relative paths are supported.",
+    "runtimeServicesJson": "Optional workspace runtime service definitions. Use this for shared app servers, workers, or other long-lived companion processes attached to the workspace.",
+    "maxTurnsPerRun": "Maximum number of agentic turns (tool calls) per heartbeat run.",
+    "command": "The command to execute (e.g. node, python).",
+    "localCommand": "Override the path to the CLI command you want the adapter to call (e.g. /usr/local/bin/claude, codex, opencode).",
+    "args": "Command-line arguments, comma-separated.",
+    "extraArgs": "Extra CLI arguments for local adapters, comma-separated.",
+    "envVars": "Environment variables injected into the adapter process. Use plain values or secret references.",
+    "secretAccess": "Secrets this agent can reach. Env-var bindings are injected at run start; API-access bindings are fetched on demand via the run-bound agent API and never written to the environment.",
+    "bootstrapPrompt": "Only sent when Paperclip starts a fresh session. Use this for stable setup guidance that should not be repeated on every heartbeat.",
+    "payloadTemplateJson": "Optional JSON merged into remote adapter request payloads before Paperclip adds its standard wake and workspace fields.",
+    "webhookUrl": "The URL that receives POST requests when the agent is invoked.",
+    "heartbeatInterval": "Run this agent automatically on a timer. Useful for periodic tasks like checking for new work.",
+    "intervalSec": "Seconds between automatic heartbeat invocations.",
+    "timeoutSec": "Maximum seconds a run can take before being terminated. 0 means no timeout.",
+    "graceSec": "Seconds to wait after sending interrupt before force-killing the process.",
+    "wakeOnDemand": "Allow this agent to be woken by assignments, API calls, UI actions, or automated systems.",
+    "cooldownSec": "Minimum seconds between consecutive heartbeat runs.",
+    "maxConcurrentRuns": "Maximum number of heartbeat runs that can execute simultaneously for this agent.",
+    "maxTurnContinuationEnabled": "Automatically queue bounded continuation runs when an adapter stops because its per-run turn cap was exhausted.",
+    "maxTurnContinuationMaxAttempts": "Maximum automatic continuations after one max-turn stop. This is separate from max turns per run.",
+    "maxTurnContinuationDelaySec": "Seconds to wait before starting each max-turn continuation.",
+    "budgetMonthlyCents": "Monthly spending limit in cents. 0 means no limit."
   }
 }

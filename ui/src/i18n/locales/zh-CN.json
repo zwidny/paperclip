@@ -2225,7 +2225,8 @@
     "noAgents": "没有 Agent 可以使用此连接。",
     "actions": "操作",
     "findAction": "查找操作",
-    "mixed": "混合"
+    "mixed": "混合",
+    "findActionPlaceholder": "查找操作…"
   },
   "gateways": {
     "loading": "正在加载网关...",
@@ -12139,7 +12140,8 @@
     "uninstallTitle": "卸载插件",
     "uninstalling": "正在卸载...",
     "viewFullError": "查看完整错误",
-    "whatErrored": "出错内容"
+    "whatErrored": "出错内容",
+    "noDescription": "未提供描述。"
   },
   "userProfile": {
     "actions": "操作",
@@ -12272,7 +12274,15 @@
     "rename": "重命名",
     "resizeAria": "调整 Skill 文件夹宽度",
     "searchFolders": "搜索文件夹",
-    "system": "系统"
+    "system": "系统",
+    "allSkills": "所有技能",
+    "mySkills": "我的技能",
+    "organization": "组织",
+    "projects": "项目",
+    "bundled": "内置",
+    "unfiled": "未分类",
+    "tags": "标签",
+    "pickDestination": "选择一个目标文件夹。"
   },
   "importSkills": {
     "addSkill": "添加 Skill",
@@ -12505,7 +12515,11 @@
     "taskFiles": "任务文件 — 独立文件夹",
     "useConnectionDefaults": "使用连接默认值",
     "useProjectOrTaskDefaults": "使用项目或任务默认值",
-    "useTaskDefaults": "使用任务默认值"
+    "useTaskDefaults": "使用任务默认值",
+    "title": "任务默认值",
+    "project": "项目",
+    "workspace": "工作区",
+    "noProject": "无项目"
   },
   "allowedProjectsEditor": {
     "accessBody_one": "{{agentName}} 将能够访问此项目中的工作和仓库。现有项目访问权限和低信任限制保持不变。",
@@ -12528,7 +12542,8 @@
     "toAdd": "待添加",
     "trySavingAgain": "请重试保存",
     "unavailableProject": "不可用的项目",
-    "undoAdding": "撤销添加 {{name}}"
+    "undoAdding": "撤销添加 {{name}}",
+    "searchProjectsPlaceholder": "搜索项目…"
   },
   "decisionsToolbar": {
     "controls": "决策控件",
@@ -12810,7 +12825,16 @@
     "selected_one": "已选择 {{count}} 项",
     "selected_other": "已选择 {{count}} 项",
     "unfiled": "未归档",
-    "useColor": "使用文件夹颜色 {{color}}"
+    "useColor": "使用文件夹颜色 {{color}}",
+    "folders": "文件夹",
+    "system": "系统",
+    "organization": "组织",
+    "projects": "项目",
+    "newFolder": "新建文件夹",
+    "rename": "重命名",
+    "editColor": "编辑颜色",
+    "delete": "删除",
+    "searchFolders": "搜索文件夹"
   },
   "githubBotManagement": {
     "accessRefreshNotice": "仓库访问权限已刷新。新仓库保持停用。",
@@ -13303,7 +13327,17 @@
     "choiceMiddle": "，即可分享此投票及以后投过票的 AI 输出。选择 ",
     "choiceSuffix": "，将此投票及以后的投票保留在本地。",
     "changeLater": "您可以稍后在“设置 > 常规”中更改此设置。",
-    "readTerms": "阅读我们的服务条款"
+    "readTerms": "阅读我们的服务条款",
+    "addNote": "添加简短说明",
+    "alwaysAllow": "始终允许",
+    "betterPrompt": "哪里可以做得更好？",
+    "copyMessage": "复制消息",
+    "dismiss": "忽略",
+    "dontAllow": "不允许",
+    "helpful": "有帮助",
+    "moreActions": "更多操作",
+    "needsWork": "需要改进",
+    "saveNote": "保存说明"
   },
   "workspaceCloseDialog": {
     "retryClose": "重试关闭",
@@ -19933,6 +19967,74 @@
       "autoApproveDevicePairing": "自动批准设备配对",
       "deviceAuth": "设备认证",
       "deviceAuthDescription": "启用后，Paperclip 会在引导过程中保存设备密钥，使配对批准在多次运行之间保持稳定。"
+    },
+    "claudeLocal": {
+      "instructionsFile": "智能体指令文件",
+      "instructionsFileHint": "指向一个定义此智能体行为的 markdown 文件（例如 AGENTS.md）的绝对路径。运行时会被注入系统提示词。",
+      "executionEngine": "执行引擎",
+      "executionEngineHint": "默认使用 ACP。若 ACP 不可用，运行会因配置错误而失败。要使用 CLI 请显式选择。",
+      "engineDefault": "默认（ACP）",
+      "engineCli": "Claude CLI",
+      "acpServerCommand": "ACP 服务器命令",
+      "acpServerCommandHint": "可选：覆盖 Claude ACP 服务器命令。默认为包内自带的 claude-agent-acp 可执行文件。",
+      "acpSessionMode": "ACP 会话模式",
+      "acpSessionModeHint": "Persistent 在多次运行之间保留 ACP 会话状态。One-shot 每次运行都重新开始。",
+      "acpSessionPersistent": "持久",
+      "acpSessionOneShot": "单次",
+      "acpNonInteractivePermissions": "ACP 非交互式权限",
+      "acpNonInteractivePermissionsHint": "当 ACP 智能体在非交互式会话中请求输入时的兜底策略。",
+      "nonInteractiveDeny": "拒绝",
+      "nonInteractiveFail": "失败",
+      "acpStateDirectory": "ACP 状态目录",
+      "acpStateDirectoryHint": "可选的 ACP 会话状态目录。默认为 Paperclip 管理的组织/智能体范围存储。",
+      "acpWarmProcessIdleMs": "ACP 常驻进程空闲毫秒数",
+      "acpWarmProcessIdleMsHint": "默认为 0，即在每次运行后关闭 ACP 进程，同时保留持久会话状态。",
+      "enableChrome": "启用 Chrome",
+      "skipPermissions": "跳过权限确认",
+      "maxTurnsPerRun": "每次运行最大轮次"
     }
+  },
+  "agentConfigHelp": {
+    "name": "此智能体的显示名称。",
+    "title": "在组织架构中显示的职位。",
+    "role": "组织角色。决定其在架构中的位置与能力。",
+    "reportsTo": "在组织层级中，此智能体向其汇报的智能体。",
+    "capabilities": "描述此智能体能做什么。会显示在组织架构中，并用于任务分派。",
+    "adapterType": "此智能体的运行方式：本地 CLI（Claude/Codex/OpenCode）、OpenClaw Gateway、子进程或通用 HTTP webhook。",
+    "cwd": "本地适配器已弃用的旧版工作目录兜底。现有智能体可能仍带有该值，但新配置应改用项目工作区。",
+    "promptTemplate": "每次心跳时发送。保持简短且动态，用于框定当前任务，不要放大量静态指令。支持 {{ agent.id }}、{{ agent.name }}、{{ agent.role }} 及其他模板变量。",
+    "model": "覆盖适配器默认使用的模型。",
+    "thinkingEffort": "控制模型推理深度。支持的值因适配器/模型而异。",
+    "chrome": "通过传入 --chrome 启用 Claude 的 Chrome 集成。",
+    "dangerouslySkipPermissions": "在支持的情况下自动批准适配器权限提示，以无人值守方式运行。",
+    "dangerouslyBypassSandbox": "在无沙箱限制下运行 Codex。访问文件系统/网络时必须启用。",
+    "search": "在运行期间启用 Codex 网页搜索能力。",
+    "fastMode": "启用 Codex 快速模式。这会大幅加快消耗额度/token，支持 GPT-6、GPT-5.6、GPT-5.5、GPT-5.4 及手动填写的 Codex 模型 ID。",
+    "workspaceStrategy": "Paperclip 应如何为此智能体实现执行工作区。常规 cwd 执行保持 project_primary，或使用 git_worktree 获得按任务隔离的检出。",
+    "workspaceBaseRef": "创建 worktree 分支时使用的基础 git ref。留空则使用解析后的工作区 ref 或 HEAD。",
+    "workspaceBranchTemplate": "派生分支的命名模板。支持 {{issue.identifier}}、{{issue.title}}、{{agent.name}}、{{project.id}}、{{workspace.repoRef}} 和 {{slug}}。",
+    "worktreeParentDir": "派生 worktree 应创建到的目录。支持绝对路径、以 ~ 开头的路径和仓库相对路径。",
+    "runtimeServicesJson": "可选的工作区运行时服务定义。用于共享应用服务器、worker 或其他挂在工作区上的长期伴生进程。",
+    "maxTurnsPerRun": "每次心跳运行的最大智能体轮次（工具调用）数。",
+    "command": "要执行的命令（例如 node、python）。",
+    "localCommand": "覆盖你希望适配器调用的 CLI 命令路径（例如 /usr/local/bin/claude、codex、opencode）。",
+    "args": "命令行参数，以逗号分隔。",
+    "extraArgs": "本地适配器的额外 CLI 参数，以逗号分隔。",
+    "envVars": "注入适配器进程的环境变量。可使用明文值或密钥引用。",
+    "secretAccess": "此智能体可访问的密钥。环境变量绑定在运行开始时注入；API 访问绑定通过运行绑定的智能体 API 按需获取，且绝不写入环境变量。",
+    "bootstrapPrompt": "仅在 Paperclip 启动全新会话时发送。用于稳定的初始化指引，不应在每次心跳时重复。",
+    "payloadTemplateJson": "可选 JSON，会在 Paperclip 添加标准唤醒与工作区字段之前合并进远程适配器请求负载。",
+    "webhookUrl": "智能体被调用时接收 POST 请求的 URL。",
+    "heartbeatInterval": "按定时器自动运行此智能体。适用于检查新工作等周期性任务。",
+    "intervalSec": "自动心跳调用之间的秒数。",
+    "timeoutSec": "一次运行在被终止前的最大秒数。0 表示不超时。",
+    "graceSec": "发送中断后、强制结束进程前等待的秒数。",
+    "wakeOnDemand": "允许此智能体被任务分派、API 调用、UI 操作或自动化系统唤醒。",
+    "cooldownSec": "连续心跳运行之间的最小秒数。",
+    "maxConcurrentRuns": "此智能体可同时执行的心跳运行最大数量。",
+    "maxTurnContinuationEnabled": "当适配器因单次运行轮次上限耗尽而停止时，自动排队有界的续跑。",
+    "maxTurnContinuationMaxAttempts": "一次达到轮次上限后允许的最大自动续跑次数。与每次运行最大轮次相互独立。",
+    "maxTurnContinuationDelaySec": "每次轮次上限续跑开始前等待的秒数。",
+    "budgetMonthlyCents": "以分为单位的月度支出上限。0 表示不限制。"
   }
 }

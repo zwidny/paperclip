@@ -2225,7 +2225,8 @@
     "noAgents": "No agents can use this connection.",
     "actions": "Actions",
     "findAction": "Find an action",
-    "mixed": "Mixed"
+    "mixed": "Mixed",
+    "findActionPlaceholder": "Find an action…"
   },
   "gateways": {
     "loading": "Loading gateways...",
@@ -12139,7 +12140,8 @@
     "uninstallSuccess": "Plugin uninstalled successfully",
     "uninstallTitle": "Uninstall Plugin",
     "viewFullError": "View full error",
-    "whatErrored": "What errored"
+    "whatErrored": "What errored",
+    "noDescription": "No description provided."
   },
   "userProfile": {
     "actions": "Actions",
@@ -12272,7 +12274,15 @@
     "rename": "Rename",
     "resizeAria": "Resize skill folders",
     "searchFolders": "Search folders",
-    "system": "System"
+    "system": "System",
+    "allSkills": "All skills",
+    "mySkills": "My Skills",
+    "organization": "Organization",
+    "projects": "Projects",
+    "bundled": "Bundled",
+    "unfiled": "Unfiled",
+    "tags": "Tags",
+    "pickDestination": "Pick a destination folder."
   },
   "importSkills": {
     "addSkill": "Add skill",
@@ -12505,7 +12515,11 @@
     "taskFiles": "Task files — separate folder",
     "useConnectionDefaults": "Use connection defaults",
     "useProjectOrTaskDefaults": "Use project or task defaults",
-    "useTaskDefaults": "Use task defaults"
+    "useTaskDefaults": "Use task defaults",
+    "title": "Task defaults",
+    "project": "Project",
+    "workspace": "Workspace",
+    "noProject": "No project"
   },
   "allowedProjectsEditor": {
     "accessBody_one": "{{agentName}} will be able to access work and repositories in this project. Existing project access and low-trust restrictions stay in place.",
@@ -12528,7 +12542,8 @@
     "toAdd": "To add",
     "trySavingAgain": "Try saving again",
     "unavailableProject": "Unavailable project",
-    "undoAdding": "Undo adding {{name}}"
+    "undoAdding": "Undo adding {{name}}",
+    "searchProjectsPlaceholder": "Search projects…"
   },
   "decisionsToolbar": {
     "controls": "Decisions controls",
@@ -12810,7 +12825,16 @@
     "selected_one": "{{count}} selected",
     "selected_other": "{{count}} selected",
     "unfiled": "Unfiled",
-    "useColor": "Use folder color {{color}}"
+    "useColor": "Use folder color {{color}}",
+    "folders": "Folders",
+    "system": "System",
+    "organization": "Organization",
+    "projects": "Projects",
+    "newFolder": "New folder",
+    "rename": "Rename",
+    "editColor": "Edit color",
+    "delete": "Delete",
+    "searchFolders": "Search folders"
   },
   "githubBotManagement": {
     "accessRefreshNotice": "Repository access refreshed. New repositories stay disabled.",
@@ -13303,7 +13327,17 @@
     "choiceMiddle": " to share this vote and future voted AI outputs. Choose ",
     "choiceSuffix": " to keep this vote and future votes local.",
     "changeLater": "You can change this later in Settings > General.",
-    "readTerms": "Read our terms of service"
+    "readTerms": "Read our terms of service",
+    "addNote": "Add a short note",
+    "alwaysAllow": "Always allow",
+    "betterPrompt": "What could have been better?",
+    "copyMessage": "Copy message",
+    "dismiss": "Dismiss",
+    "dontAllow": "Don't allow",
+    "helpful": "Helpful",
+    "moreActions": "More actions",
+    "needsWork": "Needs work",
+    "saveNote": "Save note"
   },
   "workspaceCloseDialog": {
     "retryClose": "Retry close",
@@ -19933,6 +19967,74 @@
       "autoApproveDevicePairing": "Automatically approve device pairing",
       "deviceAuth": "Device auth",
       "deviceAuthDescription": "When enabled, Paperclip persists a device key during onboarding so pairing approvals remain stable across runs."
+    },
+    "claudeLocal": {
+      "instructionsFile": "Agent instructions file",
+      "instructionsFileHint": "Absolute path to a markdown file (e.g. AGENTS.md) that defines this agent's behavior. Injected into the system prompt at runtime.",
+      "executionEngine": "Execution engine",
+      "executionEngineHint": "Default uses ACP. If ACP is unavailable, the run fails with a setup error. Choose CLI explicitly to use it.",
+      "engineDefault": "Default (ACP)",
+      "engineCli": "Claude CLI",
+      "acpServerCommand": "ACP server command",
+      "acpServerCommandHint": "Optional override for the Claude ACP server command. Defaults to the package-local claude-agent-acp binary.",
+      "acpSessionMode": "ACP session mode",
+      "acpSessionModeHint": "Persistent keeps ACP session state between runs. One-shot starts fresh each run.",
+      "acpSessionPersistent": "Persistent",
+      "acpSessionOneShot": "One-shot",
+      "acpNonInteractivePermissions": "ACP non-interactive permissions",
+      "acpNonInteractivePermissionsHint": "Fallback if the ACP agent asks for input outside an interactive session.",
+      "nonInteractiveDeny": "Deny",
+      "nonInteractiveFail": "Fail",
+      "acpStateDirectory": "ACP state directory",
+      "acpStateDirectoryHint": "Optional ACP session state directory. Defaults to Paperclip-managed organization/agent scoped storage.",
+      "acpWarmProcessIdleMs": "ACP warm process idle ms",
+      "acpWarmProcessIdleMsHint": "Defaults to 0, which closes the ACP process after each run while retaining persistent session state.",
+      "enableChrome": "Enable Chrome",
+      "skipPermissions": "Skip permissions",
+      "maxTurnsPerRun": "Max turns per run"
     }
+  },
+  "agentConfigHelp": {
+    "name": "Display name for this agent.",
+    "title": "Job title shown in the org chart.",
+    "role": "Organizational role. Determines position and capabilities.",
+    "reportsTo": "The agent this one reports to in the org hierarchy.",
+    "capabilities": "Describes what this agent can do. Shown in the org chart and used for task routing.",
+    "adapterType": "How this agent runs: local CLI (Claude/Codex/OpenCode), OpenClaw Gateway, spawned process, or generic HTTP webhook.",
+    "cwd": "Deprecated legacy working directory fallback for local adapters. Existing agents may still carry this value, but new configurations should use project workspaces instead.",
+    "promptTemplate": "Sent on every heartbeat. Keep this small and dynamic. Use it for current-task framing, not large static instructions. Supports {{ agent.id }}, {{ agent.name }}, {{ agent.role }} and other template variables.",
+    "model": "Override the default model used by the adapter.",
+    "thinkingEffort": "Control model reasoning depth. Supported values vary by adapter/model.",
+    "chrome": "Enable Claude's Chrome integration by passing --chrome.",
+    "dangerouslySkipPermissions": "Run unattended by auto-approving adapter permission prompts when supported.",
+    "dangerouslyBypassSandbox": "Run Codex without sandbox restrictions. Required for filesystem/network access.",
+    "search": "Enable Codex web search capability during runs.",
+    "fastMode": "Enable Codex Fast mode. This burns credits/tokens much faster and is supported on GPT-6, GPT-5.6, GPT-5.5, GPT-5.4, and manual Codex model IDs.",
+    "workspaceStrategy": "How Paperclip should realize an execution workspace for this agent. Keep project_primary for normal cwd execution, or use git_worktree for issue-scoped isolated checkouts.",
+    "workspaceBaseRef": "Base git ref used when creating a worktree branch. Leave blank to use the resolved workspace ref or HEAD.",
+    "workspaceBranchTemplate": "Template for naming derived branches. Supports {{issue.identifier}}, {{issue.title}}, {{agent.name}}, {{project.id}}, {{workspace.repoRef}}, and {{slug}}.",
+    "worktreeParentDir": "Directory where derived worktrees should be created. Absolute, ~-prefixed, and repo-relative paths are supported.",
+    "runtimeServicesJson": "Optional workspace runtime service definitions. Use this for shared app servers, workers, or other long-lived companion processes attached to the workspace.",
+    "maxTurnsPerRun": "Maximum number of agentic turns (tool calls) per heartbeat run.",
+    "command": "The command to execute (e.g. node, python).",
+    "localCommand": "Override the path to the CLI command you want the adapter to call (e.g. /usr/local/bin/claude, codex, opencode).",
+    "args": "Command-line arguments, comma-separated.",
+    "extraArgs": "Extra CLI arguments for local adapters, comma-separated.",
+    "envVars": "Environment variables injected into the adapter process. Use plain values or secret references.",
+    "secretAccess": "Secrets this agent can reach. Env-var bindings are injected at run start; API-access bindings are fetched on demand via the run-bound agent API and never written to the environment.",
+    "bootstrapPrompt": "Only sent when Paperclip starts a fresh session. Use this for stable setup guidance that should not be repeated on every heartbeat.",
+    "payloadTemplateJson": "Optional JSON merged into remote adapter request payloads before Paperclip adds its standard wake and workspace fields.",
+    "webhookUrl": "The URL that receives POST requests when the agent is invoked.",
+    "heartbeatInterval": "Run this agent automatically on a timer. Useful for periodic tasks like checking for new work.",
+    "intervalSec": "Seconds between automatic heartbeat invocations.",
+    "timeoutSec": "Maximum seconds a run can take before being terminated. 0 means no timeout.",
+    "graceSec": "Seconds to wait after sending interrupt before force-killing the process.",
+    "wakeOnDemand": "Allow this agent to be woken by assignments, API calls, UI actions, or automated systems.",
+    "cooldownSec": "Minimum seconds between consecutive heartbeat runs.",
+    "maxConcurrentRuns": "Maximum number of heartbeat runs that can execute simultaneously for this agent.",
+    "maxTurnContinuationEnabled": "Automatically queue bounded continuation runs when an adapter stops because its per-run turn cap was exhausted.",
+    "maxTurnContinuationMaxAttempts": "Maximum automatic continuations after one max-turn stop. This is separate from max turns per run.",
+    "maxTurnContinuationDelaySec": "Seconds to wait before starting each max-turn continuation.",
+    "budgetMonthlyCents": "Monthly spending limit in cents. 0 means no limit."
   }
 }

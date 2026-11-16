@@ -34,6 +34,7 @@ import {
 import { Link } from "@/lib/router";
 import { brandBanner, brandChipBadge } from "@/lib/status-colors";
 import { agentUrl, cn } from "@/lib/utils";
+import { useTranslation } from "@/i18n";
 import {
   audienceUserIds,
   grantAccountLabel,
@@ -148,6 +149,7 @@ export function IdentitiesSection({
   );
   const usesPersonalIdentity = credentialPolicy === "per_user"
     || (credentialPolicy === "per_user_with_fallback" && Boolean(myGrant));
+  const { t } = useTranslation();
   const audienceGrant = audienceGrantId
     ? grants.find((grant) => grant.id === audienceGrantId) ?? null
     : null;
@@ -166,7 +168,7 @@ export function IdentitiesSection({
       <section className="space-y-5">
         <IdentitiesHeading />
         <InlineBanner tone="warning" compact>
-          We couldn't load who this connection acts as. Reload the page to try again.
+          {t("appIdentities.loadError", { defaultValue: "We couldn't load who this connection acts as. Reload the page to try again." })}
         </InlineBanner>
       </section>
     );
@@ -176,23 +178,23 @@ export function IdentitiesSection({
     const github = agentGrant?.providerTenant?.github;
     return (
       <section className="space-y-5">
-        <h2 className="text-sm font-semibold text-foreground">GitHub identity</h2>
-        <p className="text-sm text-muted-foreground">This agent uses this GitHub account for everyone’s work, instead of the person giving instructions.</p>
+        <h2 className="text-sm font-semibold text-foreground">{t("appIdentities.githubIdentityTitle", { defaultValue: "GitHub identity" })}</h2>
+        <p className="text-sm text-muted-foreground">{t("appIdentities.githubIdentityDescription", { defaultValue: "This agent uses this GitHub account for everyone’s work, instead of the person giving instructions." })}</p>
         <IdentityRow
-          title={github ? `@${github.login}` : "Dedicated GitHub account"}
+          title={github ? `@${github.login}` : t("appIdentities.dedicatedGithubAccount", { defaultValue: "Dedicated GitHub account" })}
           status={agentGrant?.status ?? null}
           detail={dedicatedAgent ? (
             <Link
               to={agentUrl(dedicatedAgent)}
               className="transition-colors hover:text-foreground hover:underline"
             >
-              Used only by {dedicatedAgent.name}
+              {t("appIdentities.usedOnlyBy", { defaultValue: "Used only by {{name}}", name: dedicatedAgent.name })}
             </Link>
-          ) : "Dedicated to one agent"}
+          ) : t("appIdentities.dedicatedToOneAgent", { defaultValue: "Dedicated to one agent" })}
           actions={!agentGrant && dedicatedAgent && capabilities?.canConfigure ? (
             <Button size="sm" disabled={connectPending} onClick={() => onConnectAgent(dedicatedAgent.id)}>
               {connectPending ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : null}
-              Connect dedicated account
+              {t("appIdentities.connectDedicatedAccount", { defaultValue: "Connect dedicated account" })}
             </Button>
           ) : null}
         />
@@ -233,13 +235,13 @@ export function IdentitiesSection({
           personalGrant ? null : (
             <IdentityRow
               id="personal-identity"
-              title="Personal account"
+              title={t("appIdentities.personalAccount", { defaultValue: "Personal account" })}
               status={null}
-              detail="Personal identity"
+              detail={t("appIdentities.personalIdentity", { defaultValue: "Personal identity" })}
               actions={capabilities?.canConnectAsCurrentUser ? (
                   <Button size="sm" disabled={connectPending} onClick={onConnectAsMe}>
                     {connectPending ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : null}
-                    Connect as me
+                    {t("appIdentities.connectAsMe", { defaultValue: "Connect as me" })}
                   </Button>
                 ) : null}
             />
@@ -249,18 +251,18 @@ export function IdentitiesSection({
             orgGrant.capabilities?.canEditAudience ? (
               <div className="flex justify-end">
                   <Button size="sm" variant="outline" onClick={() => onOpenAudience(orgGrant.id)}>
-                    Manage access
+                    {t("appIdentities.manageAccess", { defaultValue: "Manage access" })}
                   </Button>
               </div>
             ) : null
           ) : (
             <IdentityRow
-              title="Organization account"
+              title={t("appIdentities.organizationAccount", { defaultValue: "Organization account" })}
               status={null}
-              detail="Organization identity"
+              detail={t("appIdentities.organizationIdentity", { defaultValue: "Organization identity" })}
               actions={capabilities?.canCreateOrganizationGrant ? (
                   <Button size="sm" disabled={connectPending} onClick={onConnectOrganization}>
-                    Connect organization identity
+                    {t("appIdentities.connectOrganizationIdentity", { defaultValue: "Connect organization identity" })}
                   </Button>
                 ) : null}
             />
@@ -293,6 +295,7 @@ function GitHubConnectionSummary({
   onRefreshAccess?: () => void;
   refreshPending: boolean;
 }) {
+  const { t } = useTranslation();
   const github = grant.providerTenant?.github;
   if (!github) return null;
   const configurationUrl = github.appSlug
@@ -301,17 +304,17 @@ function GitHubConnectionSummary({
       ? github.installationUrl
       : null;
   const repositoryWarning = github.repositorySelection === "all"
-    ? "All current and future repositories"
+    ? t("appIdentities.repository.allSelected", { defaultValue: "All current and future repositories" })
     : github.repositorySelection === "mixed"
-      ? "Mixed access; scope varies by installation"
+      ? t("appIdentities.repository.mixed", { defaultValue: "Mixed access; scope varies by installation" })
       : null;
   const repositorySummary = github.repositorySelection === "none"
-    ? "No repositories selected"
-    : `${github.repositoryCount} selected ${github.repositoryCount === 1 ? "repository" : "repositories"}`;
+    ? t("appIdentities.repository.noneSelected", { defaultValue: "No repositories selected" })
+    : t("appIdentities.repository.selectedCount", { defaultValue: "{{count}} selected repositories", count: github.repositoryCount });
   return (
     <div className="divide-y divide-border border-y border-border">
       <div className="py-3">
-        <div className="text-sm font-medium text-foreground">GitHub account</div>
+        <div className="text-sm font-medium text-foreground">{t("appIdentities.repository.githubAccount", { defaultValue: "GitHub account" })}</div>
         <a className="text-sm text-muted-foreground hover:underline" href={`https://github.com/${encodeURIComponent(github.login)}`} target="_blank" rel="noreferrer">
           @{github.login}
         </a>
@@ -319,7 +322,7 @@ function GitHubConnectionSummary({
       <div className="space-y-3 py-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
-            <div className="text-sm font-medium text-foreground">Repositories</div>
+            <div className="text-sm font-medium text-foreground">{t("appIdentities.repository.title", { defaultValue: "Repositories" })}</div>
             {repositoryWarning ? (
               <div
                 role="note"
@@ -337,41 +340,41 @@ function GitHubConnectionSummary({
           </div>
           <div className="flex items-center gap-2">
             {onRefreshAccess && configurationUrl ? (
-              <Button size="icon-sm" variant="outline" aria-label="Refresh access" title="Refresh access" disabled={refreshPending} onClick={onRefreshAccess}>
+              <Button size="icon-sm" variant="outline" aria-label={t("appIdentities.repository.refreshAria", { defaultValue: "Refresh access" })} title={t("appIdentities.repository.refreshAria", { defaultValue: "Refresh access" })} disabled={refreshPending} onClick={onRefreshAccess}>
                 {refreshPending ? <Loader2 className="animate-spin" aria-hidden="true" /> : <RefreshCw aria-hidden="true" />}
               </Button>
             ) : null}
             {configurationUrl ? (
               <Button asChild size="sm" variant="outline">
-                <a href={configurationUrl} target="_blank" rel="noreferrer">Add More Repos on GitHub</a>
+                <a href={configurationUrl} target="_blank" rel="noreferrer">{t("appIdentities.repository.addMoreRepos", { defaultValue: "Add More Repos on GitHub" })}</a>
               </Button>
             ) : onRefreshAccess ? (
               <Button size="sm" variant="outline" disabled={refreshPending} onClick={onRefreshAccess}>
                 {refreshPending ? <Loader2 className="animate-spin" aria-hidden="true" /> : <RefreshCw aria-hidden="true" />}
-                Load GitHub configuration
+                {t("appIdentities.repository.loadConfiguration", { defaultValue: "Load GitHub configuration" })}
               </Button>
             ) : null}
           </div>
         </div>
         {github.repositories ? (
-          github.repositories.length ? <ul aria-label="Accessible GitHub repositories" tabIndex={0} className="max-h-(--sz-github-repository-list) space-y-2 overflow-y-auto text-sm">
+          github.repositories.length ? <ul aria-label={t("appIdentities.repository.listAria", { defaultValue: "Accessible GitHub repositories" })} tabIndex={0} className="max-h-(--sz-github-repository-list) space-y-2 overflow-y-auto text-sm">
             {github.repositories.map((repository) => (
               <li key={repository.id}>
                 <a className="flex items-center gap-2 text-muted-foreground hover:underline" href={`https://github.com/${repository.fullName.split("/").map(encodeURIComponent).join("/")}`} target="_blank" rel="noreferrer">
                   <GithubIcon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                   <span className="break-all">{repository.fullName}</span>
-                  {repository.private === true ? <Lock className="h-3 w-3 shrink-0" role="img" aria-label="Private repository" /> : null}
+                  {repository.private === true ? <Lock className="h-3 w-3 shrink-0" role="img" aria-label={t("appIdentities.repository.privateAria", { defaultValue: "Private repository" })} /> : null}
                 </a>
               </li>
             ))}
           </ul> : <p role="status" className="text-sm text-muted-foreground">
-            No accessible repositories.
+            {t("appIdentities.repository.noAccessible", { defaultValue: "No accessible repositories." })}
           </p>
         ) : (
-          <p className="text-sm text-muted-foreground">Refresh access to load the current repository list.</p>
+          <p className="text-sm text-muted-foreground">{t("appIdentities.repository.refreshHint", { defaultValue: "Refresh access to load the current repository list." })}</p>
         )}
         {configurationUrl ? <p className="text-xs text-muted-foreground">
-          Missing an organization or repository? <a href={configurationUrl} target="_blank" rel="noreferrer" className="text-foreground hover:underline">Configure access on GitHub</a>, then refresh this list.
+          {t("appIdentities.repository.missingPrefix", { defaultValue: "Missing an organization or repository?" })} <a href={configurationUrl} target="_blank" rel="noreferrer" className="text-foreground hover:underline">{t("appIdentities.repository.configureAccess", { defaultValue: "Configure access on GitHub" })}</a>{t("appIdentities.repository.missingSuffix", { defaultValue: ", then refresh this list." })}
         </p> : null}
       </div>
     </div>
@@ -379,7 +382,8 @@ function GitHubConnectionSummary({
 }
 
 function IdentitiesHeading() {
-  return <h2 className="text-sm font-semibold text-foreground">Which humans can use this credential?</h2>;
+  const { t } = useTranslation();
+  return <h2 className="text-sm font-semibold text-foreground">{t("appIdentities.heading", { defaultValue: "Which humans can use this credential?" })}</h2>;
 }
 
 function HumanAccessCards({
@@ -401,10 +405,11 @@ function HumanAccessCards({
   onChooseAll: () => void;
   onChooseSelected: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-3">
       <RadioCardGroup
-        ariaLabel="Which humans can use this credential"
+        ariaLabel={t("appIdentities.audienceAria", { defaultValue: "Which humans can use this credential" })}
         value={personal ? "personal" : restricted ? "selected" : "company"}
         className="sm:grid-cols-2"
         onValueChange={(next) => {
@@ -415,22 +420,22 @@ function HumanAccessCards({
         options={personal ? [
           {
             value: "personal",
-            title: "Just me",
-            description: "Only you can use this connection.",
+            title: t("appIdentities.justMe", { defaultValue: "Just me" }),
+            description: t("appIdentities.justMeDescription", { defaultValue: "Only you can use this connection." }),
             icon: <UserRound className="h-4 w-4" />,
           },
         ] : [
           {
             value: "selected",
-            title: "Humans I pick",
-            description: "Only selected people in your company.",
+            title: t("appIdentities.humansIPick", { defaultValue: "Humans I pick" }),
+            description: t("appIdentities.humansIPickDescription", { defaultValue: "Only selected people in your company." }),
             icon: <UserRound className="h-4 w-4" />,
             disabled: !canEditAudience,
           },
           {
             value: "company",
-            title: "Any human in the company",
-            description: "Anyone in your company can use this connection.",
+            title: t("appIdentities.anyHuman", { defaultValue: "Any human in the company" }),
+            description: t("appIdentities.anyHumanDescription", { defaultValue: "Anyone in your company can use this connection." }),
             icon: <Building2 className="h-4 w-4" />,
             disabled: !canEditAudience,
           },
@@ -495,6 +500,7 @@ export function AudienceDialog({
   onCancel: () => void;
   onSave: (memberUserIds: string[]) => void;
 }) {
+  const { t } = useTranslation();
   const initialSelection = useMemo(() => audienceUserIds(grant), [grant]);
   const [scope, setScope] = useState<"all" | "selected">(initialSelection.size === 0 ? "all" : "selected");
   const [selected, setSelected] = useState<Set<string>>(initialSelection);
@@ -510,7 +516,7 @@ export function AudienceDialog({
     <Dialog open onOpenChange={(open) => { if (!open) onCancel(); }}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Who can use this identity</DialogTitle>
+          <DialogTitle>{t("appIdentities.audienceDialogTitle", { defaultValue: "Who can use this identity" })}</DialogTitle>
           <DialogDescription>
             {grantAccountLabel(grant)} · {appName}
           </DialogDescription>
@@ -518,19 +524,19 @@ export function AudienceDialog({
 
         <div className="space-y-3">
           <RadioCardGroup
-            ariaLabel="Who can use this identity"
+            ariaLabel={t("appIdentities.audienceDialogTitle", { defaultValue: "Who can use this identity" })}
             value={scope}
             onValueChange={(next) => setScope(next as "all" | "selected")}
             options={[
               {
                 value: "all",
-                title: "All organization members",
-                description: "Anyone in this organization can have work use this identity.",
+                title: t("appIdentities.allOrganizationMembers", { defaultValue: "All organization members" }),
+                description: t("appIdentities.allOrganizationMembersDescription", { defaultValue: "Anyone in this organization can have work use this identity." }),
               },
               {
                 value: "selected",
-                title: "Selected members",
-                description: "Only the people you choose.",
+                title: t("appIdentities.selectedMembers", { defaultValue: "Selected members" }),
+                description: t("appIdentities.selectedMembersDescription", { defaultValue: "Only the people you choose." }),
               },
             ]}
           />
@@ -545,14 +551,13 @@ export function AudienceDialog({
               selectedUserIds={selected}
               onChange={setSelected}
               triggerLabel={selected.size === 0
-                ? "Choose people"
-                : `${selected.size} ${selected.size === 1 ? "person" : "people"} selected`}
+                ? t("appIdentities.choosePeople", { defaultValue: "Choose people" })
+                : t("appIdentities.peopleSelected", { defaultValue: "{{count}} people selected", count: selected.size })}
             />
           ) : null}
 
           <p className="text-xs text-muted-foreground">
-            This controls whose work can use the identity. It does not change which agents have the
-            connection.
+            {t("appIdentities.audienceScopeNote", { defaultValue: "This controls whose work can use the identity. It does not change which agents have the connection." })}
           </p>
 
           {error ? (
@@ -564,14 +569,14 @@ export function AudienceDialog({
 
         <DialogFooter>
           <Button variant="ghost" onClick={onCancel} disabled={pending}>
-            Cancel
+            {t("common.cancel", { defaultValue: "Cancel" })}
           </Button>
           <Button
             disabled={pending || !canSave}
             onClick={() => onSave(scope === "all" ? [] : [...selected])}
           >
             {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            Save audience
+            {t("appIdentities.saveAudience", { defaultValue: "Save audience" })}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -606,19 +611,20 @@ export function RevokeGrantDialog({
   onCancel: () => void;
   onConfirm: () => void;
 }) {
+  const { t } = useTranslation();
   const personal = grant.kind === "user";
   const title = personal
     ? isOwnIdentity
-      ? `Revoke your ${providerName} identity?`
-      : `Revoke this ${providerName} identity?`
-    : "Revoke the organization identity?";
+      ? t("appIdentities.revokeOwnTitle", { defaultValue: "Revoke your {{provider}} identity?", provider: providerName })
+      : t("appIdentities.revokeThisTitle", { defaultValue: "Revoke this {{provider}} identity?", provider: providerName })
+    : t("appIdentities.revokeOrganizationTitle", { defaultValue: "Revoke the organization identity?" });
   const body = personal
     ? isOwnIdentity
-      ? "Agents will stop acting as you. Work that needs this identity can ask you to connect again."
-      : "Agents will stop acting as this person. They can connect again themselves; no one else can do it for them."
+      ? t("appIdentities.revokeOwnBody", { defaultValue: "Agents will stop acting as you. Work that needs this identity can ask you to connect again." })
+      : t("appIdentities.revokeOtherBody", { defaultValue: "Agents will stop acting as this person. They can connect again themselves; no one else can do it for them." })
     : credentialPolicy === "per_user"
-      ? "Installed agents lose this shared identity immediately."
-      : "Eligible members and installed agents will lose this shared identity immediately.";
+      ? t("appIdentities.revokeSharedPerUserBody", { defaultValue: "Installed agents lose this shared identity immediately." })
+      : t("appIdentities.revokeSharedBody", { defaultValue: "Eligible members and installed agents will lose this shared identity immediately." });
 
   return (
     <AlertDialog open onOpenChange={(open) => { if (!open) onCancel(); }}>
@@ -630,7 +636,7 @@ export function RevokeGrantDialog({
         {children}
         <AlertDialogFooter>
           <AlertDialogCancel disabled={pending} autoFocus>
-            Cancel
+            {t("common.cancel", { defaultValue: "Cancel" })}
           </AlertDialogCancel>
           <AlertDialogAction
             disabled={pending}
@@ -639,7 +645,7 @@ export function RevokeGrantDialog({
               onConfirm();
             }}
           >
-            Revoke identity
+            {t("appIdentities.revokeIdentity", { defaultValue: "Revoke identity" })}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -178,7 +178,8 @@
       "useApiKeysInstead": "Use API keys instead",
       "useCustomGateway": "Use a custom gateway",
       "customGatewayTitle": "Custom gateway connection",
-      "customGatewayDescription": "Save the connection, then choose a model and test it with your agent."
+      "customGatewayDescription": "Save the connection, then choose a model and test it with your agent.",
+      "defaultAccount": "This will be your default {{source}} account."
     },
     "footer": {
       "back": "Back",
@@ -682,7 +683,31 @@
     "updating": "Updating artifacts..."
   },
   "agents": {
-    "selectOrganization": "Select an organization to view agents."
+    "selectOrganization": "Select an organization to view agents.",
+    "roster": {
+      "filtersAria": "Agent filters",
+      "filterAgentsAria": "Filter agents",
+      "activeFiltersTitle": "Filters: {{count}}",
+      "choicesAria": "Agent filter choices",
+      "filters": "Filters",
+      "clearFilters": "Clear filters",
+      "field": {
+        "model": "Model",
+        "status": "Status",
+        "harness": "Harness",
+        "connection": "Connection"
+      },
+      "all": {
+        "model": "All models",
+        "status": "All statuses",
+        "harness": "All harnesses",
+        "connection": "All connections"
+      },
+      "previouslySelected": "Previously selected {{field}}",
+      "count_one": "{{count}} agent",
+      "count_other": "{{count}} agents",
+      "connectionLoadFailed": "Connection names couldn’t be loaded."
+    }
   },
   "costs": {
     "financeLedger": "Finance ledger",
@@ -2601,7 +2626,8 @@
       "copy": "Copy",
       "copyLink": "Copy link",
       "more": "More",
-      "moreSecretActions": "More secret actions"
+      "moreSecretActions": "More secret actions",
+      "copyKey": "Copy key"
     },
     "list": {
       "secretCount_one": "{{count}} secret",
@@ -2645,7 +2671,18 @@
       "emptyTitle": "No secrets yet",
       "columnName": "Name",
       "columnProvidedBy": "Provided by",
-      "columnUsedBy": "Used by"
+      "columnUsedBy": "Used by",
+      "setInPlaces_one": "Set in {{count}} place",
+      "setInPlaces_other": "Set in {{count}} places",
+      "notUsedYet": "Not used yet",
+      "agentsCount_one": "{{count}} agent",
+      "agentsCount_other": "{{count}} agents",
+      "howItWorks": "How secrets work",
+      "howStepOne": "Add a secret once. The organization provides one shared value, or each user adds their own.",
+      "howStepTwo": "Choose which agents can use it, here or in an agent's settings. A project can set it for every task in that project.",
+      "howStepThreePrefix": "When a run starts, the agent finds it as an environment variable, such as",
+      "howStepThreeSuffix": ". The value is never shown again.",
+      "managedByPaperclip": "Managed by Paperclip"
     },
     "folder": {
       "allSecrets": "All secrets",
@@ -2714,7 +2751,8 @@
       "checkAgain": "Check again",
       "healthWarning": "Working, with a warning",
       "healthWorking": "Working",
-      "healthChecked": "· checked {{time}}"
+      "healthChecked": "· checked {{time}}",
+      "builtInDescription": "Encrypted and stored by Paperclip. Always available."
     },
     "vaultDialog": {
       "editTitle": "Edit provider vault",
@@ -2860,7 +2898,9 @@
       "chooseAnotherVault": "Choose another vault",
       "orFixItInVaults": ", or ",
       "fixItInVaults": "fix it in Vaults",
-      "linkSecret": "Link secret"
+      "linkSecret": "Link secret",
+      "usageNotePlaceholder": "What it is for",
+      "existingSecretsStay": "Existing secrets stay where they are."
     },
     "delete": {
       "title": "Delete secret",
@@ -3007,7 +3047,8 @@
       "archivedNotice": "Archived secrets are not given to agents and stay out of the list.",
       "alsoSetIn": "Also set in",
       "definitionDisabledNotice": "Disabled secrets are not given to agents, and members are not asked for a value.",
-      "members": "Members"
+      "members": "Members",
+      "activity": "Activity"
     }
   },
   "secretsImport": {
@@ -4686,7 +4727,8 @@
       "fileContents": "File contents",
       "rootPathPlaceholder": "/absolute/path/to/agent/prompts",
       "fileNameExists": "A file with this name already exists.",
-      "fileNameInvalid": "Use letters, numbers, hyphens or underscores."
+      "fileNameInvalid": "Use letters, numbers, hyphens or underscores.",
+      "requiredFile": "This file is required"
     },
     "runs": {
       "loadingRun": "Loading run…",
@@ -7633,6 +7675,18 @@
       "toastTitle": "{{name}} is archived",
       "switchedTo": "Switched to {{name}}.",
       "unarchiveHint": "You can unarchive it from this list."
+    },
+    "decisions": {
+      "title": "Decisions",
+      "lede": "Each owner saves as soon as you choose it.",
+      "defaultOwnerLabel": "Default decision owner",
+      "defaultOwnerHint": "When a card needs a person but has no explicit owner, it goes to this user's For you list. Leave as Unassigned to keep ownerless cards in the claimable pool.",
+      "defaultOwnerUnset": "Unassigned (no default owner)",
+      "defaultOwnerSaveFailed": "Couldn't save the default decision owner.",
+      "budgetOwnerLabel": "Budget owner",
+      "budgetOwnerHint": "A budget hard stop also goes to this user's For you list, with Raise limit and Keep paused. The Company view still shows it to every operator.",
+      "budgetOwnerUnset": "No budget owner (Company view only)",
+      "budgetOwnerSaveFailed": "Couldn't save the budget owner."
     }
   },
   "companyConnections": {
@@ -9064,7 +9118,10 @@
     "selectCompanyShort": "Select a company to view the org chart.",
     "title": "Org Chart",
     "zoomIn": "Zoom in",
-    "zoomOut": "Zoom out"
+    "zoomOut": "Zoom out",
+    "controlsAria": "Org chart controls",
+    "chartCameraAria": "Chart camera",
+    "tasksLayer": "Tasks"
   },
   "pluginSettings": {
     "about": "About",
@@ -10487,7 +10544,11 @@
     "inSidebar": "in the sidebar",
     "openPlanInSidebarAria": "Open {{title}}{{revision}} in task sidebar",
     "imagesLabel": "Images",
-    "queuedImages": "Queued images"
+    "queuedImages": "Queued images",
+    "kindReviewPlan": "Review plan",
+    "kindApproveToolAction": "Approve tool action",
+    "kindReviewSecretProposal": "Review secret proposal",
+    "waitingToStart": "Waiting to start"
   },
   "runnerGoal": {
     "pendingStarting": "Starting",
@@ -10638,7 +10699,8 @@
       "stopped": "Stopped",
       "run_completed": "Run completed"
     },
-    "modelRejectedNamedModel": "The provider rejected the model \"{{model}}\"."
+    "modelRejectedNamedModel": "The provider rejected the model \"{{model}}\".",
+    "loadingTaskHistory": "Loading task history…"
   },
   "toolVerbs": {
     "unnamedTool": "Unnamed tool",
@@ -13516,11 +13578,14 @@
       "sandboxProvider": "{{provider}} sandbox provider",
       "titleFormat": "{{label}} - {{detail}}",
       "unknown": "Unknown environment",
-      "unknownTitle": "Unknown environment - {{id}}"
+      "unknownTitle": "Unknown environment - {{id}}",
+      "managedByPaperclip": "Managed by Paperclip"
     },
     "live": "Live",
     "liveWithCount": "Live ({{count}})",
-    "noSearchMatches": "No agents match your search and selected status."
+    "noSearchMatches": "No agents match your search and selected status.",
+    "breadcrumb": "Agents",
+    "newAgent": "New Agent"
   },
   "slackIdentityStep": {
     "title": "Connect your Slack account",
@@ -14299,7 +14364,12 @@
     "createProject": "Create project",
     "closeAria": "Close new project",
     "sourceRepositories": "Source repositories",
-    "creating": "Creating…"
+    "creating": "Creating…",
+    "projectName": "Project name",
+    "availableIn": "Available in",
+    "selectEnvironments": "Select environments",
+    "environmentStorageNote": "These environments can share this project's working files. The storage choice stays with the project.",
+    "loadingEnvironments": "Loading environments…"
   },
   "projectAccessMembers": {
     "unknownUser": "Unknown user",
@@ -15214,7 +15284,20 @@
     "optionalNote": "Optional decision note…",
     "requestRevision": "Request revision",
     "reject": "Reject",
-    "approve": "Approve"
+    "approve": "Approve",
+    "decisionSaveFailed": "The decision could not be saved.",
+    "approvalAlreadySending": "This approval is already being sent.",
+    "viewConfiguration": "View configuration",
+    "viewDetails": "View details",
+    "approveHire": "Approve hire",
+    "joinRequestSaveFailed": "The join request could not be saved.",
+    "joinRequest": "Join request",
+    "agentAccess": "Agent access",
+    "memberAccess": "Member access",
+    "approvalAddsAgent": "Approval adds this agent to the company.",
+    "approvalAddsMember": "Approval adds them to the company as a member.",
+    "decline": "Decline",
+    "approveAccess": "Approve access"
   },
   "decisionTriageStrip": {
     "verbs": {
@@ -16699,7 +16782,21 @@
     "approve": "Approve",
     "rejecting": "Rejecting...",
     "reject": "Reject",
-    "viewDetails": "View details"
+    "viewDetails": "View details",
+    "kind": {
+      "boardApproval": "Board approval request",
+      "strategyApproval": "Strategy approval",
+      "budgetOverride": "Budget override request",
+      "request": "Approval request"
+    },
+    "newAgent": "New agent",
+    "reportsTo": "Reports to {{manager}}",
+    "roleSuffix": "{{role}} role",
+    "monthlyLimit": "{{name}} · {{amount}} / month",
+    "viewConfiguration": "View configuration",
+    "createsAgentWithLimit": "Approval creates the agent with this monthly spending limit.",
+    "createsAgent": "Approval creates the agent.",
+    "onApproval": "On approval: {{next}}"
   },
   "chatComposer": {
     "dropToAttach": "Drop to attach",
@@ -17252,7 +17349,17 @@
   "designPage": {
     "resizeRightSidebar": "Resize right sidebar",
     "skipToMainContent": "Skip to main content",
-    "asideContentAria": "{{title}} content"
+    "asideContentAria": "{{title}} content",
+    "logViewer": {
+      "agentStarted": "Agent started successfully",
+      "processingTask": "Processing task PAP-001",
+      "rateLimit": "Rate limit approaching (80%)",
+      "taskCompleted": "Task PAP-001 completed",
+      "connectionTimeout": "Connection timeout to upstream service",
+      "retrying": "Retrying connection in 5s...",
+      "reconnected": "Reconnected successfully",
+      "live": "Live"
+    }
   },
   "announcementCard": {
     "dismiss": "Dismiss announcement"
@@ -17813,7 +17920,8 @@
       "receiptsAria": "Receipts",
       "dismissReceiptAria": "Dismiss receipt",
       "reason": "Reason: {{reason}}"
-    }
+    },
+    "partOfRequest": "Part of this request"
   },
   "secretDelivery": {
     "config": "Config",
@@ -18562,7 +18670,15 @@
       "historyScope": "Whose decision history",
       "handledForMe": "Handled for me",
       "noHandledYet": "No decisions handled by you or for you yet.",
-      "showEveryoneDecisions": "Show everyone's decisions"
+      "showEveryoneDecisions": "Show everyone's decisions",
+      "summary": {
+        "decisions_one": "{{count}} decision",
+        "decisions_other": "{{count}} decisions",
+        "problems_one": "{{count}} problem",
+        "problems_other": "{{count}} problems",
+        "updates_one": "{{count}} update",
+        "updates_other": "{{count}} updates"
+      }
     },
     "taskCommitment": {
       "noTasksCreated": "No tasks were created."
@@ -18662,6 +18778,13 @@
         "active_run_watchdog": "Run gone quiet",
         "issue_graph_liveness": "Task needs a next step"
       }
+    },
+    "sidePanel": {
+      "document": "Document",
+      "waitingOnYou": "Waiting on you",
+      "nothingElseWaiting": "Nothing else is waiting on you.",
+      "openNewTab": "Open a new tab",
+      "noLongerWaiting": "This is no longer waiting on you."
     }
   },
   "apiErrors": {
@@ -19028,5 +19151,145 @@
     "exitFullScreen": "Exit full screen",
     "viewGone": "This {{app}} view is no longer available.",
     "viewCouldNotShow": "{{app}} could not show this view. The tool result is still in the row above."
+  },
+  "linkPreview": {
+    "state": {
+      "unknown": "Status unknown",
+      "open": "Open",
+      "merged": "Merged",
+      "conflicts": "Merge conflicts",
+      "draft": "Draft",
+      "closed": "Closed"
+    },
+    "updated": "Updated",
+    "loadingPullRequest": "Loading pull request…"
+  },
+  "issueInteraction": {
+    "creating": "Creating…",
+    "addContextPlaceholder": "Add context for the agent…",
+    "approvedSignInNeeded": "Approved · Sign-in needed",
+    "approvedSignInNeededBody": "Your approval is saved. Reconnect the app to continue. Paperclip will check the account and action again before it runs.",
+    "submitting": "Submitting…"
+  },
+  "issueRecovery": {
+    "containment": {
+      "sectionAria": "Original controller recovery",
+      "title": "Verify the original execution stopped",
+      "body": "Paperclip cannot compare process IDs across hosts or kernel sessions. Stop both the controller and provider on the original host before recording evidence. The saved lease must also expire and environment/workspace cleanup must finish. Recording containment does not retry the task.",
+      "controllerStopped": "I verified the original controller stopped on its original host.",
+      "providerStopped": "I verified the original provider and its tools stopped on their original host.",
+      "outcomeLabel": "Reviewed external action outcomes",
+      "outcomePlaceholder": "Select only after reviewing the effects",
+      "outcome": {
+        "completed": "All completed",
+        "notPerformed": "None performed",
+        "mixed": "Some completed and some not performed"
+      },
+      "evidenceLabel": "Original-host containment evidence and actions that must not be repeated",
+      "keepHold": "If any action outcome is still unknown, keep this hold. After evidence and cleanup settle, use the task’s ordinary Retry action separately.",
+      "recording": "Recording…",
+      "record": "Record containment",
+      "needsAdmin": "A company owner, company administrator, or instance administrator must review this original-host execution."
+    }
+  },
+  "githubStarPrompt": {
+    "title_one": "You completed {{count}} task!",
+    "title_other": "You completed {{count}} tasks!",
+    "description": "If you're enjoying Paperclip, consider giving us a star on GitHub!",
+    "starOnGitHub": "Star on GitHub",
+    "notNow": "Not now"
+  },
+  "taskList": {
+    "noProject": "No project",
+    "densityListAria": "{{density}} task list",
+    "renderingCount": "Rendering {{shown}} of {{total}} tasks",
+    "showMoreTasks": "Show more tasks"
+  },
+  "githubSponsorSelect": {
+    "selectMember": "Select a member",
+    "searchMembers": "Search members…"
+  },
+  "connectionIntent": {
+    "error": {
+      "connectionChanged": "The agent’s AI connection changed. Reload the task and try again."
+    },
+    "status": {
+      "accessGranted": "{{service}} access granted",
+      "externalConnected": "External provider connected",
+      "connected": "{{service}} connected",
+      "externalBody": "{{agent}} can now verify and authorize {{service}} through this provider. The app is not yet verified.",
+      "aiBody": "This agent can now use the connection.",
+      "connectionBody": "{{agent}} can use this connection on the continuation run.",
+      "withdrawn": "Connection request withdrawn",
+      "inactive": "This request is no longer active.",
+      "accessDeclined": "Access declined",
+      "declined": "Connection declined",
+      "needsAi": "The task still needs a working AI connection before it can run.",
+      "notified": "{{agent}} was notified and can continue without it.",
+      "superseded": "Request superseded",
+      "expired": "Connection request expired",
+      "replaced": "This request was replaced. Use the latest connection card instead."
+    },
+    "waitingFor": "Waiting for {{name}}",
+    "waitingBody": "Only the addressed person can choose an identity or authorize this connection.",
+    "access": {
+      "toolCount_one": "{{count}} tool for {{agent}}",
+      "toolCount_other": "{{count}} tools for {{agent}}",
+      "toolsAria": "Tool permissions",
+      "allowed": "Allowed",
+      "askFirst": "Ask first",
+      "scopeNote": "Access applies to {{agent}} only",
+      "askFirstNote_one": "{{count}} still asks you first",
+      "askFirstNote_other": "{{count}} still ask you first",
+      "grantQuestion": "Grant {{agent}} access to “{{connection}}”?"
+    },
+    "connectionManagerRequired": "Connection manager required.",
+    "deny": "Deny",
+    "grantingAccess": "Granting access…",
+    "grantAccess": "Grant access",
+    "notNow": "Not now",
+    "loadingOptions": "Loading connection options…",
+    "adoption": {
+      "body": "Use your {{provider}} connection for {{agent}}? This replaces the agent’s existing authentication with each responsible person’s own account. The model stays the same.",
+      "checking": "Checking connection…",
+      "use": "Use connection and continue"
+    },
+    "ready": "{{name}} is ready.",
+    "continuing": "Continuing…",
+    "continueTask": "Continue task",
+    "repair": {
+      "mustReconnect": "{{owner}} must reconnect {{connection}}.",
+      "accountOwner": "The account owner",
+      "resumeNote": "You can continue here once it is restored.",
+      "accountUnavailable": "The selected account is no longer available to you. Ask its owner to restore access, or choose an available AI connection in the agent’s settings."
+    },
+    "headline": {
+      "useAccount": "Use your {{provider}} account",
+      "connectAccount": "Connect your {{provider}} account",
+      "authRequired": "{{provider}} authentication required",
+      "agentNeedsService": "{{agent}} needs {{service}}"
+    },
+    "description": {
+      "accountReady": "Your account is connected. Use it for {{agent}} to resume this task.",
+      "needsOwnAi": "{{agent}} needs your own AI connection. Connect here and the task will resume automatically.",
+      "invalidAi": "This task can’t run until the agent has a valid AI connection. Connect here and the task will resume automatically.",
+      "chatHandoff": "Complete the human sign-in step in the saved setup. Your task continues when the connection is ready.",
+      "email": "Connect AgentMail to create an email address for this agent.",
+      "custom": "New connections default to all agents; you can choose fewer during setup. Reusing an account adds access for this agent."
+    },
+    "retryMessage": "Authorization didn’t finish. Your previous choices are safe; try again.",
+    "authorizing": "Authorizing…",
+    "notConnected": "Not connected",
+    "requestedBy": "Requested by {{agent}}.",
+    "continueAuthentication": "Continue authentication",
+    "closeSetup": "Close setup",
+    "continueSetup": "Continue setup",
+    "connectNamed": "Connect {{name}}",
+    "fixConnection": "Fix connection",
+    "tryAgain": "Try again",
+    "connectOrExisting": "Connect / Use existing",
+    "connect": "Connect",
+    "dialogDescription": "Complete connection setup without leaving this task.",
+    "retryUsingConnection": "Retry using this connection"
   }
 }

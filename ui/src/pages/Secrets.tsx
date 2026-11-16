@@ -2592,7 +2592,7 @@ export function Secrets() {
                   </>
                 )}
                 {showManagedSection && !secretsListLoading ? (
-                  <section aria-label="Managed by Paperclip" className="mt-6" data-testid="managed-secrets">
+                  <section aria-label={t("secrets.list.managedByPaperclip", { defaultValue: "Managed by Paperclip" })} className="mt-6" data-testid="managed-secrets">
                     <button
                       type="button"
                       className="flex w-full items-center gap-2 border-b border-border px-3 py-2.5 text-left hover:bg-accent/40"
@@ -2606,7 +2606,7 @@ export function Secrets() {
                         )}
                         aria-hidden
                       />
-                      <span className="shrink-0 text-sm font-medium">Managed by Paperclip</span>
+                      <span className="shrink-0 text-sm font-medium">{t("secrets.list.managedByPaperclip", { defaultValue: "Managed by Paperclip" })}</span>
                       <span className="shrink-0 text-sm tabular-nums text-muted-foreground">{managedCount}</span>
                       <span className="hidden min-w-0 truncate text-sm text-muted-foreground @min-[40rem]:inline">
                         · Saved by your connections and sign-ins, and kept up to date for you
@@ -2720,7 +2720,7 @@ export function Secrets() {
                     variant="ghost"
                     size="icon-xs"
                     className="shrink-0"
-                    aria-label="Copy key"
+                    aria-label={t("secrets.actions.copyKey", { defaultValue: "Copy key" })}
                     onClick={() => copySecretKey(selectedSecret.key)}
                   >
                     <Copy />
@@ -2831,7 +2831,7 @@ export function Secrets() {
                     }
                   />
                 </DetailSection>
-                <DetailSection title="Activity">
+                <DetailSection title={t("secrets.detail.activity", { defaultValue: "Activity" })}>
                   <SecretEventsTab
                     loading={eventsQuery.isPending}
                     events={eventsQuery.data ?? []}
@@ -2863,7 +2863,7 @@ export function Secrets() {
                     variant="ghost"
                     size="icon-xs"
                     className="shrink-0"
-                    aria-label="Copy key"
+                    aria-label={t("secrets.actions.copyKey", { defaultValue: "Copy key" })}
                     onClick={() => copySecretKey(selectedDefinition.key)}
                   >
                     <Copy />
@@ -3433,7 +3433,7 @@ export function Secrets() {
                       onChange={(event) =>
                         setCreateForm((current) => ({ ...current, description: event.target.value }))
                       }
-                      placeholder="What it is for"
+                      placeholder={t("secrets.create.usageNotePlaceholder", { defaultValue: "What it is for" })}
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
@@ -3615,7 +3615,7 @@ export function Secrets() {
                       ? "Use for new secrets by default"
                       : `Use for new ${providerLabel(providers, vaultForm.provider)} secrets by default`}
                   </span>
-                  <span className="text-xs text-muted-foreground">Existing secrets stay where they are.</span>
+                  <span className="text-xs text-muted-foreground">{t("secrets.create.existingSecretsStay", { defaultValue: "Existing secrets stay where they are." })}</span>
                 </span>
               </label>
             )}
@@ -4206,7 +4206,7 @@ export function ProviderVaultsTab({
               <span className="text-sm font-medium">Paperclip</span>
               {effectiveLocalDefaultId ? null : <Badge variant="secondary">Default</Badge>}
             </div>
-            <p className="text-xs text-muted-foreground">Encrypted and stored by Paperclip. Always available.</p>
+            <p className="text-xs text-muted-foreground">{t("secrets.vaults.builtInDescription", { defaultValue: "Encrypted and stored by Paperclip. Always available." })}</p>
           </div>
           {secretCounts ? (
             <span className="shrink-0 pt-0.5 text-sm tabular-nums text-muted-foreground">

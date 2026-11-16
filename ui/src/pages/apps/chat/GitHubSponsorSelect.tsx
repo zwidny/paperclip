@@ -1,6 +1,7 @@
 import type { CompanyMember, CurrentBoardAccess } from "@/api/access";
 import { Identity } from "@/components/Identity";
 import { SearchableSelect } from "@/components/SearchableSelect";
+import { useTranslation } from "../../../i18n";
 
 export function GitHubSponsorSelect({
   companyId, members, access, value, onChange, label,
@@ -12,6 +13,7 @@ export function GitHubSponsorSelect({
   onChange: (value: string) => void;
   label: string;
 }) {
+  const { t } = useTranslation();
   const membership = access?.memberships?.find(
     (item) => item.companyId === companyId && item.status === "active",
   );
@@ -33,8 +35,8 @@ export function GitHubSponsorSelect({
       value={value}
       groups={[{ id: "sponsors", options }]}
       onValueChange={onChange}
-      placeholder="Select a member"
-      searchPlaceholder="Search members…"
+      placeholder={t("githubSponsorSelect.selectMember", { defaultValue: "Select a member" })}
+      searchPlaceholder={t("githubSponsorSelect.searchMembers", { defaultValue: "Search members…" })}
       triggerAriaLabel={label}
       disabled={!access || options.length === 0}
       renderValue={(option) => option

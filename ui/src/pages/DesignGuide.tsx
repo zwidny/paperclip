@@ -6,6 +6,7 @@ import { SpekoProviderSetup } from "@/components/voice/SpekoProviderSetup";
 import { VoiceControls } from "@/components/voice/VoiceControls";
 import { VoiceTranscript } from "@/components/voice/VoiceTranscript";
 import { AnimatedDialogContent } from "@/components/AnimatedDialogContent";
+import { useTranslation } from "../i18n";
 import { MuseConnectionDetails } from "@/components/MuseRunnerConnection";
 import { ExternalAgentPresetPicker, DotConnectionChecks, MuseConnectionChecks } from "@/components/new-agent/ExternalAgentInviteContent";
 import { AgentMailApiKeyField } from "@/features/connections/AgentMailApiKeyField";
@@ -507,6 +508,7 @@ function ComposerActionsExample() {
 }
 
 export function DesignGuide() {
+  const { t } = useTranslation();
   const [agentmailDemoKey, setAgentmailDemoKey] = useState("");
   const [wizardStep, setWizardStep] = useState(0);
   const [status, setStatus] = useState("todo");
@@ -1678,19 +1680,19 @@ export function DesignGuide() {
       {/* ============================================================ */}
       <Section title="Log Viewer">
         <div className="bg-neutral-950 rounded-lg p-3 font-mono text-xs max-h-80 overflow-y-auto">
-          <div className="text-foreground">[12:00:01] INFO  Agent started successfully</div>
-          <div className="text-foreground">[12:00:02] INFO  Processing task PAP-001</div>
-          <div className="text-yellow-400">[12:00:05] WARN  Rate limit approaching (80%)</div>
-          <div className="text-foreground">[12:00:08] INFO  Task PAP-001 completed</div>
-          <div className="text-red-400">[12:00:12] ERROR Connection timeout to upstream service</div>
-          <div className="text-blue-300">[12:00:12] SYS   Retrying connection in 5s...</div>
-          <div className="text-foreground">[12:00:17] INFO  Reconnected successfully</div>
+          <div className="text-foreground">[12:00:01] INFO  {t("designPage.logViewer.agentStarted", { defaultValue: "Agent started successfully" })}</div>
+          <div className="text-foreground">[12:00:02] INFO  {t("designPage.logViewer.processingTask", { defaultValue: "Processing task PAP-001" })}</div>
+          <div className="text-yellow-400">[12:00:05] WARN  {t("designPage.logViewer.rateLimit", { defaultValue: "Rate limit approaching (80%)" })}</div>
+          <div className="text-foreground">[12:00:08] INFO  {t("designPage.logViewer.taskCompleted", { defaultValue: "Task PAP-001 completed" })}</div>
+          <div className="text-red-400">[12:00:12] ERROR {t("designPage.logViewer.connectionTimeout", { defaultValue: "Connection timeout to upstream service" })}</div>
+          <div className="text-blue-300">[12:00:12] SYS   {t("designPage.logViewer.retrying", { defaultValue: "Retrying connection in 5s..." })}</div>
+          <div className="text-foreground">[12:00:17] INFO  {t("designPage.logViewer.reconnected", { defaultValue: "Reconnected successfully" })}</div>
           <div className="flex items-center gap-1.5">
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full rounded-full bg-blue-400 animate-pulse" />
               <span className="inline-flex h-full w-full rounded-full bg-blue-500" />
             </span>
-            <span className="text-blue-600 dark:text-blue-400">Live</span>
+            <span className="text-blue-600 dark:text-blue-400">{t("designPage.logViewer.live", { defaultValue: "Live" })}</span>
           </div>
         </div>
       </Section>

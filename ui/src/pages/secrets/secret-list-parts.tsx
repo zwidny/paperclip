@@ -4,14 +4,18 @@ import { Building2, ChevronRight, CircleHelp, Users } from "lucide-react";
 import { AgentAvatar } from "../../components/AgentAvatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "../../lib/utils";
+import { useTranslation } from "../../i18n";
 import type { SecretOriginGroup } from "./secret-origin";
 
 /** Which agents hold the secret; falls back to other places it is set, then to "Not used yet". */
 export function SecretUsedBy({ agents, otherUseCount = 0 }: { agents: readonly Agent[]; otherUseCount?: number }) {
+  const { t } = useTranslation();
   if (agents.length === 0) {
     return (
       <span className="truncate text-sm text-muted-foreground">
-        {otherUseCount > 0 ? `Set in ${otherUseCount} ${otherUseCount === 1 ? "place" : "places"}` : "Not used yet"}
+        {otherUseCount > 0
+          ? t("secrets.list.setInPlaces", { count: otherUseCount, defaultValue_one: "Set in {{count}} place", defaultValue_other: "Set in {{count}} places" })
+          : t("secrets.list.notUsedYet", { defaultValue: "Not used yet" })}
       </span>
     );
   }
@@ -23,7 +27,9 @@ export function SecretUsedBy({ agents, otherUseCount = 0 }: { agents: readonly A
         ))}
       </span>
       <span className="truncate text-muted-foreground">
-        {agents.length === 1 ? agents[0].name : `${agents.length} agents`}
+        {agents.length === 1
+          ? agents[0].name
+          : t("secrets.list.agentsCount", { count: agents.length, defaultValue_one: "{{count}} agent", defaultValue_other: "{{count}} agents" })}
       </span>
     </span>
   );
@@ -31,12 +37,15 @@ export function SecretUsedBy({ agents, otherUseCount = 0 }: { agents: readonly A
 
 /** Who supplies the value: the organization, or each user (with how many have). */
 export function SecretProvidedBy({ perUser, coverage }: { perUser: boolean; coverage?: ReactNode }) {
+  const { t } = useTranslation();
   const Icon = perUser ? Users : Building2;
   return (
     <span className="flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground">
       <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
       <span className="truncate">
-        {perUser ? "Each user" : "Organization"}
+        {perUser
+          ? t("secrets.list.eachUser", { defaultValue: "Each user" })
+          : t("secrets.list.organization", { defaultValue: "Organization" })}
         {perUser && coverage ? <> · {coverage}</> : null}
       </span>
     </span>
@@ -44,21 +53,22 @@ export function SecretProvidedBy({ perUser, coverage }: { perUser: boolean; cove
 }
 
 export function HowSecretsWork() {
+  const { t } = useTranslation();
   return (
     <Popover>
       <PopoverTrigger asChild>
         <button type="button" className="inline-flex items-center gap-1 underline underline-offset-4 hover:text-foreground">
           <CircleHelp className="h-3.5 w-3.5" aria-hidden />
-          How secrets work
+          {t("secrets.list.howItWorks", { defaultValue: "How secrets work" })}
         </button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-80 text-sm">
         <ol className="flex list-decimal flex-col gap-2 pl-4 text-muted-foreground">
-          <li>Add a secret once. The organization provides one shared value, or each user adds their own.</li>
-          <li>Choose which agents can use it, here or in an agent&apos;s settings. A project can set it for every task in that project.</li>
+          <li>{t("secrets.list.howStepOne", { defaultValue: "Add a secret once. The organization provides one shared value, or each user adds their own." })}</li>
+          <li>{t("secrets.list.howStepTwo", { defaultValue: "Choose which agents can use it, here or in an agent's settings. A project can set it for every task in that project." })}</li>
           <li>
-            When a run starts, the agent finds it as an environment variable, such as{" "}
-            <code className="font-mono text-foreground">GITHUB_TOKEN</code>. The value is never shown again.
+            {t("secrets.list.howStepThreePrefix", { defaultValue: "When a run starts, the agent finds it as an environment variable, such as" })}{" "}
+            <code className="font-mono text-foreground">GITHUB_TOKEN</code>{t("secrets.list.howStepThreeSuffix", { defaultValue: ". The value is never shown again." })}
           </li>
         </ol>
       </PopoverContent>
@@ -80,6 +90,7 @@ export function ManagedSecretGroup({
   onToggle: () => void;
   children: ReactNode;
 }) {
+  const { t } = useTranslation();
   const Icon = group.icon;
   return (
     <div data-testid={`managed-secret-group-${group.id}`}>
@@ -97,7 +108,7 @@ export function ManagedSecretGroup({
         <span className="shrink-0 text-sm font-medium">{group.label}</span>
         <span className="hidden min-w-0 flex-1 truncate text-xs text-muted-foreground @min-[40rem]:inline">{group.detail}</span>
         <span className="ml-auto shrink-0 text-sm tabular-nums text-muted-foreground">
-          {count} {count === 1 ? "secret" : "secrets"}
+          {t("secrets.list.secretCount", { count, defaultValue_one: "{{count}} secret", defaultValue_other: "{{count}} secrets" })}
         </span>
       </button>
       {open ? children : null}

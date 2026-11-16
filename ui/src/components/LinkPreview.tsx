@@ -7,6 +7,7 @@ import { useLinkPreviewContext, type LinkPreviewContextValue } from "@/context/L
 import { timeAgo } from "@/lib/timeAgo";
 import { retryTransientOnly } from "@/lib/query-client";
 import { queryKeys } from "@/lib/queryKeys";
+import { useTranslation } from "../i18n";
 
 export const linkPreviewStateLabel: Record<LinkPreviewState, string> = {
   unknown: "Status unknown", open: "Open", merged: "Merged", conflicts: "Merge conflicts", draft: "Draft", closed: "Closed",
@@ -17,6 +18,7 @@ export const linkPreviewStateIcon = {
 };
 
 function PreviewCardContents({ target, preview, loading }: { target: LinkPreviewTarget; preview?: Preview | null; loading: boolean }) {
+  const { t } = useTranslation();
   const state = preview?.state ?? "unknown";
   const Icon = linkPreviewStateIcon[state];
   const updated = preview?.updatedAt && Number.isFinite(Date.parse(preview.updatedAt)) ? preview.updatedAt : null;
@@ -24,15 +26,15 @@ function PreviewCardContents({ target, preview, loading }: { target: LinkPreview
     <div className="flex items-center gap-2 text-xs text-muted-foreground">
       <Icon aria-hidden="true" className="link-preview-status size-4 shrink-0" data-state={state} />
       <span className="min-w-0 break-all font-mono">{target.label}</span>
-      {preview ? <span className="link-preview-status ml-auto shrink-0" data-state={state}>{linkPreviewStateLabel[state]}</span> : null}
+      {preview ? <span className="link-preview-status ml-auto shrink-0" data-state={state}>{t(`linkPreview.state.${state}`, { defaultValue: linkPreviewStateLabel[state] })}</span> : null}
     </div>
     {preview ? <>
       <p className="m-0 text-sm font-medium leading-snug">{preview.title}</p>
       {(preview.author || updated) ? <p className="m-0 flex flex-wrap gap-x-2 gap-y-1 text-xs text-muted-foreground">
         {preview.author ? <span>{preview.author}</span> : null}
-        {updated ? <span>Updated <time className="font-mono" dateTime={updated} title={new Date(updated).toLocaleString()}>{timeAgo(updated)}</time></span> : null}
+        {updated ? <span>{t("linkPreview.updated", { defaultValue: "Updated" })} <time className="font-mono" dateTime={updated} title={new Date(updated).toLocaleString()}>{timeAgo(updated)}</time></span> : null}
       </p> : null}
-    </> : loading ? <p className="m-0 text-sm text-muted-foreground" role="status">Loading pull request…</p> : null}
+    </> : loading ? <p className="m-0 text-sm text-muted-foreground" role="status">{t("linkPreview.loadingPullRequest", { defaultValue: "Loading pull request…" })}</p> : null}
     <span className="break-all font-mono text-xs text-muted-foreground">{target.canonicalUrl}</span>
   </div>;
 }

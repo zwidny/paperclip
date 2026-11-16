@@ -5,6 +5,7 @@ import type { AttentionItem } from "@paperclipai/shared";
 import { PROPERTIES_PANE_HEADER_SLOT_ID } from "@/components/PropertiesPanel";
 import { SidePanelLauncher, SidePanelTabs, type SidePanelLauncherItem, type SidePanelLauncherSection, type SidePanelTabItem, type SidePanelTabRecord } from "@/components/side-panel";
 import { Button } from "@/components/ui/button";
+import { i18n, useTranslation } from "../../i18n";
 import { needsYouArtifact, needsYouArtifactId, needsYouArtifactLabel, type NeedsYouArtifact } from "./CoordinatorReviewPanel";
 
 /**
@@ -34,7 +35,7 @@ export function needsYouTabArtifact(item: AttentionItem, payload: NeedsYouReview
 
 function documentLabel(item: AttentionItem, artifact?: NeedsYouArtifact | null) {
   const shown = artifact ?? needsYouArtifact(item);
-  return shown ? needsYouArtifactLabel(shown) : "Document";
+  return shown ? needsYouArtifactLabel(shown) : i18n.t("coordinator.sidePanel.document", { defaultValue: "Document" });
 }
 
 /** "NEE-39 plan": the artifact and its task, where several are listed or open. */
@@ -70,6 +71,7 @@ export function CoordinatorNeedsYouSidePanel({ tabs, activeTabId, items, reviewa
 }) {
   const [launcherOpen, setLauncherOpen] = useState(false);
   const [slot, setSlot] = useState<HTMLElement | null>(null);
+  const { t } = useTranslation();
   useEffect(() => { setSlot(document.getElementById(PROPERTIES_PANE_HEADER_SLOT_ID)); }, []);
   const byId = useMemo(() => new Map(items.map(item => [item.id, item])), [items]);
   // A tab says "Plan" until a second plan opens; then each names its task.
@@ -79,7 +81,7 @@ export function CoordinatorNeedsYouSidePanel({ tabs, activeTabId, items, reviewa
   })), [tabs]);
   const sections = useMemo<SidePanelLauncherSection[]>(() => [{
     id: "waiting",
-    label: "Waiting on you",
+    label: t("coordinator.sidePanel.waitingOnYou", { defaultValue: "Waiting on you" }),
     items: reviewable.map((item): SidePanelLauncherItem => ({
       id: item.id,
       label: needsYouReviewTabLabel(item),
@@ -88,22 +90,22 @@ export function CoordinatorNeedsYouSidePanel({ tabs, activeTabId, items, reviewa
       icon: <FileText />,
       alreadyOpen: tabs.some(tab => tab.id === needsYouReviewTabId(item)),
     })),
-  }], [reviewable, tabs]);
+  }], [reviewable, tabs, t]);
   const select = (entry: SidePanelLauncherItem) => {
     const item = byId.get(entry.id);
     if (item) onOpenItem(item);
   };
   const launcher = <SidePanelLauncher sections={sections} onSelect={select} presentation="popover" open={launcherOpen} onOpenChange={setLauncherOpen}
-    emptyMessage="Nothing else is waiting on you."
-    trigger={<Button type="button" variant="ghost" size="icon-sm" className="h-(--side-panel-tab-height) w-(--side-panel-tab-height) shrink-0 rounded-md text-muted-foreground hover:text-foreground focus-visible:text-foreground" aria-label="Open a new tab"><Plus aria-hidden /></Button>} />;
+    emptyMessage={t("coordinator.sidePanel.nothingElseWaiting", { defaultValue: "Nothing else is waiting on you." })}
+    trigger={<Button type="button" variant="ghost" size="icon-sm" className="h-(--side-panel-tab-height) w-(--side-panel-tab-height) shrink-0 rounded-md text-muted-foreground hover:text-foreground focus-visible:text-foreground" aria-label={t("coordinator.sidePanel.openNewTab", { defaultValue: "Open a new tab" })}><Plus aria-hidden /></Button>} />;
   const header = <SidePanelTabs tabs={visualTabs} activeTabId={activeTabId} onActiveTabChange={onSelectTab} onCloseTab={onCloseTab}
     onReorderTabs={onReorderTabs} addControl={launcher} appearance="streamlined-task" />;
   const active = tabs.find(tab => tab.id === activeTabId) ?? null;
   const item = active ? byId.get(active.payload.itemId) ?? null : null;
   return <div className="flex min-h-full flex-col" data-coordinator-side-panel>
     {slot ? createPortal(header, slot) : header}
-    {!active ? <SidePanelLauncher sections={sections} onSelect={select} emptyMessage="Nothing else is waiting on you." />
+    {!active ? <SidePanelLauncher sections={sections} onSelect={select} emptyMessage={t("coordinator.sidePanel.nothingElseWaiting", { defaultValue: "Nothing else is waiting on you." })} />
       : item ? renderReview(item, active)
-      : <p className="text-sm text-muted-foreground">This is no longer waiting on you.</p>}
+      : <p className="text-sm text-muted-foreground">{t("coordinator.sidePanel.noLongerWaiting", { defaultValue: "This is no longer waiting on you." })}</p>}
   </div>;
 }

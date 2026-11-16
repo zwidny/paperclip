@@ -178,7 +178,8 @@
       "useApiKeysInstead": "改用 API 金鑰",
       "useCustomGateway": "使用自訂閘道",
       "customGatewayTitle": "自訂閘道連線",
-      "customGatewayDescription": "儲存連線，然後選擇模型並用你的 Agent 測試。"
+      "customGatewayDescription": "儲存連線，然後選擇模型並用你的 Agent 測試。",
+      "defaultAccount": "This will be your default {{source}} account."
     },
     "footer": {
       "back": "返回",
@@ -682,7 +683,31 @@
     "updating": "正在更新產出物..."
   },
   "agents": {
-    "selectOrganization": "請選擇組織以檢視 Agent。"
+    "selectOrganization": "請選擇組織以檢視 Agent。",
+    "roster": {
+      "filtersAria": "Agent filters",
+      "filterAgentsAria": "Filter agents",
+      "activeFiltersTitle": "Filters: {{count}}",
+      "choicesAria": "Agent filter choices",
+      "filters": "Filters",
+      "clearFilters": "Clear filters",
+      "field": {
+        "model": "Model",
+        "status": "Status",
+        "harness": "Harness",
+        "connection": "Connection"
+      },
+      "all": {
+        "model": "All models",
+        "status": "All statuses",
+        "harness": "All harnesses",
+        "connection": "All connections"
+      },
+      "previouslySelected": "Previously selected {{field}}",
+      "count_one": "{{count}} agent",
+      "count_other": "{{count}} agents",
+      "connectionLoadFailed": "Connection names couldn’t be loaded."
+    }
   },
   "costs": {
     "financeLedger": "財務帳本",
@@ -2601,7 +2626,8 @@
       "copy": "複製",
       "copyLink": "複製連結",
       "more": "更多",
-      "moreSecretActions": "More secret actions"
+      "moreSecretActions": "More secret actions",
+      "copyKey": "Copy key"
     },
     "list": {
       "secretCount_one": "{{count}} 個 Secret",
@@ -2645,7 +2671,18 @@
       "emptyTitle": "No secrets yet",
       "columnName": "Name",
       "columnProvidedBy": "Provided by",
-      "columnUsedBy": "Used by"
+      "columnUsedBy": "Used by",
+      "setInPlaces_one": "Set in {{count}} place",
+      "setInPlaces_other": "Set in {{count}} places",
+      "notUsedYet": "Not used yet",
+      "agentsCount_one": "{{count}} agent",
+      "agentsCount_other": "{{count}} agents",
+      "howItWorks": "How secrets work",
+      "howStepOne": "Add a secret once. The organization provides one shared value, or each user adds their own.",
+      "howStepTwo": "Choose which agents can use it, here or in an agent's settings. A project can set it for every task in that project.",
+      "howStepThreePrefix": "When a run starts, the agent finds it as an environment variable, such as",
+      "howStepThreeSuffix": ". The value is never shown again.",
+      "managedByPaperclip": "Managed by Paperclip"
     },
     "folder": {
       "allSecrets": "全部 Secrets",
@@ -2714,7 +2751,8 @@
       "checkAgain": "Check again",
       "healthWarning": "Working, with a warning",
       "healthWorking": "Working",
-      "healthChecked": "· checked {{time}}"
+      "healthChecked": "· checked {{time}}",
+      "builtInDescription": "Encrypted and stored by Paperclip. Always available."
     },
     "vaultDialog": {
       "editTitle": "編輯 Provider 保管庫",
@@ -2860,7 +2898,9 @@
       "chooseAnotherVault": "Choose another vault",
       "orFixItInVaults": ", or ",
       "fixItInVaults": "fix it in Vaults",
-      "linkSecret": "Link secret"
+      "linkSecret": "Link secret",
+      "usageNotePlaceholder": "What it is for",
+      "existingSecretsStay": "Existing secrets stay where they are."
     },
     "delete": {
       "title": "刪除 Secret",
@@ -3007,7 +3047,8 @@
       "archivedNotice": "Archived secrets are not given to agents and stay out of the list.",
       "alsoSetIn": "Also set in",
       "definitionDisabledNotice": "Disabled secrets are not given to agents, and members are not asked for a value.",
-      "members": "Members"
+      "members": "Members",
+      "activity": "Activity"
     }
   },
   "secretsImport": {
@@ -4686,7 +4727,8 @@
       "fileContents": "檔案內容",
       "rootPathPlaceholder": "/絕對路徑/到/agent/prompts",
       "fileNameExists": "A file with this name already exists.",
-      "fileNameInvalid": "Use letters, numbers, hyphens or underscores."
+      "fileNameInvalid": "Use letters, numbers, hyphens or underscores.",
+      "requiredFile": "This file is required"
     },
     "runs": {
       "loadingRun": "正在載入執行…",
@@ -7633,6 +7675,18 @@
       "toastTitle": "{{name}} 已封存",
       "switchedTo": "已切換到 {{name}}。",
       "unarchiveHint": "你可以從此清單中取消封存。"
+    },
+    "decisions": {
+      "title": "Decisions",
+      "lede": "Each owner saves as soon as you choose it.",
+      "defaultOwnerLabel": "Default decision owner",
+      "defaultOwnerHint": "When a card needs a person but has no explicit owner, it goes to this user's For you list. Leave as Unassigned to keep ownerless cards in the claimable pool.",
+      "defaultOwnerUnset": "Unassigned (no default owner)",
+      "defaultOwnerSaveFailed": "Couldn't save the default decision owner.",
+      "budgetOwnerLabel": "Budget owner",
+      "budgetOwnerHint": "A budget hard stop also goes to this user's For you list, with Raise limit and Keep paused. The Company view still shows it to every operator.",
+      "budgetOwnerUnset": "No budget owner (Company view only)",
+      "budgetOwnerSaveFailed": "Couldn't save the budget owner."
     }
   },
   "companyConnections": {
@@ -8859,7 +8913,10 @@
     "selectCompanyShort": "選擇一個公司以檢視組織架構圖。",
     "title": "組織架構圖",
     "zoomIn": "放大",
-    "zoomOut": "縮小"
+    "zoomOut": "縮小",
+    "controlsAria": "Org chart controls",
+    "chartCameraAria": "Chart camera",
+    "tasksLayer": "Tasks"
   },
   "pluginSettings": {
     "about": "關於",
@@ -10487,7 +10544,11 @@
     "inSidebar": "在側邊欄中",
     "openPlanInSidebarAria": "在任務側邊欄中開啟 {{title}}{{revision}}",
     "imagesLabel": "Images",
-    "queuedImages": "Queued images"
+    "queuedImages": "Queued images",
+    "kindReviewPlan": "Review plan",
+    "kindApproveToolAction": "Approve tool action",
+    "kindReviewSecretProposal": "Review secret proposal",
+    "waitingToStart": "Waiting to start"
   },
   "runnerGoal": {
     "pendingStarting": "正在啟動",
@@ -10638,7 +10699,8 @@
       "stopped": "已停止",
       "run_completed": "執行已完成"
     },
-    "modelRejectedNamedModel": "The provider rejected the model \"{{model}}\"."
+    "modelRejectedNamedModel": "The provider rejected the model \"{{model}}\".",
+    "loadingTaskHistory": "Loading task history…"
   },
   "toolVerbs": {
     "unnamedTool": "未命名工具",
@@ -13516,11 +13578,14 @@
       "sandboxProvider": "{{provider}} 沙箱提供者",
       "titleFormat": "{{label}} - {{detail}}",
       "unknown": "未知環境",
-      "unknownTitle": "未知環境 - {{id}}"
+      "unknownTitle": "未知環境 - {{id}}",
+      "managedByPaperclip": "Managed by Paperclip"
     },
     "live": "即時",
     "liveWithCount": "即時（{{count}}）",
-    "noSearchMatches": "沒有 Agent 符合你的搜尋與所選狀態。"
+    "noSearchMatches": "沒有 Agent 符合你的搜尋與所選狀態。",
+    "breadcrumb": "Agents",
+    "newAgent": "New Agent"
   },
   "slackIdentityStep": {
     "title": "連結你的 Slack 帳戶",
@@ -14299,7 +14364,12 @@
     "createProject": "建立專案",
     "closeAria": "關閉新增專案",
     "sourceRepositories": "來源儲存庫",
-    "creating": "正在建立…"
+    "creating": "正在建立…",
+    "projectName": "Project name",
+    "availableIn": "Available in",
+    "selectEnvironments": "Select environments",
+    "environmentStorageNote": "These environments can share this project's working files. The storage choice stays with the project.",
+    "loadingEnvironments": "Loading environments…"
   },
   "projectAccessMembers": {
     "unknownUser": "未知使用者",
@@ -15214,7 +15284,20 @@
     "optionalNote": "選用的決策備註…",
     "requestRevision": "請求修訂",
     "reject": "拒絕",
-    "approve": "核准"
+    "approve": "核准",
+    "decisionSaveFailed": "The decision could not be saved.",
+    "approvalAlreadySending": "This approval is already being sent.",
+    "viewConfiguration": "View configuration",
+    "viewDetails": "View details",
+    "approveHire": "Approve hire",
+    "joinRequestSaveFailed": "The join request could not be saved.",
+    "joinRequest": "Join request",
+    "agentAccess": "Agent access",
+    "memberAccess": "Member access",
+    "approvalAddsAgent": "Approval adds this agent to the company.",
+    "approvalAddsMember": "Approval adds them to the company as a member.",
+    "decline": "Decline",
+    "approveAccess": "Approve access"
   },
   "decisionTriageStrip": {
     "verbs": {
@@ -16699,7 +16782,21 @@
     "approve": "核准",
     "rejecting": "正在拒絕…",
     "reject": "拒絕",
-    "viewDetails": "檢視詳細資料"
+    "viewDetails": "檢視詳細資料",
+    "kind": {
+      "boardApproval": "Board approval request",
+      "strategyApproval": "Strategy approval",
+      "budgetOverride": "Budget override request",
+      "request": "Approval request"
+    },
+    "newAgent": "New agent",
+    "reportsTo": "Reports to {{manager}}",
+    "roleSuffix": "{{role}} role",
+    "monthlyLimit": "{{name}} · {{amount}} / month",
+    "viewConfiguration": "View configuration",
+    "createsAgentWithLimit": "Approval creates the agent with this monthly spending limit.",
+    "createsAgent": "Approval creates the agent.",
+    "onApproval": "On approval: {{next}}"
   },
   "chatComposer": {
     "dropToAttach": "拖放以附加",
@@ -17252,7 +17349,17 @@
   "designPage": {
     "resizeRightSidebar": "調整右側邊欄大小",
     "skipToMainContent": "跳至主要內容",
-    "asideContentAria": "{{title}}內容"
+    "asideContentAria": "{{title}}內容",
+    "logViewer": {
+      "agentStarted": "Agent started successfully",
+      "processingTask": "Processing task PAP-001",
+      "rateLimit": "Rate limit approaching (80%)",
+      "taskCompleted": "Task PAP-001 completed",
+      "connectionTimeout": "Connection timeout to upstream service",
+      "retrying": "Retrying connection in 5s...",
+      "reconnected": "Reconnected successfully",
+      "live": "Live"
+    }
   },
   "announcementCard": {
     "dismiss": "關閉公告"
@@ -17813,7 +17920,8 @@
       "receiptsAria": "Receipts",
       "dismissReceiptAria": "Dismiss receipt",
       "reason": "Reason: {{reason}}"
-    }
+    },
+    "partOfRequest": "Part of this request"
   },
   "secretDelivery": {
     "config": "配置",
@@ -18562,7 +18670,15 @@
       "historyScope": "Whose decision history",
       "handledForMe": "Handled for me",
       "noHandledYet": "No decisions handled by you or for you yet.",
-      "showEveryoneDecisions": "Show everyone's decisions"
+      "showEveryoneDecisions": "Show everyone's decisions",
+      "summary": {
+        "decisions_one": "{{count}} decision",
+        "decisions_other": "{{count}} decisions",
+        "problems_one": "{{count}} problem",
+        "problems_other": "{{count}} problems",
+        "updates_one": "{{count}} update",
+        "updates_other": "{{count}} updates"
+      }
     },
     "taskCommitment": {
       "noTasksCreated": "未建立任何任務。"
@@ -18662,6 +18778,13 @@
         "active_run_watchdog": "Run gone quiet",
         "issue_graph_liveness": "Task needs a next step"
       }
+    },
+    "sidePanel": {
+      "document": "Document",
+      "waitingOnYou": "Waiting on you",
+      "nothingElseWaiting": "Nothing else is waiting on you.",
+      "openNewTab": "Open a new tab",
+      "noLongerWaiting": "This is no longer waiting on you."
     }
   },
   "apiErrors": {
@@ -19028,5 +19151,145 @@
     "exitFullScreen": "Exit full screen",
     "viewGone": "This {{app}} view is no longer available.",
     "viewCouldNotShow": "{{app}} could not show this view. The tool result is still in the row above."
+  },
+  "linkPreview": {
+    "state": {
+      "unknown": "Status unknown",
+      "open": "Open",
+      "merged": "Merged",
+      "conflicts": "Merge conflicts",
+      "draft": "Draft",
+      "closed": "Closed"
+    },
+    "updated": "Updated",
+    "loadingPullRequest": "Loading pull request…"
+  },
+  "issueInteraction": {
+    "creating": "Creating…",
+    "addContextPlaceholder": "Add context for the agent…",
+    "approvedSignInNeeded": "Approved · Sign-in needed",
+    "approvedSignInNeededBody": "Your approval is saved. Reconnect the app to continue. Paperclip will check the account and action again before it runs.",
+    "submitting": "Submitting…"
+  },
+  "issueRecovery": {
+    "containment": {
+      "sectionAria": "Original controller recovery",
+      "title": "Verify the original execution stopped",
+      "body": "Paperclip cannot compare process IDs across hosts or kernel sessions. Stop both the controller and provider on the original host before recording evidence. The saved lease must also expire and environment/workspace cleanup must finish. Recording containment does not retry the task.",
+      "controllerStopped": "I verified the original controller stopped on its original host.",
+      "providerStopped": "I verified the original provider and its tools stopped on their original host.",
+      "outcomeLabel": "Reviewed external action outcomes",
+      "outcomePlaceholder": "Select only after reviewing the effects",
+      "outcome": {
+        "completed": "All completed",
+        "notPerformed": "None performed",
+        "mixed": "Some completed and some not performed"
+      },
+      "evidenceLabel": "Original-host containment evidence and actions that must not be repeated",
+      "keepHold": "If any action outcome is still unknown, keep this hold. After evidence and cleanup settle, use the task’s ordinary Retry action separately.",
+      "recording": "Recording…",
+      "record": "Record containment",
+      "needsAdmin": "A company owner, company administrator, or instance administrator must review this original-host execution."
+    }
+  },
+  "githubStarPrompt": {
+    "title_one": "You completed {{count}} task!",
+    "title_other": "You completed {{count}} tasks!",
+    "description": "If you're enjoying Paperclip, consider giving us a star on GitHub!",
+    "starOnGitHub": "Star on GitHub",
+    "notNow": "Not now"
+  },
+  "taskList": {
+    "noProject": "No project",
+    "densityListAria": "{{density}} task list",
+    "renderingCount": "Rendering {{shown}} of {{total}} tasks",
+    "showMoreTasks": "Show more tasks"
+  },
+  "githubSponsorSelect": {
+    "selectMember": "Select a member",
+    "searchMembers": "Search members…"
+  },
+  "connectionIntent": {
+    "error": {
+      "connectionChanged": "The agent’s AI connection changed. Reload the task and try again."
+    },
+    "status": {
+      "accessGranted": "{{service}} access granted",
+      "externalConnected": "External provider connected",
+      "connected": "{{service}} connected",
+      "externalBody": "{{agent}} can now verify and authorize {{service}} through this provider. The app is not yet verified.",
+      "aiBody": "This agent can now use the connection.",
+      "connectionBody": "{{agent}} can use this connection on the continuation run.",
+      "withdrawn": "Connection request withdrawn",
+      "inactive": "This request is no longer active.",
+      "accessDeclined": "Access declined",
+      "declined": "Connection declined",
+      "needsAi": "The task still needs a working AI connection before it can run.",
+      "notified": "{{agent}} was notified and can continue without it.",
+      "superseded": "Request superseded",
+      "expired": "Connection request expired",
+      "replaced": "This request was replaced. Use the latest connection card instead."
+    },
+    "waitingFor": "Waiting for {{name}}",
+    "waitingBody": "Only the addressed person can choose an identity or authorize this connection.",
+    "access": {
+      "toolCount_one": "{{count}} tool for {{agent}}",
+      "toolCount_other": "{{count}} tools for {{agent}}",
+      "toolsAria": "Tool permissions",
+      "allowed": "Allowed",
+      "askFirst": "Ask first",
+      "scopeNote": "Access applies to {{agent}} only",
+      "askFirstNote_one": "{{count}} still asks you first",
+      "askFirstNote_other": "{{count}} still ask you first",
+      "grantQuestion": "Grant {{agent}} access to “{{connection}}”?"
+    },
+    "connectionManagerRequired": "Connection manager required.",
+    "deny": "Deny",
+    "grantingAccess": "Granting access…",
+    "grantAccess": "Grant access",
+    "notNow": "Not now",
+    "loadingOptions": "Loading connection options…",
+    "adoption": {
+      "body": "Use your {{provider}} connection for {{agent}}? This replaces the agent’s existing authentication with each responsible person’s own account. The model stays the same.",
+      "checking": "Checking connection…",
+      "use": "Use connection and continue"
+    },
+    "ready": "{{name}} is ready.",
+    "continuing": "Continuing…",
+    "continueTask": "Continue task",
+    "repair": {
+      "mustReconnect": "{{owner}} must reconnect {{connection}}.",
+      "accountOwner": "The account owner",
+      "resumeNote": "You can continue here once it is restored.",
+      "accountUnavailable": "The selected account is no longer available to you. Ask its owner to restore access, or choose an available AI connection in the agent’s settings."
+    },
+    "headline": {
+      "useAccount": "Use your {{provider}} account",
+      "connectAccount": "Connect your {{provider}} account",
+      "authRequired": "{{provider}} authentication required",
+      "agentNeedsService": "{{agent}} needs {{service}}"
+    },
+    "description": {
+      "accountReady": "Your account is connected. Use it for {{agent}} to resume this task.",
+      "needsOwnAi": "{{agent}} needs your own AI connection. Connect here and the task will resume automatically.",
+      "invalidAi": "This task can’t run until the agent has a valid AI connection. Connect here and the task will resume automatically.",
+      "chatHandoff": "Complete the human sign-in step in the saved setup. Your task continues when the connection is ready.",
+      "email": "Connect AgentMail to create an email address for this agent.",
+      "custom": "New connections default to all agents; you can choose fewer during setup. Reusing an account adds access for this agent."
+    },
+    "retryMessage": "Authorization didn’t finish. Your previous choices are safe; try again.",
+    "authorizing": "Authorizing…",
+    "notConnected": "Not connected",
+    "requestedBy": "Requested by {{agent}}.",
+    "continueAuthentication": "Continue authentication",
+    "closeSetup": "Close setup",
+    "continueSetup": "Continue setup",
+    "connectNamed": "Connect {{name}}",
+    "fixConnection": "Fix connection",
+    "tryAgain": "Try again",
+    "connectOrExisting": "Connect / Use existing",
+    "connect": "Connect",
+    "dialogDescription": "Complete connection setup without leaving this task.",
+    "retryUsingConnection": "Retry using this connection"
   }
 }

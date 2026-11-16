@@ -31,6 +31,7 @@ import { Download, Network, Upload, Layers, Paperclip } from "lucide-react";
 import { AGENT_ROLE_LABELS, type Agent } from "@paperclipai/shared";
 import { useCloudInstance } from "@/hooks/useCloudInstance";
 import { useHiddenSettings } from "@/hooks/useHiddenSettings";
+import { useTranslation } from "../i18n";
 
 const modelLabels = new Map([...claudeModels, ...codexModels].map(model => [model.id, model.label]));
 const MIN_ZOOM = 0.05;
@@ -133,6 +134,7 @@ export interface OrgChartProps {
 }
 
 export function OrgChart({ orgTree: providedOrgTree, agents: providedAgents, matchingAgentIds, embedded = false, controlsContainer, actionsRef, enableTaskLayer = false }: OrgChartProps = {}) {
+  const { t } = useTranslation();
   const { selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const navigate = useNavigate();
@@ -458,7 +460,7 @@ export function OrgChart({ orgTree: providedOrgTree, agents: providedAgents, mat
   useImperativeHandle(actionsRef, () => cameraActions, [cameraActions]);
   const controls = (
     <OrgChartControls {...cameraActions}>
-      {enableTaskLayer && <Button variant={showTasks ? "secondary" : "outline"} size="sm" aria-pressed={showTasks} onClick={() => setShowTasks(value => !value)}><Layers className="size-4" />Tasks</Button>}
+      {enableTaskLayer && <Button variant={showTasks ? "secondary" : "outline"} size="sm" aria-pressed={showTasks} onClick={() => setShowTasks(value => !value)}><Layers className="size-4" />{t("orgChart.tasksLayer", { defaultValue: "Tasks" })}</Button>}
     </OrgChartControls>
   );
   const taskWidth = Math.min(geometry.taskLabelWidth, Math.max(0, viewport.width - geometry.padding * 2));

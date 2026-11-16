@@ -7,6 +7,7 @@ import {
   type ToolCallProgressSnapshot,
 } from "@paperclipai/shared";
 import { mcpAppsApi } from "@/api/mcpApps";
+import { useTranslation } from "../../i18n";
 import { useSecondTick } from "@/hooks/useSecondTick";
 import { useCompanyLiveEvent } from "@/context/LiveUpdatesProvider";
 import { queryKeys } from "@/lib/queryKeys";
@@ -179,6 +180,7 @@ export function useToolCallProgress(item: TaskChatToolItem): ToolCallProgressSna
  * elapsed time.
  */
 export function TaskChatToolProgress({ progress, nowMs }: { progress: ToolCallProgressSnapshot; nowMs?: number }) {
+  const { t } = useTranslation();
   // The shared one-second ticker, only while no fixed time is given.
   useSecondTick(nowMs === undefined);
   const now = nowMs ?? Date.now();
@@ -194,7 +196,7 @@ export function TaskChatToolProgress({ progress, nowMs }: { progress: ToolCallPr
     >
       <div
         role="progressbar"
-        aria-label={message ?? "Working"}
+        aria-label={message ?? t("taskChat.pillWorking", { defaultValue: "Working" })}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={percent ?? undefined}

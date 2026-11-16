@@ -18,6 +18,7 @@ import { AgentAvatar, type AvatarAgent } from "./AgentAvatar";
 import { deriveInitials } from "./Identity";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useTaskListColumnPreferences } from "../hooks/useTaskListColumnPreferences";
+import { useTranslation } from "../i18n";
 import { usePreloadTaskChats } from "../hooks/usePreloadTaskChats";
 import { CHAT_BOOTSTRAP_PRELOAD_LIMIT } from "../lib/issue-chat-bootstrap";
 import type { TaskCollectionPreferenceLocation } from "../lib/task-collection-preferences";
@@ -87,6 +88,7 @@ export function TaskList({ items, allItems = items, initialColumns = defaultTask
   /** Preload the chat of the top rows for this company. Only a page's main task list sets this. */
   preloadCompanyId?: string | null;
 }) {
+  const { t } = useTranslation();
   const localKey = useId();
   const { columns, order: columnOrder, setColumns, setOrder: setColumnOrder } = useTaskListColumnPreferences(preferenceLocation, initialColumns);
   const [localSort, setLocalSort] = useState<TaskListSort>();
@@ -164,7 +166,7 @@ export function TaskList({ items, allItems = items, initialColumns = defaultTask
   };
   const groups = new Map<string, Issue[]>();
   for (const root of roots) {
-    const label = groupBy === "status" ? issueFilterLabel(root.status) : groupBy === "project" ? root.project?.name ?? "No project" : "";
+    const label = groupBy === "status" ? issueFilterLabel(root.status) : groupBy === "project" ? root.project?.name ?? t("taskList.noProject", { defaultValue: "No project" }) : "";
     groups.set(label, [...(groups.get(label) ?? []), root]);
   }
   // The top rendered rows, in display order. The walk is lazy: it stops after
@@ -181,7 +183,7 @@ export function TaskList({ items, allItems = items, initialColumns = defaultTask
     <TaskListViewport visibleColumns={columns} columnOrder={columnOrder} controls={<TaskListColumnSettings visibleColumns={columns} onVisibleColumnsChange={updateColumns} onColumnOrderChange={setColumnOrder} onResetDefaults={() => setSort(undefined)} />}>
       <TaskListColumnHeader sort={sort && isTaskListColumnSort(sort) ? sort : undefined} onSortChange={setSort} onColumnOrderChange={setColumnOrder} />
       {items.length === 0 ? emptyState : (
-        <div aria-label={`${density} task list`}>
+        <div aria-label={t("taskList.densityListAria", { defaultValue: "{{density}} task list", density })}>
           {[...groups].map(([label, groupRoots]) => groupRoots.some(issue => renderedIds.has(issue.id)) ? (
             <Fragment key={label}>
               {label ? <IssueGroupHeader label={label} className="task-list-group-heading" trailing={<span className="text-xs text-muted-foreground">{groupRoots.length}</span>} /> : null}
@@ -192,8 +194,8 @@ export function TaskList({ items, allItems = items, initialColumns = defaultTask
         </div>
       )}
       {hasMore ? <div ref={sentinel} className="flex items-center gap-3 py-2 text-sm text-muted-foreground">
-        <span>Rendering {Math.min(limit, rowIds.length)} of {rowIds.length} tasks</span>
-        <Button variant="outline" size="sm" onClick={loadMore}>Show more tasks</Button>
+        <span>{t("taskList.renderingCount", { defaultValue: "Rendering {{shown}} of {{total}} tasks", shown: Math.min(limit, rowIds.length), total: rowIds.length })}</span>
+        <Button variant="outline" size="sm" onClick={loadMore}>{t("taskList.showMoreTasks", { defaultValue: "Show more tasks" })}</Button>
       </div> : null}
       {preloadCompanyId && preloadRefs.length ? <TaskChatPreload companyId={preloadCompanyId} refs={preloadRefs} /> : null}
     </TaskListViewport>

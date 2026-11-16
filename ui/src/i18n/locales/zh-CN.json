@@ -178,7 +178,8 @@
       "useApiKeysInstead": "改用 API 密钥",
       "useCustomGateway": "使用自定义网关",
       "customGatewayTitle": "自定义网关连接",
-      "customGatewayDescription": "保存连接，然后选择模型并用你的 Agent 测试。"
+      "customGatewayDescription": "保存连接，然后选择模型并用你的 Agent 测试。",
+      "defaultAccount": "这将成为你的默认 {{source}} 账户。"
     },
     "footer": {
       "back": "返回",
@@ -682,7 +683,31 @@
     "updating": "正在更新产出物..."
   },
   "agents": {
-    "selectOrganization": "请选择组织以查看 Agent。"
+    "selectOrganization": "请选择组织以查看 Agent。",
+    "roster": {
+      "filtersAria": "智能体筛选",
+      "filterAgentsAria": "筛选智能体",
+      "activeFiltersTitle": "筛选：{{count}}",
+      "choicesAria": "智能体筛选选项",
+      "filters": "筛选",
+      "clearFilters": "清除筛选",
+      "field": {
+        "model": "模型",
+        "status": "状态",
+        "harness": "运行框架",
+        "connection": "连接"
+      },
+      "all": {
+        "model": "所有模型",
+        "status": "所有状态",
+        "harness": "所有运行框架",
+        "connection": "所有连接"
+      },
+      "previouslySelected": "之前选择的{{field}}",
+      "count_one": "{{count}} 个智能体",
+      "count_other": "{{count}} 个智能体",
+      "connectionLoadFailed": "无法加载连接名称。"
+    }
   },
   "costs": {
     "financeLedger": "财务账本",
@@ -2601,7 +2626,8 @@
       "copy": "复制",
       "copyLink": "复制链接",
       "more": "更多",
-      "moreSecretActions": "更多密钥操作"
+      "moreSecretActions": "更多密钥操作",
+      "copyKey": "复制 key"
     },
     "list": {
       "secretCount_one": "{{count}} 个 Secret",
@@ -2645,7 +2671,18 @@
       "emptyTitle": "还没有密钥",
       "columnName": "名称",
       "columnProvidedBy": "提供方",
-      "columnUsedBy": "使用方"
+      "columnUsedBy": "使用方",
+      "setInPlaces_one": "已在 {{count}} 处设置",
+      "setInPlaces_other": "已在 {{count}} 处设置",
+      "notUsedYet": "尚未使用",
+      "agentsCount_one": "{{count}} 个智能体",
+      "agentsCount_other": "{{count}} 个智能体",
+      "howItWorks": "密钥如何工作",
+      "howStepOne": "密钥只需添加一次。组织提供一份共享值，或每位用户各自添加。",
+      "howStepTwo": "选择哪些智能体可以使用它，可在此处或智能体设置中进行。项目可以为该项目中的每个任务设置它。",
+      "howStepThreePrefix": "运行开始时，智能体会将其作为环境变量读取，例如",
+      "howStepThreeSuffix": "。该值之后不会再显示。",
+      "managedByPaperclip": "由 Paperclip 管理"
     },
     "folder": {
       "allSecrets": "全部 Secrets",
@@ -2714,7 +2751,8 @@
       "checkAgain": "再次检查",
       "healthWarning": "正常，但有警告",
       "healthWorking": "正常",
-      "healthChecked": "· 检查于 {{time}}"
+      "healthChecked": "· 检查于 {{time}}",
+      "builtInDescription": "由 Paperclip 加密并存储。始终可用。"
     },
     "vaultDialog": {
       "editTitle": "编辑 Provider 保管库",
@@ -2860,7 +2898,9 @@
       "chooseAnotherVault": "请选择另一个保险库",
       "orFixItInVaults": "，或",
       "fixItInVaults": "在“保险库”中修复",
-      "linkSecret": "关联密钥"
+      "linkSecret": "关联密钥",
+      "usageNotePlaceholder": "用途说明",
+      "existingSecretsStay": "已有密钥保持原样。"
     },
     "delete": {
       "title": "删除 Secret",
@@ -3007,7 +3047,8 @@
       "archivedNotice": "已归档的密钥不会提供给智能体，也不会出现在列表中。",
       "alsoSetIn": "还设置于",
       "definitionDisabledNotice": "已停用的密钥不会提供给智能体，也不会要求成员填写值。",
-      "members": "成员"
+      "members": "成员",
+      "activity": "活动"
     }
   },
   "secretsImport": {
@@ -4686,7 +4727,8 @@
       "fileContents": "文件内容",
       "rootPathPlaceholder": "/绝对路径/到/agent/prompts",
       "fileNameExists": "已存在同名文件。",
-      "fileNameInvalid": "只能使用字母、数字、连字符或下划线。"
+      "fileNameInvalid": "只能使用字母、数字、连字符或下划线。",
+      "requiredFile": "此文件为必需文件"
     },
     "runs": {
       "loadingRun": "正在加载运行…",
@@ -7633,6 +7675,18 @@
       "toastTitle": "{{name}} 已归档",
       "switchedTo": "已切换到 {{name}}。",
       "unarchiveHint": "你可以从此列表中取消归档。"
+    },
+    "decisions": {
+      "title": "决定",
+      "lede": "选择后即会立即保存各自的负责人。",
+      "defaultOwnerLabel": "默认决定负责人",
+      "defaultOwnerHint": "当卡片需要具体人员但没有明确负责人时，会进入该用户的“为你”列表。保留为未分配可将无主卡片留在可认领池中。",
+      "defaultOwnerUnset": "未分配（无默认负责人）",
+      "defaultOwnerSaveFailed": "无法保存默认决定负责人。",
+      "budgetOwnerLabel": "预算负责人",
+      "budgetOwnerHint": "预算硬性停止也会进入该用户的“为你”列表，并提供提高上限和保持暂停。公司视图仍会向所有操作员显示。",
+      "budgetOwnerUnset": "无预算负责人（仅公司视图）",
+      "budgetOwnerSaveFailed": "无法保存预算负责人。"
     }
   },
   "companyConnections": {
@@ -8859,7 +8913,10 @@
     "selectCompanyShort": "选择一个公司以查看组织架构图。",
     "title": "组织架构图",
     "zoomIn": "放大",
-    "zoomOut": "缩小"
+    "zoomOut": "缩小",
+    "controlsAria": "组织架构图控件",
+    "chartCameraAria": "图表视图控制",
+    "tasksLayer": "任务"
   },
   "pluginSettings": {
     "about": "关于",
@@ -10487,7 +10544,11 @@
     "inSidebar": "在侧边栏中",
     "openPlanInSidebarAria": "在任务侧边栏中打开 {{title}}{{revision}}",
     "imagesLabel": "图片",
-    "queuedImages": "队列中的图片"
+    "queuedImages": "队列中的图片",
+    "kindReviewPlan": "审阅计划",
+    "kindApproveToolAction": "批准工具操作",
+    "kindReviewSecretProposal": "审阅密钥提案",
+    "waitingToStart": "等待开始"
   },
   "runnerGoal": {
     "pendingStarting": "正在启动",
@@ -10638,7 +10699,8 @@
       "stopped": "已停止",
       "run_completed": "运行已完成"
     },
-    "modelRejectedNamedModel": "服务方拒绝了模型“{{model}}”。"
+    "modelRejectedNamedModel": "服务方拒绝了模型“{{model}}”。",
+    "loadingTaskHistory": "正在加载任务历史…"
   },
   "toolVerbs": {
     "unnamedTool": "未命名工具",
@@ -13516,11 +13578,14 @@
       "sandboxProvider": "{{provider}} 沙箱提供方",
       "titleFormat": "{{label}} - {{detail}}",
       "unknown": "未知环境",
-      "unknownTitle": "未知环境 - {{id}}"
+      "unknownTitle": "未知环境 - {{id}}",
+      "managedByPaperclip": "由 Paperclip 管理"
     },
     "live": "实时",
     "liveWithCount": "实时（{{count}}）",
-    "noSearchMatches": "没有 Agent 符合你的搜索和所选状态。"
+    "noSearchMatches": "没有 Agent 符合你的搜索和所选状态。",
+    "breadcrumb": "代理",
+    "newAgent": "新代理"
   },
   "slackIdentityStep": {
     "title": "连接你的 Slack 账户",
@@ -14299,7 +14364,12 @@
     "createProject": "创建项目",
     "closeAria": "关闭新建项目",
     "sourceRepositories": "源仓库",
-    "creating": "正在创建…"
+    "creating": "正在创建…",
+    "projectName": "项目名称",
+    "availableIn": "可用于",
+    "selectEnvironments": "选择环境",
+    "environmentStorageNote": "这些环境可以共用此项目的工作文件。存储方式仍由项目决定。",
+    "loadingEnvironments": "正在加载环境…"
   },
   "projectAccessMembers": {
     "unknownUser": "未知用户",
@@ -15214,7 +15284,20 @@
     "optionalNote": "可选的决策备注…",
     "requestRevision": "请求修订",
     "reject": "拒绝",
-    "approve": "批准"
+    "approve": "批准",
+    "decisionSaveFailed": "无法保存该决定。",
+    "approvalAlreadySending": "该审批正在发送中。",
+    "viewConfiguration": "查看配置",
+    "viewDetails": "查看详情",
+    "approveHire": "批准招聘",
+    "joinRequestSaveFailed": "无法保存加入请求。",
+    "joinRequest": "加入请求",
+    "agentAccess": "代理访问权限",
+    "memberAccess": "成员访问权限",
+    "approvalAddsAgent": "批准后将该代理添加到公司。",
+    "approvalAddsMember": "批准后将其作为成员添加到公司。",
+    "decline": "拒绝",
+    "approveAccess": "批准访问"
   },
   "decisionTriageStrip": {
     "verbs": {
@@ -16699,7 +16782,21 @@
     "approve": "批准",
     "rejecting": "正在拒绝…",
     "reject": "拒绝",
-    "viewDetails": "查看详情"
+    "viewDetails": "查看详情",
+    "kind": {
+      "boardApproval": "董事会审批请求",
+      "strategyApproval": "策略审批",
+      "budgetOverride": "预算超支请求",
+      "request": "审批请求"
+    },
+    "newAgent": "新代理",
+    "reportsTo": "汇报给 {{manager}}",
+    "roleSuffix": "{{role}}角色",
+    "monthlyLimit": "{{name}} · 每月 {{amount}}",
+    "viewConfiguration": "查看配置",
+    "createsAgentWithLimit": "批准后将按此每月支出上限创建代理。",
+    "createsAgent": "批准后将创建该代理。",
+    "onApproval": "批准后：{{next}}"
   },
   "chatComposer": {
     "dropToAttach": "拖放以附加",
@@ -17252,7 +17349,17 @@
   "designPage": {
     "resizeRightSidebar": "调整右侧边栏大小",
     "skipToMainContent": "跳转到主要内容",
-    "asideContentAria": "{{title}}内容"
+    "asideContentAria": "{{title}}内容",
+    "logViewer": {
+      "agentStarted": "代理已成功启动",
+      "processingTask": "正在处理任务 PAP-001",
+      "rateLimit": "接近速率限制（80%）",
+      "taskCompleted": "任务 PAP-001 已完成",
+      "connectionTimeout": "连接上游服务超时",
+      "retrying": "5 秒后重试连接…",
+      "reconnected": "重新连接成功",
+      "live": "实时"
+    }
   },
   "announcementCard": {
     "dismiss": "关闭公告"
@@ -17813,7 +17920,8 @@
       "receiptsAria": "回执",
       "dismissReceiptAria": "忽略回执",
       "reason": "原因：{{reason}}"
-    }
+    },
+    "partOfRequest": "该请求的一部分"
   },
   "secretDelivery": {
     "config": "配置",
@@ -18562,7 +18670,15 @@
       "historyScope": "谁的决策历史",
       "handledForMe": "替我处理",
       "noHandledYet": "还没有由你处理或替你处理的决策。",
-      "showEveryoneDecisions": "显示所有人的决策"
+      "showEveryoneDecisions": "显示所有人的决策",
+      "summary": {
+        "decisions_one": "{{count}} 个决定",
+        "decisions_other": "{{count}} 个决定",
+        "problems_one": "{{count}} 个问题",
+        "problems_other": "{{count}} 个问题",
+        "updates_one": "{{count}} 条更新",
+        "updates_other": "{{count}} 条更新"
+      }
     },
     "taskCommitment": {
       "noTasksCreated": "未创建任何任务。"
@@ -18662,6 +18778,13 @@
         "active_run_watchdog": "运行已无响应",
         "issue_graph_liveness": "任务需要下一步"
       }
+    },
+    "sidePanel": {
+      "document": "文档",
+      "waitingOnYou": "等待你处理",
+      "nothingElseWaiting": "没有其他等待你处理的事项。",
+      "openNewTab": "在新标签页中打开",
+      "noLongerWaiting": "此事已不再等待你处理。"
     }
   },
   "apiErrors": {
@@ -19028,5 +19151,145 @@
     "exitFullScreen": "退出全屏",
     "viewGone": "此 {{app}} 视图已不可用。",
     "viewCouldNotShow": "{{app}} 无法显示此视图。工具结果仍在上一行中。"
+  },
+  "linkPreview": {
+    "state": {
+      "unknown": "状态未知",
+      "open": "打开",
+      "merged": "已合并",
+      "conflicts": "合并冲突",
+      "draft": "草稿",
+      "closed": "已关闭"
+    },
+    "updated": "更新于",
+    "loadingPullRequest": "正在加载拉取请求…"
+  },
+  "issueInteraction": {
+    "creating": "正在创建…",
+    "addContextPlaceholder": "为智能体补充背景信息…",
+    "approvedSignInNeeded": "已批准 · 需要登录",
+    "approvedSignInNeededBody": "你的批准已保存。重新连接应用即可继续。Paperclip 会在执行前再次检查该账户和操作。",
+    "submitting": "正在提交…"
+  },
+  "issueRecovery": {
+    "containment": {
+      "sectionAria": "原控制器恢复",
+      "title": "确认原始执行已停止",
+      "body": "Paperclip 无法跨主机或内核会话比较进程 ID。请先在原始主机上停止控制器和提供方，再记录证据。已保存的租约还必须过期，且环境/工作区清理必须完成。记录隔离状态不会重试该任务。",
+      "controllerStopped": "我已确认原始控制器在其原始主机上已停止。",
+      "providerStopped": "我已确认原始提供方及其工具在其原始主机上已停止。",
+      "outcomeLabel": "已核查外部操作结果",
+      "outcomePlaceholder": "仅在核查影响后选择",
+      "outcome": {
+        "completed": "全部已完成",
+        "notPerformed": "均未执行",
+        "mixed": "部分完成、部分未执行"
+      },
+      "evidenceLabel": "原始主机隔离证据及不得重复的操作",
+      "keepHold": "如果有任何操作结果仍未知，请继续保持此挂起状态。待证据与清理就绪后，再单独使用该任务的常规“重试”操作。",
+      "recording": "正在记录…",
+      "record": "记录隔离",
+      "needsAdmin": "必须由公司所有者、公司管理员或实例管理员审阅此次原始主机执行。"
+    }
+  },
+  "githubStarPrompt": {
+    "title_one": "你已完成 {{count}} 个任务！",
+    "title_other": "你已完成 {{count}} 个任务！",
+    "description": "如果你喜欢 Paperclip，不妨在 GitHub 上给我们一个 Star！",
+    "starOnGitHub": "在 GitHub 上加 Star",
+    "notNow": "暂不"
+  },
+  "taskList": {
+    "noProject": "无项目",
+    "densityListAria": "{{density}} 任务列表",
+    "renderingCount": "正在渲染 {{total}} 个任务中的 {{shown}} 个",
+    "showMoreTasks": "显示更多任务"
+  },
+  "githubSponsorSelect": {
+    "selectMember": "选择成员",
+    "searchMembers": "搜索成员…"
+  },
+  "connectionIntent": {
+    "error": {
+      "connectionChanged": "代理的 AI 连接已变更。请重新加载任务后重试。"
+    },
+    "status": {
+      "accessGranted": "已授予 {{service}} 访问权限",
+      "externalConnected": "已连接外部提供方",
+      "connected": "已连接 {{service}}",
+      "externalBody": "{{agent}} 现在可以通过此提供方验证并授权 {{service}}。该应用尚未经过验证。",
+      "aiBody": "该代理现在可以使用此连接。",
+      "connectionBody": "{{agent}} 可在后续运行中使用此连接。",
+      "withdrawn": "连接请求已撤回",
+      "inactive": "该请求已失效。",
+      "accessDeclined": "已拒绝访问",
+      "declined": "已拒绝连接",
+      "needsAi": "该任务在运行前仍需一个可用的 AI 连接。",
+      "notified": "已通知 {{agent}}，其可在没有该连接的情况下继续。",
+      "superseded": "请求已被取代",
+      "expired": "连接请求已过期",
+      "replaced": "该请求已被替换。请改用最新的连接卡片。"
+    },
+    "waitingFor": "正在等待 {{name}}",
+    "waitingBody": "只有被指定的人可以选择身份或授权此连接。",
+    "access": {
+      "toolCount_one": "{{agent}} 的 {{count}} 个工具",
+      "toolCount_other": "{{agent}} 的 {{count}} 个工具",
+      "toolsAria": "工具权限",
+      "allowed": "允许",
+      "askFirst": "先询问",
+      "scopeNote": "访问权限仅适用于 {{agent}}",
+      "askFirstNote_one": "其中 {{count}} 个仍会先询问你",
+      "askFirstNote_other": "其中 {{count}} 个仍会先询问你",
+      "grantQuestion": "授予 {{agent}} 对“{{connection}}”的访问权限？"
+    },
+    "connectionManagerRequired": "需要连接管理员权限。",
+    "deny": "拒绝",
+    "grantingAccess": "正在授予访问权限…",
+    "grantAccess": "授予访问权限",
+    "notNow": "暂不",
+    "loadingOptions": "正在加载连接选项…",
+    "adoption": {
+      "body": "为 {{agent}} 使用你的 {{provider}} 连接？这会用每位负责人各自的账户替换代理现有的认证方式。模型保持不变。",
+      "checking": "正在检查连接…",
+      "use": "使用该连接并继续"
+    },
+    "ready": "{{name}} 已就绪。",
+    "continuing": "正在继续…",
+    "continueTask": "继续任务",
+    "repair": {
+      "mustReconnect": "{{owner}} 必须重新连接 {{connection}}。",
+      "accountOwner": "账户所有者",
+      "resumeNote": "恢复后你可以在这里继续。",
+      "accountUnavailable": "所选账户对你已不可用。请请求其所有者恢复访问，或在代理设置中选择一个可用的 AI 连接。"
+    },
+    "headline": {
+      "useAccount": "使用你的 {{provider}} 账户",
+      "connectAccount": "连接你的 {{provider}} 账户",
+      "authRequired": "需要 {{provider}} 认证",
+      "agentNeedsService": "{{agent}} 需要 {{service}}"
+    },
+    "description": {
+      "accountReady": "你的账户已连接。为 {{agent}} 使用它即可恢复此任务。",
+      "needsOwnAi": "{{agent}} 需要你自己的 AI 连接。在此连接后，任务会自动恢复。",
+      "invalidAi": "在代理拥有有效的 AI 连接之前，此任务无法运行。在此连接后，任务会自动恢复。",
+      "chatHandoff": "请在已保存的设置中完成人工登录步骤。连接就绪后你的任务会继续。",
+      "email": "连接 AgentMail 为该代理创建电子邮件地址。",
+      "custom": "新连接默认对所有代理可用；你可以在设置过程中选择更少的代理。复用账户会为该代理增加访问权限。"
+    },
+    "retryMessage": "授权未完成。你之前的选择已保留，请重试。",
+    "authorizing": "正在授权…",
+    "notConnected": "未连接",
+    "requestedBy": "由 {{agent}} 请求。",
+    "continueAuthentication": "继续认证",
+    "closeSetup": "关闭设置",
+    "continueSetup": "继续设置",
+    "connectNamed": "连接 {{name}}",
+    "fixConnection": "修复连接",
+    "tryAgain": "重试",
+    "connectOrExisting": "连接 / 使用现有连接",
+    "connect": "连接",
+    "dialogDescription": "无需离开此任务即可完成连接设置。",
+    "retryUsingConnection": "使用此连接重试"
   }
 }

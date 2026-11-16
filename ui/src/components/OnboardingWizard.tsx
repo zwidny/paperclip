@@ -3314,8 +3314,8 @@ function OnboardingWizardInner({
                     >
                       <div className="-ml-3 mt-1">
                         <CredentialModeLink mode={credentialMode} onChange={setCredentialMode} />
-                        {savedKeys.options.length > 0 && <p className="px-3 text-sm text-muted-foreground">{savedKeys.options.length} saved API {savedKeys.options.length === 1 ? "key available" : "keys available"}.</p>}
-                        {credentialMode === "subscription" && authSignalStatus === "present" && <p className="px-3 text-sm text-muted-foreground">An existing provider connection is available.</p>}
+                        {savedKeys.options.length > 0 && <p className="px-3 text-sm text-muted-foreground">{t("onboarding.connect.savedKeys", { count: savedKeys.options.length, defaultValue: "{{count}} saved API keys available." })}</p>}
+                        {credentialMode === "subscription" && authSignalStatus === "present" && <p className="px-3 text-sm text-muted-foreground">{t("onboarding.connect.existingConnection", { defaultValue: "An existing provider connection is available." })}</p>}
                       </div>
                     </motion.div>
                   </div>
@@ -3364,18 +3364,19 @@ function OnboardingWizardInner({
                     ) : credentialMode === "api" ? (
                       <OnboardingLoginCard
                         instruction={openAiCompatible
-                          ? "Point Paperclip at any OpenAI-compatible endpoint"
-                          : hasGatewaySelection || connectionModels ? "Choose a model for your saved connection" : savedKeys.options.length ? "Choose a saved API key or enter a new one" : `Provide your ${
-                            CONNECT_SOURCE_NAMES[adapterType] ?? adapterType
-                          } API key to connect`}
+                          ? t("onboarding.connect.compatibleInstruction", { defaultValue: "Point Paperclip at any OpenAI-compatible endpoint" })
+                          : hasGatewaySelection || connectionModels ? t("onboarding.connect.chooseModelForConnection", { defaultValue: "Choose a model for your saved connection" }) : savedKeys.options.length ? t("onboarding.connect.chooseSavedKey", { defaultValue: "Choose a saved API key or enter a new one" }) : t("onboarding.connect.provideKey", {
+                            defaultValue: "Provide your {{source}} API key to connect",
+                            source: CONNECT_SOURCE_NAMES[adapterType] ?? adapterType,
+                          })}
                       >
                         {openAiCompatible && (
                           <div className="space-y-2 text-sm">
                             {OPENAI_COMPATIBLE_HARNESSES.length > 1 ? (
                               <label className="block space-y-1">
-                                <span className="text-muted-foreground">Harness</span>
+                                <span className="text-muted-foreground">{t("onboarding.connect.harness", { defaultValue: "Harness" })}</span>
                                 <select
-                                  aria-label="OpenAI compatible harness"
+                                  aria-label={t("onboarding.connect.compatibleHarnessAria", { defaultValue: "OpenAI compatible harness" })}
                                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                                   value={compatibleHarness}
                                   onChange={(event) => {
@@ -3390,11 +3391,14 @@ function OnboardingWizardInner({
                               </label>
                             ) : (
                               <p className="text-muted-foreground">
-                                Runs on {OPENAI_COMPATIBLE_HARNESSES[0]?.label ?? compatibleHarness}.
+                                {t("onboarding.connect.runsOn", {
+                                  defaultValue: "Runs on {{harness}}.",
+                                  harness: OPENAI_COMPATIBLE_HARNESSES[0]?.label ?? compatibleHarness,
+                                })}
                               </p>
                             )}
                             <OnboardingCardField
-                              label="Base URL"
+                              label={t("onboarding.connect.baseUrl", { defaultValue: "Base URL" })}
                               placeholder="https://api.deepseek.com"
                               value={compatibleBaseUrl}
                               onChange={setCompatibleBaseUrl}
@@ -3402,7 +3406,7 @@ function OnboardingWizardInner({
                               autoFocus
                             />
                             <OnboardingCardField
-                              label="Model"
+                              label={t("onboarding.connect.model", { defaultValue: "Model" })}
                               placeholder="deepseek-flash"
                               value={compatibleModelName}
                               onChange={setCompatibleModelName}
@@ -3417,8 +3421,8 @@ function OnboardingWizardInner({
                           setApiKey("");
                         }} />}
                         {!selectedApiKey && !hasGatewaySelection && !connectionModels && <OnboardingCardField
-                          label="API key"
-                          placeholder="Enter API key here"
+                          label={t("onboarding.connect.apiKey", { defaultValue: "API key" })}
+                          placeholder={t("onboarding.connect.apiKeyPlaceholder", { defaultValue: "Enter API key here" })}
                           masked
                           // The card is the answer to the tile just pressed, so
                           // the field is unambiguously the next thing. Carried
@@ -3432,15 +3436,18 @@ function OnboardingWizardInner({
                           }}
                           onSubmit={() => handleConnectStepPrimary()}
                         />}
-                        {managedProvider && !selectedApiKey && !hasGatewaySelection && !connectionModels && <p className="text-xs text-muted-foreground">This will be your default {CONNECT_SOURCE_NAMES[adapterType] ?? managedProvider} account.</p>}
+                        {managedProvider && !selectedApiKey && !hasGatewaySelection && !connectionModels && <p className="text-xs text-muted-foreground">{t("onboarding.connect.defaultAccount", {
+                          defaultValue: "This will be your default {{source}} account.",
+                          source: CONNECT_SOURCE_NAMES[adapterType] ?? managedProvider,
+                        })}</p>}
                         {hasGatewaySelection && (gatewayLookupFailed ? <>
-                          <p role="alert" className="text-sm text-destructive">Your saved gateway connection could not be loaded. Retry to choose a model and connect your agent.</p>
+                          <p role="alert" className="text-sm text-destructive">{t("onboarding.connect.gatewayLoadFailed", { defaultValue: "Your saved gateway connection could not be loaded. Retry to choose a model and connect your agent." })}</p>
                           <Button type="button" variant="outline" disabled={loading || adapterEnvLoading} onClick={() => { void connectionModelState.refresh(); }}>
-                            Retry loading connection
+                            {t("onboarding.connect.retryLoadingConnection", { defaultValue: "Retry loading connection" })}
                           </Button>
                         </> : <p role="status" className="text-sm text-muted-foreground">{connectionModelState.refreshing
-                          ? "Loading your saved gateway connection…"
-                          : "Gateway connection saved. Choose a model, then Connect to test it and finish setting up your agent."}</p>)}
+                          ? t("onboarding.connect.gatewayLoading", { defaultValue: "Loading your saved gateway connection…" })
+                          : t("onboarding.connect.gatewaySaved", { defaultValue: "Gateway connection saved. Choose a model, then Connect to test it and finish setting up your agent." })}</p>)}
                         {connectionModels && <ModelDropdown models={connectionModels.models} value={model}
                           onChange={setModel} open={modelOpen} onOpenChange={setModelOpen}
                           allowDefault={false} required groupByProvider={false}
@@ -3449,7 +3456,7 @@ function OnboardingWizardInner({
                           setGatewayConnection(undefined);
                           setSelectedSavedKey({ companyId: createdCompanyId!, envKey: apiKeyEnvKeyFor(adapterType), id: "" });
                           setModel("");
-                        }}>Use a different API key</Button>}
+                        }}>{t("onboarding.connect.useDifferentKey", { defaultValue: "Use a different API key" })}</Button>}
                       </OnboardingLoginCard>
                     ) : connectStepNeedsLogin &&
                       createdCompanyId &&
@@ -3550,7 +3557,7 @@ function OnboardingWizardInner({
                     ) : hasSavedSubscription || localLogin.status === "ready" ? null : connectStepHasNoSandbox ? (
                       canUseLocalLogin && managedProvider ? (
                         <LocalProviderLoginInstructions adapterType={adapterType} login={{ ...localLogin, retry: () => { autoConnectStartedRef.current = false; setError(null); localLogin.retry(); } }} />
-                      ) : <p className="text-xs text-muted-foreground">This environment does not support browser sign-in. Choose another sign-in environment or connect with an API key.</p>
+                      ) : <p className="text-xs text-muted-foreground">{t("onboarding.connect.noBrowserSignIn", { defaultValue: "This environment does not support browser sign-in. Choose another sign-in environment or connect with an API key." })}</p>
                     ) : null}
                   </motion.div>
 

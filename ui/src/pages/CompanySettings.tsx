@@ -10,6 +10,7 @@ import {
 import { useCompany } from "../context/CompanyContext";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { useOptionalToastActions } from "../context/ToastContext";
+import { useTranslation } from "../i18n";
 import { useCloudInstance } from "../hooks/useCloudInstance";
 import { resolveCompanyArchiveDeparture } from "../lib/company-selection";
 import { cloudPortfolioManageUrl } from "../lib/cloudLinks";
@@ -44,6 +45,7 @@ export function CompanySettings() {
     selectedCompanyId,
     setSelectedCompanyId
   } = useCompany();
+  const { t } = useTranslation();
   const { setBreadcrumbs } = useBreadcrumbs();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -406,33 +408,33 @@ export function CompanySettings() {
       <div className="max-w-2xl space-y-4" data-testid="company-settings-decisions-section">
         <div className="space-y-1">
           <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-            Decisions
+            {t("companySettings.decisions.title", { defaultValue: "Decisions" })}
           </div>
           <p className="text-xs text-muted-foreground">
-            Each owner saves as soon as you choose it.
+            {t("companySettings.decisions.lede", { defaultValue: "Each owner saves as soon as you choose it." })}
           </p>
         </div>
         {membersView.kind === "error" ? <QueryErrorState error={membersView.error} onRetry={membersView.retry} /> : null}
         <DecisionOwnerField
-          label="Default decision owner"
-          hint="When a card needs a person but has no explicit owner, it goes to this user's For you list. Leave as Unassigned to keep ownerless cards in the claimable pool."
+          label={t("companySettings.decisions.defaultOwnerLabel", { defaultValue: "Default decision owner" })}
+          hint={t("companySettings.decisions.defaultOwnerHint", { defaultValue: "When a card needs a person but has no explicit owner, it goes to this user's For you list. Leave as Unassigned to keep ownerless cards in the claimable pool." })}
           testId="company-settings-default-decision-owner"
-          unsetLabel="Unassigned (no default owner)"
+          unsetLabel={t("companySettings.decisions.defaultOwnerUnset", { defaultValue: "Unassigned (no default owner)" })}
           savedUserId={selectedCompany.defaultDecisionOwnerUserId ?? null}
           memberOptions={memberOptions}
           membersLoading={membersQuery.isLoading}
-          fallbackError="Couldn't save the default decision owner."
+          fallbackError={t("companySettings.decisions.defaultOwnerSaveFailed", { defaultValue: "Couldn't save the default decision owner." })}
           save={saveDefaultDecisionOwner}
         />
         <DecisionOwnerField
-          label="Budget owner"
-          hint="A budget hard stop also goes to this user's For you list, with Raise limit and Keep paused. The Company view still shows it to every operator."
+          label={t("companySettings.decisions.budgetOwnerLabel", { defaultValue: "Budget owner" })}
+          hint={t("companySettings.decisions.budgetOwnerHint", { defaultValue: "A budget hard stop also goes to this user's For you list, with Raise limit and Keep paused. The Company view still shows it to every operator." })}
           testId="company-settings-budget-owner"
-          unsetLabel="No budget owner (Company view only)"
+          unsetLabel={t("companySettings.decisions.budgetOwnerUnset", { defaultValue: "No budget owner (Company view only)" })}
           savedUserId={selectedCompany.budgetOwnerUserId ?? null}
           memberOptions={memberOptions}
           membersLoading={membersQuery.isLoading}
-          fallbackError="Couldn't save the budget owner."
+          fallbackError={t("companySettings.decisions.budgetOwnerSaveFailed", { defaultValue: "Couldn't save the budget owner." })}
           save={saveBudgetOwner}
         />
       </div>

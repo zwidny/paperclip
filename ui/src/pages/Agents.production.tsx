@@ -14,6 +14,7 @@ import { useCompany } from "../context/CompanyContext";
 import { useDialogActions } from "../context/DialogContext";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { useSidebar } from "../context/SidebarContext";
+import { i18n, useTranslation } from "../i18n";
 import { queryKeys } from "../lib/queryKeys";
 import { isPlatformManagedEnvironment } from "../lib/managed-sandbox-environment";
 import { AgentStatusBadge, AgentStatusCapsule } from "../components/StatusBadge";
@@ -54,15 +55,15 @@ interface EnvironmentDescriptor {
 }
 
 const localEnvironmentDescriptor: EnvironmentDescriptor = {
-  label: "Local",
-  detail: "Paperclip host",
-  title: "Local - Paperclip host",
+  label: i18n.t("agentsPage.environment.local", { defaultValue: "Local" }),
+  detail: i18n.t("agentsPage.environment.paperclipHost", { defaultValue: "Paperclip host" }),
+  title: i18n.t("agentsPage.environment.localTitle", { defaultValue: "Local - Paperclip host" }),
 };
 
 const loadingEnvironmentDescriptor: EnvironmentDescriptor = {
   label: "—",
-  detail: "Loading environment",
-  title: "Loading environment",
+  detail: i18n.t("agentsPage.environment.loading", { defaultValue: "Loading environment" }),
+  title: i18n.t("agentsPage.environment.loading", { defaultValue: "Loading environment" }),
 };
 
 // Agents in these states never appear in the agents list — `terminated` is
@@ -108,7 +109,7 @@ function getSandboxProviderLabel(
   const provider = typeof environment.config.provider === "string"
     ? environment.config.provider.trim()
     : "";
-  if (!provider) return "Sandbox";
+  if (!provider) return i18n.t("agentsPage.environment.sandbox", { defaultValue: "Sandbox" });
   return capabilities?.sandboxProviders?.[provider]?.displayName ?? provider;
 }
 
@@ -117,25 +118,25 @@ function describeEnvironment(
   capabilities?: EnvironmentCapabilities | null,
 ): EnvironmentDescriptor {
   const detail = isPlatformManagedEnvironment(environment)
-    ? "Managed by Paperclip"
+    ? i18n.t("agentsPage.environment.managedByPaperclip", { defaultValue: "Managed by Paperclip" })
     : environment.driver === "sandbox"
-      ? `${getSandboxProviderLabel(environment, capabilities)} sandbox provider`
+      ? i18n.t("agentsPage.environment.sandboxProvider", { defaultValue: "{{provider}} sandbox provider", provider: getSandboxProviderLabel(environment, capabilities) })
       : environment.driver === "local"
-        ? "Paperclip host"
+        ? i18n.t("agentsPage.environment.paperclipHost", { defaultValue: "Paperclip host" })
         : formatEnvironmentDriver(environment.driver);
 
   return {
     label: environment.name,
     detail,
-    title: `${environment.name} - ${detail}`,
+    title: i18n.t("agentsPage.environment.titleFormat", { defaultValue: "{{label}} - {{detail}}", label: environment.name, detail }),
   };
 }
 
 function describeMissingEnvironment(environmentId: string): EnvironmentDescriptor {
   return {
-    label: "Unknown environment",
+    label: i18n.t("agentsPage.environment.unknown", { defaultValue: "Unknown environment" }),
     detail: environmentId.slice(0, 8),
-    title: `Unknown environment - ${environmentId}`,
+    title: i18n.t("agentsPage.environment.unknownTitle", { defaultValue: "Unknown environment - {{id}}", id: environmentId }),
   };
 }
 
@@ -175,6 +176,7 @@ function filterOrgTree(nodes: OrgNode[], tab: FilterTab, builtInAgentIds: Set<st
 }
 
 export function Agents() {
+  const { t } = useTranslation();
   const { selectedCompanyId } = useCompany();
   const { openNewAgent } = useDialogActions();
   const { setBreadcrumbs } = useBreadcrumbs();
@@ -300,8 +302,8 @@ export function Agents() {
   }, [agents, environmentsById, environmentCapabilities, instanceSettings?.defaultEnvironmentId]);
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Agents" }]);
-  }, [setBreadcrumbs]);
+    setBreadcrumbs([{ label: t("agentsPage.breadcrumb", { defaultValue: "Agents" }) }]);
+  }, [setBreadcrumbs, t]);
 
   useEffect(() => {
     if (requestedTab !== "all") {
@@ -310,7 +312,7 @@ export function Agents() {
   }, [navigate, requestedTab]);
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={Bot} message="Select a company to view agents." />;
+    return <EmptyState icon={Bot} message={t("agentsPage.selectCompany", { defaultValue: "Select a company to view agents." })} />;
   }
 
   // Keep a loaded list on screen through a failed refetch; only a real
@@ -386,7 +388,7 @@ export function Agents() {
         to={agentUrl(agent)}
         className="agent-roster-identity group py-3"
         leading={hasInvalidOrgChain ? (
-          <AlertTriangle className="h-3.5 w-3.5 text-amber-500" aria-label="Invalid reporting chain" />
+          <AlertTriangle className="h-3.5 w-3.5 text-amber-500" aria-label={t("agentsPage.invalidReportingChain", { defaultValue: "Invalid reporting chain" })} />
         ) : (
           <AgentAvatar agent={agent} size={32} />
         )}
@@ -397,7 +399,7 @@ export function Agents() {
             {showEnvironmentColumn && <span className="text-xs text-muted-foreground" title={resolveRenderedEnvironment(agent.id).title}>
               {resolveRenderedEnvironment(agent.id).label} · {resolveRenderedEnvironment(agent.id).detail}
             </span>}
-            {agent.lastHeartbeatAt && <span className="text-xs text-muted-foreground" title="Last heartbeat">{relativeTime(agent.lastHeartbeatAt)}</span>}
+            {agent.lastHeartbeatAt && <span className="text-xs text-muted-foreground" title={t("agentsPage.lastHeartbeat", { defaultValue: "Last heartbeat" })}>{relativeTime(agent.lastHeartbeatAt)}</span>}
           </div>
         )}
       />
@@ -423,15 +425,15 @@ export function Agents() {
         <div className="flex items-center gap-2">
           {/* View toggle */}
           {!forceListView && (
-            <div className="flex items-center border border-border" role="group" aria-label="View mode">
+            <div className="flex items-center border border-border" role="group" aria-label={t("agentsPage.viewMode", { defaultValue: "View mode" })}>
               <button
                 className={cn(
                   "p-1.5 transition-colors",
                   effectiveView === "list" ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/50"
                 )}
                 onClick={() => setView("list")}
-                title="List view"
-                aria-label="List view"
+                title={t("agentsPage.listView", { defaultValue: "List view" })}
+                aria-label={t("agentsPage.listView", { defaultValue: "List view" })}
                 aria-pressed={effectiveView === "list"}
               >
                 <List className="h-3.5 w-3.5" />
@@ -442,8 +444,8 @@ export function Agents() {
                   effectiveView === "org" ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/50"
                 )}
                 onClick={() => setView("org")}
-                title="Org chart view"
-                aria-label="Org chart view"
+                title={t("agentsPage.orgChartView", { defaultValue: "Org chart view" })}
+                aria-label={t("agentsPage.orgChartView", { defaultValue: "Org chart view" })}
                 aria-pressed={effectiveView === "org"}
               >
                 <GitBranch className="h-3.5 w-3.5" />
@@ -452,7 +454,7 @@ export function Agents() {
           )}
           <Button size="sm" variant="outline" onClick={openNewAgent}>
             <Plus className="h-3.5 w-3.5 mr-1.5" />
-            New Agent
+            {t("agentsPage.newAgent", { defaultValue: "New Agent" })}
           </Button>
         </div>
       </div>
@@ -462,8 +464,8 @@ export function Agents() {
       {agents && agents.length === 0 && (
         <EmptyState
           icon={Bot}
-          message="Create your first agent to get started."
-          action="New Agent"
+          message={t("agentsPage.emptyMessage", { defaultValue: "Create your first agent to get started." })}
+          action={t("agentsPage.newAgent", { defaultValue: "New Agent" })}
           onAction={openNewAgent}
         />
       )}
@@ -545,6 +547,7 @@ function OrgTreeNode({
   builtInByAgentId: Map<string, BuiltInAgentState>;
   onConfigureBuiltIn: (state: BuiltInAgentState) => void;
 }) {
+  const { t } = useTranslation();
   const agent = agentMap.get(node.id);
   const builtInState = builtInByAgentId.get(node.id);
   const showBuiltInLifecycle = builtInState?.status === "needs_setup" || builtInState?.status === "pending_approval";
@@ -557,7 +560,7 @@ function OrgTreeNode({
         className="group flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-accent/50 transition-colors w-full text-left no-underline text-inherit"
       >
         {hasInvalidOrgChain ? (
-          <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-500" aria-label="Invalid reporting chain" />
+          <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-500" aria-label={t("agentsPage.invalidReportingChain", { defaultValue: "Invalid reporting chain" })} />
         ) : (
           <AgentAvatar agent={agent ?? node} size={24} />
         )}

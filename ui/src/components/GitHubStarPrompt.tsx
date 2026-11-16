@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useCompany } from "@/context/CompanyContext";
 import { useDialogState } from "@/context/DialogContext";
+import { useTranslation } from "../i18n";
 import { useLocation } from "@/lib/router";
 import { queryKeys } from "@/lib/queryKeys";
 import { MODAL_SELECTOR, useModalOpen, useOnboardingInProgress } from "./AnnouncementWell";
@@ -42,6 +43,7 @@ function markSeen() {
  * hidden.
  */
 export function GitHubStarPrompt() {
+  const { t } = useTranslation();
   const { selectedCompanyId, loading } = useCompany();
   const { onboardingOpen } = useDialogState();
   const [seen, setSeen] = useState(readSeen);
@@ -91,19 +93,19 @@ export function GitHubStarPrompt() {
           <div className="mb-2 flex size-14 items-center justify-center rounded-full border border-border bg-muted">
             <PaperclipMark decorative className="size-7" />
           </div>
-          <DialogTitle>You completed {STAR_PROMPT_COMPLETED_TASKS} tasks!</DialogTitle>
+          <DialogTitle>{t("githubStarPrompt.title", { count: STAR_PROMPT_COMPLETED_TASKS, defaultValue: "You completed {{count}} tasks!" })}</DialogTitle>
           <DialogDescription className="max-w-xs">
-            If you're enjoying Paperclip, consider giving us a star on GitHub!
+            {t("githubStarPrompt.description", { defaultValue: "If you're enjoying Paperclip, consider giving us a star on GitHub!" })}
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-2">
           <Button asChild className="w-full">
             <a href={PAPERCLIP_GITHUB_URL} target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)}>
               <Star className="size-4 fill-current" aria-hidden />
-              Star on GitHub
+              {t("githubStarPrompt.starOnGitHub", { defaultValue: "Star on GitHub" })}
             </a>
           </Button>
-          <Button variant="ghost" className="w-full text-muted-foreground" onClick={() => setOpen(false)}>Not now</Button>
+          <Button variant="ghost" className="w-full text-muted-foreground" onClick={() => setOpen(false)}>{t("githubStarPrompt.notNow", { defaultValue: "Not now" })}</Button>
         </div>
       </DialogContent>
     </Dialog>

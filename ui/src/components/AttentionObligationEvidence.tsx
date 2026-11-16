@@ -1,6 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
 import type { AttentionItem } from "@paperclipai/shared";
 import { Link } from "@/lib/router";
+import { useTranslation } from "../i18n";
 import { attentionEvidenceLabel, attentionEvidenceText } from "@/lib/attention-obligations";
 import { cn } from "@/lib/utils";
 
@@ -18,10 +19,11 @@ export function AttentionObligationEvidence({
   evidence: readonly AttentionItem[] | undefined;
   className?: string;
 }) {
+  const { t } = useTranslation();
   if (!evidence?.length) return null;
   return (
     <ul
-      aria-label="Part of this request"
+      aria-label={t("attention.partOfRequest", { defaultValue: "Part of this request" })}
       data-attention-obligation={item.obligationKey ?? undefined}
       className={cn("space-y-1 border-l-2 border-border pl-3 text-xs leading-5 text-muted-foreground", className)}
     >

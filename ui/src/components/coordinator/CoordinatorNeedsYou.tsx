@@ -412,10 +412,15 @@ export function CoordinatorNeedsYou() {
       </DropdownMenu>
     </div>
     {feed.data ? <p className="text-sm text-muted-foreground" data-needs-you-summary>
-      {summarySections.map((section, index) => {
-        const label = NEEDS_YOU_SECTIONS[section].title.toLocaleLowerCase();
-        return <span key={section}>{index ? " · " : ""}{counts[section]} {counts[section] === 1 ? label.slice(0, -1) : label}</span>;
-      })}
+      {summarySections.map((section, index) => <span key={section}>
+        {index ? " · " : ""}
+        {t(`coordinator.needsYou.summary.${section}`, {
+          count: counts[section],
+          defaultValue: counts[section] === 1
+            ? section === "problems" ? "{{count}} problem" : section === "updates" ? "{{count}} update" : "{{count}} decision"
+            : section === "problems" ? "{{count}} problems" : section === "updates" ? "{{count}} updates" : "{{count}} decisions",
+        })}
+      </span>)}
     </p> : null}
     {feedWaiting ? <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" />{t("coordinator.needsYou.loadingDecisions", { defaultValue: "Loading decisions…" })}</p> : null}
     {feedView.kind === "error" ? <QueryErrorState error={feedView.error} onRetry={feedView.retry} /> : null}

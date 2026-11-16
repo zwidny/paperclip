@@ -2697,11 +2697,11 @@ export function PromptsTab({
               {selectedOrEntryFile === currentEntryFile && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span tabIndex={0} aria-label="This file is required" className="inline-flex">
+                    <span tabIndex={0} aria-label={t("agentDetail.prompts.requiredFile", { defaultValue: "This file is required" })} className="inline-flex">
                       <Button type="button" variant="ghost" size="icon-xs" className="size-8" aria-label={`Delete ${selectedOrEntryFile}`} disabled><Trash2 className="size-4" /></Button>
                     </span>
                   </TooltipTrigger>
-                  <TooltipContent>This file is required</TooltipContent>
+                  <TooltipContent>{t("agentDetail.prompts.requiredFile", { defaultValue: "This file is required" })}</TooltipContent>
                 </Tooltip>
               )}
               {selectedFileExists && !selectedFileSummary?.deprecated && selectedOrEntryFile !== currentEntryFile && (

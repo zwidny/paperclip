@@ -58,6 +58,7 @@ import { DecisionCardFooter } from "./DecisionCardFooter";
 import { ToolActionAuditHashCopy } from "./ToolActionAuditHashCopy";
 import { NeedsYouPanel, NeedsYouPanelNote, NeedsYouPanelRow } from "./coordinator/NeedsYouCardKit";
 import { claimReviseDraftWork, clearReviseDraft, releaseReviseDraftWork, reviseDraftKey, useReviseDraft, type ReviseDraftWork } from "@/lib/revise-draft-store";
+import { useTranslation } from "../i18n";
 
 const OTHER_ANSWER_ID = "__paperclip_other__";
 
@@ -824,6 +825,7 @@ function SuggestTasksCard({
     reason?: string,
   ) => Promise<void> | void;
 }) {
+  const { t } = useTranslation();
   const [rejecting, setRejecting] = useState(false);
   const [working, setWorking] = useState<"accept" | "reject" | null>(null);
   const [rejectReason, setRejectReason] = useState(
@@ -975,7 +977,7 @@ function SuggestTasksCard({
             {working === "reject" ? <><Loader2 className="h-3.5 w-3.5 animate-spin" />Declining…</> : "Decline all"}
           </Button>
           <Button size="sm" disabled={!onAcceptInteraction || working !== null || selectedCount === 0} onClick={() => void handleAccept()}>
-            {working === "accept" ? <><Loader2 className="h-3.5 w-3.5 animate-spin" />Creating…</> : `Create ${selectedCount} ${selectedCount === 1 ? "task" : "tasks"}`}
+            {working === "accept" ? <><Loader2 className="h-3.5 w-3.5 animate-spin" />{t("issueInteraction.creating", { defaultValue: "Creating…" })}</> : `Create ${selectedCount} ${selectedCount === 1 ? "task" : "tasks"}`}
           </Button>
         </DecisionCardFooter>
         <InteractionActionError message={actionError} />
@@ -1206,6 +1208,7 @@ function AskUserQuestionsCard({
   ) => Promise<void> | void;
   externalReferences?: MarkdownExternalReferenceMap;
 }) {
+  const { t } = useTranslation();
   const [draftAnswers, setDraftAnswers] = useState<Record<string, string[]>>(() =>
     Object.fromEntries(
       (interaction.result?.answers ?? []).map((answer) => [
@@ -1468,7 +1471,7 @@ function AskUserQuestionsCard({
                   value={draftOtherAnswers[question.id] ?? ""}
                   onChange={(event) =>
                     setDraftOtherAnswers((current) => ({ ...current, [question.id]: event.target.value }))}
-                  placeholder="Add context for the agent…"
+                  placeholder={t("issueInteraction.addContextPlaceholder", { defaultValue: "Add context for the agent…" })}
                   className="min-h-16 bg-card text-(length:--text-compact)"
                 />
               ) : null}
@@ -1928,6 +1931,7 @@ function ToolActionResolution({
   state: ToolActionCardState;
   interaction: RequestConfirmationInteraction;
 }) {
+  const { t } = useTranslation();
   const result = interaction.result?.toolAction;
   const [resultOpen, setResultOpen] = useState(false);
   const output = state === "executed" ? result?.resultSummary?.trim() : null;
@@ -1953,8 +1957,8 @@ function ToolActionResolution({
     const connectionId = interaction.payload.toolAction?.connectionId;
     const appName = interaction.payload.toolAction?.appDisplayName || "app";
     return <div role="status" className="space-y-2 text-sm text-muted-foreground">
-      <p className="font-medium text-foreground">Approved · Sign-in needed</p>
-      <p>Your approval is saved. Reconnect the app to continue. Paperclip will check the account and action again before it runs.</p>
+      <p className="font-medium text-foreground">{t("issueInteraction.approvedSignInNeeded", { defaultValue: "Approved · Sign-in needed" })}</p>
+      <p>{t("issueInteraction.approvedSignInNeededBody", { defaultValue: "Your approval is saved. Reconnect the app to continue. Paperclip will check the account and action again before it runs." })}</p>
       {connectionId ? <Button asChild size="sm" variant="outline"><Link to={appTabHref(connectionId, "permissions")}>Reconnect {appName}</Link></Button> : null}
     </div>;
   }
@@ -3877,6 +3881,7 @@ function RequestItemVerdictsCard({
   ) => Promise<void> | void;
   externalReferences?: MarkdownExternalReferenceMap;
 }) {
+  const { t } = useTranslation();
   const payload = interaction.payload;
   const items = payload.items;
   const enabledVerdicts = useMemo<RequestItemVerdictValue[]>(
@@ -4062,7 +4067,7 @@ function RequestItemVerdictsCard({
               </Button>
             ) : null}
             <Button type="button" size="sm" aria-disabled={!canApply} disabled={!hasDrafts} onClick={() => void handleApply()}>
-              {working ? <><Loader2 className="h-4 w-4 motion-safe:animate-spin" aria-hidden />Submitting…</> : "Submit verdicts"}
+              {working ? <><Loader2 className="h-4 w-4 motion-safe:animate-spin" aria-hidden />{t("issueInteraction.submitting", { defaultValue: "Submitting…" })}</> : "Submit verdicts"}
             </Button>
           </DecisionCardFooter>
         ) : null}

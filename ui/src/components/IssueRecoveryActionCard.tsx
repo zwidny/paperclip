@@ -51,6 +51,7 @@ import {
   readRecoveryRetryLineage,
   type RecoveryRetryLineage,
 } from "@/lib/recovery-lineage";
+import { useTranslation } from "../i18n";
 
 export type RecoveryCardCardState = RecoveryDisplayState;
 export const deriveRecoveryCardState = deriveRecoveryDisplayState;
@@ -1522,6 +1523,7 @@ export default IssueRecoveryActionCard;
 export function NativeControllerContainmentRecovery({ issue, canManage, onRecorded }: {
   issue: Pick<Issue, "id" | "status" | "activeRecoveryAction">; canManage: boolean; onRecorded: () => void;
 }) {
+  const { t } = useTranslation();
   const action = issue.activeRecoveryAction;
   const [controllerStopped, setControllerStopped] = useState(false);
   const [providerStopped, setProviderStopped] = useState(false);
@@ -1541,30 +1543,30 @@ export function NativeControllerContainmentRecovery({ issue, canManage, onRecord
   if (!action || action.kind !== "active_run_watchdog" || action.ownerType !== "board"
     || action.cause !== "native_restart_recovery_blocked" || action.evidence?.reason !== "controller_process_space_unverified"
     || !["active", "escalated"].includes(action.status) || typeof digest !== "string") return null;
-  return <section aria-label="Original controller recovery">
-    <h3>Verify the original execution stopped</h3>
-    <p>Paperclip cannot compare process IDs across hosts or kernel sessions. Stop both the controller and provider on the original host before recording evidence. The saved lease must also expire and environment/workspace cleanup must finish. Recording containment does not retry the task.</p>
+  return <section aria-label={t("issueRecovery.containment.sectionAria", { defaultValue: "Original controller recovery" })}>
+    <h3>{t("issueRecovery.containment.title", { defaultValue: "Verify the original execution stopped" })}</h3>
+    <p>{t("issueRecovery.containment.body", { defaultValue: "Paperclip cannot compare process IDs across hosts or kernel sessions. Stop both the controller and provider on the original host before recording evidence. The saved lease must also expire and environment/workspace cleanup must finish. Recording containment does not retry the task." })}</p>
     {canManage ? <>
-      <Label><Checkbox checked={controllerStopped} onCheckedChange={value => setControllerStopped(value === true)} /> I verified the original controller stopped on its original host.</Label>
-      <Label><Checkbox checked={providerStopped} onCheckedChange={value => setProviderStopped(value === true)} /> I verified the original provider and its tools stopped on their original host.</Label>
-      <Label>Reviewed external action outcomes
+      <Label><Checkbox checked={controllerStopped} onCheckedChange={value => setControllerStopped(value === true)} /> {t("issueRecovery.containment.controllerStopped", { defaultValue: "I verified the original controller stopped on its original host." })}</Label>
+      <Label><Checkbox checked={providerStopped} onCheckedChange={value => setProviderStopped(value === true)} /> {t("issueRecovery.containment.providerStopped", { defaultValue: "I verified the original provider and its tools stopped on their original host." })}</Label>
+      <Label>{t("issueRecovery.containment.outcomeLabel", { defaultValue: "Reviewed external action outcomes" })}
         <NativeSelect value={outcome} onChange={event => {
           const value = event.target.value;
           if (value === "completed" || value === "not_performed" || value === "mixed" || value === "") setOutcome(value);
         }}>
-          <option value="">Select only after reviewing the effects</option>
-          <option value="completed">All completed</option>
-          <option value="not_performed">None performed</option>
-          <option value="mixed">Some completed and some not performed</option>
+          <option value="">{t("issueRecovery.containment.outcomePlaceholder", { defaultValue: "Select only after reviewing the effects" })}</option>
+          <option value="completed">{t("issueRecovery.containment.outcome.completed", { defaultValue: "All completed" })}</option>
+          <option value="not_performed">{t("issueRecovery.containment.outcome.notPerformed", { defaultValue: "None performed" })}</option>
+          <option value="mixed">{t("issueRecovery.containment.outcome.mixed", { defaultValue: "Some completed and some not performed" })}</option>
         </NativeSelect>
       </Label>
-      <Label>Original-host containment evidence and actions that must not be repeated
+      <Label>{t("issueRecovery.containment.evidenceLabel", { defaultValue: "Original-host containment evidence and actions that must not be repeated" })}
         <Textarea maxLength={12000} value={evidence} onChange={event => setEvidence(event.target.value)} />
       </Label>
-      <p>If any action outcome is still unknown, keep this hold. After evidence and cleanup settle, use the task’s ordinary Retry action separately.</p>
+      <p>{t("issueRecovery.containment.keepHold", { defaultValue: "If any action outcome is still unknown, keep this hold. After evidence and cleanup settle, use the task’s ordinary Retry action separately." })}</p>
       <Button disabled={submit.isPending || !controllerStopped || !providerStopped || !outcome || evidence.trim().length < 20}
-        onClick={() => submit.mutate()}>{submit.isPending ? "Recording…" : "Record containment"}</Button>
+        onClick={() => submit.mutate()}>{submit.isPending ? t("issueRecovery.containment.recording", { defaultValue: "Recording…" }) : t("issueRecovery.containment.record", { defaultValue: "Record containment" })}</Button>
       {submit.error && <p role="alert">{describeError(submit.error).body}</p>}
-    </> : <p>A company owner, company administrator, or instance administrator must review this original-host execution.</p>}
+    </> : <p>{t("issueRecovery.containment.needsAdmin", { defaultValue: "A company owner, company administrator, or instance administrator must review this original-host execution." })}</p>}
   </section>;
 }

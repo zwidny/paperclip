@@ -1,7 +1,7 @@
 import { groupImageResources } from "./image-resources";
 import { AgentQueueWait } from "@/components/AgentQueueWait";
 import { agentQueueWaitOf } from "@/lib/agent-queue-wait";
-import { WAITING_TO_START_LABEL, useWaitingToStart } from "./useWaitingToStart";
+import { useWaitingToStart } from "./useWaitingToStart";
 import { McpAppTurnViews, mcpAppRunRefreshKey } from "@/components/mcp-app/McpAppTurnViews";
 import { ToolCallProgressRunProvider } from "./tool-call-progress";
 import { useRef, type ReactNode } from "react";
@@ -31,7 +31,7 @@ import {
   paperclipRunnerFinalResponse,
   paperclipRunnerTimelineItems,
 } from "./transcript-adapter";
-import { useTranslation } from "../../i18n";
+import { i18n, useTranslation } from "../../i18n";
 
 function currentActivityStatusItems(
   items: readonly TaskChatItem[],
@@ -148,7 +148,7 @@ function runnerWaitingLabel({ runId, status, execution, preparationLabel }: Runn
   if (execution?.phase === "waiting_for_provider") return execution.label;
   if (!runId && preparationLabel) return preparationLabel;
   if (status === "queued" && execution?.cause) return execution.label;
-  return waitingToStart ? WAITING_TO_START_LABEL : null;
+  return waitingToStart ? i18n.t("taskChat.waitingToStart", { defaultValue: "Waiting to start" }) : null;
 }
 
 /** A run's queued turn with no named hold, past the startup grace period. */

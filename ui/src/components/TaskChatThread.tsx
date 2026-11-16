@@ -1,4 +1,4 @@
-import { useTranslation } from "../i18n";
+import { i18n, useTranslation } from "../i18n";
 import { imagePreparationReceiptIds } from "./task-chat/image-resources";
 import type { ScrollingHistory } from "@/components/task-chat/TaskMessageScroller";
 import { TaskChatShimmerScope } from "@/components/task-chat/TaskChatShimmer";
@@ -481,26 +481,26 @@ function durableInputLabel(
   interaction: TaskChatInteractionItem["interaction"],
 ): string {
   if (interaction.kind === "ask_user_questions")
-    return interaction.title ?? "Questions";
+    return interaction.title ?? i18n.t("taskChat.kindQuestions", { defaultValue: "Questions" });
   if (interaction.kind === "suggest_tasks")
-    return interaction.title ?? "Suggested tasks";
+    return interaction.title ?? i18n.t("taskChat.suggestedTasks", { defaultValue: "Suggested tasks" });
   if (interaction.kind === "request_checkbox_confirmation")
-    return interaction.title ?? "Choose options";
+    return interaction.title ?? i18n.t("taskChat.kindChooseOptions", { defaultValue: "Choose options" });
   if (interaction.kind === "request_item_verdicts")
-    return interaction.title ?? "Review items";
+    return interaction.title ?? i18n.t("taskChat.kindReviewItems", { defaultValue: "Review items" });
   if (interaction.kind === "connection_intent")
-    return interaction.title ?? "Connect service";
+    return interaction.title ?? i18n.t("taskChat.kindConnectService", { defaultValue: "Connect service" });
   if (
     interaction.payload.target?.type === "issue_document" &&
     interaction.payload.target.key === "plan"
   ) {
-    return interaction.title ?? "Review plan";
+    return interaction.title ?? i18n.t("taskChat.kindReviewPlan", { defaultValue: "Review plan" });
   }
   if (interaction.payload.toolAction)
-    return interaction.title ?? "Approve tool action";
+    return interaction.title ?? i18n.t("taskChat.kindApproveToolAction", { defaultValue: "Approve tool action" });
   if (interaction.payload.secretProposal)
-    return interaction.title ?? "Review secret proposal";
-  return interaction.title ?? "Confirmation";
+    return interaction.title ?? i18n.t("taskChat.kindReviewSecretProposal", { defaultValue: "Review secret proposal" });
+  return interaction.title ?? i18n.t("taskChat.kindConfirmation", { defaultValue: "Confirmation" });
 }
 
 /**
@@ -3457,7 +3457,7 @@ export function TaskChatThread(props: TaskChatThreadProps) {
                           </div>
                         ) : null}
                         <div role={historyPending ? "status" : undefined} className="px-3 py-10 text-center text-sm text-muted-foreground">
-                          {historyPending ? "Loading task history…" : resolvedEmptyMessage}
+                          {historyPending ? t("taskChatThread.loadingTaskHistory", { defaultValue: "Loading task history…" }) : resolvedEmptyMessage}
                         </div>
                         {bottomBlockerLinks ? (
                           <div

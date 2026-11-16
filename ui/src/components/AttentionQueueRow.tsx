@@ -15,6 +15,7 @@ import { accessApi } from "../api/access";
 import { approvalsApi } from "../api/approvals";
 import { issuesApi } from "../api/issues";
 import { getAdapterLabel } from "../adapters/adapter-display-registry";
+import { i18n, useTranslation } from "../i18n";
 import { queryKeys } from "../lib/queryKeys";
 import { ApprovalCardPanel } from "./ApprovalCardPanel";
 import { DecisionCardFooter } from "./DecisionCardFooter";
@@ -127,6 +128,7 @@ export const AttentionQueueRow = memo(function AttentionQueueRow({
   selected = false,
   evidence,
 }: AttentionQueueRowProps) {
+  const { t } = useTranslation();
   const meta = sourceMeta(item.sourceKind);
   // Colour + glyph are borrowed wholesale from the task status system, so a
   // blocking decision reads exactly like a blocked task (DESIGN.md principle 5).
@@ -185,12 +187,12 @@ export const AttentionQueueRow = memo(function AttentionQueueRow({
     <button
       type="button"
       className="inline-flex shrink-0 items-center gap-1 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground focus-visible:ring-ring focus-visible:ring-(length:--rad-3) focus-visible:outline-none"
-      aria-label={expanded ? "Collapse decision" : "Expand decision"}
+      aria-label={expanded ? t("attentionQueueRow.collapseDecision", { defaultValue: "Collapse decision" }) : t("attentionQueueRow.expandDecision", { defaultValue: "Expand decision" })}
       aria-expanded={expanded}
       onClick={activate}
     >
       {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-      {expanded ? "See less" : "See more"}
+      {expanded ? t("attentionQueueRow.seeLess", { defaultValue: "See less" }) : t("attentionQueueRow.seeMore", { defaultValue: "See more" })}
     </button>
   ) : null;
 
@@ -488,6 +490,7 @@ function CompactDecisionActions({
   audience: InteractionAudienceDescription | null;
   onOpen: () => void;
 }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { pushToast } = useToastActions();
   const actions = collectCompactActions(item);
@@ -506,11 +509,11 @@ function CompactDecisionActions({
       }
       if (item.sourceKind === "issue_thread_interaction") {
         const issueId = item.subject.metadata?.issueId;
-        if (typeof issueId !== "string") throw new Error("Missing issue reference for this decision.");
+        if (typeof issueId !== "string") throw new Error(t("attentionQueueRow.missingIssueReference", { defaultValue: "Missing issue reference for this decision." }));
         if (action === "accept") return issuesApi.acceptInteraction(issueId, item.subject.id);
         return issuesApi.rejectInteraction(issueId, item.subject.id);
       }
-      throw new Error("This decision must be completed from its detail view.");
+      throw new Error(t("attentionQueueRow.decisionNeedsDetailView", { defaultValue: "This decision must be completed from its detail view." }));
     },
     onSuccess: (_result, action) => {
       // Task detail, chat and the approval page show the same record.
@@ -524,7 +527,7 @@ function CompactDecisionActions({
       // A policy denial is permanent, so it keeps the server's reason and names
       // the real responder instead of asking for a retry that will fail again.
       pushToast({
-        title: `Could not ${decisionLabel(action)}`,
+        title: t("attentionQueueRow.couldNot", { defaultValue: "Could not {{verb}}", verb: decisionLabel(action) }),
         body: interactionResolutionErrorMessage(error, audience),
         tone: "error",
       });
@@ -534,7 +537,7 @@ function CompactDecisionActions({
   if (actions.length === 0) return null;
 
   return (
-    <div className="flex w-full flex-wrap items-center gap-2 @xl:w-auto @xl:justify-end @xl:gap-1" aria-label="Decision actions">
+    <div className="flex w-full flex-wrap items-center gap-2 @xl:w-auto @xl:justify-end @xl:gap-1" aria-label={t("attentionQueueRow.decisionActions", { defaultValue: "Decision actions" })}>
       {actions.map(({ action, id, label, description }) => (
         <Button
           key={id}
@@ -561,15 +564,18 @@ function CompactDecisionActions({
 }
 
 function decisionLabel(action: CompactDecisionAction): string {
-  if (action === "request_revision") return "sent for revision";
-  if (action === "accept" || action === "approve") return "approved";
-  return "rejected";
+  if (action === "request_revision") return i18n.t("attentionQueueRow.decisionVerb.sentForRevision", { defaultValue: "sent for revision" });
+  if (action === "accept" || action === "approve") return i18n.t("attentionQueueRow.decisionVerb.approved", { defaultValue: "approved" });
+  return i18n.t("attentionQueueRow.decisionVerb.rejected", { defaultValue: "rejected" });
 }
 
 function compactDecisionSuccessLabel(sourceKind: AttentionItem["sourceKind"], action: CompactDecisionAction): string {
-  if (sourceKind === "approval") return `Approval ${decisionLabel(action)}`;
-  if (sourceKind === "join_request") return `Join request ${decisionLabel(action)}`;
-  return action === "accept" ? "Confirmation accepted" : "Confirmation declined";
+  const verb = decisionLabel(action);
+  if (sourceKind === "approval") return i18n.t("attentionQueueRow.success.approval", { defaultValue: "Approval {{verb}}", verb });
+  if (sourceKind === "join_request") return i18n.t("attentionQueueRow.success.joinRequest", { defaultValue: "Join request {{verb}}", verb });
+  return action === "accept"
+    ? i18n.t("attentionQueueRow.success.confirmationAccepted", { defaultValue: "Confirmation accepted" })
+    : i18n.t("attentionQueueRow.success.confirmationDeclined", { defaultValue: "Confirmation declined" });
 }
 
 function decisionVerbVariant(verb: AttentionItem["decisionVerbs"][number]): "default" | "outline" | "destructive" {
@@ -704,6 +710,7 @@ function InlineResolver({
   userLabelMap?: ReadonlyMap<string, string> | null;
   toggle: ReactNode;
 }) {
+  const { t } = useTranslation();
   if (item.sourceKind === "decision") {
     return (
       <DecisionResolver
@@ -718,7 +725,7 @@ function InlineResolver({
   if (item.sourceKind === "issue_thread_interaction") {
     const issueId = (item.subject.metadata?.issueId as string | undefined) ?? item.relatedIssue?.id;
     if (!issueId) {
-      return <p className="text-xs text-muted-foreground">Missing issue reference for this decision.</p>;
+      return <p className="text-xs text-muted-foreground">{t("attentionQueueRow.missingIssueReference", { defaultValue: "Missing issue reference for this decision." })}</p>;
     }
     return (
       <>
@@ -799,9 +806,10 @@ export function ApprovalResolver({ item, companyId, toggle, onResolved, shareDra
   /** Card only: opens the full request (the side panel). No button without it. */
   onViewDetails?: () => void;
 }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [actionError, setActionError] = useState<string | null>(null);
-  const onError = (error: unknown) => setActionError(error instanceof Error ? error.message : "The decision could not be saved.");
+  const onError = (error: unknown) => setActionError(error instanceof Error ? error.message : t("attentionQueueRow.decisionSaveFailed", { defaultValue: "The decision could not be saved." }));
   // Keyed by the request's last (re)submission: a revised request starts clean.
   const draftKey = shareDraft ? reviseDraftKey(`approval:${item.subject.id}`, item.updatedAt) : null;
   const [sharedDraft, updateSharedDraft] = useReviseDraft(draftKey);
@@ -811,7 +819,7 @@ export function ApprovalResolver({ item, companyId, toggle, onResolved, shareDra
   const invalidate = () => { if (draftKey) clearReviseDraft(draftKey); invalidateAttentionRecordViews(queryClient, companyId, item); onResolved?.(); };
   const send = (work: ReviseDraftWork, request: (note?: string) => Promise<unknown>) => async () => {
     // The other view is already sending this approval: never send it twice.
-    if (draftKey && !claimReviseDraftWork(draftKey, work)) throw new Error("This approval is already being sent.");
+    if (draftKey && !claimReviseDraftWork(draftKey, work)) throw new Error(t("attentionQueueRow.approvalAlreadySending", { defaultValue: "This approval is already being sent." }));
     try {
       return await request(note.trim() || undefined);
     } finally {
@@ -847,14 +855,14 @@ export function ApprovalResolver({ item, companyId, toggle, onResolved, shareDra
       {footerContext}
       {actionError ? <p role="alert" className="text-sm text-destructive">{actionError}</p> : null}
       <DecisionCardFooter leading={toggle}>
-        {onViewDetails ? <Button size="sm" variant="ghost" onClick={onViewDetails}>{hire ? "View configuration" : "View details"}</Button> : null}
+        {onViewDetails ? <Button size="sm" variant="ghost" onClick={onViewDetails}>{hire ? t("attentionQueueRow.viewConfiguration", { defaultValue: "View configuration" }) : t("attentionQueueRow.viewDetails", { defaultValue: "View details" })}</Button> : null}
         <Button size="sm" variant="outline" onClick={() => reject.mutate()} disabled={pending}>
           {working === "reject" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-          Reject
+          {t("attentionQueueRow.reject", { defaultValue: "Reject" })}
         </Button>
         <Button size="sm" onClick={() => approve.mutate()} disabled={pending}>
           {working === "accept" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-          {hire ? "Approve hire" : "Approve"}
+          {hire ? t("attentionQueueRow.approveHire", { defaultValue: "Approve hire" }) : t("attentionQueueRow.approve", { defaultValue: "Approve" })}
         </Button>
       </DecisionCardFooter>
     </>;
@@ -868,22 +876,22 @@ export function ApprovalResolver({ item, companyId, toggle, onResolved, shareDra
       <Textarea
         value={note}
         onChange={(e) => setNote(e.target.value)}
-        placeholder="Optional decision note…"
+        placeholder={t("attentionQueueRow.optionalNote", { defaultValue: "Optional decision note…" })}
         className="min-h-16 text-sm"
         disabled={pending}
       />
       <ResolverFooter toggle={toggle}>
         <Button size="sm" variant="outline" onClick={() => revise.mutate()} disabled={pending}>
           {working === "revise" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-          Request revision
+          {t("attentionQueueRow.requestRevision", { defaultValue: "Request revision" })}
         </Button>
         <Button size="sm" variant="destructive" onClick={() => reject.mutate()} disabled={pending}>
           {working === "reject" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-          Reject
+          {t("attentionQueueRow.reject", { defaultValue: "Reject" })}
         </Button>
         <Button size="sm" onClick={() => approve.mutate()} disabled={pending}>
           {working === "accept" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-          Approve
+          {t("attentionQueueRow.approve", { defaultValue: "Approve" })}
         </Button>
       </ResolverFooter>
     </>
@@ -899,9 +907,10 @@ export function JoinRequestResolver({ item, companyId, toggle, onResolved, prese
   /** "card": the Needs You card (who is asking, then Decline · Approve access); "panel" (default): Reject · Approve. */
   presentation?: "card" | "panel";
 }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [actionError, setActionError] = useState<string | null>(null);
-  const onError = (error: unknown) => setActionError(error instanceof Error ? error.message : "The join request could not be saved.");
+  const onError = (error: unknown) => setActionError(error instanceof Error ? error.message : t("attentionQueueRow.joinRequestSaveFailed", { defaultValue: "The join request could not be saved." }));
   const invalidate = () => { invalidateAttentionRecordViews(queryClient, companyId, item); onResolved?.(); };
   const approve = useMutation({
     mutationFn: () => accessApi.approveJoinRequest(companyId, item.subject.id),
@@ -922,19 +931,19 @@ export function JoinRequestResolver({ item, companyId, toggle, onResolved, prese
     const adapter = typeof item.subject.metadata?.adapterType === "string" ? item.subject.metadata.adapterType : null;
     return <>
       <NeedsYouPanel>
-        <NeedsYouPanelRow icon={agent ? <Bot /> : <UserRound />} title={item.subject.title ?? "Join request"}
-          meta={agent ? ["Agent access", adapter ? getAdapterLabel(adapter) : null].filter(Boolean).join(" · ") : "Member access"} />
-        <NeedsYouPanelNote>{agent ? "Approval adds this agent to the company." : "Approval adds them to the company as a member."}</NeedsYouPanelNote>
+        <NeedsYouPanelRow icon={agent ? <Bot /> : <UserRound />} title={item.subject.title ?? t("attentionQueueRow.joinRequest", { defaultValue: "Join request" })}
+          meta={agent ? [t("attentionQueueRow.agentAccess", { defaultValue: "Agent access" }), adapter ? getAdapterLabel(adapter) : null].filter(Boolean).join(" · ") : t("attentionQueueRow.memberAccess", { defaultValue: "Member access" })} />
+        <NeedsYouPanelNote>{agent ? t("attentionQueueRow.approvalAddsAgent", { defaultValue: "Approval adds this agent to the company." }) : t("attentionQueueRow.approvalAddsMember", { defaultValue: "Approval adds them to the company as a member." })}</NeedsYouPanelNote>
       </NeedsYouPanel>
       {actionError ? <p role="alert" className="text-sm text-destructive">{actionError}</p> : null}
       <DecisionCardFooter leading={toggle}>
         <Button size="sm" variant="ghost" onClick={() => reject.mutate()} disabled={pending}>
           {reject.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-          Decline
+          {t("attentionQueueRow.decline", { defaultValue: "Decline" })}
         </Button>
         <Button size="sm" onClick={() => approve.mutate()} disabled={pending}>
           {approve.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-          Approve access
+          {t("attentionQueueRow.approveAccess", { defaultValue: "Approve access" })}
         </Button>
       </DecisionCardFooter>
     </>;
@@ -946,11 +955,11 @@ export function JoinRequestResolver({ item, companyId, toggle, onResolved, prese
     <ResolverFooter toggle={toggle}>
       <Button size="sm" variant="destructive" onClick={() => reject.mutate()} disabled={pending}>
         {reject.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-        Reject
+        {t("attentionQueueRow.reject", { defaultValue: "Reject" })}
       </Button>
       <Button size="sm" onClick={() => approve.mutate()} disabled={pending}>
         {approve.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-        Approve
+        {t("attentionQueueRow.approve", { defaultValue: "Approve" })}
       </Button>
     </ResolverFooter>
     </>

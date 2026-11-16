@@ -280,7 +280,7 @@ import {
 import { SourceTrustBadge } from "./SourceTrustBadge";
 import { CommentAttributionChip } from "./CommentAttributionChip";
 import { resolveCommentAttribution } from "../lib/comment-attribution";
-import { useTranslation } from "../i18n";
+import { useTranslation, i18n as i18nInstance } from "../i18n";
 
 interface IssueChatMessageContext {
   feedbackDataSharingPreference: FeedbackDataSharingPreference;
@@ -854,22 +854,22 @@ export function IssueAssigneePausedNotice({
           compact
           title={
             <>
-              <span className="font-medium">{agent.name}</span> is still being set up.
+              <span className="font-medium">{agent.name}</span> {t("chat.stillBeingSetUpSuffix", { defaultValue: "is still being set up." })}
             </>
           }
           actions={
             stillPreparing ? undefined : (
               <Button size="sm" variant="outline" asChild>
                 <Link to={agentUrl(agent)} data-testid="issue-assignee-finish-setup">
-                  Finish setup
+                  {t("chatDetail.finishSetup", { defaultValue: "Finish setup" })}
                 </Link>
               </Button>
             )
           }
         >
           {stillPreparing
-            ? "Its computer is being prepared. Runs start automatically when setup finishes."
-            : "Its setup isn't finished yet. Finish setup to let it start runs."}
+            ? t("chat.setupPreparingBody", { defaultValue: "Its computer is being prepared. Runs start automatically when setup finishes." })
+            : t("chat.setupUnfinishedBody", { defaultValue: "Its setup isn't finished yet. Finish setup to let it start runs." })}
         </InlineBanner>
       </div>
     );
@@ -886,11 +886,11 @@ export function IssueAssigneePausedNotice({
               "It arrived paused from an organization import — imported agents stay parked until you resume them.",
           })
         : agent.pauseReason === "system"
-          ? "It was paused by the system."
+          ? t("chat.pausedSystem", { defaultValue: "It was paused by the system." })
           : agent.pauseReason === "company_archived"
-            ? "It was paused because its company is archived."
+            ? t("chat.pausedCompanyArchived", { defaultValue: "It was paused because its company is archived." })
             : agent.pauseReason === "manual"
-              ? "It was paused manually."
+              ? t("chat.pausedManual", { defaultValue: "It was paused manually." })
               : "";
   // Budget pauses clear on their own when the budget resets and archive pauses
   // clear when the company is restored; resuming by hand would fight either, so
@@ -1233,7 +1233,7 @@ export function SuccessfulRunHandoffCommentCallout({
 }
 
 function humanizeValue(value: string | null) {
-  if (!value) return "None";
+  if (!value) return i18nInstance.t("chat.valueNone", { defaultValue: "None" });
   return value.replace(/_/g, " ");
 }
 
@@ -2475,7 +2475,7 @@ function IssueChatAssistantMessage({
       ? custom.authorName
       : typeof custom.runAgentName === "string"
         ? custom.runAgentName
-        : "Agent";
+        : i18nInstance.t("chat.agentFallback", { defaultValue: "Agent" });
   const authorAgentId =
     typeof custom.authorAgentId === "string" ? custom.authorAgentId : null;
   const runId = typeof custom.runId === "string" ? custom.runId : null;
@@ -3078,11 +3078,11 @@ function IssueChatFeedbackButtons({
           <div className="space-y-3 text-sm text-muted-foreground">
             <p>{t("chat.voteLocal", { defaultValue: "This vote is always saved locally." })}</p>
             <p>
-              Choose{" "}
+              {t("chat.feedbackShareChoicePrefix", { defaultValue: "Choose" })}{" "}
               <span className="font-medium text-foreground">{t("chat.alwaysAllow", { defaultValue: "Always allow" })}</span>{" "}
-              to share this vote and future voted AI outputs. Choose{" "}
+              {t("chat.feedbackShareChoiceShare", { defaultValue: "to share this vote and future voted AI outputs. Choose" })}{" "}
               <span className="font-medium text-foreground">{t("chat.dontAllow", { defaultValue: "Don't allow" })}</span>{" "}
-              to keep this vote and future votes local.
+              {t("chat.feedbackShareChoiceLocal", { defaultValue: "to keep this vote and future votes local." })}
             </p>
             <p>{t("chat.changeLater", { defaultValue: "You can change this later in Settings > General." })}</p>
             {termsUrl ? (
@@ -4738,7 +4738,7 @@ function IssueChatDeletedComment({
       </div>
       <div className="min-w-0 rounded-md border border-dashed border-border bg-muted/20 px-3 py-2 text-sm text-muted-foreground">
         <span className="font-medium text-foreground/80">{authorName}</span>
-        <span> deleted this comment</span>
+        <span> {i18nInstance.t("chat.deletedThisComment", { defaultValue: "deleted this comment" })}</span>
         {deletedDateLabel ? (
           <span className="text-xs"> · {deletedDateLabel}</span>
         ) : null}

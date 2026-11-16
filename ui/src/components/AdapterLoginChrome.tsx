@@ -12,6 +12,7 @@ import {
   COPIED_REVEAL_DELAY_MS,
   COPIED_REVEAL_TRAVEL,
 } from "./onboarding/onboarding-motion";
+import { useTranslation } from "../i18n";
 
 /**
  * Which shell a login panel draws itself in.
@@ -90,12 +91,13 @@ export function OnboardingLoginCard({
   loading?: boolean;
   children: ReactNode;
 }) {
+  const { t } = useTranslation();
   if (loading) {
     return (
       <div
         className="flex min-h-(--sz-108px) items-center justify-center rounded-xl bg-muted/40"
         role="status"
-        aria-label="Preparing the sign-in"
+        aria-label={t("adapterLogin.preparingSignIn", { defaultValue: "Preparing the sign-in" })}
       >
         <Loader2 className="size-4 animate-spin text-muted-foreground" />
       </div>
@@ -225,6 +227,7 @@ export function OnboardingLoginCodeRow({
   code: string;
   autoCopy?: boolean;
 }) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoCopiedRef = useRef(false);
@@ -305,13 +308,13 @@ export function OnboardingLoginCodeRow({
             animate={{ opacity: 1, y: 0, transition: COPIED_REVEAL }}
             exit={{ opacity: 0, transition: COPIED_REVEAL }}
           >
-            Copied!
+            {t("adapterLogin.copied", { defaultValue: "Copied!" })}
           </motion.span>
         )}
       </AnimatePresence>
       <LoginCardCopyButton
         value={code}
-        label="Copy the code"
+        label={t("adapterLogin.copyCode", { defaultValue: "Copy the code" })}
         onCopied={() => {
           // No wait here. A press is a direct action, and delaying its
           // acknowledgement would read as the button having missed.
@@ -361,8 +364,8 @@ export function OnboardingCardField({
   onSubmit,
   onPaste,
   disabled,
-  label = "Authorization code",
-  placeholder = "Paste authorization code here",
+  label,
+  placeholder,
   masked = false,
   autoFocus = false,
 }: {
@@ -390,15 +393,18 @@ export function OnboardingCardField({
    */
   autoFocus?: boolean;
 }) {
+  const { t } = useTranslation();
+  const resolvedLabel = label ?? t("adapterLogin.authorizationCode", { defaultValue: "Authorization code" });
+  const resolvedPlaceholder = placeholder ?? t("adapterLogin.pasteCode", { defaultValue: "Paste authorization code here" });
   return (
     <input
       // eslint-disable-next-line jsx-a11y/no-autofocus -- see the prop's note
       autoFocus={autoFocus}
-      aria-label={label}
+      aria-label={resolvedLabel}
       type={masked ? "password" : "text"}
       autoComplete="off"
       spellCheck={false}
-      placeholder={placeholder}
+      placeholder={resolvedPlaceholder}
       value={value}
       disabled={disabled}
       onChange={(event) => onChange(event.target.value)}
@@ -436,10 +442,11 @@ export function ProviderSubscriptionCard({
   loading?: boolean;
   children: ReactNode;
 }) {
+  const { t } = useTranslation();
   return (
     <OnboardingLoginCard
       loading={loading}
-      instruction={failure ? (failure === "expired" ? "This sign-in expired" : "Sign-in didn’t finish") : (
+      instruction={failure ? (failure === "expired" ? t("adapterLogin.signInExpired", { defaultValue: "This sign-in expired" }) : t("adapterLogin.signInIncomplete", { defaultValue: "Sign-in didn’t finish" })) : (
         <>
           <a
             href={authorizationUrl}
@@ -452,19 +459,19 @@ export function ProviderSubscriptionCard({
             rel="noreferrer noopener"
             className="underline underline-offset-2 hover:text-foreground"
           >
-            Sign in to {providerName}
+            {t("adapterLogin.signInTo", { defaultValue: "Sign in to {{provider}}", provider: providerName })}
           </a>
-          {mode === "browser_redirect" ? " then return here"
+          {mode === "browser_redirect" ? t("adapterLogin.thenReturnHere", { defaultValue: " then return here" })
             : mode === "submitted_code"
-            ? " then come back and enter authorization code"
-            : " by providing the authorization code below"}
+            ? t("adapterLogin.thenEnterCode", { defaultValue: " then come back and enter authorization code" })
+            : t("adapterLogin.byProvidingCode", { defaultValue: " by providing the authorization code below" })}
         </>
       )}
     >
       {failure && (
         <div className="flex flex-col items-start gap-3 px-2">
-          <p role="alert" className="text-sm text-muted-foreground">{failureMessage ?? "Retry sign-in to get a fresh code. Your setup is saved."}</p>
-          {onRetry && <Button type="button" variant="outline" onClick={onRetry}>Retry sign-in</Button>}
+          <p role="alert" className="text-sm text-muted-foreground">{failureMessage ?? t("adapterLogin.retryHint", { defaultValue: "Retry sign-in to get a fresh code. Your setup is saved." })}</p>
+          {onRetry && <Button type="button" variant="outline" onClick={onRetry}>{t("adapterLogin.retrySignIn", { defaultValue: "Retry sign-in" })}</Button>}
         </div>
       )}
       {children}
@@ -478,11 +485,12 @@ export function ProviderApiKeyCard({
 }: Omit<Parameters<typeof OnboardingCardField>[0], "masked" | "label"> & {
   providerName: string;
 }) {
+  const { t } = useTranslation();
   return (
     <OnboardingLoginCard
-      instruction={`Provide your ${providerName} API key to connect`}
+      instruction={t("adapterLogin.provideApiKey", { defaultValue: `Provide your ${providerName} API key to connect`, provider: providerName })}
     >
-      <OnboardingCardField {...field} label="API key" masked />
+      <OnboardingCardField {...field} label={t("adapterLogin.apiKey", { defaultValue: "API key" })} masked />
     </OnboardingLoginCard>
   );
 }
@@ -492,6 +500,7 @@ export function LocalProviderLoginInstructions({ adapterType, login }: {
   adapterType: string;
   login?: { isolated?: boolean; command?: string; authorizationUrl?: string | null; code?: string | null; accountLabel?: string | null; submitCode?: (code: string) => Promise<void>; preparing: boolean; status?: "ready" | "sign_in_required" | "expired" | null; error: string | null; retry: () => void };
 }) {
+  const { t } = useTranslation();
   const [showCommand, setShowCommand] = useState(false);
   const [browserCode, setBrowserCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -511,14 +520,14 @@ export function LocalProviderLoginInstructions({ adapterType, login }: {
       setSubmitting(false);
     }
   }
-  if (login?.preparing) return <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" />Preparing sign-in…</p>;
+  if (login?.preparing) return <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" />{t("adapterLogin.preparingSignInEllipsis", { defaultValue: "Preparing sign-in…" })}</p>;
   const ready = login?.status === "ready";
   return <div className="min-w-0 max-w-full space-y-3 text-sm text-muted-foreground">
     {ready ? <>
-      <p role="status" className="flex items-center gap-2 text-foreground"><Check className="size-4 shrink-0 text-(--status-task-icon-done)" />{login?.accountLabel ?? provider} is signed in. Click Connect to use this account.</p>
-      {!showCommand && <button type="button" className="underline underline-offset-4" onClick={() => browserLogin ? login?.retry() : setShowCommand(true)}>Use a different account</button>}
-    </> : !browserLogin && <p>{isolated ? `Sign in to ${provider} for this connection on the machine running Paperclip. Your existing terminal login stays separate.` : `Connect uses your local ${provider} account on the machine running Paperclip.`}</p>}
-    {browserLogin && !ready && !login?.authorizationUrl && !login?.error && <p role="status">Preparing browser sign-in…</p>}
+      <p role="status" className="flex items-center gap-2 text-foreground"><Check className="size-4 shrink-0 text-(--status-task-icon-done)" />{t("adapterLogin.signedIn", { defaultValue: "{{provider}} is signed in. Click Connect to use this account.", provider: login?.accountLabel ?? provider })}</p>
+      {!showCommand && <button type="button" className="underline underline-offset-4" onClick={() => browserLogin ? login?.retry() : setShowCommand(true)}>{t("adapterLogin.useDifferentAccount", { defaultValue: "Use a different account" })}</button>}
+    </> : !browserLogin && <p>{isolated ? t("adapterLogin.isolatedSignIn", { defaultValue: `Sign in to ${provider} for this connection on the machine running Paperclip. Your existing terminal login stays separate.`, provider }) : t("adapterLogin.localAccount", { defaultValue: `Connect uses your local ${provider} account on the machine running Paperclip.`, provider })}</p>}
+    {browserLogin && !ready && !login?.authorizationUrl && !login?.error && <p role="status">{t("adapterLogin.preparingBrowserSignIn", { defaultValue: "Preparing browser sign-in…" })}</p>}
     {browserLogin && !ready && !login?.error && login?.authorizationUrl && <ProviderSubscriptionCard
       providerName={connectSourceName(adapterType)}
       authorizationUrl={login.authorizationUrl}
@@ -531,17 +540,17 @@ export function LocalProviderLoginInstructions({ adapterType, login }: {
           onSubmit={() => void submitBrowserCode()}
           disabled={submitting}
         />
-        <Button type="button" disabled={!browserCode.trim() || submitting} onClick={() => void submitBrowserCode()}>Submit code</Button>
-      </div> : adapterType === "antigravity_runtime" ? <p>Finish signing in in the Google browser window, then return here.</p> : <OnboardingLoginCodeRow code={login.code ?? ""} />}
+        <Button type="button" disabled={!browserCode.trim() || submitting} onClick={() => void submitBrowserCode()}>{t("adapterLogin.submitCode", { defaultValue: "Submit code" })}</Button>
+      </div> : adapterType === "antigravity_runtime" ? <p>{t("adapterLogin.finishGoogleSignIn", { defaultValue: "Finish signing in in the Google browser window, then return here." })}</p> : <OnboardingLoginCodeRow code={login.code ?? ""} />}
     </ProviderSubscriptionCard>}
     {!browserLogin && (!ready || showCommand) && !login?.error && <>
-      <p>Run this in a terminal on that machine and finish signing in in your browser. We’ll check automatically when you return.</p>
+      <p>{t("adapterLogin.runInTerminal", { defaultValue: "Run this in a terminal on that machine and finish signing in in your browser. We’ll check automatically when you return." })}</p>
       {command && <div className="flex min-w-0 max-w-full items-start gap-2 rounded-md border bg-muted p-3 text-foreground">
         <pre className="min-w-0 flex-1 whitespace-pre-wrap break-all font-mono text-xs"><code>{command}</code></pre>
-        <LoginCardCopyButton value={command} label="Copy sign-in command" />
+        <LoginCardCopyButton value={command} label={t("adapterLogin.copySignInCommand", { defaultValue: "Copy sign-in command" })} />
       </div>}
     </>}
     {login?.error && <p role="alert">{login.error}</p>}
-    {login && !login.preparing && !ready && (isolated || login.error) && <button type="button" className="underline underline-offset-4" onClick={login.retry}>{isolated ? "Start sign-in again" : "Check again"}</button>}
+    {login && !login.preparing && !ready && (isolated || login.error) && <button type="button" className="underline underline-offset-4" onClick={login.retry}>{isolated ? t("adapterLogin.startSignInAgain", { defaultValue: "Start sign-in again" }) : t("adapterLogin.checkAgain", { defaultValue: "Check again" })}</button>}
   </div>;
 }

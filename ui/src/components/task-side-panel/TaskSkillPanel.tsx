@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button";
 import { queryKeys } from "@/lib/queryKeys";
 import { useNavigate } from "@/lib/router";
 import { parseFrontmatterMarkdown } from "@paperclipai/shared";
+import { useTranslation } from "@/i18n";
 
 export function TaskSkillPanel({ companyId, skillId }: { companyId: string; skillId: string }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const query = useQuery({
     queryKey: queryKeys.companySkills.detail(companyId, skillId),
@@ -21,16 +23,16 @@ export function TaskSkillPanel({ companyId, skillId }: { companyId: string; skil
     return (
       <div className="flex items-center gap-2 py-8 text-sm text-muted-foreground" role="status">
         <Loader2 className="size-4 animate-spin" aria-hidden />
-        Loading skill…
+        {t("taskSkillPanel.loading", { defaultValue: "Loading skill…" })}
       </div>
     );
   }
   if (view.kind === "error") {
     if (view.errorKind === "not_found") {
-      return <div className="py-8 text-sm text-muted-foreground" role="status">Skill no longer available.</div>;
+      return <div className="py-8 text-sm text-muted-foreground" role="status">{t("taskSkillPanel.unavailable", { defaultValue: "Skill no longer available." })}</div>;
     }
     if (view.errorKind === "forbidden") {
-      return <div className="py-8 text-sm text-muted-foreground" role="alert">You do not have access to this skill.</div>;
+      return <div className="py-8 text-sm text-muted-foreground" role="alert">{t("taskSkillPanel.noAccess", { defaultValue: "You do not have access to this skill." })}</div>;
     }
     return (
       <div className="py-6">
@@ -39,7 +41,7 @@ export function TaskSkillPanel({ companyId, skillId }: { companyId: string; skil
     );
   }
   if (!query.data) {
-    return <div className="py-8 text-sm text-muted-foreground" role="status">Skill no longer available.</div>;
+    return <div className="py-8 text-sm text-muted-foreground" role="status">{t("taskSkillPanel.unavailable", { defaultValue: "Skill no longer available." })}</div>;
   }
   const skill = query.data;
   const previewMarkdown = parseFrontmatterMarkdown(skill.markdown).body;
@@ -57,20 +59,20 @@ export function TaskSkillPanel({ companyId, skillId }: { companyId: string; skil
             onClick={() => navigate(`/skills/studio/${encodeURIComponent(skill.id)}`)}
           >
             <ExternalLink className="mr-1.5 size-3.5" aria-hidden />
-            Open in Skill Studio
+            {t("taskSkillPanel.openInSkillStudio", { defaultValue: "Open in Skill Studio" })}
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          {skill.slug} · {skill.currentVersion ? `Revision ${skill.currentVersion.revisionNumber}` : "Current version"}
+          {skill.slug} · {skill.currentVersion ? t("taskSkillPanel.revision", { defaultValue: "Revision {{number}}", number: skill.currentVersion.revisionNumber }) : t("taskSkillPanel.currentVersion", { defaultValue: "Current version" })}
         </p>
       </header>
       {skill.description ? <p className="text-sm text-muted-foreground">{skill.description}</p> : null}
       <section className="space-y-2">
         <h3 className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
           <FileText className="size-3.5" aria-hidden />
-          Skill instructions
+          {t("taskSkillPanel.skillInstructions", { defaultValue: "Skill instructions" })}
         </h3>
-        <MarkdownBody>{previewMarkdown || "Skill instructions are empty."}</MarkdownBody>
+        <MarkdownBody>{previewMarkdown || t("taskSkillPanel.emptyInstructions", { defaultValue: "Skill instructions are empty." })}</MarkdownBody>
       </section>
     </article>
   );

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "@/i18n";
 import { cn } from "@/lib/utils";
 import { hunkLabel } from "./diff-lines";
 import type { TaskChatDiffLine } from "./task-chat-model";
@@ -52,6 +53,7 @@ export function TaskChatDiffView({
   previewLines?: number;
   className?: string;
 }) {
+  const { t } = useTranslation();
   const [showAll, setShowAll] = useState(false);
   const visible = showAll ? lines : lines.slice(0, previewLines);
   const hidden = lines.length - visible.length;
@@ -121,7 +123,7 @@ export function TaskChatDiffView({
               Show {hidden} more {hidden === 1 ? "line" : "lines"}
             </button>
           ) : null}
-          {truncated && hidden === 0 ? <span>Diff shortened for display.</span> : null}
+          {truncated && hidden === 0 ? <span>{t("taskChatDiffView.shortened", { defaultValue: "Diff shortened for display." })}</span> : null}
         </div>
       ) : null}
     </div>

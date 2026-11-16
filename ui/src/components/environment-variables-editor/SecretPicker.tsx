@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { CornerUpLeft, Folder, KeyRound, Plus } from "lucide-react";
 import type { CompanySecret, SecretStatus } from "@paperclipai/shared";
 import {
@@ -154,6 +155,7 @@ export function SecretPicker({
   triggerClassName,
   disablePortal,
 }: SecretPickerProps) {
+  const { t } = useTranslation();
   const [currentPathKey, setCurrentPathKey] = useState("");
   const boundSecret = useMemo(
     () => secrets.find((secret) => secret.id === secretId) ?? null,
@@ -253,9 +255,9 @@ export function SecretPicker({
       deriveGroups={deriveGroups}
       disabled={disabled}
       disablePortal={disablePortal}
-      placeholder="Select secret…"
-      searchPlaceholder="Search secrets…"
-      emptyMessage="No matching secrets"
+      placeholder={t("secretPicker.selectSecret", { defaultValue: "Select secret…" })}
+      searchPlaceholder={t("secretPicker.searchSecrets", { defaultValue: "Search secrets…" })}
+      emptyMessage={t("secretPicker.noMatchingSecrets", { defaultValue: "No matching secrets" })}
       triggerClassName={cn(
         "h-(--sz-34px) min-h-(--sz-34px) font-mono text-sm",
         boundMissing && "border-destructive text-destructive",
@@ -264,7 +266,7 @@ export function SecretPicker({
       )}
       renderValue={(option) => {
         if (!option) {
-          return <span className="text-muted-foreground">Select secret…</span>;
+          return <span className="text-muted-foreground">{t("secretPicker.selectSecret", { defaultValue: "Select secret…" })}</span>;
         }
         if (option.missing) {
           return (
@@ -327,7 +329,7 @@ export function SecretPicker({
                     Create secret <span className="font-mono">&ldquo;{query.trim()}&rdquo;</span>…
                   </span>
                 ) : (
-                  <span>Create new secret…</span>
+                  <span>{t("secretPicker.createNewSecret", { defaultValue: "Create new secret…" })}</span>
                 )}
               </span>
             ),

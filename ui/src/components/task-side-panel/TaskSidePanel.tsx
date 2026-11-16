@@ -857,7 +857,7 @@ function TaskSidePanelForScope({
   } else if (activeTab.payload.kind === "artifacts" && conversationAgentId) {
     content = (
       <div className="space-y-4">
-        <section aria-label="Conversation documents">
+        <section aria-label={t("taskSidePanel.conversationDocuments", { defaultValue: "Conversation documents" })}>
           <TaskGeneralDocuments issue={issue} documentEditor={documentEditor ?? {}} />
         </section>
         <AgentArtifactsPanel companyId={issue.companyId} agentId={conversationAgentId} />

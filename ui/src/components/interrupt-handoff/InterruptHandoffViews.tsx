@@ -1,5 +1,6 @@
 import { AlertTriangle, Info, PauseCircle, User, X } from "lucide-react";
 import { cn } from "../../lib/utils";
+import { useTranslation } from "@/i18n";
 import { AgentAvatar, type AvatarAgent } from "../AgentAvatar";
 import {
   classifyAssigneeHandoff,
@@ -56,10 +57,11 @@ export function AssigneeChip({
   resolvers: HandoffChipResolvers;
   className?: string;
 }) {
+  const { t } = useTranslation();
   if (assignee.agentId) {
     return (
       <span className={cn(CHIP_CLASS, className)} data-testid="handoff-assignee-chip" data-kind="agent">
-        <span className="sr-only">Agent </span>
+        <span className="sr-only">{t("interruptHandoffViews.agentSr", { defaultValue: "Agent" })}{" "}</span>
         <AgentAvatar agent={{ ...resolvers.agentMap?.get(assignee.agentId), id: assignee.agentId }} size={16} />
         <span className="max-w-(--sz-12rem) truncate">{agentName(assignee.agentId, resolvers)}</span>
       </span>
@@ -68,7 +70,7 @@ export function AssigneeChip({
   if (assignee.userId) {
     return (
       <span className={cn(CHIP_CLASS, className)} data-testid="handoff-assignee-chip" data-kind="user">
-        <span className="sr-only">User </span>
+        <span className="sr-only">{t("interruptHandoffViews.userSr", { defaultValue: "User" })}{" "}</span>
         <User className="h-3 w-3 shrink-0 text-muted-foreground" />
         <span className="max-w-(--sz-12rem) truncate">{userLabel(assignee.userId, resolvers)}</span>
       </span>
@@ -80,7 +82,7 @@ export function AssigneeChip({
       data-testid="handoff-assignee-chip"
       data-kind="unassigned"
     >
-      <span className="sr-only">No responsible — </span>
+      <span className="sr-only">{t("interruptHandoffViews.noResponsibleSr", { defaultValue: "No responsible —" })}{" "}</span>
       Unassigned
     </span>
   );
@@ -97,6 +99,7 @@ export function HandoffWakeRow({
   resolvers: HandoffChipResolvers;
   interruptedRunAttached?: boolean;
 }) {
+  const { t } = useTranslation();
   const info = classifyAssigneeHandoff(to, {
     agentName: to.agentId ? agentName(to.agentId, resolvers) : null,
     interruptedRunAttached,
@@ -107,7 +110,7 @@ export function HandoffWakeRow({
       data-testid="handoff-wake-row"
       data-kind={info.kind}
     >
-      <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Wake</span>
+      <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t("interruptHandoffViews.wake", { defaultValue: "Wake" })}</span>
       <span className={cn(info.kind === "agent_wake" ? "text-foreground" : "text-muted-foreground")}>
         {info.wakeText}
       </span>
@@ -194,6 +197,7 @@ export function ComposerMentionCoach({
   onInsert: () => void;
   onDismiss: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div
       className="flex items-center gap-2 rounded-md border border-amber-300/40 bg-amber-50/70 px-2 py-1.5 text-xs text-amber-700 dark:bg-amber-500/10 dark:text-amber-300"
@@ -218,7 +222,7 @@ export function ComposerMentionCoach({
         type="button"
         onClick={onDismiss}
         className="shrink-0 rounded p-0.5 hover:bg-amber-100/60 dark:hover:bg-amber-500/20"
-        aria-label="Dismiss suggestion"
+        aria-label={t("interruptHandoffViews.dismissSuggestion", { defaultValue: "Dismiss suggestion" })}
       >
         <X className="h-3.5 w-3.5" aria-hidden />
       </button>
@@ -267,6 +271,7 @@ export function InterruptAssignConfirm({
   onConfirm: () => void;
   onCancel: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div
       data-testid="interrupt-assign-confirm"
@@ -277,7 +282,7 @@ export function InterruptAssignConfirm({
         <div className="min-w-0 flex-1 space-y-1">
           <p className="font-medium">{copy.confirmTitle}</p>
           <p className="flex flex-wrap items-center gap-1 text-amber-700/90 dark:text-amber-300/90">
-            <span>Hand off to</span>
+            <span>{t("interruptHandoffViews.handOffTo", { defaultValue: "Hand off to" })}</span>
             <AssigneeChip assignee={to} resolvers={resolvers} />
           </p>
         </div>
@@ -311,6 +316,7 @@ export function PauseAffectsSummaryView({
   summary: PauseAffectsSummary;
   className?: string;
 }) {
+  const { t } = useTranslation();
   const visibleBuckets = summary.buckets.filter((bucket) => bucket.count > 0);
   return (
     <div
@@ -342,7 +348,7 @@ export function PauseAffectsSummaryView({
           ))}
         </ul>
       ) : (
-        <p className="text-xs text-muted-foreground">No tasks are affected.</p>
+        <p className="text-xs text-muted-foreground">{t("interruptHandoffViews.noTasksAffected", { defaultValue: "No tasks are affected." })}</p>
       )}
     </div>
   );

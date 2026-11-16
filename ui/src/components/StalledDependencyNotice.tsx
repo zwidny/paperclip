@@ -8,6 +8,7 @@ import { queryKeys } from "../lib/queryKeys";
 import { createIssueDetailPath } from "../lib/issueDetailBreadcrumb";
 import { useTaskRetry } from "../hooks/useTaskRetry";
 import { describeError } from "../api/errors";
+import { useTranslation } from "@/i18n";
 
 /**
  * Children and blockers of this task that stopped on a recovery action that
@@ -57,6 +58,7 @@ function StalledDependencyList({ entries }: { entries: IssueBlockerStalledWakeCo
 function StalledDependencyRow({ entry, child, readError, isFetching, refetch }: {
   entry: IssueBlockerStalledWakeContext; child: Issue | undefined; readError: Error | null; isFetching: boolean; refetch: () => void;
 }) {
+  const { t } = useTranslation();
   const ref = entry.stalledIssueIdentifier ?? entry.stalledIssueId;
   const retry = useTaskRetry(child);
   const canRetry = child?.interruption?.canRetry === true;
@@ -87,7 +89,7 @@ function StalledDependencyRow({ entry, child, readError, isFetching, refetch }: 
         <span role="alert" className="basis-full text-xs text-destructive">{describeError(retry.error).body}</span>
       ) : null}
       {retry.takingLonger ? (
-        <span role="status" className="basis-full text-xs text-muted-foreground">Taking longer than usual…</span>
+        <span role="status" className="basis-full text-xs text-muted-foreground">{t("stalledDependencyNotice.takingLonger", { defaultValue: "Taking longer than usual…" })}</span>
       ) : null}
       {canRetry || failed || retry.takingLonger ? (
         <Button

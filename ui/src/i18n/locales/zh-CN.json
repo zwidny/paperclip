@@ -306,7 +306,8 @@
     "out": "输出",
     "close": "关闭",
     "loading": "Loading…",
-    "continue": "继续"
+    "continue": "继续",
+    "selectPlaceholder": "请选择…"
   },
   "auth": {
     "failed": "认证失败",
@@ -935,7 +936,8 @@
       "connection": "连接",
       "connectModel": "连接模型",
       "finishSetup": "完成设置",
-      "defaultEnvironment": "默认：{{environment}}"
+      "defaultEnvironment": "默认：{{environment}}",
+      "cursorCloudExperimental": "实验性功能。Cursor 托管该智能体的执行环境，无需 Paperclip 计算机。Cursor 管理云端命令权限；生效模型不予确认。"
     },
     "backToAgents": "返回 Agents",
     "loadingAgentSetup": "正在加载你的 Agent 设置…",
@@ -1995,7 +1997,8 @@
         "reconnect": "重新连接会验证同一 BotFather 机器人，并自动刷新其 Paperclip webhook 和命令菜单。",
         "remove": "Paperclip 会归档该端点，并排队永久移除其 Telegram webhook 和命令菜单。Telegram 确认清理后，Paperclip 会停用已保存的令牌。BotFather 机器人及其聊天成员资格会保留，直到你在 Telegram 中移除它们。"
       }
-    }
+    },
+    "openSlack": "打开 Slack"
   },
   "profiles": {
     "selectApplication": "选择应用",
@@ -2305,7 +2308,8 @@
     "copied": "已复制",
     "copyAuditHash": "复制审计哈希",
     "copyAuditHashHint": "复制用于标识这些确切参数的哈希",
-    "copyFailed": "复制失败"
+    "copyFailed": "复制失败",
+    "filtersAria": "工具审计筛选器"
   },
   "experimental": {
     "title": "实验性功能",
@@ -2887,7 +2891,15 @@
       "unknown": "未知保管库",
       "inlineDefault": "默认保管库",
       "inlineVault": "保管库",
-      "inlineSummary": "{{label}} · {{status}}"
+      "inlineSummary": "{{label}} · {{status}}",
+      "actionsFor": "{{name}} 的操作",
+      "editConnection": "编辑连接",
+      "checkConnection": "检查连接",
+      "importSecrets": "从中导入密钥",
+      "makeDefault": "设为默认",
+      "enable": "启用",
+      "disable": "禁用",
+      "removeVault": "移除保管库"
     },
     "toast": {
       "secretCreated": "Secret 已创建",
@@ -4719,7 +4731,15 @@
       "webhookWaiting": "正在等待 GitHub 发送其签名的 Webhook ping…",
       "httpsRequired": "在连接 GitHub 之前，请为此 Paperclip 实例配置公开的 HTTPS URL。",
       "reconnectAndVerify": "重新连接并验证",
-      "connectAndVerify": "连接并验证"
+      "connectAndVerify": "连接并验证",
+      "labelWebhooksActive": "Webhooks · 已启用",
+      "labelSslVerification": "启用 SSL 验证",
+      "labelIssues": "议题",
+      "labelPullRequests": "拉取请求",
+      "labelReadWrite": "读取和写入",
+      "labelIssueComment": "议题评论",
+      "labelPullRequestReviewComment": "拉取请求审查评论",
+      "labelOnlyOnThisAccount": "仅此账户"
     },
     "slack": {
       "openAppSettings": "打开 Slack 应用设置",
@@ -4986,7 +5006,8 @@
       "budgetUsedLabel": "已用预算",
       "noMonthlyBudget": "未设置月度预算",
       "ofBudgetThisMonth": "本月额度 {{amount}}",
-      "profile": "资料"
+      "profile": "资料",
+      "eventsThisWeek": "本周事件"
     },
     "auditLink": {
       "activity": "活动",
@@ -7911,7 +7932,8 @@
       "deletedLast": "{{app}} 已不再可供 Agent 使用，其凭据已被删除。再次连接需要新的登录或密钥。",
       "deleteFailedTitle": "无法删除连接",
       "pleaseTryAgain": "请重试。"
-    }
+    },
+    "setupProgress": "设置进度"
   },
   "appIdentities": {
     "loadError": "无法加载此连接的身份。请刷新页面重试。",
@@ -9338,7 +9360,8 @@
     "zoomOut": "缩小",
     "controlsAria": "组织架构图控件",
     "chartCameraAria": "图表视图控制",
-    "tasksLayer": "任务"
+    "tasksLayer": "任务",
+    "fitChartToScreen": "缩放以适配图表"
   },
   "pluginSettings": {
     "about": "关于",
@@ -10295,7 +10318,8 @@
       "test": "测试"
     },
     "openGithubInstallationSettings": "在 GitHub 上打开安装设置",
-    "recentActivity": "最近动态"
+    "recentActivity": "最近动态",
+    "openInstallationSettings": "在 GitHub 上打开安装设置"
   },
   "appNotConnected": {
     "appFallback": "App",
@@ -10986,7 +11010,9 @@
     "keepInQueue": "将此消息保留在队列中",
     "planProgress": "计划进度",
     "showFewer": "收起",
-    "subagentsAria": "子 Agent"
+    "subagentsAria": "子 Agent",
+    "proposedPlan": "提出了一个计划 ·",
+    "patchTooLarge": "此补丁过大，无法在此显示。"
   },
   "runnerGoal": {
     "pendingStarting": "正在启动",
@@ -14635,7 +14661,8 @@
     "claimInstance": "认领此实例",
     "signedInAs": "已登录为 ",
     "wrongAccount": "账户不对？",
-    "switchAccount": "切换账户"
+    "switchAccount": "切换账户",
+    "signInOrCreate": "登录 / 创建账户"
   },
   "frontmatterPanel": {
     "frontmatter": "Frontmatter",
@@ -14913,7 +14940,9 @@
     "clipboardUnavailable": "剪贴板不可用。",
     "copyAgentId": "复制 Agent ID",
     "resetSessions": "重置会话",
-    "terminate": "终止"
+    "terminate": "终止",
+    "chatWith": "与 {{name}} 聊天",
+    "chatWithTitle": "与该智能体聊天"
   },
   "dispositionRecovery": {
     "reasonOpenTask": "打开任务以查看其当前状态。",
@@ -14967,7 +14996,11 @@
       "team": "团队",
       "agent": "Agent",
       "task": "任务"
-    }
+    },
+    "status": "状态",
+    "none": "无",
+    "created": "创建时间",
+    "updated": "更新时间"
   },
   "newProjectDialog": {
     "connectGithub": "连接 GitHub",
@@ -15034,7 +15067,9 @@
     "untrackedServices": "未跟踪的服务",
     "untrackedDescription": "不再匹配当前工作区命令配置的运行中服务。",
     "serviceEmptyMessage": "此工作区未配置任何服务。",
-    "jobEmptyMessage": "此工作区未配置任何单次作业。"
+    "jobEmptyMessage": "此工作区未配置任何单次作业。",
+    "servicesRunning": "{{count}} 个服务运行中",
+    "jobsAvailable": "{{count}} 个任务可按需运行。"
   },
   "artifactUpload": {
     "chooseFilesAria": "选择产物文件",
@@ -15151,7 +15186,8 @@
     },
     "updateFailed": "无法更新技能",
     "disableSkillAria": "禁用 {{name}}",
-    "enableSkillAria": "启用 {{name}}"
+    "enableSkillAria": "启用 {{name}}",
+    "controlsAria": "智能体技能控件"
   },
   "aggregatorApp": {
     "accountFallback": "{{name}} 账号",
@@ -15417,7 +15453,9 @@
     "discover": "发现",
     "installed": "已安装",
     "mySkills": "我的技能",
-    "sources": "来源"
+    "sources": "来源",
+    "title": "技能",
+    "navAria": "技能"
   },
   "slackAvatarStep": {
     "avatarAlt": "{{name}} 的 Cliptoon 头像",
@@ -16229,7 +16267,8 @@
       "invalidMessage": "这不是有效的 HTTP 或 HTTPS URL。发送应用需要一个可访问的完整地址。",
       "continueHint": "若仅用于本地或私有网络，你可以继续。对于公共发送方，请使用可公开访问的 HTTPS URL。",
       "learnHttps": "了解如何设置 HTTPS 和公共访问"
-    }
+    },
+    "webhookUrl": "Webhook 地址"
   },
   "webhookFields": {
     "copyAria": "复制{{label}}",
@@ -16276,7 +16315,8 @@
     "disabledSuffix": "中启用。你的工作区偏好不会改变 Chat 的可用性。现有历史记录仍可通过任务链接查看。",
     "experimentalSettingsLink": "实验性设置",
     "loadingConversation": "正在加载对话…",
-    "notFound": "找不到 Agent。"
+    "notFound": "找不到 Agent。",
+    "disabledTail": "你的工作区偏好不会改变 Chat 的可用性。现有历史仍可通过任务链接访问。"
   },
   "aiConnectionPicker": {
     "companyShared": "公司共享",
@@ -16285,7 +16325,9 @@
     "loadingAria": "正在加载 AI 连接",
     "otherUsers": "其他用户的任务使用他们自己的 {{provider}} 连接。",
     "responsibleUserConnection": "负责人连接",
-    "retryConnections": "重试连接"
+    "retryConnections": "重试连接",
+    "title": "AI 连接",
+    "reconnectAccount": "重新连接账户"
   },
   "artifactCard": {
     "document": "文档",
@@ -16369,7 +16411,9 @@
     "thTokens": "输入 / 输出令牌",
     "thWhenFeature": "时间 / 功能",
     "unknown": "未知",
-    "viewTask": "查看任务"
+    "viewTask": "查看任务",
+    "model": "模型",
+    "thStatus": "状态"
   },
   "envVarEditor": {
     "defaultHint": "将 KEY 设置为进程预期的环境变量名称，例如 GH_TOKEN。选择一个密钥以在运行开始时解析存储的值。PAPERCLIP_* 变量会自动注入。",
@@ -16389,7 +16433,9 @@
     "removedPrefix": "已移除：{{names}}",
     "revert": "还原",
     "unsavedChanges": "未保存的更改",
-    "userSecretsHint": "用户密钥会根据运行负责人解析。在该用户于密钥 → 我的密钥下设置值之前，必填绑定会一直失败。"
+    "userSecretsHint": "用户密钥会根据运行负责人解析。在该用户于密钥 → 我的密钥下设置值之前，必填绑定会一直失败。",
+    "nameColumn": "名称",
+    "valueColumn": "值"
   },
   "goalsPage": {
     "addGoal": "添加目标",
@@ -16474,7 +16520,8 @@
     "retrying": "正在重试…",
     "revision": "修订 {{number}}",
     "skillInstructions": "Skill 说明",
-    "unavailable": "Skill 已不可用。"
+    "unavailable": "Skill 已不可用。",
+    "loading": "正在加载技能…"
   },
   "taskWorkspaceFilePanel": {
     "copied": "已复制",
@@ -16510,7 +16557,9 @@
     "review": "审查",
     "waitingForOk": "等待你的确认",
     "developerDescriptionProduction": "面向开发者的高级设置。大多数团队不会打开此项。",
-    "connections": "连接"
+    "connections": "连接",
+    "connectors": "连接器",
+    "waitingForOkCount": "{{count}} 项等待你确认"
   },
   "caseActivityFeed": {
     "activityFilter": "活动筛选",
@@ -16630,7 +16679,9 @@
     "expandAria": "展开 {{key}} 文档",
     "noRevisions": "暂无修订",
     "revisionShort": "修订 {{number}}",
-    "updated": "更新于 {{time}}"
+    "updated": "更新于 {{time}}",
+    "revisionHistory": "修订历史",
+    "loadingRevisions": "正在加载修订..."
   },
   "emailTaskActivity": {
     "confirmNotSent": "确认未发送",
@@ -16806,7 +16857,10 @@
     "newProject": "新建项目",
     "sectionActionsAria": "项目分区操作",
     "browseProjects": "浏览项目",
-    "sortAria": "项目排序"
+    "sortAria": "项目排序",
+    "projects": "项目",
+    "privateProject": "私有项目",
+    "projectPausedByBudget": "项目因预算已暂停"
   },
   "sidebarServerInfo": {
     "server": "服务器",
@@ -16837,7 +16891,10 @@
     "pathCopied": "已复制路径",
     "service": "服务",
     "linkedTasks": "关联任务",
-    "moreIssues": "还有 {{count}} 个"
+    "moreIssues": "还有 {{count}} 个",
+    "startServices": "启动服务",
+    "branch": "分支",
+    "copyPath": "复制路径"
   },
   "standaloneBrowserControls": {
     "refresh": "刷新",
@@ -16947,7 +17004,9 @@
     "artifacts": "产出物",
     "reviewedRevisionUnavailable": "已审阅版本不可用",
     "reviewedRevisionUnavailableBody": "找不到该已审阅的具体版本。当前版本未被替代。",
-    "reviewedVersion": "已审阅版本"
+    "reviewedVersion": "已审阅版本",
+    "conversationDocuments": "会话文档",
+    "documentEmpty": "文档为空。"
   },
   "voiceControls": {
     "sectionAria": "与 {{name}} 的语音对话",
@@ -17123,16 +17182,21 @@
     "documentEmpty": "文档为空。",
     "needsReview": "此文档需要你审核。",
     "approved": "已批准 — 已创建招聘任务",
-    "changesRequested": "已请求修改 — CEO 正在修订"
+    "changesRequested": "已请求修改 — CEO 正在修订",
+    "title": "产出"
   },
   "boardDialogs": {
-    "newGoal": "新建目标"
+    "newGoal": "新建目标",
+    "newTask": "新建任务",
+    "newProject": "新建项目",
+    "newAgent": "新建智能体"
   },
   "caseFieldsPanel": {
     "copied": "已复制",
     "noFields": "未设置字段",
     "tableAria": "案例字段",
-    "description": "来自技能的模式 — 通用渲染"
+    "description": "来自技能的模式 — 通用渲染",
+    "fields": "字段"
   },
   "configureBuiltInAgent": {
     "modelUnavailable": "模型“{{model}}”不适用于 {{adapter}}。请选择一个已知模型。",
@@ -17413,7 +17477,8 @@
     "defaultBlocked": "请选择另一个访问配置，并先将其设为组织默认配置。"
   },
   "agentAvatarDownload": {
-    "downloadFailed": "无法下载头像。请再次尝试下载。"
+    "downloadFailed": "无法下载头像。请再次尝试下载。",
+    "download": "下载头像"
   },
   "approvalCard": {
     "requestedBy": "请求者",
@@ -17442,7 +17507,8 @@
   "chatComposer": {
     "dropToAttach": "将文件拖到此处以添加",
     "attachFiles": "附加文件",
-    "messagePlaceholder": "消息…"
+    "messagePlaceholder": "消息…",
+    "sendMessage": "发送消息"
   },
   "cloudSignIn": {
     "title": "登录 Paperclip Cloud",
@@ -17788,7 +17854,9 @@
   },
   "outputRow": {
     "fileDetailsUnavailable": "文件详情不可用",
-    "downloadAria": "下载 {{filename}}"
+    "downloadAria": "下载 {{filename}}",
+    "openInNewTab": "在新标签页中打开",
+    "download": "下载"
   },
   "agentProviderConnection": {
     "connectionType": "连接类型",
@@ -17844,7 +17912,8 @@
     "approveFailed": "批准失败",
     "rejectFailed": "拒绝失败",
     "noPending": "没有待处理的批准。",
-    "noApprovals": "暂无批准。"
+    "noApprovals": "暂无批准。",
+    "selectOrganizationFirst": "请先选择一个组织。"
   },
   "localAiLogin": {
     "submitFailed": "无法提交授权码，请重新开始登录。"
@@ -18106,13 +18175,15 @@
     "parked": "已暂停",
     "untilStatus": " 在状态变为“待办”或“进行中”之前，不会要求其处理此任务。",
     "commentsNote": "评论仍会通知负责人，以便提问或分诊。仅在确实有意搁置工作时才保持暂停。",
-    "resumeNow": "立即恢复"
+    "resumeNow": "立即恢复",
+    "resuming": "正在恢复…"
   },
   "issueCasesPanel": {
     "workflow": "工作流",
     "roleOrigin": "来源",
     "roleWork": "工作",
-    "roleReference": "参考"
+    "roleReference": "参考",
+    "cases": "案例"
   },
   "issueLinkQuicklook": {
     "loadFailed": "无法加载任务预览。"
@@ -18317,7 +18388,8 @@
     "viewCommitOnGithub": "在 GitHub 上查看提交 {{commit}}"
   },
   "sidebarShell": {
-    "resizeAria": "调整侧边栏宽度"
+    "resizeAria": "调整侧边栏宽度",
+    "resizeSidebar": "调整侧边栏大小"
   },
   "skillBinaryFile": {
     "body": "此资产以原始二进制格式存储。",
@@ -18344,7 +18416,9 @@
     "runOne": "在 Smoke Lab 标签页中运行一次"
   },
   "sourceResolvedFoldBadge": {
-    "label": "源已解决"
+    "label": "源已解决",
+    "foldTitle": "系统将本次运行归并为源已解决的误报。",
+    "foldAria": "源已解决看门狗归并"
   },
   "stalledReviewActions": {
     "notePlaceholder": "添加备注 — 请求修改时必填，其他情况可选…",
@@ -18376,7 +18450,8 @@
     }
   },
   "caseListRow": {
-    "taskUnavailable": "任务不可用"
+    "taskUnavailable": "任务不可用",
+    "noTaskLinked": "未关联任务"
   },
   "fastResponseHistory": {
     "loading": "正在加载快速响应…",
@@ -18419,7 +18494,8 @@
     "title": "技能已创建"
   },
   "issueCreatedFromNote": {
-    "byAgent": "由 {{name}} 创建"
+    "byAgent": "由 {{name}} 创建",
+    "createdFrom": "创建自"
   },
   "breadcrumb": {
     "navAria": "面包屑导航",
@@ -19438,7 +19514,8 @@
       "nothingElseWaiting": "没有其他等待你处理的事项。",
       "openNewTab": "在新标签页中打开",
       "noLongerWaiting": "此事已不再等待你处理。"
-    }
+    },
+    "decisionUpdatesLoadFailed": "决策更新加载失败。"
   },
   "apiErrors": {
     "actions": {
@@ -19617,7 +19694,8 @@
     "switchAgent": "Switch agent"
   },
   "inlineEditor": {
-    "clickToEdit": "Click to edit..."
+    "clickToEdit": "Click to edit...",
+    "retrySaving": "重试保存"
   },
   "decisionResolver": {
     "issueFallback": "任务 {{id}}",
@@ -19882,7 +19960,8 @@
       "reconnectReplacesCredential": "重新连接会替换凭据，但不会改变哪些 agent 可以使用它。",
       "chooseExactlyOneAgent": "请只选择一个 agent。此身份不能与其他 agent 共享。",
       "sheetsReady_one": "{{count}} 个表格可以连接。",
-      "sheetsReady_other": "{{count}} 个表格可以连接。"
+      "sheetsReady_other": "{{count}} 个表格可以连接。",
+      "useYourOwnNamedOauthApp": "使用你自己的 {{app}} OAuth 应用"
     }
   },
   "tailscale": {
@@ -20208,7 +20287,9 @@
     },
     "shared": {
       "agentInstructionsFile": "Agent 指令文件",
-      "instructionsFileHint": "指向定义此 Agent 行为的 markdown 文件（如 AGENTS.md）的绝对路径。运行时会注入到系统提示中。注意：Codex 仍可能自动应用工作区内仓库级的 AGENTS.md 文件。"
+      "instructionsFileHint": "指向定义此 Agent 行为的 markdown 文件（如 AGENTS.md）的绝对路径。运行时会注入到系统提示中。注意：Codex 仍可能自动应用工作区内仓库级的 AGENTS.md 文件。",
+      "runtimeServicesJson": "运行时服务 JSON",
+      "payloadTemplateJson": "载荷模板 JSON"
     },
     "openclawGateway": {
       "gatewayUrl": "网关 URL",
@@ -20327,6 +20408,14 @@
     },
     "http": {
       "webhookUrl": "Webhook 地址"
+    },
+    "kimiLocal": {
+      "instructionsFile": "智能体指令文件",
+      "instructionsFileHint": "定义此智能体行为的 markdown 文件绝对路径（例如 AGENTS.md）。运行时前置到 Kimi 提示中。"
+    },
+    "piLocal": {
+      "instructionsFile": "智能体指令文件",
+      "instructionsFileHint": "指向一个定义此智能体行为的 markdown 文件（例如 AGENTS.md）的绝对路径。运行时会被注入系统提示词。"
     }
   },
   "agentConfigHelp": {
@@ -20501,5 +20590,79 @@
     "findResponsibleUserAria": "查找负责人",
     "hint": "自动任务由该人员负责。手动运行由发起者本人执行。",
     "noPeopleFound": "未找到人员。"
+  },
+  "aiConnectionAccountDetails": {
+    "connectedAccount": "已连接账户",
+    "providerAccount": "{{provider}} 账户",
+    "notAvailable": "不可用",
+    "organization": "组织",
+    "signInMethod": "登录方式",
+    "access": "访问权限",
+    "companyShared": "公司共享",
+    "personal": "个人 · {{owner}}",
+    "accountOwner": "账户所有者",
+    "checking": "正在检查账户详情…",
+    "retry": "重试账户检查"
+  },
+  "taskChatRunHealth": {
+    "serverFailed": " MCP 服务器启动失败",
+    "serversCount": "{{count}} 个 MCP 服务器",
+    "failedToStart": " 启动失败：",
+    "explanation": "智能体在没有这些工具的情况下运行。请修正服务器的命令或凭据，然后重试。"
+  },
+  "agentRateLimitGauge": {
+    "limitReachedCredits": "已达到上限；工作将继续使用账户额度。",
+    "usageLimits": "{{provider}} 用量上限",
+    "reported": "报告于 {{time}}"
+  },
+  "slackAppDetails": {
+    "advanced": "高级"
+  },
+  "remoteMcpProductionSetup": {
+    "loadingSavedAccess": "正在加载已保存的访问权限…"
+  },
+  "taskSummaryList": {
+    "recentTasks": "最近任务"
+  },
+  "taskBrowserActivity": {
+    "sessionAria": "{{label}} 会话",
+    "viewSession": "查看会话",
+    "openBrowser": "打开浏览器"
+  },
+  "taskChatLoadingShell": {
+    "loading": "正在加载会话"
+  },
+  "taskChatDiffView": {
+    "shortened": "差异已缩短以方便显示。"
+  },
+  "activeAgents": {
+    "title": "智能体",
+    "empty": "没有最近的智能体运行。"
+  },
+  "costAmount": {
+    "unavailable_one": "{{count}} 项费用不可用",
+    "unavailable_other": "{{count}} 项费用不可用"
+  },
+  "agentIconPicker": {
+    "searchIcons": "搜索图标...",
+    "noIconsMatch": "没有匹配的图标"
+  },
+  "caseIdentifierKey": {
+    "caseId": "案例 ID",
+    "caseKey": "案例键"
+  },
+  "financeKindCard": {
+    "title": "财务事件构成",
+    "description": "按事件类型汇总的账户级费用。",
+    "empty": "该时间范围内没有财务事件。"
+  },
+  "designSandboxTasks": {
+    "loadingTasks": "正在加载任务…"
+  },
+  "agentSkillRow": {
+    "readOnly": "只读"
+  },
+  "stalledDependencyNotice": {
+    "takingLonger": "比平时耗时更长…"
   }
 }

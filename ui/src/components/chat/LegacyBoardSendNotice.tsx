@@ -4,23 +4,24 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/i18n";
 
 export function LegacyBoardSendNotice({ onDiscard }: { onDiscard: () => void }) {
+  const { t } = useTranslation();
   return <AlertDialog>
     <AlertDialogTrigger asChild>
-      <Button size="sm" variant="outline">Discard saved delivery record</Button>
+      <Button size="sm" variant="outline">{t("legacyBoardSend.discardTrigger", { defaultValue: "Discard saved delivery record" })}</Button>
     </AlertDialogTrigger>
     <AlertDialogContent>
       <AlertDialogHeader>
-        <AlertDialogTitle>Discard saved delivery record?</AlertDialogTitle>
+        <AlertDialogTitle>{t("legacyBoardSend.discardTitle", { defaultValue: "Discard saved delivery record?" })}</AlertDialogTitle>
         <AlertDialogDescription>
-          First check Activity. Discarding this browser record does not cancel an update
-          that was already accepted. It lets you start a new update.
+          {t("legacyBoardSend.discardBody", { defaultValue: "First check Activity. Discarding this browser record does not cancel an update that was already accepted. It lets you start a new update." })}
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
-        <AlertDialogCancel>Keep record</AlertDialogCancel>
-        <AlertDialogAction onClick={onDiscard}>Discard record</AlertDialogAction>
+        <AlertDialogCancel>{t("legacyBoardSend.keepRecord", { defaultValue: "Keep record" })}</AlertDialogCancel>
+        <AlertDialogAction onClick={onDiscard}>{t("legacyBoardSend.discardRecord", { defaultValue: "Discard record" })}</AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>
   </AlertDialog>;

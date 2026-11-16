@@ -364,7 +364,7 @@ export function ChatEndpointDetail() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {endpoint.provider === "speko" && <a href="https://platform.speko.ai/agents" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-sm text-primary underline">{t("chatDetail.openSpeko", { defaultValue: "Open Speko" })}<ExternalLink className="size-3.5" aria-hidden="true" /></a>}
-          {endpoint.provider === "slack" && !setupIncomplete && <Button asChild variant="outline"><a href={slackConversationUrl(endpoint, identitySettled ? userId : null)} target="_blank" rel="noopener noreferrer">Open Slack <ExternalLink className="size-4" /></a></Button>}
+          {endpoint.provider === "slack" && !setupIncomplete && <Button asChild variant="outline"><a href={slackConversationUrl(endpoint, identitySettled ? userId : null)} target="_blank" rel="noopener noreferrer">{t("chatDetail.openSlack", { defaultValue: "Open Slack" })} <ExternalLink className="size-4" /></a></Button>}
           {slackUrl && <Button asChild variant="outline"><a href={slackUrl} target="_blank" rel="noopener noreferrer">{t("chatDetail.openSlackConfig", { defaultValue: "Open Slack configuration" })} <ExternalLink className="size-4" /></a></Button>}
           {setupIncomplete ? (
             <Button

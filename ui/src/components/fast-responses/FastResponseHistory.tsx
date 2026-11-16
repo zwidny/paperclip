@@ -3,6 +3,7 @@ import { fastResponsesApi } from "@/api/fast-responses";
 import { DecisionHistoryTable } from "@/components/decision-models/DecisionHistory";
 import { Button } from "@/components/ui/button";
 import { useFastResponsesEnabled } from "@/hooks/useFastResponsesEnabled";
+import { useTranslation } from "@/i18n";
 export function FastResponseHistory({
   companyId,
   from,
@@ -12,6 +13,7 @@ export function FastResponseHistory({
   from?: string | null;
   to?: string | null;
 }) {
+  const { t } = useTranslation();
   const { enabled } = useFastResponsesEnabled();
   const query = useQuery({
     queryKey: ["fast-response-history", companyId, from, to],
@@ -28,7 +30,7 @@ export function FastResponseHistory({
   });
   if (query.isPending)
     return (
-      <p className="text-sm text-muted-foreground">Loading fast responses…</p>
+      <p className="text-sm text-muted-foreground">{t("fastResponseHistory.loading", { defaultValue: "Loading fast responses…" })}</p>
     );
   if (query.error)
     return (

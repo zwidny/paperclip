@@ -235,7 +235,7 @@ export function OverviewSection({
                   <span className="truncate">{option.label}</span>
                 </>
               ) : (
-                <span className="text-muted-foreground">Project</span>
+                <span className="text-muted-foreground">{t("routineSections.projectLabel", { defaultValue: "Project" })}</span>
               )
             }
             renderOption={(option) => {

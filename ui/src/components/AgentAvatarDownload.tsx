@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "@/i18n";
 import { Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -16,6 +17,7 @@ export function AgentAvatarDownload({
   name: string;
   iconOnly?: boolean;
 }) {
+  const { t } = useTranslation();
   const [downloading, setDownloading] = useState(false);
   const [failed, setFailed] = useState(false);
   const download = async () => {
@@ -51,8 +53,8 @@ export function AgentAvatarDownload({
         asChild
       >
         <a
-          aria-label="Download avatar"
-          title="Download avatar"
+          aria-label={t("agentAvatarDownload.download", { defaultValue: "Download avatar" })}
+          title={t("agentAvatarDownload.download", { defaultValue: "Download avatar" })}
           href={avatarUrl}
           download={agentAvatarFilename(name)}
           aria-disabled={downloading}

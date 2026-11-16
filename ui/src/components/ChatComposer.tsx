@@ -122,7 +122,7 @@ export const ChatComposer = forwardRef<ChatComposerHandle, ChatComposerProps>(fu
     tone = "standard",
     surface = "card",
     autoFocus = false,
-    sendLabel = "Send message",
+    sendLabel,
     onAttachFiles,
     attachments = [],
     attaching = false,
@@ -364,8 +364,8 @@ export const ChatComposer = forwardRef<ChatComposerHandle, ChatComposerProps>(fu
             if (canSend) onSubmit();
           }}
           disabled={!canSend}
-          aria-label={sendLabel}
-          title={sendLabel}
+          aria-label={sendLabel ?? i18n.t("chatComposer.sendMessage", { defaultValue: "Send message" })}
+          title={sendLabel ?? i18n.t("chatComposer.sendMessage", { defaultValue: "Send message" })}
           className={cn(
             "grid h-7 w-7 shrink-0 place-items-center rounded-md transition-colors duration-150 disabled:cursor-not-allowed",
             canSend

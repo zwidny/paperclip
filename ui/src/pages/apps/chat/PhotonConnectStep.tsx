@@ -8,6 +8,7 @@ import {
   type ChatEndpointSetupAction,
 } from "@/api/chatEndpoints";
 import { sanitizedSetupErrorMessage } from "./chat-setup-error";
+import { useTranslation } from "@/i18n";
 
 export function PhotonConnectStep({
   endpoint,
@@ -25,6 +26,7 @@ export function PhotonConnectStep({
     values?: Record<string, string>,
   ): void;
 }) {
+  const { t } = useTranslation();
   const [projectId, setProjectId] = useState(endpoint.providerAccountId ?? "");
   const [projectSecret, setProjectSecret] = useState("");
   const [lineId, setLineId] = useState("");
@@ -46,7 +48,7 @@ export function PhotonConnectStep({
   return (
     <div className="space-y-5">
       <div className="space-y-2">
-        <h1 className="text-xl font-bold">Connect iMessage Photon</h1>
+        <h1 className="text-xl font-bold">{t("photonConnectStep.title", { defaultValue: "Connect iMessage Photon" })}</h1>
         <p className="text-sm text-muted-foreground">
           Connect {agentName} to Photon Cloud. Pro supports direct messages through
           a shared line. Dedicated numbers also support individually enabled groups.

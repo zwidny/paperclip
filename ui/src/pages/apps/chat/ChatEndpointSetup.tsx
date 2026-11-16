@@ -1295,27 +1295,27 @@ function ProviderConnectStep({
             </li>
             <li>
               {t("chatSetup.github.stepWebhookPrefix", { defaultValue: "Keep " })}
-              <strong>Webhooks · Active</strong>
+              <strong>{t("chatSetup.github.labelWebhooksActive", { defaultValue: "Webhooks · Active" })}</strong>
               {t("chatSetup.github.stepWebhookSuffix", { defaultValue: " on. Enter the Paperclip webhook URL and the Paperclip-generated webhook secret below, and keep " })}
-              <strong>Enable SSL verification</strong>
+              <strong>{t("chatSetup.github.labelSslVerification", { defaultValue: "Enable SSL verification" })}</strong>
               {t("chatSetup.github.stepWebhookEnd", { defaultValue: " selected." })}
             </li>
             <li>
               {t("chatSetup.github.stepPermissionsPrefix", { defaultValue: "Under Repository permissions, set " })}
-              <strong>Issues</strong>
+              <strong>{t("chatSetup.github.labelIssues", { defaultValue: "Issues" })}</strong>
               {t("chatSetup.github.stepPermissionsAnd", { defaultValue: " and " })}
-              <strong>Pull requests</strong>
+              <strong>{t("chatSetup.github.labelPullRequests", { defaultValue: "Pull requests" })}</strong>
               {t("chatSetup.github.stepPermissionsTo", { defaultValue: " to " })}
-              <strong>Read &amp; write</strong>
+              <strong>{t("chatSetup.github.labelReadWrite", { defaultValue: "Read & write" })}</strong>
               {t("chatSetup.github.stepPermissionsEnd", { defaultValue: ". Leave every other permission at its default; Metadata remains read-only." })}
             </li>
             <li>
               {t("chatSetup.github.stepEventsPrefix", { defaultValue: "Subscribe to " })}
-              <strong>Issue comment</strong>
+              <strong>{t("chatSetup.github.labelIssueComment", { defaultValue: "Issue comment" })}</strong>
               {t("chatSetup.github.stepEventsOpenParen", { defaultValue: " (" })}
               <code>issue_comment</code>
               {t("chatSetup.github.stepEventsComma", { defaultValue: "), " })}
-              <strong>Pull request review comment</strong>
+              <strong>{t("chatSetup.github.labelPullRequestReviewComment", { defaultValue: "Pull request review comment" })}</strong>
               {t("chatSetup.github.stepEventsOpenParen", { defaultValue: " (" })}
               <code>pull_request_review_comment</code>
               {t("chatSetup.github.stepEventsSuffix", { defaultValue: "). GitHub sends " })}
@@ -1326,7 +1326,7 @@ function ProviderConnectStep({
             </li>
             <li>
               {t("chatSetup.github.stepInstallPrefix", { defaultValue: "Choose " })}
-              <strong>Only on this account</strong>
+              <strong>{t("chatSetup.github.labelOnlyOnThisAccount", { defaultValue: "Only on this account" })}</strong>
               {t("chatSetup.github.stepInstallEnd", { defaultValue: ", create the App, copy its App ID, generate one private key, then install it on the selected repositories." })}
             </li>
           </ol>

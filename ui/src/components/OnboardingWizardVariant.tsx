@@ -3,6 +3,7 @@ import { useDialogActions, useDialogState } from "../context/DialogContext";
 import { useLocation } from "../lib/router";
 import { isOnboardingPath } from "../lib/onboarding-route";
 import { DeferredOverlay } from "./DeferredOverlay";
+import { useTranslation } from "@/i18n";
 
 const OnboardingWizard = lazy(() => import("./OnboardingWizard").then((module) => ({ default: module.OnboardingWizard })));
 
@@ -12,6 +13,7 @@ const OnboardingWizard = lazy(() => import("./OnboardingWizard").then((module) =
  * experimental flag.
  */
 export function OnboardingWizardVariant() {
+  const { t } = useTranslation();
   const { onboardingOpen, onboardingRouteDismissed } = useDialogState();
   const { closeOnboarding, setOnboardingRouteDismissed } = useDialogActions();
   const { pathname } = useLocation();
@@ -19,7 +21,7 @@ export function OnboardingWizardVariant() {
     setOnboardingRouteDismissed(false);
   }, [pathname, setOnboardingRouteDismissed]);
   const requested = onboardingOpen || (isOnboardingPath(pathname) && !onboardingRouteDismissed);
-  return <DeferredOverlay requested={requested} title="Setup" onClose={() => {
+  return <DeferredOverlay requested={requested} title={t("onboardingWizardVariant.setup", { defaultValue: "Setup" })} onClose={() => {
     closeOnboarding();
     if (isOnboardingPath(pathname)) setOnboardingRouteDismissed(true);
   }}><OnboardingWizard /></DeferredOverlay>;

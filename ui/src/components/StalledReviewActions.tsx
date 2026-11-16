@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+import { useTranslation } from "@/i18n";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Loader2, RotateCcw, Undo2 } from "lucide-react";
 import type { IssueReviewPolicy, StalledReviewDecisionAction } from "@paperclipai/shared";
@@ -57,11 +58,13 @@ export function StalledReviewActions({
   footerSlot,
   onResolved,
   reviewPolicy,
-  approveLabel = "Approve",
+  approveLabel,
   presentation = "panel",
   className,
 }: StalledReviewActionsProps) {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const approveText = approveLabel ?? t("stalledReviewActions.approve", { defaultValue: "Approve" });
   const { pushToast } = useToastActions();
   const [note, setNote] = useState("");
 
@@ -145,7 +148,7 @@ export function StalledReviewActions({
       ) : card ? null : (
         <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
       )}
-      {approveLabel}
+      {approveText}
     </Button>
   );
 
@@ -169,7 +172,7 @@ export function StalledReviewActions({
       <Textarea
         value={note}
         onChange={(event) => setNote(event.target.value)}
-        placeholder="Add a note — required to request changes, optional otherwise…"
+        placeholder={t("stalledReviewActions.notePlaceholder", { defaultValue: "Add a note — required to request changes, optional otherwise…" })}
         className="min-h-16 text-sm"
         data-testid="stalled-review-note"
         disabled={pending}

@@ -1,4 +1,5 @@
 import { createContext, useContext, type ReactNode } from "react";
+import { useTranslation } from "@/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { Mail, Paperclip } from "lucide-react";
 import type {
@@ -49,6 +50,7 @@ export function EmailMessageCard({
   publication?: EmailPublicationSummary;
   issueId: string;
 }) {
+  const { t } = useTranslation();
   const attachments = useQuery({
     queryKey: ["email-attachments", issueId],
     queryFn: () => issuesApi.listAttachments(issueId),
@@ -112,7 +114,7 @@ export function EmailMessageCard({
         </div>
       )}
       <details className="text-xs text-muted-foreground">
-        <summary className="cursor-pointer">Email details</summary>
+        <summary className="cursor-pointer">{t("emailMessageCard.details", { defaultValue: "Email details" })}</summary>
         <div className="space-y-2 pt-3">
           {!!message.bcc?.length && <p>Bcc: {message.bcc.join(", ")}</p>}
           <p className="break-all">Message ID: {message.providerMessageId}</p>

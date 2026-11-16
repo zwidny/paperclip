@@ -1,6 +1,7 @@
 import { useId, useState } from "react";
 import { ChevronRight, TriangleAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/i18n";
 import type { TaskChatItem } from "./task-chat-model";
 
 /** One MCP server that the harness could not start for this run. */
@@ -48,11 +49,11 @@ export function partitionRunHealthItems(items: readonly TaskChatItem[]): {
   return { failures: [...byServer.values()], rest: byServer.size === 0 ? (items as TaskChatItem[]) : rest };
 }
 
-function failureLine(failure: TaskChatMcpStartupFailure) {
+function failureLine(failure: TaskChatMcpStartupFailure, t: (key: string, options?: Record<string, unknown>) => string) {
   return (
     <>
       <span className="font-medium text-foreground">{failure.serverName}</span>
-      <span> MCP server failed to start</span>
+      <span>{t("taskChatRunHealth.serverFailed", { defaultValue: " MCP server failed to start" })}</span>
       {failure.reason ? <span className="text-muted-foreground">: {failure.reason}</span> : null}
     </>
   );
@@ -65,6 +66,7 @@ function failureLine(failure: TaskChatMcpStartupFailure) {
  * scrolling away as one more activity row.
  */
 export function TaskChatRunHealthBanner({ failures }: { failures: readonly TaskChatMcpStartupFailure[] }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const listId = `task-chat-run-health-${useId().replaceAll(":", "")}`;
   if (failures.length === 0) return null;
@@ -84,10 +86,10 @@ export function TaskChatRunHealthBanner({ failures }: { failures: readonly TaskC
       >
         <TriangleAlert className="size-(--sz-protocol-notice-icon) shrink-0 text-(--status-task-icon-todo)" aria-hidden />
         <span className={cn("min-w-0 flex-1", open ? "whitespace-normal break-words" : "truncate")}>
-          {single ? failureLine(single) : (
+          {single ? failureLine(single, t) : (
             <>
-              <span className="font-medium text-foreground">{failures.length} MCP servers</span>
-              <span> failed to start: </span>
+              <span className="font-medium text-foreground">{t("taskChatRunHealth.serversCount", { defaultValue: "{{count}} MCP servers", count: failures.length })}</span>
+              <span>{t("taskChatRunHealth.failedToStart", { defaultValue: " failed to start: " })}</span>
               <span className="text-muted-foreground">{failures.map((failure) => failure.serverName).join(", ")}</span>
             </>
           )}
@@ -100,9 +102,9 @@ export function TaskChatRunHealthBanner({ failures }: { failures: readonly TaskC
       {open ? (
         <div id={listId} className="flex flex-col gap-1 pl-5">
           {single ? null : failures.map((failure) => (
-            <p key={failure.id} className="min-w-0 whitespace-pre-wrap break-words">{failureLine(failure)}</p>
+            <p key={failure.id} className="min-w-0 whitespace-pre-wrap break-words">{failureLine(failure, t)}</p>
           ))}
-          <p>The agent ran without these tools. Fix the server&apos;s command or credentials, then try again.</p>
+          <p>{t("taskChatRunHealth.explanation", { defaultValue: "The agent ran without these tools. Fix the server's command or credentials, then try again." })}</p>
         </div>
       ) : null}
     </div>

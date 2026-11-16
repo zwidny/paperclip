@@ -1,4 +1,5 @@
 import { ChevronRight, Clock } from "lucide-react";
+import { useTranslation } from "@/i18n";
 import {
   summarizeProviderRateLimits,
   type ProviderRateLimitSnapshot,
@@ -50,6 +51,7 @@ export function AgentRateLimitPanel({ snapshot, summary, now }: {
   summary: ProviderRateLimitSummary;
   now: number;
 }) {
+  const { t } = useTranslation();
   const reachedId = summary.limited ? snapshot.limitReached?.windowId ?? null : null;
   const creditTone = summary.usingCredits ? "warn" : null;
   const credits = snapshot.credits;
@@ -74,7 +76,7 @@ export function AgentRateLimitPanel({ snapshot, summary, now }: {
         );
       })}
       {summary.usingCredits && (
-        <div className="text-xs text-(--status-task-icon-todo)">Limit reached; work continues on account credits.</div>
+        <div className="text-xs text-(--status-task-icon-todo)">{t("agentRateLimitGauge.limitReachedCredits", { defaultValue: "Limit reached; work continues on account credits." })}</div>
       )}
       {credits && (credits.unlimited || credits.balance !== null || credits.hasCredits === false) && (
         <div className="text-xs text-muted-foreground">
@@ -99,6 +101,7 @@ export function AgentRateLimitPropertyValue({ snapshot, now = Date.now(), defaul
   detailsHref?: string;
   className?: string;
 }) {
+  const { t } = useTranslation();
   const summary = summarizeProviderRateLimits(snapshot, now);
   if (!snapshot || !summary) return null;
   const { window, tone } = summary;
@@ -127,11 +130,11 @@ export function AgentRateLimitPropertyValue({ snapshot, now = Date.now(), defaul
         </button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-72 space-y-3 p-3">
-        <div className="text-xs font-medium">{snapshot.provider === "openai" ? "Codex" : "Claude"} usage limits</div>
+        <div className="text-xs font-medium">{t("agentRateLimitGauge.usageLimits", { defaultValue: "{{provider}} usage limits", provider: snapshot.provider === "openai" ? "Codex" : "Claude" })}</div>
         <AgentRateLimitPanel snapshot={snapshot} summary={summary} now={now} />
         <div className="flex items-center justify-between gap-3 text-(length:--text-micro) text-muted-foreground">
-          <span>Reported {formatRateLimitClock(snapshot.observedAt, now)}</span>
-          {detailsHref && <Link to={detailsHref} className="hover:text-foreground hover:underline">View agent</Link>}
+          <span>{t("agentRateLimitGauge.reported", { defaultValue: "Reported {{time}}", time: formatRateLimitClock(snapshot.observedAt, now) })}</span>
+          {detailsHref && <Link to={detailsHref} className="hover:text-foreground hover:underline">{t("builtInAgentGate.viewAgent", { defaultValue: "View agent" })}</Link>}
         </div>
       </PopoverContent>
     </Popover>

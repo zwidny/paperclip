@@ -1,4 +1,5 @@
 import type { ToolProfileWithDetails } from "@paperclipai/shared";
+import { useTranslation } from "@/i18n";
 import { Link } from "@/lib/router";
 import { cn } from "@/lib/utils";
 import { allowedToolsLabel, type GatewayAppRow, gatewayAppDisplayName } from "../gateway-helpers";
@@ -15,6 +16,7 @@ export function AppsToolsPanel({
   apps: GatewayAppRow[];
   profile: ToolProfileWithDetails | undefined;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
@@ -32,9 +34,9 @@ export function AppsToolsPanel({
           <table className="w-full min-w-(--sz-32rem) text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/40 text-left text-(length:--text-micro) font-semibold uppercase tracking-wide text-muted-foreground">
-                <th className="px-4 py-2.5">App</th>
-                <th className="px-4 py-2.5">Tools</th>
-                <th className="px-4 py-2.5">Status</th>
+                <th className="px-4 py-2.5">{t("gatewayApps.colApp", { defaultValue: "App" })}</th>
+                <th className="px-4 py-2.5">{t("gatewayApps.colTools", { defaultValue: "Tools" })}</th>
+                <th className="px-4 py-2.5">{t("gatewayApps.colStatus", { defaultValue: "Status" })}</th>
                 <th className="px-4 py-2.5 text-right" />
               </tr>
             </thead>

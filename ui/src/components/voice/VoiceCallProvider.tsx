@@ -4,11 +4,13 @@ import { NativeVoiceConversation, type NativeVoiceConversationProps } from "./Na
 import { voiceCallJournal } from "@/lib/voice-call-attempt";
 import { VoiceCallContext } from "./VoiceCallContext";
 import { createUuid } from "../../lib/uuid";
+import { useTranslation } from "@/i18n";
 
 /** Owns media above routes. Scope changes unmount the call and clean up media. */
 export function VoiceCallProvider({ children, companyId, userId }: {
   children: ReactNode; companyId: string | null; userId: string | null;
 }) {
+  const { t } = useTranslation();
   const [call, setCall] = useState<{ props: NativeVoiceConversationProps; userId: string | null; id: string } | null>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
   const [ended, setEnded] = useState(false);
@@ -22,9 +24,9 @@ export function VoiceCallProvider({ children, companyId, userId }: {
   const value = useMemo(() => ({ active: Boolean(current), open }), [current, open]);
   return <VoiceCallContext.Provider value={value}>
     {children}
-    {current && <aside aria-label="Current voice call" className="fixed inset-x-4 bottom-4 z-50 max-h-(--sz-calc-18) overflow-y-auto rounded-lg border border-border bg-background p-4 shadow-lg sm:left-auto sm:w-96">
+    {current && <aside aria-label={t("voiceCallProvider.currentCall", { defaultValue: "Current voice call" })} className="fixed inset-x-4 bottom-4 z-50 max-h-(--sz-calc-18) overflow-y-auto rounded-lg border border-border bg-background p-4 shadow-lg sm:left-auto sm:w-96">
       <NativeVoiceConversation {...current.props} key={current.id} managed autoStart onEndedChange={setEnded} />
-      {ended && <Button variant="ghost" size="sm" onClick={() => { setCall(null); requestAnimationFrame(() => { if (returnFocus.current?.isConnected) returnFocus.current.focus(); }); }}>Close voice panel</Button>}
+      {ended && <Button variant="ghost" size="sm" onClick={() => { setCall(null); requestAnimationFrame(() => { if (returnFocus.current?.isConnected) returnFocus.current.focus(); }); }}>{t("voiceCallProvider.closePanel", { defaultValue: "Close voice panel" })}</Button>}
     </aside>}
   </VoiceCallContext.Provider>;
 }

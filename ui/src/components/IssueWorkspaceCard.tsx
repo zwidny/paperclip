@@ -1,4 +1,5 @@
 import { useWorkspaceIsolationControls } from "@/hooks/useWorkspaceIsolationControls";
+import { useTranslation } from "@/i18n";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@/lib/router";
 import type { Issue, ExecutionWorkspace } from "@paperclipai/shared";
@@ -194,6 +195,7 @@ export function IssueWorkspaceCard({
   onBrowseFiles,
   onOpenFileByPath,
 }: IssueWorkspaceCardProps) {
+  const { t } = useTranslation();
   const { visible: workspaceIsolationControlsVisible } = useWorkspaceIsolationControls();
   const { selectedCompanyId } = useCompany();
   const companyId = issue.companyId ?? selectedCompanyId;
@@ -355,7 +357,7 @@ export function IssueWorkspaceCard({
                   className="h-6 px-2 text-xs text-muted-foreground"
                   onClick={handleCancel}
                 >
-                  <X className="h-3 w-3 mr-1" />Cancel
+                  <X className="h-3 w-3 mr-1" />{t("common.cancel", { defaultValue: "Cancel" })}
                 </Button>
                 <Button
                   size="sm"
@@ -363,7 +365,7 @@ export function IssueWorkspaceCard({
                   onClick={handleSave}
                   disabled={!canSaveWorkspaceConfig}
                 >
-                  Save
+                  {t("common.save", { defaultValue: "Save" })}
                 </Button>
               </>
             ) : (
@@ -373,7 +375,7 @@ export function IssueWorkspaceCard({
                 className="h-6 px-2 text-xs text-muted-foreground"
                 onClick={() => setEditing(true)}
               >
-                <Pencil className="h-3 w-3 mr-1" />Edit
+                <Pencil className="h-3 w-3 mr-1" />{t("issueWorkspaceCard.edit", { defaultValue: "Edit" })}
               </Button>
             )}
           </div>
@@ -397,7 +399,7 @@ export function IssueWorkspaceCard({
           )}
           {workspace?.repoUrl && (
             <div className="flex items-center gap-1.5 text-muted-foreground">
-              <span className="text-(length:--text-micro)">Repo:</span>
+              <span className="text-(length:--text-micro)">{t("issueWorkspaceCard.repo", { defaultValue: "Repo:" })}</span>
               <CopyableInline value={workspace.repoUrl} mono />
             </div>
           )}

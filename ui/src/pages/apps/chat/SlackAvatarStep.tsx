@@ -5,6 +5,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/i18n";
 
 export interface SlackAvatarProps {
   agentName: string;
@@ -19,6 +20,7 @@ export function SlackAvatarContent({
   avatarUrl,
   compact = false,
 }: SlackAvatarProps & { compact?: boolean }) {
+  const { t } = useTranslation();
   const id = useId();
   const filename = `${appName.replace(/[^a-zA-Z0-9_-]+/g, "-") || "agent"}-avatar.png`;
   const [downloading, setDownloading] = useState(false);
@@ -133,16 +135,16 @@ export function SlackAvatarContent({
               and choose <strong>{appName}</strong>.
             </li>
             <li>
-              Choose <strong>Basic Information</strong>, then scroll to{" "}
-              <strong>Display Information</strong>.
+              Choose <strong>{t("slackAvatarStep.basicInformation", { defaultValue: "Basic Information" })}</strong>, then scroll to{" "}
+              <strong>{t("slackAvatarStep.displayInformation", { defaultValue: "Display Information" })}</strong>.
             </li>
             <li>
-              Under <strong>App icon &amp; Preview</strong>, click the app icon
+              Under <strong>{t("slackAvatarStep.appIconPreview", { defaultValue: "App icon & Preview" })}</strong>, click the app icon
               and upload{" "}
               <span className="break-all font-mono text-xs">{filename}</span>.
             </li>
             <li>
-              Confirm the crop, then click <strong>Save Changes</strong> in
+              Confirm the crop, then click <strong>{t("slackAvatarStep.saveChanges", { defaultValue: "Save Changes" })}</strong> in
               Slack.
             </li>
           </ol>
@@ -154,10 +156,11 @@ export function SlackAvatarContent({
 
 
 export function SlackAvatarSettings(props: SlackAvatarProps) {
+  const { t } = useTranslation();
   return (
-    <section className="space-y-4" aria-label="Slack avatar">
+    <section className="space-y-4" aria-label={t("slackAvatarStep.sectionAria", { defaultValue: "Slack avatar" })}>
       <div className="space-y-1">
-        <h2 className="text-lg font-semibold">Agent avatar</h2>
+        <h2 className="text-lg font-semibold">{t("slackAvatarStep.settingsTitle", { defaultValue: "Agent avatar" })}</h2>
         <p className="text-sm text-muted-foreground">
           Use {props.agentName}’s avatar so your team recognizes the agent
         </p>

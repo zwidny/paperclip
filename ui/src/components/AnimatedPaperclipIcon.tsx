@@ -1,4 +1,5 @@
 import type { SVGProps } from "react";
+import { useTranslation } from "@/i18n";
 import { cn } from "../lib/utils";
 import { useBlockingPageGate } from "../hooks/usePageContentReady";
 
@@ -25,6 +26,7 @@ export function AnimatedPaperclipIcon({ className, ...props }: SVGProps<SVGSVGEl
 
 /** Full-page loading state: a large, centered, gray animated paperclip. */
 export function PaperclipLoading({ className }: { className?: string }) {
+  const { t } = useTranslation();
   // While a full-page loading state is on screen the page has not loaded.
   useBlockingPageGate();
   return (
@@ -33,7 +35,7 @@ export function PaperclipLoading({ className }: { className?: string }) {
       className={cn("flex min-h-dvh w-full items-center justify-center", className)}
     >
       <AnimatedPaperclipIcon className="h-24 w-24 text-muted-foreground" />
-      <span className="sr-only">Loading…</span>
+      <span className="sr-only">{t("common.loading", { defaultValue: "Loading…" })}</span>
     </div>
   );
 }

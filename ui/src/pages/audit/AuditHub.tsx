@@ -1,4 +1,5 @@
 import { useCallback, useEffect } from "react";
+import { useTranslation } from "@/i18n";
 import { History } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { PageTabBar } from "@/components/PageTabBar";
@@ -20,6 +21,7 @@ import {
 } from "./audit-navigation";
 
 export function AuditHub({ section }: { section: AuditSection }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
@@ -109,13 +111,13 @@ export function AuditHub({ section }: { section: AuditSection }) {
   }, [setSearchParams]);
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={History} message="Select an organization to view Audit." />;
+    return <EmptyState icon={History} message={t("auditHub.selectOrg", { defaultValue: "Select an organization to view Audit." })} />;
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">Audit</h1>
+        <h1 className="text-3xl font-semibold tracking-tight text-foreground">{t("nav.audit", { defaultValue: "Audit" })}</h1>
       </div>
 
       <Tabs

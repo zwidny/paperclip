@@ -5,11 +5,10 @@ import {
   Field,
 } from "../../components/agent-config-primitives";
 import { ChoosePathButton } from "../../components/PathInstructionsModal";
+import { useTranslation } from "@/i18n";
 
 const inputClass =
   "w-full rounded-md border border-border px-2.5 py-1.5 bg-transparent outline-none text-sm font-mono placeholder:text-muted-foreground/40";
-const instructionsFileHint =
-  "Absolute path to a markdown file (e.g. AGENTS.md) that defines this agent's behavior. Prepended to the Kimi prompt at runtime.";
 
 export function KimiLocalConfigFields({
   section,
@@ -21,10 +20,11 @@ export function KimiLocalConfigFields({
   mark,
   hideInstructionsFile,
 }: AdapterConfigFieldsProps) {
+  const { t } = useTranslation();
   if (hideInstructionsFile) return null;
   return configFieldsForSection(section, (
     <>
-      <Field label="Agent instructions file" hint={instructionsFileHint}>
+      <Field label={t("adapterConfig.kimiLocal.instructionsFile", { defaultValue: "Agent instructions file" })} hint={t("adapterConfig.kimiLocal.instructionsFileHint", { defaultValue: "Absolute path to a markdown file (e.g. AGENTS.md) that defines this agent's behavior. Prepended to the Kimi prompt at runtime." })}>
         <div className="flex items-center gap-2">
           <DraftInput
             value={

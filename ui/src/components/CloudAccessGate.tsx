@@ -18,6 +18,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CloudSignIn } from "@/components/CloudSignIn";
 import { useSuppressConnectionBanner } from "@/components/ConnectionStatusBanner";
+import { useTranslation } from "@/i18n";
 import { clearCloudSignInAttempt } from "@/lib/cloud-sign-in";
 
 /** Poll while the server reports `starting`; outages are polled by `lib/connectivity`. */
@@ -56,10 +57,11 @@ export function CloudAccessError({
 }
 
 function NoBoardAccessPage() {
+  const { t } = useTranslation();
   return (
     <div className="mx-auto max-w-xl py-10">
       <Card className="block p-6">
-        <h1 className="text-xl font-semibold">No organization access</h1>
+        <h1 className="text-xl font-semibold">{t("cloudAccess.noOrgTitle", { defaultValue: "No organization access" })}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           This account is signed in, but it does not have an active organization membership or instance-admin access on
           this Paperclip instance.

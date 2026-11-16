@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import type { Agent, Issue } from "@paperclipai/shared";
 import { useQuery } from "@tanstack/react-query";
 import { accessApi } from "../api/access";
+import { useTranslation } from "@/i18n";
 import { formatAssigneeUserLabel } from "../lib/assignees";
 import { buildCompanyUserInlineOptions, buildCompanyUserLabelMap } from "../lib/company-members";
 import { queryKeys } from "../lib/queryKeys";
@@ -33,6 +34,7 @@ export function ExecutionParticipantPicker({
   currentUserId,
   onUpdate,
 }: ExecutionParticipantPickerProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const policyAvailable = useExecutionPolicy(issue.executionPolicy).success;
@@ -96,7 +98,7 @@ export function ExecutionParticipantPicker({
   const Icon = stageType === "review" ? Eye : ShieldCheck;
 
   if (!policyAvailable) {
-    return <span role="status" className="text-xs text-muted-foreground">Execution policy unavailable. Refresh to try again.</span>;
+    return <span role="status" className="text-xs text-muted-foreground">{t("executionParticipantPicker.policyUnavailable", { defaultValue: "Execution policy unavailable. Refresh to try again." })}</span>;
   }
 
   return (

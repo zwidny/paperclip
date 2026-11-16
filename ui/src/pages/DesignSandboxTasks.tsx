@@ -1,4 +1,5 @@
 import { companyProjectsQuery } from "@/lib/company-projects-query";
+import { useTranslation } from "@/i18n";
 import { useEffect } from "react";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ListChecks, SearchX } from "lucide-react";
@@ -27,6 +28,7 @@ const pageSize = 200;
 /** Real API adapter for the Design proposals / Pages / Tasks composition.
  * All visual and collection behavior comes from the reviewed shared subjects. */
 export function DesignSandboxTasks() {
+  const { t } = useTranslation();
   const { selectedCompanyId: companyId } = useCompany();
   const { userId } = useAccountIdentity();
   const { openNewIssue } = useDialogActions();
@@ -97,8 +99,8 @@ export function DesignSandboxTasks() {
       onNewTask={() => openNewIssue()} filters={{ state: collection.filters, onChange: collection.updateFilters, activeFilterCount: collection.activeFilterCount,
         enableLiveRunsFilter: false,
         agents: agents.data ?? [], projects: projects.data ?? [], labels: labels.data ?? [], currentUserId: userId, creators: collection.creators }} />
-    {error ? <div role="alert" className="flex items-center gap-2 text-sm text-destructive"><span>{error instanceof Error ? error.message : "Could not load tasks"}</span><Button variant="outline" size="sm" onClick={() => { update.reset(); void client.invalidateQueries({ queryKey: queryKeys.issues.list(companyId) }); void agents.refetch(); void projects.refetch(); void directory.refetch(); void labels.refetch(); }}>Retry</Button></div> : null}
-    {tasks.isPending ? <p role="status" className="text-sm text-muted-foreground">Loading tasks…</p> : <>
+    {error ? <div role="alert" className="flex items-center gap-2 text-sm text-destructive"><span>{error instanceof Error ? error.message : "Could not load tasks"}</span><Button variant="outline" size="sm" onClick={() => { update.reset(); void client.invalidateQueries({ queryKey: queryKeys.issues.list(companyId) }); void agents.refetch(); void projects.refetch(); void directory.refetch(); void labels.refetch(); }}>{t("common.retry", { defaultValue: "Retry" })}</Button></div> : null}
+    {tasks.isPending ? <p role="status" className="text-sm text-muted-foreground">{t("designSandboxTasks.loadingTasks", { defaultValue: "Loading tasks…" })}</p> : <>
       {collection.narrowed ? <p role="status" className="design-task-results">{collection.matchingItems.length} matching tasks{collection.layout === "list" && collection.visibleItems.length > collection.matchingItems.length ? " · Parent tasks included for context" : ""}</p> : null}
       <div hidden={collection.layout !== "list"} className="design-task-list-panel"><TaskList key={companyId} items={collection.visibleItems} allItems={collection.companyItems} collapsedIds={collection.collapsedIds} onCollapsedIdsChange={collection.setCollapsedIds} emptyState={empty} /></div>
       {collection.layout === "board" ? collection.matchingItems.length ? <KanbanBoard showOverflowFades issues={collection.matchingItems.map(item => item.issue)} agents={agents.data} onUpdateIssue={(id, data) => update.mutate({ id, data })} /> : empty : null}

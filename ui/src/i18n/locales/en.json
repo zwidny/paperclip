@@ -306,7 +306,8 @@
     "out": "out",
     "close": "Close",
     "loading": "Loading…",
-    "continue": "Continue"
+    "continue": "Continue",
+    "selectPlaceholder": "Select…"
   },
   "auth": {
     "failed": "Authentication failed",
@@ -935,7 +936,8 @@
       "connection": "Connection",
       "connectModel": "Connect model",
       "finishSetup": "Finish setup",
-      "defaultEnvironment": "Default: {{environment}}"
+      "defaultEnvironment": "Default: {{environment}}",
+      "cursorCloudExperimental": "Experimental. Cursor hosts this agent’s execution environment. A Paperclip computer is not required. Cursor manages cloud command permissions; the effective model is not acknowledged."
     },
     "backToAgents": "Back to agents",
     "loadingAgentSetup": "Loading your agent setup…",
@@ -1995,7 +1997,8 @@
         "reconnect": "Reconnect verifies this same BotFather bot and automatically refreshes its Paperclip webhook and command menu.",
         "remove": "Paperclip archives the endpoint and queues durable removal of its Telegram webhook and command menu. After Telegram confirms that cleanup, Paperclip retires the saved token. The BotFather bot and its chat memberships remain until you remove them in Telegram."
       }
-    }
+    },
+    "openSlack": "Open Slack"
   },
   "profiles": {
     "selectApplication": "Select an application",
@@ -2305,7 +2308,8 @@
     "copied": "Copied",
     "copyAuditHash": "Copy audit hash",
     "copyAuditHashHint": "Copy the hash that identifies these exact arguments",
-    "copyFailed": "Couldn’t copy"
+    "copyFailed": "Couldn’t copy",
+    "filtersAria": "Tool audit filters"
   },
   "experimental": {
     "title": "Experimental",
@@ -2887,7 +2891,15 @@
       "unknown": "Unknown vault",
       "inlineDefault": "Default vault",
       "inlineVault": "Vault",
-      "inlineSummary": "{{label}} · {{status}}"
+      "inlineSummary": "{{label}} · {{status}}",
+      "actionsFor": "Actions for {{name}}",
+      "editConnection": "Edit connection",
+      "checkConnection": "Check connection",
+      "importSecrets": "Import secrets from it",
+      "makeDefault": "Make default",
+      "enable": "Enable",
+      "disable": "Disable",
+      "removeVault": "Remove vault"
     },
     "toast": {
       "secretCreated": "Secret created",
@@ -4719,7 +4731,15 @@
       "webhookWaiting": "Waiting for GitHub to deliver its signed webhook ping…",
       "httpsRequired": "Configure a public HTTPS URL for this Paperclip instance before connecting GitHub.",
       "reconnectAndVerify": "Reconnect and verify",
-      "connectAndVerify": "Connect and verify"
+      "connectAndVerify": "Connect and verify",
+      "labelWebhooksActive": "Webhooks · Active",
+      "labelSslVerification": "Enable SSL verification",
+      "labelIssues": "Issues",
+      "labelPullRequests": "Pull requests",
+      "labelReadWrite": "Read & write",
+      "labelIssueComment": "Issue comment",
+      "labelPullRequestReviewComment": "Pull request review comment",
+      "labelOnlyOnThisAccount": "Only on this account"
     },
     "slack": {
       "openAppSettings": "Open Slack app Settings",
@@ -4986,7 +5006,8 @@
       "budgetUsedLabel": "Budget used",
       "noMonthlyBudget": "No monthly budget set",
       "ofBudgetThisMonth": "of {{amount}} this month",
-      "profile": "Profile"
+      "profile": "Profile",
+      "eventsThisWeek": "Events this week"
     },
     "auditLink": {
       "activity": "Activity",
@@ -7911,7 +7932,8 @@
       "deletedLast": "{{app}} is no longer available to agents and its credentials are deleted. Connecting it again needs a new sign-in or key.",
       "deleteFailedTitle": "Couldn't delete the connection",
       "pleaseTryAgain": "Please try again."
-    }
+    },
+    "setupProgress": "Setup progress"
   },
   "appIdentities": {
     "loadError": "We couldn't load who this connection acts as. Reload the page to try again.",
@@ -9541,7 +9563,8 @@
     "zoomOut": "Zoom out",
     "controlsAria": "Org chart controls",
     "chartCameraAria": "Chart camera",
-    "tasksLayer": "Tasks"
+    "tasksLayer": "Tasks",
+    "fitChartToScreen": "Fit chart to screen"
   },
   "pluginSettings": {
     "about": "About",
@@ -10295,7 +10318,8 @@
       "test": "Test"
     },
     "openGithubInstallationSettings": "Open installation settings on GitHub",
-    "recentActivity": "Recent activity"
+    "recentActivity": "Recent activity",
+    "openInstallationSettings": "Open installation settings on GitHub"
   },
   "appNotConnected": {
     "appFallback": "App",
@@ -10986,7 +11010,9 @@
     "keepInQueue": "Keep this message in the queue",
     "planProgress": "Plan progress",
     "showFewer": "Show fewer",
-    "subagentsAria": "Subagents"
+    "subagentsAria": "Subagents",
+    "proposedPlan": "Proposed a plan ·",
+    "patchTooLarge": "This patch is too large to show here."
   },
   "runnerGoal": {
     "pendingStarting": "Starting",
@@ -14635,7 +14661,8 @@
     "claimInstance": "Claim this instance",
     "signedInAs": "Signed in as ",
     "wrongAccount": "Wrong account? ",
-    "switchAccount": "Switch account"
+    "switchAccount": "Switch account",
+    "signInOrCreate": "Sign in / Create account"
   },
   "frontmatterPanel": {
     "frontmatter": "Frontmatter",
@@ -14913,7 +14940,9 @@
     "clipboardUnavailable": "Clipboard access is unavailable.",
     "copyAgentId": "Copy Agent ID",
     "resetSessions": "Reset Sessions",
-    "terminate": "Terminate"
+    "terminate": "Terminate",
+    "chatWith": "Chat with {{name}}",
+    "chatWithTitle": "Chat with this agent"
   },
   "dispositionRecovery": {
     "reasonOpenTask": "Open the task to review its current state.",
@@ -14967,7 +14996,11 @@
       "team": "Team",
       "agent": "Agent",
       "task": "Task"
-    }
+    },
+    "status": "Status",
+    "none": "None",
+    "created": "Created",
+    "updated": "Updated"
   },
   "newProjectDialog": {
     "connectGithub": "Connect GitHub",
@@ -15034,7 +15067,9 @@
     "untrackedServices": "Untracked services",
     "untrackedDescription": "Running services that no longer match the current workspace command config.",
     "serviceEmptyMessage": "No services are configured for this workspace.",
-    "jobEmptyMessage": "No one-shot jobs are configured for this workspace."
+    "jobEmptyMessage": "No one-shot jobs are configured for this workspace.",
+    "servicesRunning": "{{count}} services running",
+    "jobsAvailable": "{{count}} job available to run on demand."
   },
   "artifactUpload": {
     "chooseFilesAria": "Choose artifact files",
@@ -15151,7 +15186,8 @@
     },
     "updateFailed": "Failed to update skills",
     "disableSkillAria": "Disable {{name}}",
-    "enableSkillAria": "Enable {{name}}"
+    "enableSkillAria": "Enable {{name}}",
+    "controlsAria": "Agent skills controls"
   },
   "aggregatorApp": {
     "accountFallback": "{{name}} account",
@@ -15417,7 +15453,9 @@
     "discover": "Discover",
     "installed": "Installed",
     "mySkills": "My Skills",
-    "sources": "Sources"
+    "sources": "Sources",
+    "title": "Skills",
+    "navAria": "Skills"
   },
   "slackAvatarStep": {
     "avatarAlt": "{{name}}’s Cliptoon avatar",
@@ -16229,7 +16267,8 @@
       "invalidMessage": "This is not a valid HTTP or HTTPS URL. Your sending app needs a complete address it can reach.",
       "continueHint": "You can continue for local or private-network use. For public senders, use a publicly reachable HTTPS URL.",
       "learnHttps": "Learn how to set up HTTPS and public access"
-    }
+    },
+    "webhookUrl": "Webhook URL"
   },
   "webhookFields": {
     "copyAria": "Copy {{label}}",
@@ -16276,7 +16315,8 @@
     "disabledSuffix": ". Your workspace preference does not change Chat availability. Existing history remains available through task links.",
     "experimentalSettingsLink": "Experimental settings",
     "loadingConversation": "Loading conversation…",
-    "notFound": "Agent not found."
+    "notFound": "Agent not found.",
+    "disabledTail": "Your workspace preference does not change Chat availability. Existing history remains available through task links."
   },
   "aiConnectionPicker": {
     "companyShared": "Company shared",
@@ -16285,7 +16325,9 @@
     "loadingAria": "Loading AI connections",
     "otherUsers": "Other users’ tasks use their own {{provider}} connection.",
     "responsibleUserConnection": "Responsible user’s connection",
-    "retryConnections": "Retry connections"
+    "retryConnections": "Retry connections",
+    "title": "AI connection",
+    "reconnectAccount": "Reconnect account"
   },
   "artifactCard": {
     "document": "Document",
@@ -16369,7 +16411,9 @@
     "thTokens": "Tokens in / out",
     "thWhenFeature": "When / feature",
     "unknown": "Unknown",
-    "viewTask": "View task"
+    "viewTask": "View task",
+    "model": "Model",
+    "thStatus": "Status"
   },
   "envVarEditor": {
     "defaultHint": "Set the KEY to the env var name the process expects, for example GH_TOKEN. Choose a secret to resolve a stored value at run start. PAPERCLIP_* variables are injected automatically.",
@@ -16389,7 +16433,9 @@
     "removedPrefix": "Removed: {{names}}",
     "revert": "Revert",
     "unsavedChanges": "Unsaved changes",
-    "userSecretsHint": "User secrets resolve from the user responsible for the run. Required bindings fail until that user sets their value under Secrets → My secrets."
+    "userSecretsHint": "User secrets resolve from the user responsible for the run. Required bindings fail until that user sets their value under Secrets → My secrets.",
+    "nameColumn": "Name",
+    "valueColumn": "Value"
   },
   "goalsPage": {
     "addGoal": "Add Goal",
@@ -16474,7 +16520,8 @@
     "retrying": "Retrying…",
     "revision": "Revision {{number}}",
     "skillInstructions": "Skill instructions",
-    "unavailable": "Skill no longer available."
+    "unavailable": "Skill no longer available.",
+    "loading": "Loading skill…"
   },
   "taskWorkspaceFilePanel": {
     "copied": "Copied",
@@ -16510,7 +16557,9 @@
     "review": "Review",
     "waitingForOk": "waiting for your OK",
     "developerDescriptionProduction": "Advanced setup for developers. Most teams never open this.",
-    "connections": "Connections"
+    "connections": "Connections",
+    "connectors": "Connectors",
+    "waitingForOkCount": "{{count}} waiting for your OK"
   },
   "caseActivityFeed": {
     "activityFilter": "Activity filter",
@@ -16630,7 +16679,9 @@
     "expandAria": "Expand {{key}} document",
     "noRevisions": "No revisions yet",
     "revisionShort": "rev {{number}}",
-    "updated": "updated {{time}}"
+    "updated": "updated {{time}}",
+    "revisionHistory": "Revision history",
+    "loadingRevisions": "Loading revisions..."
   },
   "emailTaskActivity": {
     "confirmNotSent": "Confirm not sent",
@@ -16806,7 +16857,10 @@
     "newProject": "New project",
     "sectionActionsAria": "Projects section actions",
     "browseProjects": "Browse projects",
-    "sortAria": "Project sort"
+    "sortAria": "Project sort",
+    "projects": "Projects",
+    "privateProject": "Private project",
+    "projectPausedByBudget": "Project paused by budget"
   },
   "sidebarServerInfo": {
     "server": "Server",
@@ -16837,7 +16891,10 @@
     "pathCopied": "Path copied",
     "service": "Service",
     "linkedTasks": "Linked tasks",
-    "moreIssues": "+{{count}} more"
+    "moreIssues": "+{{count}} more",
+    "startServices": "Start services",
+    "branch": "Branch",
+    "copyPath": "Copy path"
   },
   "standaloneBrowserControls": {
     "refresh": "Refresh",
@@ -16947,7 +17004,9 @@
     "artifacts": "Artifacts",
     "reviewedRevisionUnavailable": "Reviewed revision unavailable",
     "reviewedRevisionUnavailableBody": "The exact reviewed revision could not be found. The current version has not been substituted.",
-    "reviewedVersion": "Reviewed version"
+    "reviewedVersion": "Reviewed version",
+    "conversationDocuments": "Conversation documents",
+    "documentEmpty": "Document is empty."
   },
   "voiceControls": {
     "sectionAria": "Voice conversation with {{name}}",
@@ -17123,16 +17182,21 @@
     "documentEmpty": "Document is empty.",
     "needsReview": "This document needs your review.",
     "approved": "Approved — hire tasks created",
-    "changesRequested": "Changes requested — CEO is revising"
+    "changesRequested": "Changes requested — CEO is revising",
+    "title": "Artifacts"
   },
   "boardDialogs": {
-    "newGoal": "New goal"
+    "newGoal": "New goal",
+    "newTask": "New task",
+    "newProject": "New project",
+    "newAgent": "New agent"
   },
   "caseFieldsPanel": {
     "copied": "Copied",
     "noFields": "No fields set",
     "tableAria": "Case fields",
-    "description": "from the skill's schema — rendered generically"
+    "description": "from the skill's schema — rendered generically",
+    "fields": "Fields"
   },
   "configureBuiltInAgent": {
     "modelUnavailable": "Model “{{model}}” is not available for {{adapter}}. Choose a known model.",
@@ -17413,7 +17477,8 @@
     "defaultBlocked": "Choose another access profile and make it the organization default first."
   },
   "agentAvatarDownload": {
-    "downloadFailed": "Couldn’t download the avatar. Try downloading it again."
+    "downloadFailed": "Couldn’t download the avatar. Try downloading it again.",
+    "download": "Download avatar"
   },
   "approvalCard": {
     "requestedBy": "Requested by",
@@ -17442,7 +17507,8 @@
   "chatComposer": {
     "dropToAttach": "Drop files to attach",
     "attachFiles": "Attach files",
-    "messagePlaceholder": "Message…"
+    "messagePlaceholder": "Message…",
+    "sendMessage": "Send message"
   },
   "cloudSignIn": {
     "title": "Sign in to Paperclip Cloud",
@@ -17788,7 +17854,9 @@
   },
   "outputRow": {
     "fileDetailsUnavailable": "File details unavailable",
-    "downloadAria": "Download {{filename}}"
+    "downloadAria": "Download {{filename}}",
+    "openInNewTab": "Open in new tab",
+    "download": "Download"
   },
   "agentProviderConnection": {
     "connectionType": "Connection type",
@@ -17844,7 +17912,8 @@
     "approveFailed": "Failed to approve",
     "rejectFailed": "Failed to reject",
     "noPending": "No pending approvals.",
-    "noApprovals": "No approvals yet."
+    "noApprovals": "No approvals yet.",
+    "selectOrganizationFirst": "Select an organization first."
   },
   "localAiLogin": {
     "submitFailed": "Could not submit the authorization code. Start sign-in again."
@@ -18106,13 +18175,15 @@
     "parked": "Parked",
     "untilStatus": " will not be asked to work on this until status changes to To do or In progress.",
     "commentsNote": "Comments still notify the assignee for questions or triage. Leave this parked only if the work is intentionally on hold.",
-    "resumeNow": "Resume now"
+    "resumeNow": "Resume now",
+    "resuming": "Resuming…"
   },
   "issueCasesPanel": {
     "workflow": "workflow",
     "roleOrigin": "origin",
     "roleWork": "work",
-    "roleReference": "reference"
+    "roleReference": "reference",
+    "cases": "Cases"
   },
   "issueLinkQuicklook": {
     "loadFailed": "Unable to load task preview."
@@ -18317,7 +18388,8 @@
     "viewCommitOnGithub": "View commit {{commit}} on GitHub"
   },
   "sidebarShell": {
-    "resizeAria": "Resize sidebar"
+    "resizeAria": "Resize sidebar",
+    "resizeSidebar": "Resize sidebar"
   },
   "skillBinaryFile": {
     "body": "This asset is stored in its original binary format.",
@@ -18344,7 +18416,9 @@
     "runOne": "Run one from the Smoke Lab tab"
   },
   "sourceResolvedFoldBadge": {
-    "label": "Source-resolved"
+    "label": "Source-resolved",
+    "foldTitle": "System folded this run as a source-resolved false positive.",
+    "foldAria": "Source-resolved watchdog fold"
   },
   "stalledReviewActions": {
     "notePlaceholder": "Add a note — required to request changes, optional otherwise…",
@@ -18376,7 +18450,8 @@
     }
   },
   "caseListRow": {
-    "taskUnavailable": "Task unavailable"
+    "taskUnavailable": "Task unavailable",
+    "noTaskLinked": "No task linked"
   },
   "fastResponseHistory": {
     "loading": "Loading fast responses…",
@@ -18419,7 +18494,8 @@
     "title": "Skill created"
   },
   "issueCreatedFromNote": {
-    "byAgent": "by {{name}}"
+    "byAgent": "by {{name}}",
+    "createdFrom": "Created from"
   },
   "breadcrumb": {
     "navAria": "breadcrumb",
@@ -19438,7 +19514,8 @@
       "nothingElseWaiting": "Nothing else is waiting on you.",
       "openNewTab": "Open a new tab",
       "noLongerWaiting": "This is no longer waiting on you."
-    }
+    },
+    "decisionUpdatesLoadFailed": "Decision updates couldn’t load."
   },
   "apiErrors": {
     "actions": {
@@ -19617,7 +19694,8 @@
     "switchAgent": "Switch agent"
   },
   "inlineEditor": {
-    "clickToEdit": "Click to edit..."
+    "clickToEdit": "Click to edit...",
+    "retrySaving": "Retry saving"
   },
   "decisionResolver": {
     "issueFallback": "issue {{id}}",
@@ -19882,7 +19960,8 @@
       "reconnectReplacesCredential": "Reconnecting replaces the credential without changing which agents can use it.",
       "chooseExactlyOneAgent": "Choose exactly one agent. This identity cannot be shared with other agents.",
       "sheetsReady_one": "{{count}} sheet ready to connect.",
-      "sheetsReady_other": "{{count}} sheets ready to connect."
+      "sheetsReady_other": "{{count}} sheets ready to connect.",
+      "useYourOwnNamedOauthApp": "Use your own {{app}} OAuth app"
     }
   },
   "tailscale": {
@@ -20208,7 +20287,9 @@
     },
     "shared": {
       "agentInstructionsFile": "Agent instructions file",
-      "instructionsFileHint": "Absolute path to a markdown file (e.g. AGENTS.md) that defines this agent's behavior. Injected into the system prompt at runtime. Note: Codex may still auto-apply repo-scoped AGENTS.md files from the workspace."
+      "instructionsFileHint": "Absolute path to a markdown file (e.g. AGENTS.md) that defines this agent's behavior. Injected into the system prompt at runtime. Note: Codex may still auto-apply repo-scoped AGENTS.md files from the workspace.",
+      "runtimeServicesJson": "Runtime services JSON",
+      "payloadTemplateJson": "Payload template JSON"
     },
     "openclawGateway": {
       "gatewayUrl": "Gateway URL",
@@ -20327,6 +20408,14 @@
     },
     "http": {
       "webhookUrl": "Webhook URL"
+    },
+    "kimiLocal": {
+      "instructionsFile": "Agent instructions file",
+      "instructionsFileHint": "Absolute path to a markdown file (e.g. AGENTS.md) that defines this agent's behavior. Prepended to the Kimi prompt at runtime."
+    },
+    "piLocal": {
+      "instructionsFile": "Agent instructions file",
+      "instructionsFileHint": "Absolute path to a markdown file (e.g. AGENTS.md) that defines this agent's behavior. Injected into the system prompt at runtime."
     }
   },
   "agentConfigHelp": {
@@ -20501,5 +20590,79 @@
     "findResponsibleUserAria": "Find a responsible user",
     "hint": "Automatic tasks use this person. Manual runs use the person who starts them.",
     "noPeopleFound": "No people found."
+  },
+  "aiConnectionAccountDetails": {
+    "connectedAccount": "Connected account",
+    "providerAccount": "{{provider}} account",
+    "notAvailable": "Not available",
+    "organization": "Organization",
+    "signInMethod": "Sign-in method",
+    "access": "Access",
+    "companyShared": "Company shared",
+    "personal": "Personal · {{owner}}",
+    "accountOwner": "Account owner",
+    "checking": "Checking account details…",
+    "retry": "Retry account check"
+  },
+  "taskChatRunHealth": {
+    "serverFailed": " MCP server failed to start",
+    "serversCount": "{{count}} MCP servers",
+    "failedToStart": " failed to start: ",
+    "explanation": "The agent ran without these tools. Fix the server's command or credentials, then try again."
+  },
+  "agentRateLimitGauge": {
+    "limitReachedCredits": "Limit reached; work continues on account credits.",
+    "usageLimits": "{{provider}} usage limits",
+    "reported": "Reported {{time}}"
+  },
+  "slackAppDetails": {
+    "advanced": "Advanced"
+  },
+  "remoteMcpProductionSetup": {
+    "loadingSavedAccess": "Loading saved access…"
+  },
+  "taskSummaryList": {
+    "recentTasks": "Recent tasks"
+  },
+  "taskBrowserActivity": {
+    "sessionAria": "{{label}} session",
+    "viewSession": "View session",
+    "openBrowser": "Open browser"
+  },
+  "taskChatLoadingShell": {
+    "loading": "Loading conversation"
+  },
+  "taskChatDiffView": {
+    "shortened": "Diff shortened for display."
+  },
+  "activeAgents": {
+    "title": "Agents",
+    "empty": "No recent agent runs."
+  },
+  "costAmount": {
+    "unavailable_one": "{{count}} cost unavailable",
+    "unavailable_other": "{{count}} costs unavailable"
+  },
+  "agentIconPicker": {
+    "searchIcons": "Search icons...",
+    "noIconsMatch": "No icons match"
+  },
+  "caseIdentifierKey": {
+    "caseId": "case ID",
+    "caseKey": "case key"
+  },
+  "financeKindCard": {
+    "title": "Financial event mix",
+    "description": "Account-level charges grouped by event kind.",
+    "empty": "No finance events in this period."
+  },
+  "designSandboxTasks": {
+    "loadingTasks": "Loading tasks…"
+  },
+  "agentSkillRow": {
+    "readOnly": "Read-only"
+  },
+  "stalledDependencyNotice": {
+    "takingLonger": "Taking longer than usual…"
   }
 }

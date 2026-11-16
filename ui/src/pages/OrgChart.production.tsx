@@ -1,4 +1,5 @@
 import { AgentAvatar } from "@/components/AgentAvatar";
+import { useTranslation } from "@/i18n";
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { Link, useNavigate } from "@/lib/router";
 import { useQuery } from "@tanstack/react-query";
@@ -175,6 +176,7 @@ const defaultDotColor = "var(--hex-a3a3a3)";
 // ── Main component ──────────────────────────────────────────────────────
 
 export function OrgChart() {
+  const { t } = useTranslation();
   const { selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const navigate = useNavigate();
@@ -519,8 +521,8 @@ export function OrgChart() {
                 });
               }
             }}
-            title="Zoom in"
-            aria-label="Zoom in"
+            title={t("orgChart.zoomIn", { defaultValue: "Zoom in" })}
+            aria-label={t("orgChart.zoomIn", { defaultValue: "Zoom in" })}
           >
             <Plus className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
           </button>
@@ -535,16 +537,16 @@ export function OrgChart() {
                 });
               }
             }}
-            title="Zoom out"
-            aria-label="Zoom out"
+            title={t("orgChart.zoomOut", { defaultValue: "Zoom out" })}
+            aria-label={t("orgChart.zoomOut", { defaultValue: "Zoom out" })}
           >
             <Minus className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
           </button>
           <button
             className="flex size-9 items-center justify-center rounded border border-border bg-background text-(length:--text-nano) transition-colors hover:bg-accent sm:size-7"
             onClick={fitToScreen}
-            title="Fit to screen"
-            aria-label="Fit chart to screen"
+            title={t("orgChart.fitToScreen", { defaultValue: "Fit to screen" })}
+            aria-label={t("orgChart.fitChartToScreen", { defaultValue: "Fit chart to screen" })}
           >
             <Maximize2 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
           </button>

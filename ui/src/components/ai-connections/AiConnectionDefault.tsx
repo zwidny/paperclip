@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Crown, Loader2 } from "lucide-react";
 import type { AiManagedConnectionSummary } from "@paperclipai/shared";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/i18n";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { AI_PROVIDERS } from "./model";
@@ -37,8 +38,9 @@ export function AiDefaultMenuItem({ account, pending, onSelect }: {
 export function AiDefaultError({ provider, pending, onRetry }: {
   provider: string; pending: boolean; onRetry: () => void;
 }) {
+  const { t } = useTranslation();
   return <div role="alert" className="flex flex-wrap items-center gap-2 text-sm text-destructive">
     <p>Couldn’t change your {provider} default.</p>
-    <Button variant="outline" size="sm" disabled={pending} onClick={onRetry}>Retry</Button>
+    <Button variant="outline" size="sm" disabled={pending} onClick={onRetry}>{t("common.retry", { defaultValue: "Retry" })}</Button>
   </div>;
 }

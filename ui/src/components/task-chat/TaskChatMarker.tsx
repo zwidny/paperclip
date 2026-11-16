@@ -6,6 +6,7 @@ import type { TaskChatMarkerItem } from "./task-chat-model";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/lib/router";
 import { timeAgo } from "@/lib/timeAgo";
+import { useTranslation } from "@/i18n";
 
 const VARIANT_ICON = {
   session_start: CircleDot,
@@ -28,6 +29,7 @@ export function TaskChatMarker({
   onTryAgain?: () => Promise<void> | void;
   tryAgainPending?: boolean;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const detailsId = useId();
   const streamlined = useStreamlinedTaskChatPresentation();
@@ -56,8 +58,8 @@ export function TaskChatMarker({
             Choose an AI connection {deniedUser === "you" ? "you can" : `${deniedUser} can`} use, or ask an administrator to update {agentName}’s connection. Then try again.
           </p>
           <div className="flex flex-wrap items-center gap-2 pt-1">
-            <Button asChild variant="outline" size="sm"><Link to={settingsHref}>Change AI connection</Link></Button>
-            {item.runHref && <Button asChild variant="ghost" size="sm"><Link to={item.runHref}>View run</Link></Button>}
+            <Button asChild variant="outline" size="sm"><Link to={settingsHref}>{t("taskChat.changeAiConnection", { defaultValue: "Change AI connection" })}</Link></Button>
+            {item.runHref && <Button asChild variant="ghost" size="sm"><Link to={item.runHref}>{t("taskChat.viewRun", { defaultValue: "View run" })}</Link></Button>}
           </div>
         </div>
       </div>
@@ -125,7 +127,7 @@ export function TaskChatMarker({
               <div className="flex items-center justify-end gap-2 border-t border-border/70 bg-background/50 px-3 py-2 dark:bg-background/30">
                 {item.planHref ? (
                   <Button asChild variant="ghost" size="xs">
-                    <Link to={item.planHref}>View saved plan</Link>
+                    <Link to={item.planHref}>{t("taskChat.viewSavedPlan", { defaultValue: "View saved plan" })}</Link>
                   </Button>
                 ) : null}
                 {item.runHref ? (

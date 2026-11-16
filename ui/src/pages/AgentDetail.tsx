@@ -1517,7 +1517,7 @@ export function AgentOverview({
           icon={ActivityIcon}
           value={activity.isLoading ? "–" : formatWindowCount(activityThisWeek)}
           label={t("agentDetail.auditLink.activity", { defaultValue: "Activity" })}
-          description="Events this week"
+          description={t("agentDetail.overview.eventsThisWeek", { defaultValue: "Events this week" })}
           to={agentDetailHref(agentRef, "activity")}
         />
         <AgentMetricTile

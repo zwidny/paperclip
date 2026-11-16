@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from "react";
+import { useTranslation } from "@/i18n";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CalendarClock, Plus, Webhook } from "lucide-react";
 import type { RoutineTrigger } from "@paperclipai/shared";
@@ -63,6 +64,7 @@ function scheduleCron(draft: TriggerDraft) {
 }
 
 export function RoutineTriggers() {
+  const { t } = useTranslation();
   const ctx = useRoutineDetail();
   const [params, setParams] = useSearchParams();
   const setupId = params.get("triggerSetup");
@@ -193,8 +195,8 @@ export function RoutineTriggers() {
           <p className="text-sm font-medium">{ctx.secretMessage.title}</p>
           {ctx.secretMessage.entries.map((entry) => (
             <div key={entry.webhookUrl} className="space-y-3">
-              <CopyField label="Webhook URL" value={entry.webhookUrl} />
-              <CopyField label="Secret key" value={entry.webhookSecret} />
+              <CopyField label={t("routineTriggers.webhookUrl", { defaultValue: "Webhook URL" })} value={entry.webhookUrl} />
+              <CopyField label={t("routineTriggers.secretKey", { defaultValue: "Secret key" })} value={entry.webhookSecret} />
             </div>
           ))}
           <Button variant="outline" onClick={() => ctx.setSecretMessage(null)}>
@@ -512,6 +514,7 @@ function WebhookSettings({
   routineTitle: string;
   onRefresh: () => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const [secret, setSecret] = useState("");
   const [replace, setReplace] = useState(false);
   const [checkBaseline, setCheckBaseline] = useState<string | null>(null);
@@ -536,7 +539,7 @@ function WebhookSettings({
           )}
         />
       )}
-      <CopyField label="Webhook URL" value={trigger.webhookUrl ?? ""} />
+      <CopyField label={t("routineTriggers.webhookUrl", { defaultValue: "Webhook URL" })} value={trigger.webhookUrl ?? ""} />
       {trigger.signingMode !== "none" && (
         <div className="space-y-2">
           {secret ? (
@@ -556,7 +559,7 @@ function WebhookSettings({
             </p>
           )}
           <Button variant="outline" size="sm" onClick={() => setReplace(true)}>
-            Replace key
+            {t("routineTriggers.replaceKey", { defaultValue: "Replace key" })}
           </Button>
           {secret && (
             <Button variant="ghost" size="sm" onClick={() => setSecret("")}>
@@ -583,15 +586,14 @@ function WebhookSettings({
           setCheckBaseline(trigger.lastWebhookDelivery?.receivedAt ?? "")
         }
       >
-        Check connection
+        {t("routineTriggers.checkConnection", { defaultValue: "Check connection" })}
       </Button>
       <Dialog open={replace} onOpenChange={setReplace}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Replace the webhook key?</DialogTitle>
+            <DialogTitle>{t("routineTriggers.replaceKeyTitle", { defaultValue: "Replace the webhook key?" })}</DialogTitle>
             <DialogDescription>
-              The old key will stop working. Update your sending app with the
-              new key.
+              {t("routineTriggers.replaceKeyBody", { defaultValue: "The old key will stop working. Update your sending app with the new key." })}
             </DialogDescription>
           </DialogHeader>
           {error && (
@@ -615,14 +617,14 @@ function WebhookSettings({
                 setError(
                   cause instanceof Error
                     ? cause.message
-                    : "Couldn’t replace the key.",
+                    : t("routineTriggers.replaceKeyFailed", { defaultValue: "Couldn’t replace the key." }),
                 );
               } finally {
                 setBusy(false);
               }
             }}
           >
-            Replace key
+            {t("routineTriggers.replaceKey", { defaultValue: "Replace key" })}
           </Button>
         </DialogContent>
       </Dialog>
@@ -634,10 +636,9 @@ function WebhookSettings({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Check connection</DialogTitle>
+            <DialogTitle>{t("routineTriggers.checkConnection", { defaultValue: "Check connection" })}</DialogTitle>
             <DialogDescription>
-              This webhook is already enabled. Events sent now can start the
-              routine. Send an event from your app to check delivery.
+              {t("routineTriggers.checkConnectionDescription", { defaultValue: "This webhook is already enabled. Events sent now can start the routine. Send an event from your app to check delivery." })}
             </DialogDescription>
           </DialogHeader>
           <p role="status" className="text-sm">

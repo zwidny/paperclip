@@ -3,6 +3,7 @@ import type { IssueDocument } from "@paperclipai/shared";
 import { ISSUE_CONTINUATION_SUMMARY_DOCUMENT_KEY } from "@paperclipai/shared";
 import { AgentSetupPrompt } from "@/components/AgentSetupPrompt";
 import { cn, relativeTime } from "../lib/utils";
+import { useTranslation } from "@/i18n";
 import { MarkdownBody, type MarkdownExternalReferenceMap } from "./MarkdownBody";
 import { ChevronDown, ChevronRight, History } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +19,7 @@ export function IssueContinuationHandoff({
   focusSignal = 0,
   externalReferences,
 }: IssueContinuationHandoffProps) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const [highlighted, setHighlighted] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -69,9 +71,9 @@ export function IssueContinuationHandoff({
         </div>
         <AgentSetupPrompt
           prompt={document.body}
-          label="Continue with an agent"
-          title="Task handoff"
-          description="Paste this into your agent to continue from this handoff."
+          label={t("continuationHandoff.continueWithAgent", { defaultValue: "Continue with an agent" })}
+          title={t("continuationHandoff.agentTitle", { defaultValue: "Task handoff" })}
+          description={t("continuationHandoff.agentDescription", { defaultValue: "Paste this into your agent to continue from this handoff." })}
           align="end"
         />
       </div>

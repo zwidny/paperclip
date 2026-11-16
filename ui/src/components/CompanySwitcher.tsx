@@ -1,4 +1,5 @@
 import { ChevronsUpDown, Plus, RefreshCw, Settings } from "lucide-react";
+import { useTranslation } from "@/i18n";
 import { Link } from "@/lib/router";
 import { useCompany } from "../context/CompanyContext";
 import {
@@ -31,6 +32,7 @@ interface CompanySwitcherProps {
 }
 
 export function CompanySwitcher({ open: controlledOpen, onOpenChange }: CompanySwitcherProps = {}) {
+  const { t } = useTranslation();
   const [internalOpen, setInternalOpen] = useState(false);
   const { companies, selectedCompany, setSelectedCompanyId, companyListUnavailable, retryCompanies } =
     useCompany();
@@ -57,7 +59,7 @@ export function CompanySwitcher({ open: controlledOpen, onOpenChange }: CompanyS
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-(--sz-220px)">
-        <DropdownMenuLabel>Organizations</DropdownMenuLabel>
+        <DropdownMenuLabel>{t("companySwitcher.organizations", { defaultValue: "Organizations" })}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {sidebarCompanies.map((company) => (
           <DropdownMenuItem
@@ -75,7 +77,7 @@ export function CompanySwitcher({ open: controlledOpen, onOpenChange }: CompanyS
           // give the customer the way out, since nothing else in the app does.
           companyListUnavailable ? (
             <>
-              <DropdownMenuItem disabled>Couldn't load organizations</DropdownMenuItem>
+              <DropdownMenuItem disabled>{t("companySwitcher.loadFailed", { defaultValue: "Couldn't load organizations" })}</DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={(event) => {
                   // Keep the menu open so the result of the retry is visible.
@@ -84,11 +86,11 @@ export function CompanySwitcher({ open: controlledOpen, onOpenChange }: CompanyS
                 }}
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
-                Try again
+                {t("common.tryAgain", { defaultValue: "Try again" })}
               </DropdownMenuItem>
             </>
           ) : (
-            <DropdownMenuItem disabled>No organizations</DropdownMenuItem>
+            <DropdownMenuItem disabled>{t("companySwitcher.noOrganizations", { defaultValue: "No organizations" })}</DropdownMenuItem>
           )
         )}
         <DropdownMenuSeparator />

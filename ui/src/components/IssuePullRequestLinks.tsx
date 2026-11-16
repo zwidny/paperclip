@@ -1,4 +1,5 @@
 import type { IssueWorkProduct } from "@paperclipai/shared";
+import { useTranslation } from "@/i18n";
 import { Badge } from "@/components/ui/badge";
 import { pullRequestHref, pullRequestIdentity, pullRequestLabel, pullRequestNeedsReview, pullRequestState } from "@/lib/issue-pull-requests";
 import type { ExternalObjectPillData } from "./ExternalObjectPill";
@@ -10,6 +11,7 @@ export function IssuePullRequestLinks({ products, externalObjects = [] }: {
   products: IssueWorkProduct[];
   externalObjects?: ExternalObjectPillData[];
 }) {
+  const { t } = useTranslation();
   return (
     <ul className="flex min-w-0 flex-col gap-2">
       {products.map((product) => {
@@ -38,7 +40,7 @@ export function IssuePullRequestLinks({ products, externalObjects = [] }: {
               </span>
             ) : null}
             {pullRequestNeedsReview(product) && !providerTerminal ? (
-              <Badge variant="outline">Review requested</Badge>
+              <Badge variant="outline">{t("issuePullRequestLinks.reviewRequested", { defaultValue: "Review requested" })}</Badge>
             ) : ["merged", "closed", "archived", "draft", "changes_requested"].includes(state)
               && providerStatus?.toLowerCase() !== state ? (
               <span className="text-xs text-muted-foreground">{provider ? "Saved: " : ""}{state.replaceAll("_", " ")}</span>

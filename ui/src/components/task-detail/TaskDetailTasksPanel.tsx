@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { RelationNavigationList, resolveTaskDetailSubtaskState, TaskDetailSubtasksPanel, TaskDetailTaskList } from "./TaskDetailRelationsPanel";
 import { IssueCreatedFromNote } from "./IssueCreatedFromNote";
+import { useTranslation } from "@/i18n";
 
 function TaskGroup({ name, projectPath, children }: { name: string; projectPath?: string; children: ReactNode }) {
   return (
@@ -49,6 +50,7 @@ export interface TaskDetailTasksPanelProps {
 }
 
 export function TaskDetailTasksPanel({ ancestors = [], createdFrom = null, subtasks, createdTasks, projects, isLoading, hasError, onRetry, issueLinkState }: TaskDetailTasksPanelProps) {
+  const { t } = useTranslation();
   const visibleAncestors = ancestors.filter((item) => item.id !== createdFrom?.issue.id);
   const sortedSubtasks = sortTasks(subtasks);
   const displayedTaskIds = new Set([
@@ -75,7 +77,7 @@ export function TaskDetailTasksPanel({ ancestors = [], createdFrom = null, subta
     groups.set(key, group);
   }
   return (
-    <section className="flex flex-col gap-6" aria-label="Related tasks">
+    <section className="flex flex-col gap-6" aria-label={t("taskDetailTasksPanel.relatedTasks", { defaultValue: "Related tasks" })}>
       {createdFrom && (
         <TaskGroup name="Created from">
           <IssueCreatedFromNote createdFrom={createdFrom} issueLinkState={issueLinkState} className="px-2 text-sm" />
@@ -101,15 +103,15 @@ export function TaskDetailTasksPanel({ ancestors = [], createdFrom = null, subta
           <TaskDetailTaskList items={group.tasks} ariaLabel={`${group.name} tasks`} issueLinkState={issueLinkState} />
         </TaskGroup>
       ))}
-      {isLoading && <p role="status" className="text-sm text-muted-foreground">Loading tasks…</p>}
+      {isLoading && <p role="status" className="text-sm text-muted-foreground">{t("taskDetailTasksPanel.loadingTasks", { defaultValue: "Loading tasks…" })}</p>}
       {hasError && (
         <div role="alert" className="flex items-center gap-2 text-sm text-destructive">
-          <span>Could not load all tasks.</span>
-          {onRetry && <Button variant="ghost" size="sm" onClick={onRetry}>Retry</Button>}
+          <span>{t("taskDetailTasksPanel.loadFailed", { defaultValue: "Could not load all tasks." })}</span>
+          {onRetry && <Button variant="ghost" size="sm" onClick={onRetry}>{t("common.retry", { defaultValue: "Retry" })}</Button>}
         </div>
       )}
       {!isLoading && !hasError && !createdFrom && ancestors.length === 0 && subtasks.length === 0 && createdTasks.length === 0 && (
-        <p className="py-6 text-center text-sm text-muted-foreground">No tasks yet.</p>
+        <p className="py-6 text-center text-sm text-muted-foreground">{t("taskDetailTasksPanel.noTasks", { defaultValue: "No tasks yet." })}</p>
       )}
     </section>
   );

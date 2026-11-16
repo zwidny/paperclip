@@ -10,6 +10,7 @@ import { QueryErrorState, useQueryView } from "@/components/QueryView";
 import { queryKeys } from "@/lib/queryKeys";
 import { documentDisplayTitle } from "@/lib/issue-artifacts";
 import { useLocation } from "@/lib/router";
+import { useTranslation } from "@/i18n";
 
 export function TaskDocumentPanel({
   issueId,
@@ -26,6 +27,7 @@ export function TaskDocumentPanel({
   documentIssueId?: string;
   currentIssueId?: string;
 }) {
+  const { t } = useTranslation();
   const location = useLocation();
   const [annotationPanelOpen, setAnnotationPanelOpen] = useState(false);
   const query = useQuery<IssueDocument | null>({
@@ -90,7 +92,7 @@ export function TaskDocumentPanel({
             docKey={document.key}
             panelOpen={annotationPanelOpen}
             onToggle={() => setAnnotationPanelOpen((open) => !open)}
-          /> : <span>· Reviewed version</span>}
+          /> : <span>· {t("taskSidePanel.reviewedVersion", { defaultValue: "Reviewed version" })}</span>}
         </div>
       </header>
       {document.body.trim() ? (
@@ -112,7 +114,7 @@ export function TaskDocumentPanel({
           </DocumentMarkdownBody>
         </IssueDocumentAnnotations>
       ) : (
-        <p className="text-sm text-muted-foreground">Document is empty.</p>
+        <p className="text-sm text-muted-foreground">{t("taskSidePanel.documentEmpty", { defaultValue: "Document is empty." })}</p>
       )}
     </article>
   );

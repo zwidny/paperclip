@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
+import { useTranslation } from "@/i18n";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { agentChatsApi } from "@/api/agentChats";
 import { agentsApi } from "@/api/agents";
@@ -14,6 +15,7 @@ import { TaskDetailSurface } from "./IssueDetail";
 import { isUuidLike, type Issue } from "@paperclipai/shared";
 
 export function AgentChat() {
+  const { t } = useTranslation();
   const { agentRef = "" } = useParams<{ agentRef: string }>();
   const { selectedCompanyId } = useCompany();
   const { enabled, loaded } = useAgentChatEnabled();
@@ -89,14 +91,14 @@ export function AgentChat() {
     || chatView.kind === "reconnecting" || (!rosterAgent && historyView.kind === "reconnecting");
   if (!loaded || agents.isPending || session.isPending || historyAgent.isFetching && !agent || reconnecting)
     return (
-      <p className="text-sm text-muted-foreground">Loading conversation…</p>
+      <p className="text-sm text-muted-foreground">{t("agentChatPage.loadingConversation", { defaultValue: "Loading conversation…" })}</p>
     );
   if (!enabled && !chat.data)
     return (
       <p className="text-sm text-muted-foreground">
-        Agent Chat is disabled for this instance. An administrator can enable it in{" "}
-        <Link className="underline underline-offset-4" to="/company/settings/instance/experimental#experimental-enableAgentChat">Experimental settings</Link>.
-        {" "}Your workspace preference does not change Chat availability. Existing history remains available through task links.
+        {t("agentChatPage.disabledPrefix", { defaultValue: "Agent Chat is disabled for this instance. An administrator can enable it in " })}
+        <Link className="underline underline-offset-4" to="/company/settings/instance/experimental#experimental-enableAgentChat">{t("agentChatPage.experimentalSettingsLink", { defaultValue: "Experimental settings" })}</Link>.
+        {" "}{t("agentChatPage.disabledTail", { defaultValue: "Your workspace preference does not change Chat availability. Existing history remains available through task links." })}
       </p>
     );
   const failed = [agentsView, chatView, ...(rosterAgent ? [] : [historyView])].find((view) => view.kind === "error");
@@ -111,10 +113,10 @@ export function AgentChat() {
       />
     );
   if (!agent)
-    return <p className="text-sm text-destructive">Agent not found.</p>;
+    return <p className="text-sm text-destructive">{t("agentChatPage.notFound", { defaultValue: "Agent not found." })}</p>;
   if (chat.isPending)
     return (
-      <p className="text-sm text-muted-foreground">Loading conversation…</p>
+      <p className="text-sm text-muted-foreground">{t("agentChatPage.loadingConversation", { defaultValue: "Loading conversation…" })}</p>
     );
   return (
     <TaskDetailSurface

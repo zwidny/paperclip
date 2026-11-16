@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ToolbarSearch } from "@/components/ToolbarSearch";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/i18n";
 
 export const ARTIFACT_KIND_FILTERS: { value: ArtifactKindFilter; label: string }[] = [
   { value: "all", label: "All" },
@@ -28,7 +29,8 @@ export function artifactGroupByLabel(value: ArtifactGroupBy): string {
 
 /** Canonical collection filters; compact standalone, standard in the toolbar. */
 export function ArtifactKindFilters({ kind, onKindChange, size = "compact" }: { kind: ArtifactKindFilter; onKindChange: (value: ArtifactKindFilter) => void; size?: TabSize }) {
-  return <TabFilters items={ARTIFACT_KIND_FILTERS} value={kind} onValueChange={onKindChange} size={size} label="Filter artifacts by type" />;
+  const { t } = useTranslation();
+  return <TabFilters items={ARTIFACT_KIND_FILTERS} value={kind} onValueChange={onKindChange} size={size} label={t("artifactsToolbar.filterByType", { defaultValue: "Filter artifacts by type" })} />;
 }
 
 export interface ArtifactsToolbarProps {
@@ -44,11 +46,12 @@ export interface ArtifactsToolbarProps {
 
 /** Shared shipped Artifacts controls. Canonical proposal: Components / Toolbars / Artifacts. */
 export function ArtifactsToolbar({ query: draftQuery, onQueryChange: setDraftQuery, groupBy, onGroupByChange: selectGroupBy, kind, onKindChange: selectKind, filters }: ArtifactsToolbarProps) {
+  const { t } = useTranslation();
   const grouping = groupBy !== "none";
   return (
-    <div data-canonical-toolbar="artifacts" role="toolbar" aria-label="Artifacts controls" className="flex flex-col items-start gap-4">
+    <div data-canonical-toolbar="artifacts" role="toolbar" aria-label={t("artifactsToolbar.controls", { defaultValue: "Artifacts controls" })} className="flex flex-col items-start gap-4">
       <div className="design-toolbar-controls flex w-full flex-wrap items-center gap-4">
-        <ToolbarSearch query={draftQuery} onQueryChange={setDraftQuery} label="Search artifacts" placeholder="Search artifacts…" clearLabel="Clear artifact search" />
+        <ToolbarSearch query={draftQuery} onQueryChange={setDraftQuery} label={t("artifactsToolbar.searchLabel", { defaultValue: "Search artifacts" })} placeholder={t("artifactsToolbar.searchPlaceholder", { defaultValue: "Search artifacts…" })} clearLabel={t("artifactsToolbar.clearSearch", { defaultValue: "Clear artifact search" })} />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -56,8 +59,8 @@ export function ArtifactsToolbar({ query: draftQuery, onQueryChange: setDraftQue
               type="button"
               variant="outline"
               size="icon"
-              aria-label={`Group artifacts (currently ${artifactGroupByLabel(groupBy)})`}
-              title="Group artifacts"
+              aria-label={t("artifactsToolbar.groupAria", { grouping: artifactGroupByLabel(groupBy), defaultValue: "Group artifacts (currently {{grouping}})" })}
+              title={t("artifactsToolbar.groupTitle", { defaultValue: "Group artifacts" })}
               data-testid="artifact-group-control"
               data-group-by={groupBy}
               data-active={grouping}
@@ -67,7 +70,7 @@ export function ArtifactsToolbar({ query: draftQuery, onQueryChange: setDraftQue
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-44">
-            <DropdownMenuLabel>Group by</DropdownMenuLabel>
+            <DropdownMenuLabel>{t("artifactsToolbar.groupBy", { defaultValue: "Group by" })}</DropdownMenuLabel>
             {ARTIFACT_GROUP_OPTIONS.map((option) => (
               <DropdownMenuItem
                 key={option.value}

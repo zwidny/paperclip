@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "@/i18n";
 import { ChevronDown } from "lucide-react";
 import { Link, useCaseHref } from "@/lib/router";
 import type { CaseSummary } from "@/api/cases";
@@ -23,10 +24,11 @@ export function CaseChildrenTree({
   children: CaseRelationRow[];
   maxVisible?: number;
 }) {
+  const { t } = useTranslation();
   const caseHref = useCaseHref();
   const [expanded, setExpanded] = useState(false);
   if (children.length === 0) {
-    return <p className="text-xs text-muted-foreground">No child cases.</p>;
+    return <p className="text-xs text-muted-foreground">{t("caseChildren.noChildCases", { defaultValue: "No child cases." })}</p>;
   }
 
   const shouldCap = maxVisible != null && children.length > maxVisible;
@@ -44,7 +46,7 @@ export function CaseChildrenTree({
             >
               <CaseCopyableToken
                 value={child.identifier}
-                label="case ID"
+                label={t("caseChildren.caseId", { defaultValue: "case ID" })}
                 className="shrink-0 font-mono text-xs text-muted-foreground"
                 containerClassName="shrink-0"
                 stopPropagation

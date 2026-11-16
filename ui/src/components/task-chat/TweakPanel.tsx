@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/i18n";
 import { useCopyAction } from "@/lib/use-copy-action";
 import { Copy, GripHorizontal, Minus, Plus, RotateCcw } from "lucide-react";
 import {
@@ -44,6 +45,7 @@ function saveSession(key: string, value: unknown) {
  * one file, one dev guard, trivial to strip out later.
  */
 export function TweakPanel() {
+  const { t } = useTranslation();
   const [pos, setPos] = useState<{ x: number; y: number }>(() =>
     loadSession(POS_KEY, { x: 24, y: 24 }),
   );
@@ -139,9 +141,9 @@ export function TweakPanel() {
         onPointerUp={onHeaderPointerUp}
       >
         <GripHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
-        <span>Motion tweak panel</span>
+        <span>{t("taskChat.motionTweakPanel", { defaultValue: "Motion tweak panel" })}</span>
         <div className="ml-auto flex items-center gap-1">
-          <button type="button" title="Reset all" onClick={resetAll} className="rounded p-0.5 hover:bg-accent">
+          <button type="button" title={t("taskChat.resetAll", { defaultValue: "Reset all" })} onClick={resetAll} className="rounded p-0.5 hover:bg-accent">
             <RotateCcw className="h-3.5 w-3.5" />
           </button>
           <button

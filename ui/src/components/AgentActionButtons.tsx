@@ -401,7 +401,7 @@ export function AgentActionButtons({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{t("common.cancel", { defaultValue: "Cancel" })}</AlertDialogCancel>
           <AlertDialogAction onClick={() => agentAction.mutate("pause")}>
             Pause anyway
           </AlertDialogAction>
@@ -422,7 +422,7 @@ export function AgentActionButtons({
         {persistentProviderTrace ? (
           <span
             className="hidden items-center gap-1 rounded-md border border-primary/30 bg-primary/10 px-2 py-1 text-xs font-medium text-primary lg:inline-flex"
-            title="Exact provider traffic will be captured for future runs and retained for up to 24 hours."
+            title={t("agentActionButtons.rawTraceTitle", { defaultValue: "Exact provider traffic will be captured for future runs and retained for up to 24 hours." })}
           >
             <Bug className="h-3.5 w-3.5" />
             Raw tracing on
@@ -467,7 +467,7 @@ export function AgentActionButtons({
                 type="button"
                 className={cn(item, "text-destructive")}
                 disabled={clearErrorDisabled}
-                aria-label="Clear error and return agent to idle"
+                aria-label={t("agentActionButtons.clearErrorAria", { defaultValue: "Clear error and return agent to idle" })}
                 onClick={select(() => agentAction.mutate("clear_error"))}
               >
                 <CheckCircle2 className={cn(icon, "text-destructive")} />
@@ -534,7 +534,7 @@ export function AgentActionButtons({
             )}
           </PopoverContent>
         </Popover>
-        {showChat && <Button variant="outline" size={size} aria-label={`Chat with ${agent.name}`} title="Chat with this agent"
+        {showChat && <Button variant="outline" size={size} aria-label={t("agentActionButtons.chatWith", { name: agent.name, defaultValue: "Chat with {{name}}" })} title={t("agentActionButtons.chatWithTitle", { defaultValue: "Chat with this agent" })}
           disabled={disabled} onClick={() => { if (!onBeforeNavigate || onBeforeNavigate()) navigate(`/chats/${canonicalAgentRef}`); }}>
           <MessagesSquare className="size-4" />
           Chat

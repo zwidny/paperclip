@@ -4355,7 +4355,7 @@ function ProviderVaultCard({
             variant="ghost"
             size="icon-sm"
             className="-mt-1.5 shrink-0 text-muted-foreground"
-            aria-label={`Actions for ${config.displayName}`}
+            aria-label={t("secrets.vault.actionsFor", { defaultValue: "Actions for {{name}}", name: config.displayName })}
             disabled={pending}
           >
             {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <MoreHorizontal className="h-4 w-4" />}
@@ -4363,10 +4363,10 @@ function ProviderVaultCard({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuItem onSelect={onEdit}>
-            <Edit3 className="h-4 w-4" /> Edit connection
+            <Edit3 className="h-4 w-4" /> {t("secrets.vault.editConnection", { defaultValue: "Edit connection" })}
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={onHealthCheck}>
-            <RefreshCw className="h-4 w-4" /> Check connection
+            <RefreshCw className="h-4 w-4" /> {t("secrets.vault.checkConnection", { defaultValue: "Check connection" })}
           </DropdownMenuItem>
           {config.provider === "aws_secrets_manager" ? (
             <DropdownMenuItem
@@ -4374,28 +4374,28 @@ function ProviderVaultCard({
               disabled={Boolean(blockReason)}
               data-testid={`provider-vault-refresh-secrets-${config.id}`}
             >
-              <Cloud className="h-4 w-4" /> Import secrets from it
+              <Cloud className="h-4 w-4" /> {t("secrets.vault.importSecrets", { defaultValue: "Import secrets from it" })}
             </DropdownMenuItem>
           ) : null}
           {config.isDefault || blockReason ? null : (
             <DropdownMenuItem onSelect={onSetDefault}>
-              <Star className="h-4 w-4" /> Make default
+              <Star className="h-4 w-4" /> {t("secrets.vault.makeDefault", { defaultValue: "Make default" })}
             </DropdownMenuItem>
           )}
           <DropdownMenuSeparator />
           {config.status === "disabled" ? (
             onEnable ? (
               <DropdownMenuItem onSelect={onEnable}>
-                <CheckCircle2 className="h-4 w-4" /> Enable
+                <CheckCircle2 className="h-4 w-4" /> {t("secrets.vault.enable", { defaultValue: "Enable" })}
               </DropdownMenuItem>
             ) : null
           ) : (
             <DropdownMenuItem onSelect={onDisable}>
-              <Ban className="h-4 w-4" /> Disable
+              <Ban className="h-4 w-4" /> {t("secrets.vault.disable", { defaultValue: "Disable" })}
             </DropdownMenuItem>
           )}
           <DropdownMenuItem variant="destructive" onSelect={onRemove}>
-            <Trash2 className="h-4 w-4" /> Remove vault
+            <Trash2 className="h-4 w-4" /> {t("secrets.vault.removeVault", { defaultValue: "Remove vault" })}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

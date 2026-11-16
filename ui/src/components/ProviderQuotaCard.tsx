@@ -8,6 +8,7 @@ import { QuotaBar } from "./QuotaBar";
 import { CostAmount } from "./CostAmount";
 import { ClaudeSubscriptionPanel } from "./ClaudeSubscriptionPanel";
 import { CodexSubscriptionPanel } from "./CodexSubscriptionPanel";
+import { useTranslation } from "@/i18n";
 import {
   billingTypeDisplayName,
   formatCents,
@@ -61,6 +62,7 @@ export function ProviderQuotaCard({
   // single-pass aggregation over rows — memoized so the 8 derived values are not
   // recomputed on every parent render tick (providers tab polls every 30s, and each
   // card is mounted twice: once in the "all" tab grid and once in its per-provider tab).
+  const { t } = useTranslation();
   const totals = useMemo(() => {
     let inputTokens = 0, outputTokens = 0, costCents = 0;
     let apiRunCount = 0, subRunCount = 0, subInputTokens = 0, subOutputTokens = 0;
@@ -173,14 +175,14 @@ export function ProviderQuotaCard({
         {hasBudget && (
           <div className="space-y-3">
             <QuotaBar
-              label="Period spend"
+              label={t("providerQuota.periodSpend", { defaultValue: "Period spend" })}
               percentUsed={budgetPct}
               leftLabel={formatCents(totalCostCents)}
               rightLabel={`${Math.round(budgetPct)}% of company budget`}
               showDeficitNotch={showDeficitNotch}
             />
             <QuotaBar
-              label="This week"
+              label={t("providerQuota.thisWeek", { defaultValue: "This week" })}
               percentUsed={weekPct}
               leftLabel={formatCents(weekSpendCents)}
               rightLabel={`~${formatCents(Math.round(weeklyBudgetShare))} / wk`}

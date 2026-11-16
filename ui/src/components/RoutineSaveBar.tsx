@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/i18n";
 import {
   Dialog,
   DialogContent,
@@ -45,6 +46,7 @@ export function RoutineSaveBar({
   onReload: () => void;
   disabled?: boolean;
 }) {
+  const { t } = useTranslation();
   const dirtyCount = dirtyFields.length;
   const isDirty = dirtyCount > 0;
   const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
@@ -81,7 +83,7 @@ export function RoutineSaveBar({
         {saveConflict ? (
           <div className="flex items-center gap-2 text-sm text-amber-800 dark:text-amber-200">
             <AlertTriangle className="h-4 w-4" />
-            <span>Routine changed elsewhere. Reload to merge.</span>
+            <span>{t("routineSaveBar.conflict", { defaultValue: "Routine changed elsewhere. Reload to merge." })}</span>
           </div>
         ) : (
           <Popover>
@@ -166,7 +168,7 @@ export function RoutineSaveBar({
       <Dialog open={confirmDiscardOpen} onOpenChange={setConfirmDiscardOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Discard changes?</DialogTitle>
+            <DialogTitle>{t("routineSaveBar.discardTitle", { defaultValue: "Discard changes?" })}</DialogTitle>
             <DialogDescription>
               This will revert {dirtyCount} unsaved{" "}
               {dirtyCount === 1 ? "change" : "changes"} in this section.

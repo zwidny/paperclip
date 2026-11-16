@@ -1,4 +1,5 @@
 import { AgentCharacter } from "../AgentCharacter";
+import { useTranslation } from "@/i18n";
 import { useState } from "react";
 import { MotionConfig } from "motion/react";
 
@@ -80,6 +81,7 @@ export function ConnectModelPreview({
   initialUseApiKeys?: boolean;
   control?: CredentialControl;
 }) {
+  const { t } = useTranslation();
   const [selectedId, setSelectedId] = useState<string | null>(initialSourceId);
   const [useApiKeys, setUseApiKeys] = useState(initialUseApiKeys);
   const mode: CredentialMode = useApiKeys ? "api" : "subscription";
@@ -106,14 +108,14 @@ export function ConnectModelPreview({
         <div className="pt-6">
           <OnboardingHeading
             center
-            title="Connect a model"
+            title={t("onboarding.connect.title", { defaultValue: "Connect a model" })}
             lede="Paperclip works with your existing subscription or API keys."
           />
         </div>
 
         <div className="space-y-2 pt-12">
           <ModelSourceTiles
-            label="Model source"
+            label={t("onboarding.connect.sourceLabel", { defaultValue: "Model source" })}
             sources={MODEL_SOURCES}
             mode={mode}
             selectedId={selectedId}

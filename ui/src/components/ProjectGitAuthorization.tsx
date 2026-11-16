@@ -4,8 +4,10 @@ import type { Project } from "@paperclipai/shared";
 import { projectsApi } from "@/api/projects";
 import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { useTranslation } from "@/i18n";
 
 export function ProjectGitAuthorization({ project }: { project: Project }) {
+  const { t } = useTranslation();
   const client = useQueryClient();
   const key = ["project-git-authorization", project.companyId, project.id];
   const authorization = useQuery({
@@ -22,8 +24,8 @@ export function ProjectGitAuthorization({ project }: { project: Project }) {
   });
   const data = authorization.data;
   return (
-    <section aria-label="Background GitHub authorization" className="flex flex-col gap-3 py-4">
-      <h3 className="text-sm font-medium">Background GitHub authorization</h3>
+    <section aria-label={t("projectGitAuthorization.sectionAria", { defaultValue: "Background GitHub authorization" })} className="flex flex-col gap-3 py-4">
+      <h3 className="text-sm font-medium">{t("projectGitAuthorization.title", { defaultValue: "Background GitHub authorization" })}</h3>
       <p className="text-sm text-muted-foreground">
         Allow this project’s workspace provider to use your GitHub Connector for repository provisioning and maintenance
         until revoked. This shares the Connector credential with the provider using its existing GitHub permissions.
@@ -40,8 +42,8 @@ export function ProjectGitAuthorization({ project }: { project: Project }) {
       {data && (
         <div className="flex flex-wrap gap-2">
           <Select value={selected} onValueChange={setSelected} disabled={save.isPending}>
-            <SelectTrigger aria-label="Your GitHub authorization">
-              <SelectValue placeholder="Select your GitHub account" />
+            <SelectTrigger aria-label={t("projectGitAuthorization.selectAria", { defaultValue: "Your GitHub authorization" })}>
+              <SelectValue placeholder={t("projectGitAuthorization.selectPlaceholder", { defaultValue: "Select your GitHub account" })} />
             </SelectTrigger>
             <SelectContent>
               {data.options.map((option) => (

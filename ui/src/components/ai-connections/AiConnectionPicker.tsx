@@ -1,6 +1,7 @@
 import { AppLogo } from "@/pages/apps/AppLogo";
 import { ConnectionChoiceList } from "@/features/connections/ConnectionChoiceList";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/i18n";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   AI_PROVIDERS,
@@ -44,6 +45,7 @@ export function AiConnectionPicker({
   onReconnect,
   onRetry,
 }: AiConnectionPickerProps) {
+  const { t } = useTranslation();
   const compatible = connections.filter((connection) =>
     matchesAiRequirement(connection, requirement),
   );
@@ -71,7 +73,7 @@ export function AiConnectionPicker({
       grantId: connection.grantId,
     });
   return (
-    <section className="flex flex-col gap-4" aria-label="AI connection">
+    <section className="flex flex-col gap-4" aria-label={t("aiConnectionPicker.title", { defaultValue: "AI connection" })}>
       <div className="flex items-center gap-3">
         <AppLogo
           name={AI_PROVIDERS[requirement.provider].name}
@@ -81,7 +83,7 @@ export function AiConnectionPicker({
           size={32}
         />
         <div className="flex min-w-0 flex-col gap-1">
-        <h3 className="text-sm font-semibold">AI connection</h3>
+        <h3 className="text-sm font-semibold">{t("aiConnectionPicker.title", { defaultValue: "AI connection" })}</h3>
         <p className="text-xs text-muted-foreground">
           {AI_PROVIDERS[requirement.provider].name}
           {value && value.mode !== "responsible_user" && ` · ${aiMethodLabel(value.provider, value.method)}`}
@@ -89,7 +91,7 @@ export function AiConnectionPicker({
         </div>
       </div>
       {loading ? (
-        <div role="status" aria-label="Loading AI connections">
+        <div role="status" aria-label={t("aiConnectionPicker.loadingAria", { defaultValue: "Loading AI connections" })}>
           <Skeleton className="h-24 w-full" />
         </div>
       ) : error ? (
@@ -131,7 +133,7 @@ export function AiConnectionPicker({
           )}
           {!readOnly && (
             <div className="flex justify-end gap-2">
-              {onReconnect && <Button type="button" variant="outline" onClick={onReconnect}>Reconnect account</Button>}
+              {onReconnect && <Button type="button" variant="outline" onClick={onReconnect}>{t("aiConnectionPicker.reconnectAccount", { defaultValue: "Reconnect account" })}</Button>}
               <Button
                 type="button"
                 variant="outline"

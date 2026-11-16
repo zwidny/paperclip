@@ -408,10 +408,10 @@ export function AuditTab({ companyId }: { companyId: string }) {
         description={t("auditTool.activityDescription", { defaultValue: "What your agents actually did with your apps, newest first. Each line is one decision — allowed, blocked, asked first, waiting, or failed." })}
       />
 
-      <div data-canonical-toolbar="tool-audit" role="toolbar" aria-label="Tool audit filters" className="flex flex-wrap items-center gap-2">
+      <div data-canonical-toolbar="tool-audit" role="toolbar" aria-label={t("auditTool.filtersAria", { defaultValue: "Tool audit filters" })} className="flex flex-wrap items-center gap-2">
         <Select value={app} onValueChange={setApp}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="App" />
+            <SelectValue placeholder={t("gatewayActivity.app", { defaultValue: "App" })} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={ALL}>{t("auditTool.allApps", { defaultValue: "All apps" })}</SelectItem>

@@ -1,4 +1,5 @@
 import { bindAccount } from "@/lib/account-scope";
+import { useTranslation } from "@/i18n";
 import { connectionIntentsApi } from "@/api/connection-intents";
 import { ConnectionInstructionsEditor } from "../ConnectionInstructions";
 import { useEffect, useRef, useState } from "react";
@@ -34,6 +35,7 @@ function readAccessDraft(key: string): Partial<RemoteMcpSetupState> {
 export function RemoteMcpProductionSetup({ providerId, connection, host = "page", interactionId,
   upstreamServiceName, requestedAgentId, requiredAgentId, setupAccess, existingConnections = [], forceNewConnection, onUseExisting, onComplete, onCancel, onPhaseChange,
 }: ConnectionSetupFlowProps & { providerId: RemoteMcpProviderId; connection?: ToolConnection }) {
+  const { t } = useTranslation();
   const provider = remoteMcpProviders[providerId];
   const template = getConnectableAppDefinition(providerId)?.agentInstructions;
   const [instructions, setInstructions] = useState(() => connection
@@ -333,7 +335,7 @@ export function RemoteMcpProductionSetup({ providerId, connection, host = "page"
   // Saved access already loaded stays in place through a transient refetch failure.
   if (connection && !installs.data) return <div className="space-y-3 p-8">{installsView.kind === "error"
     ? <QueryErrorState error={installs.error} action="load saved access" onRetry={installsView.retry} retrying={installsView.isFetching} />
-    : <p>Loading saved access…</p>}</div>;
+    : <p>{t("remoteMcpProductionSetup.loadingSavedAccess", { defaultValue: "Loading saved access…" })}</p>}</div>;
   // Header Cancel abandons unsaved input, including invalid URLs. The separate
   // Save & exit action persists a resumable draft through actions.saveExit.
   return <RemoteMcpConnectionSetup additionalSettings={template && instructions ? <ConnectionInstructionsEditor provider={provider.name} template={template} value={instructions} onChange={setInstructions} disabled={state.connectStatus === "connecting"} /> : undefined} settingsValid={instructionsValid} companyId={selectedCompanyId!} onCancel={onCancel ?? (() => navigate("/apps"))} upstreamServiceName={upstreamServiceName} host={host} lockedAgentId={requestedAgentId} authorizationUrl={authorizationUrl.current} provider={provider} connectionId={savedConnection.current?.id ?? ""} fixedGrantKind={savedConnection.current ? savedConnection.current.credentialPolicy === "per_user" ? "user" : "organization" : undefined} state={state} actions={actions} agents={agents.data ?? []} />;

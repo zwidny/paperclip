@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Clock, Pencil, ShieldCheck } from "lucide-react";
 import type { ToolRiskLevel } from "@paperclipai/shared";
 import { cn } from "@/lib/utils";
+import { i18n, useTranslation } from "@/i18n";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -133,10 +134,10 @@ function initials(name: string): string {
 function bindingRows(binding: ActionCardBinding, isStale: boolean): BindingRow[] {
   const catalogValue = isStale && binding.previousCatalogSha256 ? (
     <span className="inline-flex flex-wrap items-center gap-1.5">
-      <span className="text-muted-foreground line-through decoration-amber-500" title="Previous catalog hash">
+      <span className="text-muted-foreground line-through decoration-amber-500" title={i18n.t("actionCard.previousCatalogHash", { defaultValue: "Previous catalog hash" })}>
         {shortSha(binding.previousCatalogSha256)}
       </span>
-      <span className="text-amber-600 dark:text-amber-400" title="Current catalog hash">
+      <span className="text-amber-600 dark:text-amber-400" title={i18n.t("actionCard.currentCatalogHash", { defaultValue: "Current catalog hash" })}>
         {shortSha(binding.catalogSha256)}
       </span>
     </span>
@@ -191,6 +192,7 @@ export function ActionCard({
   className,
 }: ActionCardProps) {
   const isStale = variant === "stale";
+  const { t } = useTranslation();
   const json = typeof input === "string" ? input : JSON.stringify(input, null, 2);
 
   // Surface 99: buttons stack full-width in the order Approve / Deny /
@@ -256,8 +258,8 @@ export function ActionCard({
         {isStale ? (
           <EnforcementBanner
             tone="warning"
-            title="Catalog changed since this request was signed."
-            body="The application's tool catalog hash no longer matches the one this approval was issued against. Approval is disabled — the agent must edit & re-sign to request again."
+            title={t("actionCard.staleTitle", { defaultValue: "Catalog changed since this request was signed." })}
+            body={t("actionCard.staleBody", { defaultValue: "The application's tool catalog hash no longer matches the one this approval was issued against. Approval is disabled — the agent must edit & re-sign to request again." })}
           />
         ) : null}
 
@@ -266,7 +268,7 @@ export function ActionCard({
 
         {/* JSON input */}
         <div className="space-y-1">
-          <p className="text-xs font-medium uppercase tracking-normal text-muted-foreground">Input</p>
+          <p className="text-xs font-medium uppercase tracking-normal text-muted-foreground">{t("actionCard.input", { defaultValue: "Input" })}</p>
           <pre className="overflow-x-auto rounded-md border border-border bg-muted/40 p-3 font-mono text-xs leading-relaxed text-foreground">
             {json}
           </pre>
@@ -274,7 +276,7 @@ export function ActionCard({
 
         {/* Why I'm asking */}
         <div className="space-y-1">
-          <p className="text-xs font-medium uppercase tracking-normal text-muted-foreground">Why I&apos;m asking</p>
+          <p className="text-xs font-medium uppercase tracking-normal text-muted-foreground">{t("actionCard.whyAsking", { defaultValue: "Why I'm asking" })}</p>
           <p className="text-sm text-muted-foreground">
             {reason}
             {policyNumber != null ? (

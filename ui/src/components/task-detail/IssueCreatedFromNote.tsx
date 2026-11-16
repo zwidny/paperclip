@@ -6,6 +6,7 @@ import {
 } from "@/lib/issueDetailBreadcrumb";
 import { Link } from "@/lib/router";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/i18n";
 
 export interface IssueCreatedFromNoteProps {
   /** Access-checked creation provenance from the issue detail response. */
@@ -22,6 +23,7 @@ export interface IssueCreatedFromNoteProps {
 export function IssueCreatedFromNote({ createdFrom, issueLinkState, className }: IssueCreatedFromNoteProps) {
   if (!createdFrom) return null;
   const { issue, agent } = createdFrom;
+  const { t } = useTranslation();
   const ref = issue.identifier ?? issue.id;
   return (
     <p
@@ -29,7 +31,7 @@ export function IssueCreatedFromNote({ createdFrom, issueLinkState, className }:
       className={cn("flex min-w-0 items-center gap-1 text-xs text-muted-foreground", className)}
     >
       <GitBranch aria-hidden className="h-3 w-3 shrink-0" />
-      <span className="shrink-0">Created from</span>
+      <span className="shrink-0">{t("issueCreatedFromNote.createdFrom", { defaultValue: "Created from" })}</span>
       <Link
         to={createIssueDetailPath(ref)}
         state={issueLinkState}

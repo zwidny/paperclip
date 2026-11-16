@@ -272,17 +272,18 @@ function PlanSteps({ steps }: { steps: TaskChatProtocolStep[] }) {
  * the turn keeps only a one-line record.
  */
 function PlanProposalCard({ item }: { item: TaskChatProviderActivityItem }) {
+  const { t } = useTranslation();
   if (item.status === "running") {
     return <TaskChatPlanPreviewCard source={{ kind: "live", activity: item }} testId="task-chat-plan-proposal" />;
   }
-  const title = item.output ? planPreviewContent(item.output).title : "Plan";
+  const title = item.output ? planPreviewContent(item.output).title : t("taskChat.planTitle", { defaultValue: "Plan" });
   // The saved Plan document normally carries the proposal, but a conflicting
   // edit can keep it out. The proposal itself stays readable here.
   return (
     <details className="group" data-testid="task-chat-plan-proposal">
       <summary className="flex cursor-pointer list-none items-center gap-2 rounded-sm px-1 py-1 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         <FileText aria-hidden className="h-3.5 w-3.5 shrink-0" />
-        <span className="min-w-0 truncate">Proposed a plan · <span className="text-foreground">{title}</span></span>
+        <span className="min-w-0 truncate">{t("taskChat.proposedPlan", { defaultValue: "Proposed a plan ·" })}{" "}<span className="text-foreground">{title}</span></span>
       </summary>
       {item.output ? (
         <div className="mt-1 rounded-md border border-border bg-muted/25 px-4 py-3 text-sm" data-testid="task-chat-plan-proposal-body">
@@ -428,6 +429,7 @@ function WorkspaceChangeFileRow({
   open: boolean;
   onToggle: () => void;
 }) {
+  const { t } = useTranslation();
   const parsed = useMemo(
     () => (file.diff ? parseUnifiedDiffLines(file.diff) : null),
     [file.diff],
@@ -468,7 +470,7 @@ function WorkspaceChangeFileRow({
       </button>
       {open ? (
         file.binary ? (
-          <p className="ml-7 mt-1 text-xs text-muted-foreground">Binary file; text diff is unavailable.</p>
+          <p className="ml-7 mt-1 text-xs text-muted-foreground">{t("taskChat.binaryNoDiff", { defaultValue: "Binary file; text diff is unavailable." })}</p>
         ) : parsed?.lines.length ? (
           <TaskChatDiffView
             className="ml-7 mt-1"
@@ -476,7 +478,7 @@ function WorkspaceChangeFileRow({
             truncated={parsed.truncated || file.diffTruncated === true}
           />
         ) : (
-          <p className="ml-7 mt-1 text-xs text-muted-foreground">This patch is too large to show here.</p>
+          <p className="ml-7 mt-1 text-xs text-muted-foreground">{t("taskChat.patchTooLarge", { defaultValue: "This patch is too large to show here." })}</p>
         )
       ) : null}
     </div>

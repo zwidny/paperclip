@@ -764,7 +764,7 @@ function AttributionAvatar({
   actor,
   via,
 }: {
-  label: "Assignee" | "Originating";
+  label: string;
   actor: AttributionActor;
   via?: string | null;
 }) {
@@ -891,11 +891,11 @@ function IssueAttributionByline({
         data-testid="issue-attribution-avatar-stack"
       >
         {assignee ? (
-          <AttributionAvatar label="Assignee" actor={assignee} />
+          <AttributionAvatar label={t("issueDetail.assignee", { defaultValue: "Assignee" })} actor={assignee} />
         ) : null}
         {originator ? (
           <AttributionAvatar
-            label="Originating"
+            label={t("issueDetail.originating", { defaultValue: "Originating" })}
             actor={originator}
             via={originatorVia}
           />

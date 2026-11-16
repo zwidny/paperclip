@@ -7,6 +7,7 @@ import {
 } from "@/api/cases";
 import { ImageGalleryModal, type GalleryMediaItem } from "@/components/ImageGalleryModal";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/i18n";
 
 function humanBytes(size: number): string {
   if (size < 1024) return `${size} B`;
@@ -21,6 +22,7 @@ function humanBytes(size: number): string {
  * variation-picker (out of scope).
  */
 export function CaseAttachmentsGallery({ attachments }: { attachments: CaseAttachmentRef[] }) {
+  const { t } = useTranslation();
   const [galleryIndex, setGalleryIndex] = useState<number | null>(null);
 
   // The lightbox only navigates across image attachments.
@@ -36,7 +38,7 @@ export function CaseAttachmentsGallery({ attachments }: { attachments: CaseAttac
   );
 
   if (attachments.length === 0) {
-    return <p className="text-xs text-muted-foreground">No attachments.</p>;
+    return <p className="text-xs text-muted-foreground">{t("caseAttachments.noAttachments", { defaultValue: "No attachments." })}</p>;
   }
 
   return (

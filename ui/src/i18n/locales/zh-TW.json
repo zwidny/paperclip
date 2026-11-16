@@ -306,7 +306,8 @@
     "out": "輸出",
     "close": "關閉",
     "loading": "Loading…",
-    "continue": "Continue"
+    "continue": "Continue",
+    "selectPlaceholder": "Select…"
   },
   "auth": {
     "failed": "驗證失敗",
@@ -935,7 +936,8 @@
       "connection": "連接",
       "connectModel": "連接模型",
       "finishSetup": "完成設定",
-      "defaultEnvironment": "預設：{{environment}}"
+      "defaultEnvironment": "預設：{{environment}}",
+      "cursorCloudExperimental": "Experimental. Cursor hosts this agent’s execution environment. A Paperclip computer is not required. Cursor manages cloud command permissions; the effective model is not acknowledged."
     },
     "backToAgents": "返回 Agents",
     "loadingAgentSetup": "正在載入你的 Agent 設定…",
@@ -1995,7 +1997,8 @@
         "reconnect": "重新連線會驗證同一 BotFather 機器人，並自動刷新其 Paperclip webhook 和命令選單。",
         "remove": "Paperclip 會歸檔該端點，並排隊永久移除其 Telegram webhook 和命令選單。Telegram 確認清理後，Paperclip 會停用已儲存的令牌。BotFather 機器人及其聊天成員資格會保留，直到你在 Telegram 中移除它們。"
       }
-    }
+    },
+    "openSlack": "Open Slack"
   },
   "profiles": {
     "selectApplication": "選擇應用程式",
@@ -2305,7 +2308,8 @@
     "copied": "Copied",
     "copyAuditHash": "Copy audit hash",
     "copyAuditHashHint": "Copy the hash that identifies these exact arguments",
-    "copyFailed": "Couldn’t copy"
+    "copyFailed": "Couldn’t copy",
+    "filtersAria": "Tool audit filters"
   },
   "experimental": {
     "title": "實驗性功能",
@@ -2887,7 +2891,15 @@
       "unknown": "未知保管庫",
       "inlineDefault": "預設保管庫",
       "inlineVault": "保管庫",
-      "inlineSummary": "{{label}} · {{status}}"
+      "inlineSummary": "{{label}} · {{status}}",
+      "actionsFor": "Actions for {{name}}",
+      "editConnection": "Edit connection",
+      "checkConnection": "Check connection",
+      "importSecrets": "Import secrets from it",
+      "makeDefault": "Make default",
+      "enable": "Enable",
+      "disable": "Disable",
+      "removeVault": "Remove vault"
     },
     "toast": {
       "secretCreated": "Secret 已建立",
@@ -4719,7 +4731,15 @@
       "webhookWaiting": "正在等待 GitHub 傳送其簽署的 Webhook ping…",
       "httpsRequired": "在連線 GitHub 之前，請為此 Paperclip 執行個體設定公開的 HTTPS URL。",
       "reconnectAndVerify": "重新連線並驗證",
-      "connectAndVerify": "連線並驗證"
+      "connectAndVerify": "連線並驗證",
+      "labelWebhooksActive": "Webhooks · Active",
+      "labelSslVerification": "Enable SSL verification",
+      "labelIssues": "Issues",
+      "labelPullRequests": "Pull requests",
+      "labelReadWrite": "Read & write",
+      "labelIssueComment": "Issue comment",
+      "labelPullRequestReviewComment": "Pull request review comment",
+      "labelOnlyOnThisAccount": "Only on this account"
     },
     "slack": {
       "openAppSettings": "開啟 Slack 應用程式設定",
@@ -4986,7 +5006,8 @@
       "budgetUsedLabel": "Budget used",
       "noMonthlyBudget": "No monthly budget set",
       "ofBudgetThisMonth": "of {{amount}} this month",
-      "profile": "Profile"
+      "profile": "Profile",
+      "eventsThisWeek": "Events this week"
     },
     "auditLink": {
       "activity": "活動",
@@ -7911,7 +7932,8 @@
       "deletedLast": "{{app}} 已不再可供 Agent 使用，其認證已被刪除。再次連線需要新的登入或金鑰。",
       "deleteFailedTitle": "無法刪除連線",
       "pleaseTryAgain": "請重試。"
-    }
+    },
+    "setupProgress": "Setup progress"
   },
   "appIdentities": {
     "loadError": "無法載入此連線的身分。請重新整理頁面重試。",
@@ -9338,7 +9360,8 @@
     "zoomOut": "縮小",
     "controlsAria": "Org chart controls",
     "chartCameraAria": "Chart camera",
-    "tasksLayer": "Tasks"
+    "tasksLayer": "Tasks",
+    "fitChartToScreen": "Fit chart to screen"
   },
   "pluginSettings": {
     "about": "關於",
@@ -10295,7 +10318,8 @@
       "test": "測試"
     },
     "openGithubInstallationSettings": "在 GitHub 上開啟安裝設定",
-    "recentActivity": "Recent activity"
+    "recentActivity": "Recent activity",
+    "openInstallationSettings": "Open installation settings on GitHub"
   },
   "appNotConnected": {
     "appFallback": "App",
@@ -10986,7 +11010,9 @@
     "keepInQueue": "Keep this message in the queue",
     "planProgress": "Plan progress",
     "showFewer": "Show fewer",
-    "subagentsAria": "Subagents"
+    "subagentsAria": "Subagents",
+    "proposedPlan": "Proposed a plan ·",
+    "patchTooLarge": "This patch is too large to show here."
   },
   "runnerGoal": {
     "pendingStarting": "正在啟動",
@@ -14635,7 +14661,8 @@
     "claimInstance": "認領此執行個體",
     "signedInAs": "已登入為 ",
     "wrongAccount": "帳戶不對？",
-    "switchAccount": "切換帳戶"
+    "switchAccount": "切換帳戶",
+    "signInOrCreate": "Sign in / Create account"
   },
   "frontmatterPanel": {
     "frontmatter": "Frontmatter",
@@ -14913,7 +14940,9 @@
     "clipboardUnavailable": "剪貼簿不可用。",
     "copyAgentId": "複製 Agent ID",
     "resetSessions": "重設工作階段",
-    "terminate": "終止"
+    "terminate": "終止",
+    "chatWith": "Chat with {{name}}",
+    "chatWithTitle": "Chat with this agent"
   },
   "dispositionRecovery": {
     "reasonOpenTask": "開啟任務以檢視其目前狀態。",
@@ -14967,7 +14996,11 @@
       "team": "團隊",
       "agent": "Agent",
       "task": "任務"
-    }
+    },
+    "status": "Status",
+    "none": "None",
+    "created": "Created",
+    "updated": "Updated"
   },
   "newProjectDialog": {
     "connectGithub": "連接 GitHub",
@@ -15034,7 +15067,9 @@
     "untrackedServices": "未追蹤的服務",
     "untrackedDescription": "不再符合目前工作區命令設定的執行中服務。",
     "serviceEmptyMessage": "此工作區未設定任何服務。",
-    "jobEmptyMessage": "此工作區未設定任何單次作業。"
+    "jobEmptyMessage": "此工作區未設定任何單次作業。",
+    "servicesRunning": "{{count}} services running",
+    "jobsAvailable": "{{count}} job available to run on demand."
   },
   "artifactUpload": {
     "chooseFilesAria": "選擇產物檔案",
@@ -15151,7 +15186,8 @@
     },
     "updateFailed": "無法更新技能",
     "disableSkillAria": "停用 {{name}}",
-    "enableSkillAria": "啟用 {{name}}"
+    "enableSkillAria": "啟用 {{name}}",
+    "controlsAria": "Agent skills controls"
   },
   "aggregatorApp": {
     "accountFallback": "{{name}} 帳號",
@@ -15417,7 +15453,9 @@
     "discover": "探索",
     "installed": "已安裝",
     "mySkills": "我的技能",
-    "sources": "來源"
+    "sources": "來源",
+    "title": "Skills",
+    "navAria": "Skills"
   },
   "slackAvatarStep": {
     "avatarAlt": "{{name}} 的 Cliptoon 頭像",
@@ -16229,7 +16267,8 @@
       "invalidMessage": "這不是有效的 HTTP 或 HTTPS URL。傳送應用程式需要一個可存取的完整位址。",
       "continueHint": "若僅用於本機或私人網路，你可以繼續。對於公開傳送方，請使用可公開存取的 HTTPS URL。",
       "learnHttps": "了解如何設定 HTTPS 和公開存取"
-    }
+    },
+    "webhookUrl": "Webhook URL"
   },
   "webhookFields": {
     "copyAria": "複製{{label}}",
@@ -16276,7 +16315,8 @@
     "disabledSuffix": "中啟用。你的工作區偏好不會改變 Chat 的可用性。現有歷史記錄仍可透過任務連結查看。",
     "experimentalSettingsLink": "實驗性設定",
     "loadingConversation": "正在載入對話…",
-    "notFound": "找不到 Agent。"
+    "notFound": "找不到 Agent。",
+    "disabledTail": "Your workspace preference does not change Chat availability. Existing history remains available through task links."
   },
   "aiConnectionPicker": {
     "companyShared": "公司共享",
@@ -16285,7 +16325,9 @@
     "loadingAria": "正在載入 AI 連線",
     "otherUsers": "其他使用者的任務使用他們自己的 {{provider}} 連線。",
     "responsibleUserConnection": "負責人連線",
-    "retryConnections": "重試連線"
+    "retryConnections": "重試連線",
+    "title": "AI connection",
+    "reconnectAccount": "Reconnect account"
   },
   "artifactCard": {
     "document": "文件",
@@ -16369,7 +16411,9 @@
     "thTokens": "輸入 / 輸出權杖",
     "thWhenFeature": "時間 / 功能",
     "unknown": "未知",
-    "viewTask": "查看任務"
+    "viewTask": "查看任務",
+    "model": "Model",
+    "thStatus": "Status"
   },
   "envVarEditor": {
     "defaultHint": "將 KEY 設定為程序預期的環境變數名稱，例如 GH_TOKEN。選擇一個密鑰以在執行開始時解析儲存的值。PAPERCLIP_* 變數會自動注入。",
@@ -16389,7 +16433,9 @@
     "removedPrefix": "已移除：{{names}}",
     "revert": "還原",
     "unsavedChanges": "未儲存的變更",
-    "userSecretsHint": "使用者密鑰會根據執行負責人解析。在該使用者於密鑰 → 我的密鑰下設定值之前，必填綁定會一直失敗。"
+    "userSecretsHint": "使用者密鑰會根據執行負責人解析。在該使用者於密鑰 → 我的密鑰下設定值之前，必填綁定會一直失敗。",
+    "nameColumn": "Name",
+    "valueColumn": "Value"
   },
   "goalsPage": {
     "addGoal": "新增目標",
@@ -16474,7 +16520,8 @@
     "retrying": "正在重試…",
     "revision": "修訂 {{number}}",
     "skillInstructions": "Skill 指示",
-    "unavailable": "Skill 已無法使用。"
+    "unavailable": "Skill 已無法使用。",
+    "loading": "Loading skill…"
   },
   "taskWorkspaceFilePanel": {
     "copied": "已複製",
@@ -16510,7 +16557,9 @@
     "review": "檢視",
     "waitingForOk": "等待你的確認",
     "developerDescriptionProduction": "面向開發人員的進階設定。大多數團隊不會開啟此項。",
-    "connections": "連線"
+    "connections": "連線",
+    "connectors": "Connectors",
+    "waitingForOkCount": "{{count}} waiting for your OK"
   },
   "caseActivityFeed": {
     "activityFilter": "活動篩選",
@@ -16630,7 +16679,9 @@
     "expandAria": "展開 {{key}} 文件",
     "noRevisions": "尚無修訂",
     "revisionShort": "修訂 {{number}}",
-    "updated": "更新於 {{time}}"
+    "updated": "更新於 {{time}}",
+    "revisionHistory": "Revision history",
+    "loadingRevisions": "Loading revisions..."
   },
   "emailTaskActivity": {
     "confirmNotSent": "確認未傳送",
@@ -16806,7 +16857,10 @@
     "newProject": "新增專案",
     "sectionActionsAria": "專案區段操作",
     "browseProjects": "瀏覽專案",
-    "sortAria": "專案排序"
+    "sortAria": "專案排序",
+    "projects": "Projects",
+    "privateProject": "Private project",
+    "projectPausedByBudget": "Project paused by budget"
   },
   "sidebarServerInfo": {
     "server": "伺服器",
@@ -16837,7 +16891,10 @@
     "pathCopied": "已複製路徑",
     "service": "服務",
     "linkedTasks": "關聯任務",
-    "moreIssues": "還有 {{count}} 個"
+    "moreIssues": "還有 {{count}} 個",
+    "startServices": "Start services",
+    "branch": "Branch",
+    "copyPath": "Copy path"
   },
   "standaloneBrowserControls": {
     "refresh": "重新整理",
@@ -16947,7 +17004,9 @@
     "artifacts": "產出物",
     "reviewedRevisionUnavailable": "已審閱版本無法使用",
     "reviewedRevisionUnavailableBody": "找不到該已審閱的具體版本。目前版本並未遭到取代。",
-    "reviewedVersion": "已審閱版本"
+    "reviewedVersion": "已審閱版本",
+    "conversationDocuments": "Conversation documents",
+    "documentEmpty": "Document is empty."
   },
   "voiceControls": {
     "sectionAria": "與 {{name}} 的語音對話",
@@ -17123,16 +17182,21 @@
     "documentEmpty": "文件為空。",
     "needsReview": "此文件需要你審核。",
     "approved": "已核准 — 已建立招聘任務",
-    "changesRequested": "已要求變更 — CEO 正在修訂"
+    "changesRequested": "已要求變更 — CEO 正在修訂",
+    "title": "Artifacts"
   },
   "boardDialogs": {
-    "newGoal": "新增目標"
+    "newGoal": "新增目標",
+    "newTask": "New task",
+    "newProject": "New project",
+    "newAgent": "New agent"
   },
   "caseFieldsPanel": {
     "copied": "已複製",
     "noFields": "未設定欄位",
     "tableAria": "案例欄位",
-    "description": "來自技能的結構描述 — 通用呈現"
+    "description": "來自技能的結構描述 — 通用呈現",
+    "fields": "Fields"
   },
   "configureBuiltInAgent": {
     "modelUnavailable": "模型「{{model}}」不適用於 {{adapter}}。請選擇一個已知模型。",
@@ -17413,7 +17477,8 @@
     "defaultBlocked": "請選擇另一個存取設定，並先將其設為組織預設設定。"
   },
   "agentAvatarDownload": {
-    "downloadFailed": "無法下載頭像。請再次嘗試下載。"
+    "downloadFailed": "無法下載頭像。請再次嘗試下載。",
+    "download": "Download avatar"
   },
   "approvalCard": {
     "requestedBy": "請求者",
@@ -17442,7 +17507,8 @@
   "chatComposer": {
     "dropToAttach": "拖放以附加",
     "attachFiles": "附加檔案",
-    "messagePlaceholder": "Message…"
+    "messagePlaceholder": "Message…",
+    "sendMessage": "Send message"
   },
   "cloudSignIn": {
     "title": "登入 Paperclip Cloud",
@@ -17788,7 +17854,9 @@
   },
   "outputRow": {
     "fileDetailsUnavailable": "檔案詳情無法取得",
-    "downloadAria": "下載 {{filename}}"
+    "downloadAria": "下載 {{filename}}",
+    "openInNewTab": "Open in new tab",
+    "download": "Download"
   },
   "agentProviderConnection": {
     "connectionType": "連線類型",
@@ -17844,7 +17912,8 @@
     "approveFailed": "核准失敗",
     "rejectFailed": "拒絕失敗",
     "noPending": "沒有待處理的核准。",
-    "noApprovals": "尚無核准。"
+    "noApprovals": "尚無核准。",
+    "selectOrganizationFirst": "Select an organization first."
   },
   "localAiLogin": {
     "submitFailed": "無法提交授權碼，請重新開始登入。"
@@ -18106,13 +18175,15 @@
     "parked": "已暫停",
     "untilStatus": " 在狀態變為「待辦」或「進行中」之前，不會要求其處理此任務。",
     "commentsNote": "留言仍會通知負責人，以便提問或分流。僅在確實有意擱置工作時才保持暫停。",
-    "resumeNow": "立即恢復"
+    "resumeNow": "立即恢復",
+    "resuming": "Resuming…"
   },
   "issueCasesPanel": {
     "workflow": "工作流程",
     "roleOrigin": "來源",
     "roleWork": "工作",
-    "roleReference": "參考"
+    "roleReference": "參考",
+    "cases": "Cases"
   },
   "issueLinkQuicklook": {
     "loadFailed": "無法載入任務預覽。"
@@ -18317,7 +18388,8 @@
     "viewCommitOnGithub": "在 GitHub 上檢視提交 {{commit}}"
   },
   "sidebarShell": {
-    "resizeAria": "調整側邊欄寬度"
+    "resizeAria": "調整側邊欄寬度",
+    "resizeSidebar": "Resize sidebar"
   },
   "skillBinaryFile": {
     "body": "此資產以原始二進位格式儲存。",
@@ -18344,7 +18416,9 @@
     "runOne": "在 Smoke Lab 分頁中執行一次"
   },
   "sourceResolvedFoldBadge": {
-    "label": "來源已解決"
+    "label": "來源已解決",
+    "foldTitle": "System folded this run as a source-resolved false positive.",
+    "foldAria": "Source-resolved watchdog fold"
   },
   "stalledReviewActions": {
     "notePlaceholder": "新增備註 — 要求修改時必填，其他情況可選…",
@@ -18376,7 +18450,8 @@
     }
   },
   "caseListRow": {
-    "taskUnavailable": "任務無法使用"
+    "taskUnavailable": "任務無法使用",
+    "noTaskLinked": "No task linked"
   },
   "fastResponseHistory": {
     "loading": "正在載入快速回應…",
@@ -18419,7 +18494,8 @@
     "title": "Skill created"
   },
   "issueCreatedFromNote": {
-    "byAgent": "由 {{name}} 建立"
+    "byAgent": "由 {{name}} 建立",
+    "createdFrom": "Created from"
   },
   "breadcrumb": {
     "navAria": "麵包屑導覽",
@@ -19438,7 +19514,8 @@
       "nothingElseWaiting": "Nothing else is waiting on you.",
       "openNewTab": "Open a new tab",
       "noLongerWaiting": "This is no longer waiting on you."
-    }
+    },
+    "decisionUpdatesLoadFailed": "Decision updates couldn’t load."
   },
   "apiErrors": {
     "actions": {
@@ -19617,7 +19694,8 @@
     "switchAgent": "Switch agent"
   },
   "inlineEditor": {
-    "clickToEdit": "Click to edit..."
+    "clickToEdit": "Click to edit...",
+    "retrySaving": "Retry saving"
   },
   "decisionResolver": {
     "issueFallback": "issue {{id}}",
@@ -19882,7 +19960,8 @@
       "reconnectReplacesCredential": "Reconnecting replaces the credential without changing which agents can use it.",
       "chooseExactlyOneAgent": "Choose exactly one agent. This identity cannot be shared with other agents.",
       "sheetsReady_one": "{{count}} sheet ready to connect.",
-      "sheetsReady_other": "{{count}} sheets ready to connect."
+      "sheetsReady_other": "{{count}} sheets ready to connect.",
+      "useYourOwnNamedOauthApp": "Use your own {{app}} OAuth app"
     }
   },
   "tailscale": {
@@ -20208,7 +20287,9 @@
     },
     "shared": {
       "agentInstructionsFile": "Agent instructions file",
-      "instructionsFileHint": "Absolute path to a markdown file (e.g. AGENTS.md) that defines this agent's behavior. Injected into the system prompt at runtime. Note: Codex may still auto-apply repo-scoped AGENTS.md files from the workspace."
+      "instructionsFileHint": "Absolute path to a markdown file (e.g. AGENTS.md) that defines this agent's behavior. Injected into the system prompt at runtime. Note: Codex may still auto-apply repo-scoped AGENTS.md files from the workspace.",
+      "runtimeServicesJson": "Runtime services JSON",
+      "payloadTemplateJson": "Payload template JSON"
     },
     "openclawGateway": {
       "gatewayUrl": "Gateway URL",
@@ -20327,6 +20408,14 @@
     },
     "http": {
       "webhookUrl": "Webhook URL"
+    },
+    "kimiLocal": {
+      "instructionsFile": "Agent instructions file",
+      "instructionsFileHint": "Absolute path to a markdown file (e.g. AGENTS.md) that defines this agent's behavior. Prepended to the Kimi prompt at runtime."
+    },
+    "piLocal": {
+      "instructionsFile": "Agent instructions file",
+      "instructionsFileHint": "Absolute path to a markdown file (e.g. AGENTS.md) that defines this agent's behavior. Injected into the system prompt at runtime."
     }
   },
   "agentConfigHelp": {
@@ -20501,5 +20590,79 @@
     "findResponsibleUserAria": "Find a responsible user",
     "hint": "Automatic tasks use this person. Manual runs use the person who starts them.",
     "noPeopleFound": "No people found."
+  },
+  "aiConnectionAccountDetails": {
+    "connectedAccount": "Connected account",
+    "providerAccount": "{{provider}} account",
+    "notAvailable": "Not available",
+    "organization": "Organization",
+    "signInMethod": "Sign-in method",
+    "access": "Access",
+    "companyShared": "Company shared",
+    "personal": "Personal · {{owner}}",
+    "accountOwner": "Account owner",
+    "checking": "Checking account details…",
+    "retry": "Retry account check"
+  },
+  "taskChatRunHealth": {
+    "serverFailed": " MCP server failed to start",
+    "serversCount": "{{count}} MCP servers",
+    "failedToStart": " failed to start: ",
+    "explanation": "The agent ran without these tools. Fix the server's command or credentials, then try again."
+  },
+  "agentRateLimitGauge": {
+    "limitReachedCredits": "Limit reached; work continues on account credits.",
+    "usageLimits": "{{provider}} usage limits",
+    "reported": "Reported {{time}}"
+  },
+  "slackAppDetails": {
+    "advanced": "Advanced"
+  },
+  "remoteMcpProductionSetup": {
+    "loadingSavedAccess": "Loading saved access…"
+  },
+  "taskSummaryList": {
+    "recentTasks": "Recent tasks"
+  },
+  "taskBrowserActivity": {
+    "sessionAria": "{{label}} session",
+    "viewSession": "View session",
+    "openBrowser": "Open browser"
+  },
+  "taskChatLoadingShell": {
+    "loading": "Loading conversation"
+  },
+  "taskChatDiffView": {
+    "shortened": "Diff shortened for display."
+  },
+  "activeAgents": {
+    "title": "Agents",
+    "empty": "No recent agent runs."
+  },
+  "costAmount": {
+    "unavailable_one": "{{count}} cost unavailable",
+    "unavailable_other": "{{count}} costs unavailable"
+  },
+  "agentIconPicker": {
+    "searchIcons": "Search icons...",
+    "noIconsMatch": "No icons match"
+  },
+  "caseIdentifierKey": {
+    "caseId": "case ID",
+    "caseKey": "case key"
+  },
+  "financeKindCard": {
+    "title": "Financial event mix",
+    "description": "Account-level charges grouped by event kind.",
+    "empty": "No finance events in this period."
+  },
+  "designSandboxTasks": {
+    "loadingTasks": "Loading tasks…"
+  },
+  "agentSkillRow": {
+    "readOnly": "Read-only"
+  },
+  "stalledDependencyNotice": {
+    "takingLonger": "Taking longer than usual…"
   }
 }

@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { Maximize2, Minimize2, PanelRightClose, PanelRightOpen, X } from "lucide-react";
+import { useTranslation } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -33,16 +34,18 @@ export function SidePanelFrame({
   open = true,
   maximized = false,
   resizing = false,
-  label = "Side panel",
+  label,
   headerSize = "default",
   className,
   bodyClassName,
   style,
 }: SidePanelFrameProps) {
+  const { t } = useTranslation();
   const handleScroll = useScrollbarWhileScrolling();
+  const resolvedLabel = label ?? t("sidePanelFrame.label", { defaultValue: "Side panel" });
   return (
     <section
-      aria-label={label}
+      aria-label={resolvedLabel}
       aria-hidden={!open}
       data-presentation={presentation}
       data-open={open ? "true" : "false"}
@@ -110,7 +113,8 @@ export function SidePanelToggleButton({
   className?: string;
   highlightWhenOpen?: boolean;
 }) {
-  const label = "Toggle side panel";
+  const { t } = useTranslation();
+  const label = t("sidePanelFrame.toggle", { defaultValue: "Toggle side panel" });
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -131,7 +135,7 @@ export function SidePanelToggleButton({
         </Button>
       </TooltipTrigger>
       <TooltipContent side="bottom">
-        {shortcut ? `${label} (${shortcut})` : label}
+        {shortcut ? t("sidePanelFrame.toggleWithShortcut", { defaultValue: "{{label}} ({{shortcut}})", label, shortcut }) : label}
       </TooltipContent>
     </Tooltip>
   );
@@ -148,6 +152,7 @@ export function SidePanelWindowControls({
   onToggle: () => void;
   closeControl?: "toggle" | "close";
 }) {
+  const { t } = useTranslation();
   return (
     <>
       <Button
@@ -156,8 +161,8 @@ export function SidePanelWindowControls({
         size="icon-sm"
         className="h-(--side-panel-tab-height) w-(--side-panel-tab-height) text-muted-foreground hover:text-foreground focus-visible:text-foreground"
         onClick={() => onMaximizedChange(!maximized)}
-        aria-label={maximized ? "Restore side panel" : "Maximize side panel"}
-        title={maximized ? "Restore side panel" : "Maximize side panel"}
+        aria-label={maximized ? t("sidePanelFrame.restore", { defaultValue: "Restore side panel" }) : t("sidePanelFrame.maximize", { defaultValue: "Maximize side panel" })}
+        title={maximized ? t("sidePanelFrame.restore", { defaultValue: "Restore side panel" }) : t("sidePanelFrame.maximize", { defaultValue: "Maximize side panel" })}
       >
         {maximized ? <Minimize2 aria-hidden /> : <Maximize2 aria-hidden />}
       </Button>
@@ -168,8 +173,8 @@ export function SidePanelWindowControls({
           size="icon-sm"
           className="h-(--side-panel-tab-height) w-(--side-panel-tab-height) text-muted-foreground hover:text-foreground focus-visible:text-foreground"
           onClick={onToggle}
-          aria-label="Close side panel"
-          title="Close side panel"
+          aria-label={t("taskSidePanel.closePanel", { defaultValue: "Close side panel" })}
+          title={t("taskSidePanel.closePanel", { defaultValue: "Close side panel" })}
         >
           <X aria-hidden />
         </Button>

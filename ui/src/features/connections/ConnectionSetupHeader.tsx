@@ -3,6 +3,7 @@ import { AppLogo } from "@/pages/apps/AppLogo";
 import { UnverifiedServerBadge } from "@/pages/apps/UnverifiedServerBadge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/i18n";
 
 export function StepHeader({
   title,
@@ -30,6 +31,7 @@ export function StepHeader({
   unverifiedHost?: string | null;
   onCancel?: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="mb-6">
       <div className="flex items-start justify-between gap-4">
@@ -54,7 +56,7 @@ export function StepHeader({
         // guessing at Tailwind classes. The dots are decoration — the label
         // line below already says the same thing, so announcing both would
         // read every step name twice.
-        <nav className="mt-4" aria-label="Setup progress" data-testid="wizard-stepper">
+        <nav className="mt-4" aria-label={t("connectionsPage.setupProgress", { defaultValue: "Setup progress" })} data-testid="wizard-stepper">
           <ol className="flex gap-2" aria-hidden="true">
             {labels.map((label, i) => (
               <li

@@ -15,10 +15,12 @@ import { ApprovalCard } from "../components/ApprovalCard";
 import { PageSkeleton } from "../components/PageSkeleton";
 import { QueryErrorState, useQueryView } from "../components/QueryView";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/i18n";
 
 type StatusFilter = "pending" | "all";
 
 export function Approvals() {
+  const { t } = useTranslation();
   const { selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const queryClient = useQueryClient();
@@ -80,7 +82,7 @@ export function Approvals() {
   ).length;
 
   if (!selectedCompanyId) {
-    return <p className="text-sm text-muted-foreground">Select an organization first.</p>;
+    return <p className="text-sm text-muted-foreground">{t("approvalsPage.selectOrganizationFirst", { defaultValue: "Select an organization first." })}</p>;
   }
 
   // Keep loaded approvals on screen through a failed refetch; only a real

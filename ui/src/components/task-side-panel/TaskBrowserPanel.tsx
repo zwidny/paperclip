@@ -200,7 +200,7 @@ export function TaskBrowserPanel({
           <iframe
             ref={frameRef}
             key={refresh}
-            title="Live Browser Use browser"
+            title={t("taskBrowserPanel.iframeTitle", { defaultValue: "Live Browser Use browser" })}
             src={url}
             onLoad={() => setViewerLoad("loaded")}
             referrerPolicy="no-referrer"
@@ -218,7 +218,7 @@ export function TaskBrowserPanel({
                     className="size-5 animate-spin text-muted-foreground motion-reduce:animate-none"
                     aria-hidden="true"
                   />
-                  <p className="text-sm">Connecting to browser…</p>
+                  <p className="text-sm">{t("taskBrowserPanel.connecting", { defaultValue: "Connecting to browser…" })}</p>
                 </>
               ) : (
                 <>

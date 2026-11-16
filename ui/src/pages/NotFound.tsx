@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { useCompany } from "../context/CompanyContext";
+import { useTranslation } from "@/i18n";
 
 type NotFoundScope = "board" | "invalid_company_prefix" | "global";
 
@@ -14,6 +15,7 @@ interface NotFoundPageProps {
 }
 
 export function NotFoundPage({ scope = "global", requestedPrefix }: NotFoundPageProps) {
+  const { t } = useTranslation();
   const location = useLocation();
   const { setBreadcrumbs } = useBreadcrumbs();
   const { companies, selectedCompany } = useCompany();
@@ -58,7 +60,7 @@ export function NotFoundPage({ scope = "global", requestedPrefix }: NotFoundPage
             </Link>
           </Button>
           <Button variant="outline" asChild>
-            <Link to="/">Go home</Link>
+            <Link to="/">{t("notFound.goHome", { defaultValue: "Go home" })}</Link>
           </Button>
         </div>
       </Card>

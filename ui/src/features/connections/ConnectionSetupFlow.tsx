@@ -2628,14 +2628,14 @@ function StandardConnectionSetupFlow({
           </p>
           {customOAuthMethod ? (
             <Button type="button" variant="link" className="mt-4 h-auto p-0 text-xs" onClick={() => setConnectionMethodKey(customOAuthMethod.key)}>
-              Use your own {entry.name} OAuth app
+              {t("connections.setupFlow.useYourOwnNamedOauthApp", { defaultValue: "Use your own {{app}} OAuth app", app: entry.name })}
             </Button>
           ) : null}
           <div className="mt-6 flex items-center justify-between gap-3">
-            <Button type="button" variant="ghost" onClick={backToGallery}>Back</Button>
+            <Button type="button" variant="ghost" onClick={backToGallery}>{t("connections.setupFlow.back", { defaultValue: "Back" })}</Button>
             <Button type="button" disabled={galleryQuery.isFetching} onClick={() => void galleryQuery.refetch()}>
               {galleryQuery.isFetching ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Try again
+              {t("common.tryAgain", { defaultValue: "Try again" })}
             </Button>
           </div>
         </div>
@@ -2658,7 +2658,7 @@ function StandardConnectionSetupFlow({
 
             {customOAuthMethod ? (
               <Button type="button" variant="link" className="mt-4 h-auto p-0 text-xs" onClick={() => setConnectionMethodKey(customOAuthMethod.key)}>
-                Use your own {entry.name} OAuth app
+                {t("connections.setupFlow.useYourOwnNamedOauthApp", { defaultValue: "Use your own {{app}} OAuth app", app: entry.name })}
               </Button>
             ) : null}
 

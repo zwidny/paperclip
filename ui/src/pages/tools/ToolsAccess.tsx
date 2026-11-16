@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Wrench } from "lucide-react";
 import { Link, Navigate, useParams } from "@/lib/router";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/i18n";
 import { useBreadcrumbs } from "@/context/BreadcrumbContext";
 import { useCompany } from "@/context/CompanyContext";
 import { ProfilesIndex } from "./profiles/ProfilesIndex";
@@ -31,6 +32,7 @@ function renderTab(tab: ToolTabKey, companyId: string) {
 }
 
 export function ToolsAccess() {
+  const { t } = useTranslation();
   const { selectedCompany, selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const params = useParams<{ tab?: string }>();
@@ -53,7 +55,7 @@ export function ToolsAccess() {
   }, [setBreadcrumbs, selectedCompany?.name, advanced, tabLabel]);
 
   if (!selectedCompanyId) {
-    return <div className="p-6 text-sm text-muted-foreground">Select an organization to open advanced setup.</div>;
+    return <div className="p-6 text-sm text-muted-foreground">{t("toolsAccess.selectOrganization", { defaultValue: "Select an organization to open advanced setup." })}</div>;
   }
 
   if (params.tab === "run-your-own") {
@@ -86,7 +88,7 @@ export function ToolsAccess() {
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-5 p-4 sm:p-6">
         <header>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-xl font-bold text-foreground">Advanced setup</h1>
+            <h1 className="text-xl font-bold text-foreground">{t("toolsAccess.advancedSetup", { defaultValue: "Advanced setup" })}</h1>
             <span className="inline-flex items-center rounded-full bg-foreground px-2.5 py-0.5 text-(length:--text-micro) font-bold text-background">
               Advanced
             </span>

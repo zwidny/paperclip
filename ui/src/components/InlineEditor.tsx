@@ -6,6 +6,7 @@ import { ApiError } from "../api/client";
 import { useDurableAutosave } from "../hooks/useDurableAutosave";
 import { useDraftOwner } from "../hooks/useDraftOwner";
 import { loadStructuredDraft, saveStructuredDraft } from "../lib/composer-draft";
+import { useTranslation } from "../i18n";
 
 type StoredInlineDraft = { version: 1; draft: string; base: string };
 import { FoldCurtain } from "./FoldCurtain";
@@ -82,7 +83,7 @@ function OwnedInlineEditor({
   onSave,
   as: Tag = "span",
   className,
-  placeholder = "Click to edit...",
+  placeholder,
   multiline = false,
   fitContent = false,
   nullable = false,
@@ -97,6 +98,8 @@ function OwnedInlineEditor({
   readCurrentValue,
   draftOwner,
 }: InlineEditorProps & { draftOwner: string | undefined }) {
+  const { t } = useTranslation();
+  const resolvedPlaceholder = placeholder ?? t("inlineEditor.clickToEdit", { defaultValue: "Click to edit..." });
   const [editing, setEditing] = useState(false);
   const editingChangeCallback = useRef(onEditingChange);
   editingChangeCallback.current = onEditingChange;
@@ -425,7 +428,7 @@ function OwnedInlineEditor({
           }}
           role="textbox"
           aria-multiline="true"
-          aria-label={placeholder}
+          aria-label={resolvedPlaceholder}
           tabIndex={0}
         >
           {foldable ? (
@@ -478,7 +481,7 @@ function OwnedInlineEditor({
           ref={markdownRef}
           value={draft}
           onChange={changeDraft}
-          placeholder={placeholder}
+          placeholder={resolvedPlaceholder}
           bordered={false}
           className="bg-transparent"
           contentClassName={cn("paperclip-edit-in-place-content", className)}
@@ -500,7 +503,7 @@ function OwnedInlineEditor({
           >
             {autosave.label ?? "Idle"}
           </span>
-          {autosaveState === "stalled" ? <button type="button" className="ml-2 text-xs text-foreground underline" onClick={autosave.resendNow}>Retry saving</button> : null}
+          {autosaveState === "stalled" ? <button type="button" className="ml-2 text-xs text-foreground underline" onClick={autosave.resendNow}>{t("inlineEditor.retrySaving", { defaultValue: "Retry saving" })}</button> : null}
         </div>
       </div>
     );
@@ -514,7 +517,7 @@ function OwnedInlineEditor({
         aria-invalid={autosaveState === "error" || undefined}
         aria-description={autosaveState === "error" ? autosave.label ?? undefined : undefined}
         rows={1}
-        aria-label={placeholder}
+        aria-label={resolvedPlaceholder}
         onChange={(e) => {
           changeDraft(e.target.value);
           autoSize(e.target);
@@ -553,9 +556,9 @@ function OwnedInlineEditor({
       )}
       onClick={() => setEditing(true)}
     >
-      {value || placeholder}
+      {value || resolvedPlaceholder}
     </DisplayTag>
-    {autosaveState === "stalled" ? <button type="button" className="text-xs text-foreground underline" onClick={autosave.resendNow}>Retry saving</button> : null}
+    {autosaveState === "stalled" ? <button type="button" className="text-xs text-foreground underline" onClick={autosave.resendNow}>{t("inlineEditor.retrySaving", { defaultValue: "Retry saving" })}</button> : null}
     </>
   );
 }

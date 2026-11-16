@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react
 import { Check } from "lucide-react";
 import { copyTextToClipboard } from "@/lib/clipboard";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/i18n";
 
 export function CaseCopyableToken({
   value,
@@ -75,6 +76,7 @@ export function CaseIdentifierKey({
   className?: string;
   stopPropagation?: boolean;
 }) {
+  const { t } = useTranslation();
   return (
     <span
       className={cn("inline-flex min-w-0 max-w-full items-center gap-2 whitespace-nowrap", className)}
@@ -82,7 +84,7 @@ export function CaseIdentifierKey({
     >
       <CaseCopyableToken
         value={identifier}
-        label="case ID"
+        label={t("caseIdentifierKey.caseId", { defaultValue: "case ID" })}
         className="shrink-0 font-mono text-xs text-muted-foreground"
         containerClassName="shrink-0"
         stopPropagation={stopPropagation}
@@ -90,7 +92,7 @@ export function CaseIdentifierKey({
       {caseKey ? (
         <CaseCopyableToken
           value={caseKey}
-          label="case key"
+          label={t("caseIdentifierKey.caseKey", { defaultValue: "case key" })}
           className="font-mono text-xs text-muted-foreground"
           stopPropagation={stopPropagation}
         />

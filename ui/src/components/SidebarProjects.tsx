@@ -18,6 +18,7 @@ import { useSidebar } from "../context/SidebarContext";
 import { authApi } from "../api/auth";
 import { SIDEBAR_SCROLL_RESET_STATE } from "../lib/navigation-scroll";
 import { queryKeys } from "../lib/queryKeys";
+import { useTranslation } from "@/i18n";
 import { cn, projectRouteRef, SIDEBAR_RAIL_HIDDEN_LABEL } from "../lib/utils";
 import { useProjectOrder } from "../hooks/useProjectOrder";
 import { resourceMembershipState, useResourceMembershipMutation, useResourceMemberships } from "../hooks/useResourceMemberships";
@@ -123,6 +124,7 @@ function ProjectItem({
   leaving = false,
   isDragging = false,
 }: ProjectItemProps) {
+  const { t } = useTranslation();
   const routeRef = projectRouteRef(project);
   const { summary: externalObjectsSummary } = useProjectExternalObjectSummary(project.id);
 
@@ -146,9 +148,9 @@ function ProjectItem({
     >
       <ProjectTile color={project.color ?? null} icon={project.icon ?? null} size="xs" />
       <span className={rail ? SIDEBAR_RAIL_HIDDEN_LABEL : "flex-1 truncate"}>{project.name}</span>
-            {!rail && project.visibility === "private" ? <Lock className="size-3.5 shrink-0 text-muted-foreground" aria-label="Private project" /> : null}
+            {!rail && project.visibility === "private" ? <Lock className="size-3.5 shrink-0 text-muted-foreground" aria-label={t("sidebarProjects.privateProject", { defaultValue: "Private project" })} /> : null}
       {!rail ? <ExternalObjectStatusSummary summary={externalObjectsSummary} compact /> : null}
-      {!rail && project.pauseReason === "budget" ? <BudgetSidebarMarker title="Project paused by budget" /> : null}
+      {!rail && project.pauseReason === "budget" ? <BudgetSidebarMarker title={t("sidebarProjects.projectPausedByBudget", { defaultValue: "Project paused by budget" })} /> : null}
     </NavLink>
   );
 
@@ -261,6 +263,7 @@ export function SidebarProjects() {
   const rail = collapsed && !peeking;
   const fineReorderPointer = useFineReorderPointer();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const { data: projects } = useQuery({
     ...companyProjectsQuery(selectedCompanyId!),
@@ -409,7 +412,7 @@ export function SidebarProjects() {
 
   return (
     <SidebarSection
-      label="Projects"
+      label={t("sidebarProjects.projects", { defaultValue: "Projects" })}
       collapsible={{ open, onOpenChange: setOpen }}
       headerAction={{
         ariaLabel: "New project",

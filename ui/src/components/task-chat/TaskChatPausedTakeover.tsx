@@ -2,6 +2,7 @@ import { useId } from "react";
 import { Loader2, Pause, Play } from "lucide-react";
 import { Link } from "@/lib/router";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/i18n";
 
 export interface TaskComposerPause {
   scope: "leaf" | "subtree";
@@ -22,6 +23,7 @@ export function TaskChatPausedTakeover({
 }: {
   hasDraft?: boolean;
 } & TaskComposerPause) {
+  const { t } = useTranslation();
   const headingId = useId();
   const subtree = scope === "subtree";
   return (
@@ -51,11 +53,11 @@ export function TaskChatPausedTakeover({
       ) : null}
       <div className="flex flex-wrap items-center justify-end gap-3">
         {hasDraft ? (
-          <p className="mr-auto text-xs text-muted-foreground">Your draft is saved.</p>
+          <p className="mr-auto text-xs text-muted-foreground">{t("taskChat.draftSaved", { defaultValue: "Your draft is saved." })}</p>
         ) : null}
         {resumeHref ? (
           <Button asChild size="sm" className="bg-(--status-agent-paused) text-foreground hover:bg-(--status-agent-paused)/80 dark:text-background">
-            <Link to={resumeHref}><Play aria-hidden="true" />Resume subtree</Link>
+            <Link to={resumeHref}><Play aria-hidden="true" />{t("taskChat.resumeSubtree", { defaultValue: "Resume subtree" })}</Link>
           </Button>
         ) : (
           <Button

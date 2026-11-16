@@ -15,15 +15,16 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from "@/components/ui/textarea";
 import type { RunnerGoalComposerCommand } from "./TaskChatComposer";
 import { createUuid } from "../../lib/uuid";
+import { useTranslation } from "../../i18n";
 
-const PENDING_LABELS: Record<string, string> = {
-  starting: "Starting",
-  editing: "Saving",
-  replacing: "Replacing",
-  pausing: "Pausing after current turn",
-  resuming: "Resuming",
-  clearing: "Clearing",
-  continuing: "Continuing in a new run",
+const PENDING_LABEL_KEYS: Record<string, string> = {
+  starting: "runnerGoal.pendingStarting",
+  editing: "runnerGoal.pendingSaving",
+  replacing: "runnerGoal.pendingReplacing",
+  pausing: "runnerGoal.pendingPausing",
+  resuming: "runnerGoal.pendingResuming",
+  clearing: "runnerGoal.pendingClearing",
+  continuing: "runnerGoal.pendingContinuing",
 };
 
 function requestId() {
@@ -182,17 +183,18 @@ export function useRunnerGoalControl(issueId: string | null, agentId: string | n
 export type RunnerGoalControl = ReturnType<typeof useRunnerGoalControl>;
 
 export function RunnerGoalWidget({ control }: { control: RunnerGoalControl }) {
+  const { t } = useTranslation();
   const projection = control.data;
   const goal = projection?.goal ?? null;
   const capability = projection?.capability;
   const can = (action: "set" | "pause" | "resume" | "clear") =>
     capability?.availability === "available" && capability.actions.includes(action);
   const resumable = goal && ["paused", "blocked", "limited", "usage_limited"].includes(goal.status);
-  const pendingLabel = projection?.pendingAction ? PENDING_LABELS[projection.pendingAction] : null;
+  const pendingLabel = projection?.pendingAction ? t(PENDING_LABEL_KEYS[projection.pendingAction] ?? "runnerGoal.pendingStarting", { defaultValue: "Starting" }) : null;
   const mutationError = control.actionError ?? (control.mutation?.error instanceof Error
     ? control.mutation.error.message
     : control.mutation?.error
-      ? "The goal action could not be applied."
+      ? t("runnerGoal.actionFailed", { defaultValue: "The goal action could not be applied." })
       : null);
   // Expansion controls the objective's detail, not whether an empty card exists.
   // In particular, a cleared goal must disappear even after it was expanded.
@@ -201,14 +203,14 @@ export function RunnerGoalWidget({ control }: { control: RunnerGoalControl }) {
   return (
     <section
       className="rounded-xl border border-border/80 bg-card/95 px-3 py-2 shadow-sm"
-      aria-label="Agent session goal"
+      aria-label={t("runnerGoal.agentSessionGoal", { defaultValue: "Agent session goal" })}
       data-testid="runner-goal-widget"
     >
       <div className="flex items-start gap-2">
         <Flag className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-xs font-semibold">Session goal</span>
+            <span className="text-xs font-semibold">{t("runnerGoal.sessionGoal", { defaultValue: "Session goal" })}</span>
             {goal ? (
               <span className="rounded-full bg-muted px-1.5 py-0.5 text-xs font-medium capitalize" role="status">
                 {goal.status.replaceAll("_", " ")}
@@ -216,7 +218,7 @@ export function RunnerGoalWidget({ control }: { control: RunnerGoalControl }) {
             ) : null}
             {goal?.workingNow ? (
               <span className="inline-flex items-center gap-1 text-xs text-primary" role="status">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" /> Working now
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" /> {t("runnerGoal.workingNow", { defaultValue: "Working now" })}
               </span>
             ) : null}
             {pendingLabel ? (
@@ -229,7 +231,7 @@ export function RunnerGoalWidget({ control }: { control: RunnerGoalControl }) {
             <p className={cn("mt-1 text-sm leading-snug", control.expanded ? "max-h-40 overflow-auto" : "line-clamp-2")}>{goal.objective}</p>
           ) : (
             <p className="mt-1 text-xs text-muted-foreground">
-              {capability?.reason ?? "Type /goal followed by an objective to pursue work across turns."}
+              {capability?.reason ?? t("runnerGoal.emptyHint", { defaultValue: "Type /goal followed by an objective to pursue work across turns." })}
             </p>
           )}
           {goal ? (
@@ -237,33 +239,33 @@ export function RunnerGoalWidget({ control }: { control: RunnerGoalControl }) {
               <span>{formatDuration(goal.elapsedSeconds)}</span>
               {capability?.usageReporting ? (
                 <span>
-                  {formatTokens(goal.tokensUsed)} tokens
+                  {t("runnerGoal.tokensUsed", { defaultValue: "{{tokens}} tokens", tokens: formatTokens(goal.tokensUsed) })}
                   {goal.tokenBudget ? ` / ${formatTokens(goal.tokenBudget)}` : ""}
                 </span>
               ) : null}
-              {goal.iterations > 0 ? <span>{goal.iterations} iterations</span> : null}
+              {goal.iterations > 0 ? <span>{t("runnerGoal.iterationsCount", { defaultValue: "{{count}} iterations", count: goal.iterations })}</span> : null}
               {goal.lastReason ? <span className="truncate">{goal.lastReason}</span> : null}
             </div>
           ) : null}
         </div>
         <div className="flex shrink-0 items-center gap-1">
           {goal && can("set") ? (
-            <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => void control.edit().catch(() => {})} aria-label="Edit goal">
+            <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => void control.edit().catch(() => {})} aria-label={t("runnerGoal.editGoal", { defaultValue: "Edit goal" })}>
               <Pencil className="h-3.5 w-3.5" aria-hidden />
             </Button>
           ) : null}
           {goal?.status === "active" && can("pause") ? (
-            <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => void control.executeAction("pause").catch(() => {})} aria-label="Pause goal">
+            <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => void control.executeAction("pause").catch(() => {})} aria-label={t("runnerGoal.pauseGoal", { defaultValue: "Pause goal" })}>
               <Pause className="h-3.5 w-3.5" aria-hidden />
             </Button>
           ) : null}
           {resumable && can("resume") ? (
-            <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => void control.executeAction("resume").catch(() => {})} aria-label="Resume goal">
+            <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => void control.executeAction("resume").catch(() => {})} aria-label={t("runnerGoal.resumeGoal", { defaultValue: "Resume goal" })}>
               <Play className="h-3.5 w-3.5" aria-hidden />
             </Button>
           ) : null}
           {goal && can("clear") ? (
-            <Button size="icon" variant="ghost" className={cn("h-7 w-7", "text-muted-foreground hover:text-destructive")} onClick={() => void control.executeAction("clear").catch(() => {})} aria-label="Clear goal">
+            <Button size="icon" variant="ghost" className={cn("h-7 w-7", "text-muted-foreground hover:text-destructive")} onClick={() => void control.executeAction("clear").catch(() => {})} aria-label={t("runnerGoal.clearGoal", { defaultValue: "Clear goal" })}>
               <Trash2 className="h-3.5 w-3.5" aria-hidden />
             </Button>
           ) : null}
@@ -281,15 +283,15 @@ export function RunnerGoalWidget({ control }: { control: RunnerGoalControl }) {
             void control.submitDialog();
           }}>
             <DialogHeader>
-              <DialogTitle>{control.dialog?.action === "replace" ? "Replace session goal?" : "Edit session goal"}</DialogTitle>
+              <DialogTitle>{control.dialog?.action === "replace" ? t("runnerGoal.replaceGoalTitle", { defaultValue: "Replace session goal?" }) : t("runnerGoal.editGoalTitle", { defaultValue: "Edit session goal" })}</DialogTitle>
               <DialogDescription>
                 {control.dialog?.action === "replace"
-                  ? "This clears the unfinished goal and starts a new goal with the objective below."
-                  : "Update the objective without clearing the goal's progress."}
+                  ? t("runnerGoal.replaceGoalBody", { defaultValue: "This clears the unfinished goal and starts a new goal with the objective below." })
+                  : t("runnerGoal.editGoalBody", { defaultValue: "Update the objective without clearing the goal's progress." })}
               </DialogDescription>
             </DialogHeader>
             <label className="block space-y-2">
-              <span className="text-sm font-medium">Goal objective</span>
+              <span className="text-sm font-medium">{t("runnerGoal.goalObjective", { defaultValue: "Goal objective" })}</span>
               <Textarea
                 value={control.dialog?.objective ?? ""}
                 maxLength={4_000}
@@ -309,9 +311,9 @@ export function RunnerGoalWidget({ control }: { control: RunnerGoalControl }) {
             </label>
             {mutationError ? <p className="text-sm text-destructive" role="alert">{mutationError}</p> : null}
             <DialogFooter>
-              <Button type="button" variant="outline" disabled={control.mutation?.isPending} onClick={() => control.setDialog(null)}>Cancel</Button>
+              <Button type="button" variant="outline" disabled={control.mutation?.isPending} onClick={() => control.setDialog(null)}>{t("common.cancel", { defaultValue: "Cancel" })}</Button>
               <Button type="submit" disabled={!control.dialog?.objective.trim() || control.mutation?.isPending}>
-                {control.mutation?.isPending ? "Saving…" : control.dialog?.action === "replace" ? "Replace goal" : "Save goal"}
+                {control.mutation?.isPending ? t("common.saving", { defaultValue: "Saving…" }) : control.dialog?.action === "replace" ? t("runnerGoal.replaceGoal", { defaultValue: "Replace goal" }) : t("runnerGoal.saveGoal", { defaultValue: "Save goal" })}
               </Button>
             </DialogFooter>
           </form>

@@ -2862,7 +2862,7 @@ const IssueDetailChatTab = memo(function IssueDetailChatTab({
               tryAgainNoLiveExecutionPathPending
             }
             footer={grokWork || stopGrokWork.error || classicQueuedDeliveryError ? <>
-              {grokWork && <p className="text-xs text-muted-foreground">Runs in Grok Bot · Usage not reported. Stop Paperclip work revokes this session’s authority; remote execution may continue. Open the Grok Bot desktop app to inspect it.</p>}
+              {grokWork && <p className="text-xs text-muted-foreground">{t("issueDetail.grokBotFooter", { defaultValue: "Runs in Grok Bot · Usage not reported. Stop Paperclip work revokes this session’s authority; remote execution may continue. Open the Grok Bot desktop app to inspect it." })}</p>}
               {stopGrokWork.error && <p role="alert" className="text-sm text-destructive">{describeError(stopGrokWork.error).body}</p>}
               {classicQueuedDeliveryError && <p role="status" className="text-sm text-destructive">{classicQueuedDeliveryError}</p>}
               {footer}
@@ -3074,7 +3074,7 @@ function IssueDetailActivityTab({
           ) : (
             <div className="space-y-1 text-xs text-muted-foreground tabular-nums">
               <div className="flex flex-wrap gap-3">
-                <span className="font-medium text-foreground">This task</span>
+                <span className="font-medium text-foreground">{t("issueDetail.thisTask", { defaultValue: "This task" })}</span>
                 {issueCostSummary.hasCost ? (
                   <span className="font-medium text-foreground">
                     ${issueCostSummary.cost.toFixed(4)}
@@ -3082,22 +3082,22 @@ function IssueDetailActivityTab({
                 ) : null}
                 {issueCostSummary.hasTokens ? (
                   <span>
-                    Tokens {formatTokens(issueCostSummary.totalTokens)}
+                    {t("issueDetail.costTokens", { defaultValue: "Tokens {{tokens}}", tokens: formatTokens(issueCostSummary.totalTokens) })}
                     {issueCostSummary.cached > 0
-                      ? ` (in ${formatTokens(issueCostSummary.input)}, out ${formatTokens(issueCostSummary.output)}, cached ${formatTokens(issueCostSummary.cached)})`
-                      : ` (in ${formatTokens(issueCostSummary.input)}, out ${formatTokens(issueCostSummary.output)})`}
+                      ? t("issueDetail.costTokenBreakdownCached", { defaultValue: " (in {{input}}, out {{output}}, cached {{cached}})", input: formatTokens(issueCostSummary.input), output: formatTokens(issueCostSummary.output), cached: formatTokens(issueCostSummary.cached) })
+                      : t("issueDetail.costTokenBreakdown", { defaultValue: " (in {{input}}, out {{output}})", input: formatTokens(issueCostSummary.input), output: formatTokens(issueCostSummary.output) })}
                   </span>
                 ) : null}
                 {issueCostSummary.hasRuntime ? (
                   <span>
-                    Runtime {formatDurationMs(issueCostSummary.runtimeMs)}
-                    {` (${issueCostSummary.runCount} run${issueCostSummary.runCount === 1 ? "" : "s"})`}
+                    {t("issueDetail.costRuntime", { defaultValue: "Runtime {{duration}}", duration: formatDurationMs(issueCostSummary.runtimeMs) })}
+                    {t("issueDetail.costRunCount", { defaultValue_one: " ({{count}} run)", defaultValue_other: " ({{count}} runs)", count: issueCostSummary.runCount })}
                   </span>
                 ) : null}
                 {!issueCostSummary.hasCost &&
                 !issueCostSummary.hasTokens &&
                 !issueCostSummary.hasRuntime ? (
-                  <span>No direct cost data.</span>
+                  <span>{t("issueDetail.noDirectCostData", { defaultValue: "No direct cost data." })}</span>
                 ) : null}
               </div>
               {hasIssueTreeCost && issueTreeCostSummary ? (
@@ -3115,20 +3115,19 @@ function IssueDetailActivityTab({
                     )}
                   </span>
                   <span>
-                    Tokens {formatTokens(issueTreeCostTokens)}
+                    {t("issueDetail.costTokens", { defaultValue: "Tokens {{tokens}}", tokens: formatTokens(issueTreeCostTokens) })}
                     {issueTreeCostSummary.cachedInputTokens > 0
-                      ? ` (in ${formatTokens(issueTreeCostSummary.inputTokens)}, out ${formatTokens(issueTreeCostSummary.outputTokens)}, cached ${formatTokens(issueTreeCostSummary.cachedInputTokens)})`
-                      : ` (in ${formatTokens(issueTreeCostSummary.inputTokens)}, out ${formatTokens(issueTreeCostSummary.outputTokens)})`}
+                      ? t("issueDetail.costTokenBreakdownCached", { defaultValue: " (in {{input}}, out {{output}}, cached {{cached}})", input: formatTokens(issueTreeCostSummary.inputTokens), output: formatTokens(issueTreeCostSummary.outputTokens), cached: formatTokens(issueTreeCostSummary.cachedInputTokens) })
+                      : t("issueDetail.costTokenBreakdown", { defaultValue: " (in {{input}}, out {{output}})", input: formatTokens(issueTreeCostSummary.inputTokens), output: formatTokens(issueTreeCostSummary.outputTokens) })}
                   </span>
                   {issueTreeCostSummary.runCount > 0 ? (
                     <span>
-                      Runtime {formatDurationMs(issueTreeCostSummary.runtimeMs)}
-                      {` (${issueTreeCostSummary.runCount} run${issueTreeCostSummary.runCount === 1 ? "" : "s"})`}
+                      {t("issueDetail.costRuntime", { defaultValue: "Runtime {{duration}}", duration: formatDurationMs(issueTreeCostSummary.runtimeMs) })}
+                      {t("issueDetail.costRunCount", { defaultValue_one: " ({{count}} run)", defaultValue_other: " ({{count}} runs)", count: issueTreeCostSummary.runCount })}
                     </span>
                   ) : null}
                   <span>
-                    {issueTreeCostSummary.issueCount} task
-                    {issueTreeCostSummary.issueCount === 1 ? "" : "s"}
+                    {t("issueDetail.costTaskCount", { defaultValue_one: "{{count}} task", defaultValue_other: "{{count}} tasks", count: issueTreeCostSummary.issueCount })}
                   </span>
                 </div>
               ) : null}
@@ -8332,7 +8331,7 @@ export function TaskDetailSurface({ conversation, tasksTab }: { tasksTab?: TaskS
           )}
 
           {issue.status === "in_review" && issue.externalConversationState === "waiting" && (
-            <p role="status" className="text-sm text-muted-foreground">Reply sent. Send a message to continue.</p>
+            <p role="status" className="text-sm text-muted-foreground">{t("issueDetail.replySentHint", { defaultValue: "Reply sent. Send a message to continue." })}</p>
           )}
 
           {issue.hiddenAt && (
@@ -9059,7 +9058,7 @@ export function TaskDetailSurface({ conversation, tasksTab }: { tasksTab?: TaskS
               {taskChatShellEnabled ? (
                 <>
                   <SheetHeader className="sr-only">
-                    <SheetTitle>Task side panel</SheetTitle>
+                    <SheetTitle>{t("issueDetail.taskSidePanel", { defaultValue: "Task side panel" })}</SheetTitle>
                   </SheetHeader>
                   <TaskSidePanel
                     documentEditor={taskDocumentEditor}

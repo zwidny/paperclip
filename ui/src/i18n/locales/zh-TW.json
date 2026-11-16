@@ -635,7 +635,17 @@
     "kept": "已保留",
     "keptOnDesk": "已保留在工作台",
     "couldNotKeep": "無法保留該決策",
-    "pleaseTryAgain": "請重試。"
+    "pleaseTryAgain": "請重試。",
+    "caughtUpMine": "You're all caught up.",
+    "caughtUpUnassigned": "No cards need an owner.",
+    "caughtUpCompany": "No company alerts right now.",
+    "caughtUpArchived": "Nothing archived.",
+    "caughtUpAll": "No open cards for anyone.",
+    "zeroMine": "Nothing needs a decision from you right now.",
+    "zeroUnassigned": "Every open card has an owner.",
+    "zeroCompany": "No failed runs, agent errors, budget stops or join requests.",
+    "zeroArchived": "Cards you archive or snooze for yourself show here. Restore one to see it again.",
+    "zeroAll": "Nobody has a card waiting right now."
   },
   "inbox": {
     "markAsRead": "標記為已讀",
@@ -820,7 +830,20 @@
     "eventCount_other": "{{count}} 個事件",
     "billerCount_one": "{{count}} 個計費方",
     "billerCount_other": "{{count}} 個計費方",
-    "dateRangeAria": "Cost date range"
+    "dateRangeAria": "Cost date range",
+    "agentCostLoadError": "{{name}}'s costs could not be loaded. Please try again shortly.",
+    "byModel": "By model",
+    "costPeriod": "Cost period",
+    "fromLabel": "From",
+    "ledgerEvents_one": "{{count}} ledger event",
+    "ledgerEvents_other": "{{count}} ledger events",
+    "noCostEventsForAgent": "No cost events for {{name}} in this period.",
+    "noModelBreakdown": "No model breakdown for this period.",
+    "runs": "Runs",
+    "runsBreakdownDetail": "{{api}} api · {{subscription}} subscription",
+    "spend": "Spend",
+    "toLabel": "To",
+    "tokens": "Tokens"
   },
   "newAgent": {
     "step": {
@@ -2977,7 +3000,8 @@
       "howStepTwo": "Choose which agents can use it, here or in an agent's settings. A project can set it for every task in that project.",
       "howStepThreePrefix": "When a run starts, the agent finds it as an environment variable, such as",
       "howStepThreeSuffix": ". The value is never shown again.",
-      "managedByPaperclip": "Managed by Paperclip"
+      "managedByPaperclip": "Managed by Paperclip",
+      "controls": "Secrets controls"
     },
     "folder": {
       "allSecrets": "全部 Secrets",
@@ -3195,7 +3219,10 @@
       "fixItInVaults": "fix it in Vaults",
       "linkSecret": "Link secret",
       "usageNotePlaceholder": "What it is for",
-      "existingSecretsStay": "Existing secrets stay where they are."
+      "existingSecretsStay": "Existing secrets stay where they are.",
+      "agentsThatCanUseIt": "Agents that can use it",
+      "moreOptions": "More options",
+      "optionalSuffix": "(optional)"
     },
     "delete": {
       "title": "刪除 Secret",
@@ -3343,7 +3370,8 @@
       "alsoSetIn": "Also set in",
       "definitionDisabledNotice": "Disabled secrets are not given to agents, and members are not asked for a value.",
       "members": "Members",
-      "activity": "Activity"
+      "activity": "Activity",
+      "details": "Details"
     }
   },
   "secretsImport": {
@@ -4923,7 +4951,12 @@
       "moreTasks": "另有 {{total}} 個任務",
       "exploreSkills": "Explore skills",
       "suggestedTasks": "Suggested tasks",
-      "suggestedTasksTitle": "Start with a suggested task"
+      "suggestedTasksTitle": "Start with a suggested task",
+      "monthToDate": "Month to date",
+      "budgetUsedLabel": "Budget used",
+      "noMonthlyBudget": "No monthly budget set",
+      "ofBudgetThisMonth": "of {{amount}} this month",
+      "profile": "Profile"
     },
     "auditLink": {
       "activity": "活動",
@@ -5024,7 +5057,10 @@
       "rootPathPlaceholder": "/絕對路徑/到/agent/prompts",
       "fileNameExists": "A file with this name already exists.",
       "fileNameInvalid": "Use letters, numbers, hyphens or underscores.",
-      "requiredFile": "This file is required"
+      "requiredFile": "This file is required",
+      "fileNameAria": "Markdown file name",
+      "deleteFileAria": "Delete {{path}}",
+      "deleteFileTitle": "Delete file"
     },
     "runs": {
       "loadingRun": "正在載入執行…",
@@ -5131,7 +5167,39 @@
       "totalCost": "總成本",
       "date": "日期",
       "run": "執行"
-    }
+    },
+    "discardUnsavedTitle": "Discard unsaved changes?",
+    "discardUnsavedBody": "You have unsaved changes to {{name}}’s {{section}}. If you continue, they’ll be lost.",
+    "discardSectionRuntime": "harness settings",
+    "discardSectionSecrets": "secrets and variables",
+    "discardSectionAdvanced": "configuration",
+    "discardSectionInstructions": "instructions",
+    "discardUnsavedKeepEditing": "Keep editing",
+    "allowedConnectors": "Allowed connectors",
+    "connectorsAria": "Connectors",
+    "connectorsLoadFailed": "Couldn’t load this agent’s connectors.",
+    "history": {
+      "authorAgent": "An agent",
+      "authorFormerMember": "Former member",
+      "by": "{{date}} · By: {{author}}",
+      "columnConfiguration": "Configuration",
+      "columnDateConfigured": "Date configured",
+      "columnTeamMember": "Team member",
+      "description": "Every saved change to {{name}}’s identity and configuration. Restore any version.",
+      "empty": "No saved changes yet.",
+      "loadFailed": "Could not load agent history.",
+      "loading": "Loading agent history…",
+      "restore": "Restore",
+      "restoreBody": "Continuing will restore {{name}}’s identity and configuration to the version saved on {{date}}. Anything changed since then will be replaced. The current version stays in Agent history.",
+      "restoreFailed": "Could not restore that version.",
+      "restoreTitle": "Restore this version?",
+      "restoreVersion": "Restore version",
+      "restoring": "Restoring…",
+      "title": "Agent history"
+    },
+    "manageConnectors": "Manage connectors",
+    "noConnectors": "No connectors are allowed yet.",
+    "resolvingAccess": "Resolving access…"
   },
   "agentNavigation": {
     "sections": {
@@ -8867,7 +8935,13 @@
       "copiedTitle": "已複製",
       "copyFailedTitle": "複製失敗",
       "clipboardUnavailable": "剪貼簿存取無法使用。"
-    }
+    },
+    "activeCount": "{{count}} active",
+    "appsCount_one": "{{count}} app",
+    "appsCount_other": "{{count}} apps",
+    "expiringCount": " · {{count}} expiring",
+    "toolCount_one": "{{count}} tool",
+    "toolCount_other": "{{count}} tools"
   },
   "gatewayActivity": {
     "client": "用戶端",
@@ -9012,7 +9086,8 @@
     "cached": "{{tokens}} 已快取",
     "unpricedCharges_one": "{{count}} 個未定價的計費項",
     "unpricedCharges_other": "{{count}} 個未定價的計費項",
-    "unattributedNote": "此組織中沒有歸屬使用者的成本。"
+    "unattributedNote": "此組織中沒有歸屬使用者的成本。",
+    "unattributed": "Unattributed"
   },
   "providerQuota": {
     "periodSpend": "本期支出",
@@ -9441,12 +9516,10 @@
     "copyAsMarkdown": "複製為 Markdown",
     "copyFailed": "複製失敗",
     "copyTaskAsMarkdown": "將任務複製為 Markdown",
-    "costRunCount": "（{{count}} 次執行）",
     "costRunCount_one": "（{{count}} 次執行）",
     "costRunCount_other": "（{{count}} 次執行）",
     "costRuntime": "執行時間 {{duration}}",
     "costSummary": "成本摘要",
-    "costTaskCount": "{{count}} 個任務",
     "costTaskCount_one": "{{count}} 個任務",
     "costTaskCount_other": "{{count}} 個任務",
     "costTokenBreakdown": "（輸入 {{input}}，輸出 {{output}}）",
@@ -10855,7 +10928,10 @@
     "collapseAll": "Collapse all",
     "expandAll": "Expand all",
     "filesSoFar": "{{files}} so far",
-    "tooManyFiles": "{{count}} more files changed. This change set is too large to list them here."
+    "tooManyFiles": "{{count}} more files changed. This change set is too large to list them here.",
+    "addContextForAgent": "Add context for the agent…",
+    "optionalField": "Optional",
+    "requiredField": "Required"
   },
   "runnerGoal": {
     "pendingStarting": "正在啟動",
@@ -11885,7 +11961,20 @@
     "loadingActivity": "正在載入活動…",
     "noActivity": "尚無活動。",
     "concurrency": "Concurrency",
-    "catchUp": "Catch-up"
+    "catchUp": "Catch-up",
+    "forLabel": "For",
+    "responsibleLabel": "Responsible",
+    "noResponsible": "No responsible",
+    "searchResponsible": "Search responsible...",
+    "noResponsibleFound": "No responsible found.",
+    "inLabel": "in",
+    "projectLabel": "Project",
+    "noProject": "No project",
+    "searchProjects": "Search projects...",
+    "noProjectsFound": "No projects found.",
+    "addInstructions": "Add instructions...",
+    "concurrencyLabel": "Concurrency",
+    "catchUpLabel": "Catch-up"
   },
   "auditFeed": {
     "aUser": "某位使用者",
@@ -12245,7 +12334,11 @@
     "updated_one": "已更新 {{count}} 個 {{harness}} Agent。",
     "updated_other": "已更新 {{count}} 個 {{harness}} Agent。",
     "notConfigured": "未設定",
-    "notAvailableYet": "尚無法使用"
+    "notAvailableYet": "尚無法使用",
+    "selectionChanged": "The selected agents changed. Refresh the roster and select them again.",
+    "loadingCurrentSettings": "Loading current agent settings…",
+    "chat": "Chat",
+    "status": "Status"
   },
   "skillFolders": {
     "add": "新增",
@@ -13796,8 +13889,12 @@
         "secretField": "將此值貼到 GitHub 的 Secret 欄位。GitHub 使用 X-Hub-Signature-256 為請求簽章；請勿使用 Bearer 驗證。",
         "selectEvents": "選擇應啟動此例行任務的事件，啟用 Webhook，然後儲存。",
         "recentDeliveries": "要檢查連線，請開啟 Recent Deliveries 並重新傳送某個事件。"
-      }
-    }
+      },
+      "signatureHeaderHub": "X-Hub-Signature"
+    },
+    "addTrigger": "Add trigger",
+    "webhookUrlLabel": "Webhook URL",
+    "secretLabel": "Secret"
   },
   "workspaceFileBrowser": {
     "remoteTitle": "不支援遠端工作區預覽",
@@ -13835,7 +13932,11 @@
     "announceNoMatches": "沒有符合的檔案。",
     "announceCount_one": "找到 {{count}} 個項目。",
     "announceCount_other": "找到 {{count}} 個項目。",
-    "showingFirst": "僅顯示前 {{count}} 個 — 請縮小搜尋範圍。"
+    "showingFirst": "僅顯示前 {{count}} 個 — 請縮小搜尋範圍。",
+    "sourceAria": "Workspace file source",
+    "liveWorkspace": "Live workspace",
+    "savedCopy": "Saved copy",
+    "savedCopyFrom": "from"
   },
   "summarySlotCard": {
     "revisionLabel": "修訂 {{number}}",
@@ -13878,7 +13979,23 @@
     "controls": "例行任務控制項",
     "searchLabel": "搜尋例行任務",
     "searchPlaceholder": "搜尋例行任務…",
-    "viewAllRuns": "檢視全部任務"
+    "viewAllRuns": "檢視全部任務",
+    "agent": "Agent",
+    "asc": "Asc",
+    "createRoutine": "Create routine",
+    "created": "Created",
+    "desc": "Desc",
+    "done": "Done",
+    "folder": "Folder",
+    "group": "Group",
+    "lastRun": "Last run",
+    "newFolder": "New folder",
+    "none": "None",
+    "project": "Project",
+    "select": "Select",
+    "sort": "Sort",
+    "title": "Title",
+    "updated": "Updated"
   },
   "agentsToolbar": {
     "controls": "Agent 控制項",
@@ -13886,14 +14003,21 @@
     "searchPlaceholder": "搜尋 Agent…",
     "view": "Agent 檢視",
     "orgChartView": "組織架構檢視",
-    "newAgent": "新增 Agent"
+    "newAgent": "新增 Agent",
+    "listView": "List view"
   },
   "agentProperties": {
     "errorReason": "錯誤原因",
     "lastError": "上次錯誤",
     "lastRunError": "上次執行錯誤",
     "lastHeartbeat": "上次心跳",
-    "reportsTo": "彙報對象"
+    "reportsTo": "彙報對象",
+    "adapter": "Adapter",
+    "created": "Created",
+    "role": "Role",
+    "session": "Session",
+    "status": "Status",
+    "title": "Title"
   },
   "agentWorkPanels": {
     "sortLastUpdated": "上次更新",
@@ -13929,7 +14053,8 @@
     "loadingAgents": "正在載入 Agent…",
     "openFailed": "無法開啟對話。請重試。",
     "addAgent": "請新增 Agent 以開始對話。",
-    "browseAllAgents": "瀏覽全部 Agent"
+    "browseAllAgents": "瀏覽全部 Agent",
+    "experimentalSettings": "Experimental settings"
   },
   "agentsPage": {
     "selectCompany": "請選擇組織以檢視 Agent。",
@@ -14157,7 +14282,12 @@
     "confirmShort": "刪除？",
     "yes": "是",
     "no": "否",
-    "confirmDelete": "刪除此附件？此操作無法復原。"
+    "confirmDelete": "刪除此附件？此操作無法復原。",
+    "attachments": "Attachments",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "download": "Download",
+    "openInNewTab": "Open in new tab"
   },
   "artifactCards": {
     "fileCount_one": "{{count}} 個檔案",
@@ -14345,7 +14475,13 @@
     "valuePlaceholder": "貼上密鑰值",
     "valueHint": "該值僅儲存一次，且永不重新顯示。輪換以取代。",
     "descriptionPlaceholder": "選用備註（不含值）",
-    "createAndBind": "建立並綁定"
+    "createAndBind": "建立並綁定",
+    "secretLabel": "Secret",
+    "versionAria": "Version",
+    "createAria": "Create secret",
+    "nameLabel": "Name",
+    "valueLabel": "Value",
+    "descriptionLabel": "Description"
   },
   "taskBrowser": {
     "fitToPane": "適應窗格",
@@ -14489,7 +14625,20 @@
     "noCreatorsAvailable": "沒有可用的建立者。",
     "noAssigneesMatch": "沒有符合的負責人。",
     "noLabelsMatch": "沒有符合的標籤。",
-    "noLabelsAvailable": "沒有可用的標籤。"
+    "noLabelsAvailable": "沒有可用的標籤。",
+    "noAssignee": "No assignee",
+    "me": "Me",
+    "title": "Filters",
+    "status": "Status",
+    "visibility": "Visibility",
+    "liveRunsOnly": "Live runs only",
+    "showAgentCreatedTasks": "Show agent-created tasks",
+    "routineTasks": "Routine tasks",
+    "project": "Project",
+    "creator": "Creator",
+    "noCreatorsMatch": "No creators match.",
+    "assignee": "Assignee",
+    "label": "Label"
   },
   "taskListColumns": {
     "taskId": "任務 ID",
@@ -14499,7 +14648,11 @@
     "sortAria": "{{label}}：依{{direction}}排序",
     "hierarchy": "任務階層",
     "screenReaderInstructions": "點擊排序。水平拖曳可重新排序，或使用 Alt 加左方向鍵或右方向鍵。",
-    "reorderHint": "拖曳可重新排列欄，或使用 Alt 加左方向鍵或右方向鍵。點擊排序。"
+    "reorderHint": "拖曳可重新排列欄，或使用 Alt 加左方向鍵或右方向鍵。點擊排序。",
+    "ascending": "ascending",
+    "columns": "Columns",
+    "descending": "descending",
+    "resetDefaults": "Reset defaults"
   },
   "workspaceBaseRef": {
     "errorInvalidBranch": "輸入有效的分支名稱，例如 master 或 release/next。",
@@ -14554,7 +14707,27 @@
   },
   "skillsToolbar": {
     "controls": "技能控制項",
-    "searchPlaceholder": "{{label}}…"
+    "searchPlaceholder": "{{label}}…",
+    "all": "All",
+    "allSources": "All sources",
+    "createSkill": "Create new skill",
+    "discoverSkills": "Discover skills",
+    "done": "Done",
+    "importFromGithub": "Import from GitHub",
+    "importFromPath": "Import from path or URL",
+    "importFromProject": "Import skills from project",
+    "manageSources": "Manage sources",
+    "new": "New",
+    "newFolder": "New folder",
+    "scanAria": "Scan project workspaces for skills",
+    "select": "Select",
+    "sort": "Sort",
+    "sortAlphabetical": "Alphabetical",
+    "sortMostAgents": "Most agents",
+    "sortMostForks": "Most forks",
+    "sortMostStars": "Most stars",
+    "sortRecentlyUpdated": "Recently updated",
+    "source": "Source"
   },
   "taskAttachmentPanel": {
     "loadFailed": "無法載入檔案（{{status}}）。",
@@ -19992,6 +20165,53 @@
       "enableChrome": "Enable Chrome",
       "skipPermissions": "Skip permissions",
       "maxTurnsPerRun": "Max turns per run"
+    },
+    "hermesGateway": {
+      "hideField": "Hide {{label}}",
+      "showField": "Show {{label}}",
+      "storedSecret": "Stored secret; enter a new value to replace it",
+      "apiBaseUrl": "API base URL",
+      "apiBaseUrlHint": "Hermes API server base URL that Paperclip can reach, such as http://127.0.0.1:8642 or a private HTTPS URL. Default dashboard root/chat URLs such as http://127.0.0.1:9119/chat are accepted and map to /api.",
+      "apiKey": "API key",
+      "apiKeyPlaceholder": "Hermes API_SERVER_KEY, not PAPERCLIP_API_KEY",
+      "paperclipApiUrl": "Paperclip API URL",
+      "paperclipApiUrlHint": "Optional Paperclip API URL reachable by the Hermes host. This is not a credential.",
+      "sessionKeyStrategy": "Session key strategy",
+      "sessionKeyStrategyHint": "Controls X-Hermes-Session-Key. Issue scoped prevents cross-task memory bleed by default.",
+      "sessionScopedIssue": "Issue scoped",
+      "sessionScopedAgent": "Agent scoped",
+      "sessionScopedRun": "Run scoped",
+      "sessionScopedNone": "None",
+      "timeoutSeconds": "Timeout seconds",
+      "eventReconnectMs": "Event reconnect ms",
+      "eventReconnectMsHint": "Delay before reconnecting the Hermes SSE events stream after a nonterminal disconnect.",
+      "allowRemoteHttp": "Dangerously allow remote HTTP",
+      "allowRemoteHttpHint": "Unsafe dev-only escape hatch. Remote Hermes gateways should use HTTPS; loopback HTTP remains allowed.",
+      "extraHeaders": "Extra headers",
+      "extraHeadersHint": "Optional JSON object of extra nonsecret headers. Security-critical headers are generated by the adapter.",
+      "instructions": "Instructions",
+      "instructionsHint": "Optional stable Hermes instructions sent separately from the wake input."
+    },
+    "geminiLocal": {
+      "engine": "Execution engine",
+      "engineHint": "Default uses ACP. If ACP is unavailable, the run fails with a setup error. Choose CLI explicitly to use it.",
+      "engineAuto": "Default (ACP)",
+      "acpCommand": "ACP server command",
+      "acpCommandHint": "Optional override for the Gemini ACP server command. Defaults to gemini --acp.",
+      "sessionMode": "ACP session mode",
+      "sessionModeHint": "Persistent keeps ACP session state between runs. One-shot starts fresh each run.",
+      "modePersistent": "Persistent",
+      "modeOneShot": "One-shot",
+      "nonInteractivePermissions": "ACP non-interactive permissions",
+      "nonInteractivePermissionsHint": "Fallback if the ACP agent asks for input outside an interactive session.",
+      "permissionDeny": "Deny",
+      "permissionFail": "Fail",
+      "stateDirectory": "ACP state directory",
+      "stateDirectoryHint": "Optional ACP session state directory. Defaults to Paperclip-managed organization/agent scoped storage.",
+      "warmIdleMs": "ACP warm process idle ms",
+      "warmIdleMsHint": "Defaults to 0, which closes the ACP process after each run while retaining persistent session state.",
+      "instructionsFile": "Agent instructions file",
+      "instructionsFileHint": "Absolute path to a markdown file (e.g. AGENTS.md) that defines this agent's behavior. Prepended to the Gemini prompt at runtime."
     }
   },
   "agentConfigHelp": {
@@ -20036,5 +20256,46 @@
     "maxTurnContinuationMaxAttempts": "Maximum automatic continuations after one max-turn stop. This is separate from max turns per run.",
     "maxTurnContinuationDelaySec": "Seconds to wait before starting each max-turn continuation.",
     "budgetMonthlyCents": "Monthly spending limit in cents. 0 means no limit."
+  },
+  "connectionInstructions": {
+    "title": "Agent instructions",
+    "toggleLabel": "Tell agents to use {{provider}}",
+    "disabledWarning": "Agents can still use this connection’s tools, but won’t receive these instructions.",
+    "textAria": "Instructions text",
+    "empty": "Enter instructions.",
+    "doneEditing": "Done editing",
+    "edit": "Edit instructions",
+    "resetToDefault": "Reset to default",
+    "save": "Save instructions",
+    "loading": "Loading connection instructions…",
+    "fromConnections": "From connections",
+    "fromConnectionsBody": "Enabled instructions are included when the connection is available for the task. Access can depend on the task’s responsible person and action permissions.",
+    "turnedOff": "These instructions are turned off for this connection.",
+    "incomplete": "Complete this connection’s configuration before agents receive its instructions."
+  },
+  "issueChatLongThreadPerf": {
+    "pending": "pending",
+    "description": "Deterministic local fixture for measuring the current direct-render issue chat path with hundreds of merged thread rows, markdown-heavy assistant bodies, linked runs, documents, sub-issues, and sidebar context.",
+    "fixtureRows": "Fixture rows",
+    "markdownRows": "Markdown rows",
+    "issueDocuments": "Issue documents",
+    "subIssues": "Sub-issues",
+    "baselineMetrics": "Baseline metrics",
+    "profilerCommits": "Profiler commits",
+    "mountDuration": "Mount duration",
+    "latestDuration": "Latest duration",
+    "maxDuration": "Max duration",
+    "totalDuration": "Total duration",
+    "fixtureShape": "Fixture shape"
+  },
+  "googleWorkspaceServices": {
+    "accessAria": "{{name}} access",
+    "chooseServices": "Choose the Google services to connect.",
+    "connectTitle": "Connect Google Workspace",
+    "loadFailed": "Could not load your saved service access. Your connection has not changed.",
+    "loadingSaved": "Loading your saved service access…",
+    "readOnly": "Read only",
+    "readWrite": "Read & write",
+    "selectAtLeastOne": "Select at least one service to continue."
   }
 }

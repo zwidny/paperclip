@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { RadioCardGroup } from "@/components/ui/radio-card";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/i18n";
 import { nextCronFires, previewFirePolicies } from "../../lib/cron-fires";
 import { timeAgo } from "../../lib/timeAgo";
 import { EmptyState } from "../EmptyState";
@@ -36,44 +37,58 @@ import type { EnvBinding, RoutineDetail as RoutineDetailType } from "@paperclipa
 const concurrencyPolicyOptions = [
   {
     value: "coalesce_if_active",
-    title: "Coalesce if active",
-    description: "Keep one follow-up run queued while an active run is still working.",
+    titleKey: "routineSections.concurrencyCoalesceTitle",
+    defaultTitle: "Coalesce if active",
+    descriptionKey: "routineSections.concurrencyCoalesceDescription",
+    defaultDescription: "Keep one follow-up run queued while an active run is still working.",
   },
   {
     value: "always_enqueue",
-    title: "Always enqueue",
-    description: "Queue every trigger occurrence, even if several runs stack up.",
+    titleKey: "routineSections.concurrencyEnqueueTitle",
+    defaultTitle: "Always enqueue",
+    descriptionKey: "routineSections.concurrencyEnqueueDescription",
+    defaultDescription: "Queue every trigger occurrence, even if several runs stack up.",
   },
   {
     value: "skip_if_active",
-    title: "Skip if active",
-    description: "Drop overlapping trigger occurrences while the routine is already active.",
+    titleKey: "routineSections.concurrencySkipTitle",
+    defaultTitle: "Skip if active",
+    descriptionKey: "routineSections.concurrencySkipDescription",
+    defaultDescription: "Drop overlapping trigger occurrences while the routine is already active.",
   },
 ];
 
 const catchUpPolicyOptions = [
   {
     value: "skip_missed",
-    title: "Skip missed",
-    description: "Ignore schedule windows that were missed while paused.",
+    titleKey: "routineSections.catchUpSkipTitle",
+    defaultTitle: "Skip missed",
+    descriptionKey: "routineSections.catchUpSkipDescription",
+    defaultDescription: "Ignore schedule windows that were missed while paused.",
   },
   {
     value: "enqueue_missed_with_cap",
-    title: "Enqueue missed with cap",
-    description: "Catch up missed schedule windows after recovery; sub-hourly schedules are combined into one catch-up run, slower schedules replay each missed window up to a cap.",
+    titleKey: "routineSections.catchUpEnqueueTitle",
+    defaultTitle: "Enqueue missed with cap",
+    descriptionKey: "routineSections.catchUpEnqueueDescription",
+    defaultDescription: "Catch up missed schedule windows after recovery; sub-hourly schedules are combined into one catch-up run, slower schedules replay each missed window up to a cap.",
   },
 ];
 
 const activityGatePolicyOptions = [
   {
     value: "always",
-    title: "Run on every scheduled tick",
-    description: "Fire on the schedule no matter what — the default behavior.",
+    titleKey: "routineSections.activityEveryTickTitle",
+    defaultTitle: "Run on every scheduled tick",
+    descriptionKey: "routineSections.activityEveryTickDescription",
+    defaultDescription: "Fire on the schedule no matter what — the default behavior.",
   },
   {
     value: "require_external_activity",
-    title: "Skip when there's been no activity since the last run",
-    description:
+    titleKey: "routineSections.activityRequireTitle",
+    defaultTitle: "Skip when there's been no activity since the last run",
+    descriptionKey: "routineSections.activityRequireDescription",
+    defaultDescription:
       "On a scheduled tick, only run if something happened since the last run that finished. Lets a watcher-style routine stay asleep while the system is settled instead of burning tokens.",
   },
 ];
@@ -81,15 +96,27 @@ const activityGatePolicyOptions = [
 const activityGateScopeOptions = [
   {
     value: "company",
-    title: "Organization-wide",
-    description: "Any activity across the organization counts as a reason to run.",
+    titleKey: "routineSections.scopeOrganizationTitle",
+    defaultTitle: "Organization-wide",
+    descriptionKey: "routineSections.scopeOrganizationDescription",
+    defaultDescription: "Any activity across the organization counts as a reason to run.",
   },
   {
     value: "project",
-    title: "This project",
-    description: "Only activity in the routine's project counts as a reason to run.",
+    titleKey: "routineSections.scopeProjectTitle",
+    defaultTitle: "This project",
+    descriptionKey: "routineSections.scopeProjectDescription",
+    defaultDescription: "Only activity in the routine's project counts as a reason to run.",
   },
 ];
+
+type PolicyOption = {
+  value: string;
+  titleKey: string;
+  defaultTitle: string;
+  descriptionKey: string;
+  defaultDescription: string;
+};
 
 export function OverviewSection({
   defaultDescriptionAnnotationsOpen = false,
@@ -120,6 +147,7 @@ export function OverviewSection({
     isSectionDirty,
     navigateToSection,
   } = ctx;
+  const { t } = useTranslation();
   const [descriptionAnnotationsOpen, setDescriptionAnnotationsOpen] = useState(defaultDescriptionAnnotationsOpen);
 
   const activeTriggers = routine.triggers.length;
@@ -138,16 +166,16 @@ export function OverviewSection({
       {/* Assignment row */}
       <div className="overflow-x-auto overscroll-x-contain">
         <div className="inline-flex min-w-full flex-wrap items-center gap-2 text-sm text-muted-foreground sm:min-w-max sm:flex-nowrap">
-          <span>For</span>
+          <span>{t("routineSections.forLabel", { defaultValue: "For" })}</span>
           <InlineEntitySelector
             ref={assigneeSelectorRef}
             value={editDraft.assigneeAgentId}
             options={assigneeOptions}
             recentOptionIds={recentAssigneeIds}
-            placeholder="Responsible"
-            noneLabel="No responsible"
-            searchPlaceholder="Search responsible..."
-            emptyMessage="No responsible found."
+            placeholder={t("routineSections.responsibleLabel", { defaultValue: "Responsible" })}
+            noneLabel={t("routineSections.noResponsible", { defaultValue: "No responsible" })}
+            searchPlaceholder={t("routineSections.searchResponsible", { defaultValue: "Search responsible..." })}
+            emptyMessage={t("routineSections.noResponsibleFound", { defaultValue: "No responsible found." })}
             onChange={(assigneeAgentId) =>
               setEditDraft((current) => ({ ...current, assigneeAgentId }))
             }
@@ -169,7 +197,7 @@ export function OverviewSection({
                   <span className="truncate">{option.label}</span>
                 )
               ) : (
-                <span className="text-muted-foreground">Responsible</span>
+                <span className="text-muted-foreground">{t("routineSections.responsibleLabel", { defaultValue: "Responsible" })}</span>
               )
             }
             renderOption={(option) => {
@@ -185,16 +213,16 @@ export function OverviewSection({
               );
             }}
           />
-          <span>in</span>
+          <span>{t("routineSections.inLabel", { defaultValue: "in" })}</span>
           <InlineEntitySelector
             ref={projectSelectorRef}
             value={editDraft.projectId}
             options={projectOptions}
             recentOptionIds={recentProjectIds}
-            placeholder="Project"
-            noneLabel="No project"
-            searchPlaceholder="Search projects..."
-            emptyMessage="No projects found."
+            placeholder={t("routineSections.projectLabel", { defaultValue: "Project" })}
+            noneLabel={t("routineSections.noProject", { defaultValue: "No project" })}
+            searchPlaceholder={t("routineSections.searchProjects", { defaultValue: "Search projects..." })}
+            emptyMessage={t("routineSections.noProjectsFound", { defaultValue: "No projects found." })}
             onChange={(projectId) => setEditDraft((current) => ({ ...current, projectId }))}
             onConfirm={() => descriptionEditorRef.current?.focus()}
             renderTriggerValue={(option) =>
@@ -264,7 +292,7 @@ export function OverviewSection({
               ref={descriptionEditorRef}
               value={editDraft.description}
               onChange={(description) => setEditDraft((current) => ({ ...current, description }))}
-              placeholder="Add instructions..."
+              placeholder={t("routineSections.addInstructions", { defaultValue: "Add instructions..." })}
               bordered={false}
               contentClassName="min-h-(--sz-120px) text-sm leading-7"
               mentions={mentionOptions}
@@ -280,7 +308,7 @@ export function OverviewSection({
             ref={descriptionEditorRef}
             value={editDraft.description}
             onChange={(description) => setEditDraft((current) => ({ ...current, description }))}
-            placeholder="Add instructions..."
+            placeholder={t("routineSections.addInstructions", { defaultValue: "Add instructions..." })}
             bordered={false}
             contentClassName="min-h-(--sz-120px) text-sm leading-7"
             mentions={mentionOptions}
@@ -308,29 +336,35 @@ export function OverviewSection({
       <div className="grid gap-3 sm:grid-cols-2">
         <SummaryCard
           icon={Clock3}
-          label="Triggers"
-          value={activeTriggers === 0 ? "None" : `${activeTriggers} active`}
-          hint={nextFire ? `Next fire ${nextFire}` : "No schedule"}
+          label={t("routineSections.triggersLabel", { defaultValue: "Triggers" })}
+          value={activeTriggers === 0
+            ? t("routineSections.none", { defaultValue: "None" })
+            : t("routineSections.activeCount", { defaultValue: "{{count}} active", count: activeTriggers })}
+          hint={nextFire
+            ? t("routineSections.nextFire", { defaultValue: "Next fire {{date}}", date: nextFire })
+            : t("routineSections.noSchedule", { defaultValue: "No schedule" })}
           to={() => navigateToSection("triggers")}
-          ariaLabel={`${activeTriggers} triggers. Open triggers.`}
+          ariaLabel={t("routineSections.triggersAria", { defaultValue: "{{count}} triggers. Open triggers.", count: activeTriggers })}
         />
         <SummaryCard
           icon={Play}
-          label="Last run"
-          value={lastRun ? lastRun.status.replaceAll("_", " ") : "No runs"}
-          hint={lastRun ? timeAgo(lastRun.triggeredAt) : "Trigger a run"}
+          label={t("routineSections.lastRun", { defaultValue: "Last run" })}
+          value={lastRun ? lastRun.status.replaceAll("_", " ") : t("routineSections.noRuns", { defaultValue: "No runs" })}
+          hint={lastRun ? timeAgo(lastRun.triggeredAt) : t("routineSections.triggerRun", { defaultValue: "Trigger a run" })}
           to={() => navigateToSection("runs")}
-          ariaLabel={lastRun ? `Last run ${lastRun.status}. Open runs.` : "No runs. Open runs."}
+          ariaLabel={lastRun
+            ? t("routineSections.lastRunAria", { defaultValue: "Last run {{status}}. Open runs.", status: lastRun.status })
+            : t("routineSections.noRunsAria", { defaultValue: "No runs. Open runs." })}
         />
       </div>
 
       {/* Recent activity */}
       <div className="space-y-2">
         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          Recent activity
+          {t("routineSections.recentActivity", { defaultValue: "Recent activity" })}
         </p>
         {recentActivity.length === 0 ? (
-          <p className="text-xs text-muted-foreground">No activity yet.</p>
+          <p className="text-xs text-muted-foreground">{t("routineSections.noActivityYet", { defaultValue: "No activity yet." })}</p>
         ) : (
           <div className="divide-y divide-border/60">
             {recentActivity.map((event) => (
@@ -351,7 +385,7 @@ export function OverviewSection({
               onClick={() => navigateToSection("activity")}
               className="flex items-center gap-1 pt-2 text-xs text-muted-foreground hover:text-foreground"
             >
-              View all activity <ArrowRight className="h-3 w-3" />
+              {t("routineSections.viewAllActivity", { defaultValue: "View all activity" })} <ArrowRight className="h-3 w-3" />
             </button>
           </div>
         )}
@@ -433,6 +467,7 @@ export function VariablesSection() {
 }
 
 export function SecretsSection() {
+  const { t } = useTranslation();
   const ctx = useRoutineDetail();
   const { editDraft, setEditDraft, availableSecrets, createSecret } = ctx;
 
@@ -454,8 +489,7 @@ export function SecretsSection() {
   return (
     <div className="space-y-4">
       <div className="rounded-md border border-border bg-muted/20 px-4 py-3 text-xs text-muted-foreground">
-        Routine secrets apply to every task this routine creates. They override matching keys in
-        project and agent env. <span className="font-mono">PAPERCLIP_*</span> names are reserved.
+        {t("routineSections.secretsIntroPrefix", { defaultValue: "Routine secrets apply to every task this routine creates. They override matching keys in project and agent env. " })}<span className="font-mono">PAPERCLIP_*</span>{t("routineSections.secretsIntroSuffix", { defaultValue: " names are reserved." })}
       </div>
 
 
@@ -470,7 +504,16 @@ export function SecretsSection() {
   );
 }
 
+function localizePolicyOptions(options: PolicyOption[], t: ReturnType<typeof useTranslation>["t"]) {
+  return options.map((option) => ({
+    value: option.value,
+    title: t(option.titleKey, { defaultValue: option.defaultTitle }),
+    description: t(option.descriptionKey, { defaultValue: option.defaultDescription }),
+  }));
+}
+
 export function DeliverySection() {
+  const { t } = useTranslation();
   const ctx = useRoutineDetail();
   const { editDraft, setEditDraft, routine } = ctx;
 
@@ -485,58 +528,57 @@ export function DeliverySection() {
     <div className="space-y-6">
       <div className="space-y-3">
         <p className="text-xs font-medium uppercase tracking-(--tracking-caps) text-muted-foreground">
-          Concurrency
+          {t("routineSections.concurrencyLabel", { defaultValue: "Concurrency" })}
         </p>
         <RadioCardGroup
-          ariaLabel="Concurrency policy"
+          ariaLabel={t("routineSections.concurrencyPolicyAria", { defaultValue: "Concurrency policy" })}
           value={editDraft.concurrencyPolicy}
           onValueChange={(concurrencyPolicy) =>
             setEditDraft((current) => ({ ...current, concurrencyPolicy }))
           }
-          options={concurrencyPolicyOptions}
+          options={localizePolicyOptions(concurrencyPolicyOptions, t)}
         />
       </div>
       <div className="space-y-3">
         <p className="text-xs font-medium uppercase tracking-(--tracking-caps) text-muted-foreground">
-          Catch-up
+          {t("routineSections.catchUpLabel", { defaultValue: "Catch-up" })}
         </p>
         <RadioCardGroup
-          ariaLabel="Catch-up policy"
+          ariaLabel={t("routineSections.catchUpPolicyAria", { defaultValue: "Catch-up policy" })}
           value={editDraft.catchUpPolicy}
           onValueChange={(catchUpPolicy) =>
             setEditDraft((current) => ({ ...current, catchUpPolicy }))
           }
-          options={catchUpPolicyOptions}
+          options={localizePolicyOptions(catchUpPolicyOptions, t)}
         />
       </div>
       <div className="space-y-3">
         <p className="text-xs font-medium uppercase tracking-(--tracking-caps) text-muted-foreground">
-          Advanced run policy
+          {t("routineSections.advancedRunPolicy", { defaultValue: "Advanced run policy" })}
         </p>
         <RadioCardGroup
-          ariaLabel="Advanced run policy"
+          ariaLabel={t("routineSections.advancedRunPolicyAria", { defaultValue: "Advanced run policy" })}
           value={editDraft.activityGatePolicy}
           onValueChange={(activityGatePolicy) =>
             setEditDraft((current) => ({ ...current, activityGatePolicy }))
           }
-          options={activityGatePolicyOptions}
+          options={localizePolicyOptions(activityGatePolicyOptions, t)}
           disabled={!hasScheduleTrigger}
         />
         {!hasScheduleTrigger ? (
           <p className="text-xs text-muted-foreground">
-            Add a schedule trigger to gate runs on activity. Webhook, manual, and API fires always
-            run.
+            {t("routineSections.scheduleGateHint", { defaultValue: "Add a schedule trigger to gate runs on activity. Webhook, manual, and API fires always run." })}
           </p>
         ) : gateEnabled ? (
           <div className="space-y-2 rounded-lg border border-border p-3">
-            <Label className="text-xs font-medium">Activity scope</Label>
+            <Label className="text-xs font-medium">{t("routineSections.activityScopeLabel", { defaultValue: "Activity scope" })}</Label>
             <RadioCardGroup
-              ariaLabel="Activity gate scope"
+              ariaLabel={t("routineSections.activityGateScopeAria", { defaultValue: "Activity gate scope" })}
               value={editDraft.activityGateScope}
               onValueChange={(activityGateScope) =>
                 setEditDraft((current) => ({ ...current, activityGateScope }))
               }
-              options={activityGateScopeOptions}
+              options={localizePolicyOptions(activityGateScopeOptions, t)}
             />
           </div>
         ) : null}

@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ResourceStatusChip, type ResourceStatusVariant } from "@/components/ResourceStatusChip";
 import { cn } from "@/lib/utils";
+import { i18n, useTranslation } from "@/i18n";
 import type {
   BuiltInAgentState,
   BuiltInManagedResourceKind,
@@ -75,26 +76,26 @@ function resourceActionCopy(
 ): ResourceActionCopy | null {
   if (resource.stockStatus === "stock_update_available") {
     return {
-      title: `Update ${label} to the newest default?`,
-      body: `You haven't edited this, so Paperclip will replace it with the newer shipped version. Nothing you customized is affected, and your adapter credentials and settings are not touched.`,
-      confirmLabel: "Update",
-      triggerLabel: "Update",
+      title: i18n.t("builtInBundlePanel.updateTitle", { defaultValue: "Update {{label}} to the newest default?", label }),
+      body: i18n.t("builtInBundlePanel.updateBody", { defaultValue: "You haven't edited this, so Paperclip will replace it with the newer shipped version. Nothing you customized is affected, and your adapter credentials and settings are not touched." }),
+      confirmLabel: i18n.t("builtInBundlePanel.update", { defaultValue: "Update" }),
+      triggerLabel: i18n.t("builtInBundlePanel.update", { defaultValue: "Update" }),
     };
   }
   if (resource.stockStatus === "operator_modified") {
     return {
-      title: `Reset ${label} to the shipped default?`,
-      body: `This replaces your edited version with Paperclip's current default. Your edits can't be recovered. Adapter credentials and settings are not touched.`,
-      confirmLabel: `Reset ${label}`,
-      triggerLabel: "Reset",
+      title: i18n.t("builtInBundlePanel.resetTitle", { defaultValue: "Reset {{label}} to the shipped default?", label }),
+      body: i18n.t("builtInBundlePanel.resetBody", { defaultValue: "This replaces your edited version with Paperclip's current default. Your edits can't be recovered. Adapter credentials and settings are not touched." }),
+      confirmLabel: i18n.t("builtInBundlePanel.resetLabel", { defaultValue: "Reset {{label}}", label }),
+      triggerLabel: i18n.t("builtInBundlePanel.reset", { defaultValue: "Reset" }),
     };
   }
   if (resource.stockStatus === "missing") {
     return {
-      title: `Recreate ${label}?`,
-      body: `This resource is missing. Paperclip will recreate it from the shipped default. Adapter credentials and settings are not touched.`,
-      confirmLabel: "Recreate",
-      triggerLabel: "Recreate",
+      title: i18n.t("builtInBundlePanel.recreateTitle", { defaultValue: "Recreate {{label}}?", label }),
+      body: i18n.t("builtInBundlePanel.recreateBody", { defaultValue: "This resource is missing. Paperclip will recreate it from the shipped default. Adapter credentials and settings are not touched." }),
+      confirmLabel: i18n.t("builtInBundlePanel.recreate", { defaultValue: "Recreate" }),
+      triggerLabel: i18n.t("builtInBundlePanel.recreate", { defaultValue: "Recreate" }),
     };
   }
   return null;
@@ -111,13 +112,14 @@ function ResourceActionButton({
   onConfirm: () => void;
   pending: boolean;
 }) {
+  const { t } = useTranslation();
   const copy = resourceActionCopy(resource, label);
   if (!copy) return null;
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button variant="outline" size="sm" disabled={pending}>
-          {pending ? "Working…" : copy.triggerLabel}
+          {pending ? t("builtInBundlePanel.working", { defaultValue: "Working…" }) : copy.triggerLabel}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -126,7 +128,7 @@ function ResourceActionButton({
           <AlertDialogDescription>{copy.body}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{t("common.cancel", { defaultValue: "Cancel" })}</AlertDialogCancel>
           <AlertDialogAction onClick={onConfirm}>{copy.confirmLabel}</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -149,11 +151,12 @@ function ConfirmActionButton({
   pending: boolean;
   onConfirm: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button variant="outline" size="sm" disabled={pending}>
-          {pending ? "Working…" : triggerLabel}
+          {pending ? t("builtInBundlePanel.working", { defaultValue: "Working…" }) : triggerLabel}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -162,7 +165,7 @@ function ConfirmActionButton({
           <AlertDialogDescription>{body}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{t("common.cancel", { defaultValue: "Cancel" })}</AlertDialogCancel>
           <AlertDialogAction onClick={onConfirm}>{confirmLabel}</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -209,11 +212,11 @@ function BundleRow({ label, secondary, chips, detail, detailTone = "muted", acti
 function driftDetail(resource: BuiltInManagedResourceState): string | undefined {
   switch (resource.stockStatus) {
     case "operator_modified":
-      return "You've edited this. Your changes are kept until you reset.";
+      return i18n.t("builtInBundlePanel.driftEdited", { defaultValue: "You've edited this. Your changes are kept until you reset." });
     case "stock_update_available":
-      return "Paperclip shipped a newer default.";
+      return i18n.t("builtInBundlePanel.driftNewerDefault", { defaultValue: "Paperclip shipped a newer default." });
     case "missing":
-      return "Not materialized yet — recreate it from the shipped default.";
+      return i18n.t("builtInBundlePanel.driftMissing", { defaultValue: "Not materialized yet — recreate it from the shipped default." });
     default:
       return undefined;
   }
@@ -251,6 +254,7 @@ export function BuiltInBundlePanel({
   routineActionPending = null,
   className,
 }: BuiltInBundlePanelProps) {
+  const { t } = useTranslation();
   const { status, definition, resources } = state;
   const bundle = definition.bundle;
   if (!bundle) return null;
@@ -262,10 +266,10 @@ export function BuiltInBundlePanel({
   let adapterDetail: string | undefined;
   if (status === "pending_approval") {
     adapterChip = "pending_approval";
-    adapterDetail = "Waiting on board hire approval before this coach can run.";
+    adapterDetail = t("builtInBundlePanel.adapterPendingApproval", { defaultValue: "Waiting on board hire approval before this coach can run." });
   } else if (!adapterReady) {
     adapterChip = "needs_setup";
-    adapterDetail = "Pick an adapter this coach can run on.";
+    adapterDetail = t("builtInBundlePanel.adapterNeedsSetup", { defaultValue: "Pick an adapter this coach can run on." });
   }
 
   const skill = findResource(resources, "skill");
@@ -273,7 +277,7 @@ export function BuiltInBundlePanel({
   const routine = findResource(resources, "routine");
   const scheduleEnabled = routine?.scheduleEnabled === true;
   const routineKey = bundle.routine.routineKey;
-  const scheduleLabel = bundle.routine.scheduleLabel ?? "Weekly schedule";
+  const scheduleLabel = bundle.routine.scheduleLabel ?? t("builtInBundlePanel.weeklySchedule", { defaultValue: "Weekly schedule" });
   const proposalIssueRef = routine?.pendingUpdateIssueIdentifier ?? routine?.pendingUpdateIssueId ?? null;
   const proposalHref = proposalIssueRef && routine?.pendingUpdateInteractionId
     ? `/issues/${proposalIssueRef}#interaction-${routine.pendingUpdateInteractionId}`
@@ -302,7 +306,7 @@ export function BuiltInBundlePanel({
         actions={
           <>
             <Button asChild variant="link" size="sm">
-              <Link to={viewHref}>View</Link>
+              <Link to={viewHref}>{t("builtInBundlePanel.view", { defaultValue: "View" })}</Link>
             </Button>
             <ResourceActionButton
               resource={resource}
@@ -317,18 +321,18 @@ export function BuiltInBundlePanel({
   };
 
   return (
-    <section className={cn("space-y-2", className)} aria-label="Bundle status">
-      <h3 className="text-sm font-medium">Bundle status</h3>
+    <section className={cn("space-y-2", className)} aria-label={t("builtInBundlePanel.bundleStatus", { defaultValue: "Bundle status" })}>
+      <h3 className="text-sm font-medium">{t("builtInBundlePanel.bundleStatus", { defaultValue: "Bundle status" })}</h3>
 
       <div className="divide-y rounded-lg border px-4">
         {/* Adapter — no resource entry; readiness is the agent lifecycle. */}
         <BundleRow
-          label="Adapter"
+          label={t("builtInBundlePanel.adapter", { defaultValue: "Adapter" })}
           chips={<ResourceStatusChip variant={adapterChip} />}
           detail={adapterDetail}
           actions={
             <Button variant="outline" size="sm" onClick={onConfigure}>
-              Configure
+              {t("builtInBundlePanel.configure", { defaultValue: "Configure" })}
             </Button>
           }
         />
@@ -336,7 +340,7 @@ export function BuiltInBundlePanel({
         {skill &&
           renderResourceRow(
             "skill",
-            "Skill",
+            t("builtInBundlePanel.skill", { defaultValue: "Skill" }),
             bundle.skill.displayName || skill.resourceKey,
             `/agents/${agentRef}/skills`,
             skill,
@@ -345,7 +349,7 @@ export function BuiltInBundlePanel({
         {instructions &&
           renderResourceRow(
             "instructions",
-            "Instructions",
+            t("builtInBundlePanel.instructions", { defaultValue: "Instructions" }),
             bundle.instructions.entryFile,
             `/agents/${agentRef}/instructions`,
             instructions,
@@ -353,7 +357,7 @@ export function BuiltInBundlePanel({
 
         {/* Routine — zero-token-by-default; the weekly schedule ships off. */}
         <BundleRow
-          label="Routine"
+          label={t("builtInBundlePanel.routine", { defaultValue: "Routine" })}
           secondary={bundle.routine.title}
           chips={
             <>
@@ -368,18 +372,18 @@ export function BuiltInBundlePanel({
           }
           detail={
             scheduleEnabled
-              ? "The weekly schedule is enabled and can create background work."
-              : "Nothing runs until you enable the weekly schedule — it costs zero tokens by default."
+              ? t("builtInBundlePanel.scheduleEnabledDetail", { defaultValue: "The weekly schedule is enabled and can create background work." })
+              : t("builtInBundlePanel.scheduleDisabledDetail", { defaultValue: "Nothing runs until you enable the weekly schedule — it costs zero tokens by default." })
           }
           actions={
             routine ? (
               <>
                 {onRunRoutine && (
                   <ConfirmActionButton
-                    title="Run Reflection Coach once?"
-                    body="Paperclip will create one routine task now. This does not enable the weekly schedule or turn on background work."
-                    triggerLabel="Run once"
-                    confirmLabel="Run once"
+                    title={t("builtInBundlePanel.runOnceTitle", { defaultValue: "Run Reflection Coach once?" })}
+                    body={t("builtInBundlePanel.runOnceBody", { defaultValue: "Paperclip will create one routine task now. This does not enable the weekly schedule or turn on background work." })}
+                    triggerLabel={t("builtInBundlePanel.runOnce", { defaultValue: "Run once" })}
+                    confirmLabel={t("builtInBundlePanel.runOnce", { defaultValue: "Run once" })}
                     pending={routineActionPending === "run"}
                     onConfirm={() => onRunRoutine(routineKey)}
                   />
@@ -387,20 +391,20 @@ export function BuiltInBundlePanel({
                 {scheduleEnabled
                   ? onDisableSchedule && (
                     <ConfirmActionButton
-                      title="Disable the weekly schedule?"
-                      body="Paperclip will stop future scheduled Reflection Coach runs. Manual Run once remains available."
-                      triggerLabel="Disable schedule"
-                      confirmLabel="Disable schedule"
+                      title={t("builtInBundlePanel.disableScheduleTitle", { defaultValue: "Disable the weekly schedule?" })}
+                      body={t("builtInBundlePanel.disableScheduleBody", { defaultValue: "Paperclip will stop future scheduled Reflection Coach runs. Manual Run once remains available." })}
+                      triggerLabel={t("builtInBundlePanel.disableSchedule", { defaultValue: "Disable schedule" })}
+                      confirmLabel={t("builtInBundlePanel.disableSchedule", { defaultValue: "Disable schedule" })}
                       pending={routineActionPending === "disable"}
                       onConfirm={() => onDisableSchedule(routineKey)}
                     />
                   )
                   : onEnableSchedule && (
                     <ConfirmActionButton
-                      title="Enable the weekly schedule?"
-                      body="Paperclip will allow Reflection Coach to create routine tasks on the weekly schedule. It can spend tokens when those tasks run."
-                      triggerLabel="Enable weekly"
-                      confirmLabel="Enable weekly"
+                      title={t("builtInBundlePanel.enableScheduleTitle", { defaultValue: "Enable the weekly schedule?" })}
+                      body={t("builtInBundlePanel.enableScheduleBody", { defaultValue: "Paperclip will allow Reflection Coach to create routine tasks on the weekly schedule. It can spend tokens when those tasks run." })}
+                      triggerLabel={t("builtInBundlePanel.enableWeekly", { defaultValue: "Enable weekly" })}
+                      confirmLabel={t("builtInBundlePanel.enableWeekly", { defaultValue: "Enable weekly" })}
                       pending={routineActionPending === "enable"}
                       onConfirm={() => onEnableSchedule(routineKey)}
                     />
@@ -408,7 +412,7 @@ export function BuiltInBundlePanel({
                 {driftVariant(routine) && (
                   <ResourceActionButton
                     resource={routine}
-                    label="routine"
+                    label={t("builtInBundlePanel.routineLower", { defaultValue: "routine" })}
                     onConfirm={() => onResetResource("routine")}
                     pending={resettingResource === "routine"}
                   />
@@ -419,12 +423,12 @@ export function BuiltInBundlePanel({
         />
         {proposalHref && (
           <BundleRow
-            label="Proposal"
+            label={t("builtInBundlePanel.proposal", { defaultValue: "Proposal" })}
             chips={<ResourceStatusChip variant="proposal_pending" />}
-            detail="A proposed Reflection Coach update is waiting for review."
+            detail={t("builtInBundlePanel.proposalDetail", { defaultValue: "A proposed Reflection Coach update is waiting for review." })}
             actions={
               <Button asChild variant="link" size="sm">
-                <Link to={proposalHref}>Review proposal</Link>
+                <Link to={proposalHref}>{t("builtInBundlePanel.reviewProposal", { defaultValue: "Review proposal" })}</Link>
               </Button>
             }
           />

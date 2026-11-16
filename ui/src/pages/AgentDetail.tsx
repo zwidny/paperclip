@@ -1008,13 +1008,23 @@ export function AgentDetail() {
       <AlertDialog open={pendingLeave !== null} onOpenChange={(open) => (open ? undefined : setPendingLeave(null))}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Discard unsaved changes?</AlertDialogTitle>
+            <AlertDialogTitle>{t("agentDetail.discardUnsavedTitle", { defaultValue: "Discard unsaved changes?" })}</AlertDialogTitle>
             <AlertDialogDescription>
-              You have unsaved changes to {agent.name}&rsquo;s {activeView === "runtime" ? "harness settings" : activeView === "secrets" ? "secrets and variables" : activeView === "advanced" ? "configuration" : "instructions"}. If you continue, they&rsquo;ll be lost.
+              {t("agentDetail.discardUnsavedBody", {
+                defaultValue: "You have unsaved changes to {{name}}’s {{section}}. If you continue, they’ll be lost.",
+                name: agent.name,
+                section: activeView === "runtime"
+                  ? t("agentDetail.discardSectionRuntime", { defaultValue: "harness settings" })
+                  : activeView === "secrets"
+                    ? t("agentDetail.discardSectionSecrets", { defaultValue: "secrets and variables" })
+                    : activeView === "advanced"
+                      ? t("agentDetail.discardSectionAdvanced", { defaultValue: "configuration" })
+                      : t("agentDetail.discardSectionInstructions", { defaultValue: "instructions" }),
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="sm:justify-between">
-            <AlertDialogCancel>Keep editing</AlertDialogCancel>
+            <AlertDialogCancel>{t("agentDetail.discardUnsavedKeepEditing", { defaultValue: "Keep editing" })}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-white hover:bg-destructive/90"
               onClick={() => {
@@ -1521,17 +1531,19 @@ export function AgentOverview({
           icon={ReceiptText}
           value={formatCents(spent)}
           label={t("agentDetail.auditLink.costs", { defaultValue: "Costs" })}
-          description="Month to date"
+          description={t("agentDetail.overview.monthToDate", { defaultValue: "Month to date" })}
           to={agentDetailHref(agentRef, "costs")}
         />
         <AgentMetricTile
           icon={Gauge}
           value={budgetPercent === null ? "–" : `${budgetPercent}%`}
-          label="Budget used"
-          description={budgetPercent === null ? "No monthly budget set" : `of ${formatCents(budget)} this month`}
+          label={t("agentDetail.overview.budgetUsedLabel", { defaultValue: "Budget used" })}
+          description={budgetPercent === null
+            ? t("agentDetail.overview.noMonthlyBudget", { defaultValue: "No monthly budget set" })
+            : t("agentDetail.overview.ofBudgetThisMonth", { defaultValue: "of {{amount}} this month", amount: formatCents(budget) })}
           to={agentDetailHref(agentRef, "budgets")}
         />
-        <AgentPanel title="Profile" className="min-h-(--agent-detail-tile-min-h) sm:col-span-2" aria-label="Profile"
+        <AgentPanel title={t("agentDetail.overview.profile", { defaultValue: "Profile" })} className="min-h-(--agent-detail-tile-min-h) sm:col-span-2" aria-label={t("agentDetail.overview.profile", { defaultValue: "Profile" })}
           meta={<span className={creatorFailed ? "text-destructive" : undefined}>
             {creatorFailed
               ? t("agentDetail.overview.creatorLoadFailed", { defaultValue: "Could not load creator" })
@@ -2629,7 +2641,7 @@ export function PromptsTab({
                 <div className="agent-identity-file-heading flex min-w-0 items-center gap-2">
                   {editingFileName ? (
                     <div className="agent-identity-preview-title flex min-w-0 items-baseline font-mono text-(length:--agent-identity-preview-title-size)">
-                      <input ref={fileNameInputRef} aria-label="Markdown file name" autoFocus
+                      <input ref={fileNameInputRef} aria-label={t("agentDetail.prompts.fileNameAria", { defaultValue: "Markdown file name" })} autoFocus
                         value={fileNameDraft === null && pendingFiles.includes(selectedOrEntryFile) ? "" : namingPrefix}
                         placeholder={selectedOrEntryFile.replace(/\.md$/i, "")}
                         aria-invalid={fileNameInvalid || undefined}
@@ -2710,8 +2722,8 @@ export function PromptsTab({
                   size="icon-xs"
                   variant="ghost"
                   className="size-8"
-                  aria-label={`Delete ${selectedOrEntryFile}`}
-                  title="Delete file"
+                  aria-label={t("agentDetail.prompts.deleteFileAria", { defaultValue: "Delete {{path}}", path: selectedOrEntryFile })}
+                  title={t("agentDetail.prompts.deleteFileTitle", { defaultValue: "Delete file" })}
                   onClick={() => {
                     if (confirm(t("agentDetail.prompts.deleteConfirm", { defaultValue: "Delete {{path}}?", path: selectedOrEntryFile }))) {
                       deleteFile.mutate(selectedOrEntryFile, {

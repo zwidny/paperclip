@@ -6,6 +6,7 @@ import { cn, formatCents } from "../lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { i18n, useTranslation } from "@/i18n";
 
 function centsInputValue(value: number) {
   return (value / 100).toFixed(2);
@@ -20,7 +21,9 @@ function parseDollarInput(value: string) {
 }
 
 function windowLabel(windowKind: BudgetPolicySummary["windowKind"]) {
-  return windowKind === "lifetime" ? "Lifetime budget" : "Monthly UTC budget";
+  return windowKind === "lifetime"
+    ? i18n.t("budgetPolicy.windowLifetime", { defaultValue: "Lifetime budget" })
+    : i18n.t("budgetPolicy.windowMonthly", { defaultValue: "Monthly UTC budget" });
 }
 
 function statusTone(status: BudgetPolicySummary["status"]) {
@@ -46,6 +49,7 @@ export function BudgetPolicyCard({
   compact?: boolean;
   variant?: "card" | "plain";
 }) {
+  const { t } = useTranslation();
   const [draftBudget, setDraftBudget] = useState(centsInputValue(summary.amount));
 
   useEffect(() => {
@@ -58,25 +62,25 @@ export function BudgetPolicyCard({
   let reservationCents: string | null = null;
   try { if (!reservation.trim().startsWith("-")) reservationCents = usdToCents(reservation.trim()); } catch { /* Shown as invalid input below. */ }
   const reservationSection = onReservationChange ? <div className="space-y-2">
-    <label className="text-sm">Reserve per run (USD)
-      <Input aria-label="Reserve per run (USD)" aria-invalid={reservationCents === null} aria-describedby={reservationCents === null ? reservationErrorId : undefined}
+    <label className="text-sm">{t("budgetPolicy.reservePerRun", { defaultValue: "Reserve per run (USD)" })}
+      <Input aria-label={t("budgetPolicy.reservePerRun", { defaultValue: "Reserve per run (USD)" })} aria-invalid={reservationCents === null} aria-describedby={reservationCents === null ? reservationErrorId : undefined}
         value={reservation} onChange={event => setReservation(event.target.value)} inputMode="decimal" />
     </label>
-    {reservationCents === null && <p id={reservationErrorId} role="alert" className="text-xs text-destructive">Enter a valid amount of zero or more.</p>}
-    <p className="text-xs text-muted-foreground">An estimate held before each run starts. Zero disables the estimate. Actual provider charges may exceed it.</p>
+    {reservationCents === null && <p id={reservationErrorId} role="alert" className="text-xs text-destructive">{t("budgetPolicy.reserveInvalid", { defaultValue: "Enter a valid amount of zero or more." })}</p>}
+    <p className="text-xs text-muted-foreground">{t("budgetPolicy.reserveHint", { defaultValue: "An estimate held before each run starts. Zero disables the estimate. Actual provider charges may exceed it." })}</p>
     <Button variant="outline" disabled={isSaving || reservationCents === null || reservationCents === (summary.reservationCents ?? "0.0000000")}
-      onClick={() => { if (reservationCents !== null) onReservationChange(reservationCents); }}>Update reservation</Button>
+      onClick={() => { if (reservationCents !== null) onReservationChange(reservationCents); }}>{t("budgetPolicy.updateReservation", { defaultValue: "Update reservation" })}</Button>
   </div> : null;
 
   const advancedSettings = onReservationChange || onUnpricedUsagePolicyChange ? (
     <details className="space-y-3">
-      <summary className="cursor-pointer text-sm font-medium">Advanced settings</summary>
+      <summary className="cursor-pointer text-sm font-medium">{t("budgetPolicy.advancedSettings", { defaultValue: "Advanced settings" })}</summary>
       <div className="space-y-4">
         {onUnpricedUsagePolicyChange && (
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={summary.unpricedUsagePolicy !== "allow"} disabled={isSaving}
               onChange={(event) => onUnpricedUsagePolicyChange(event.target.checked ? "block" : "allow")} />
-            Block new work when usage has no reliable price
+            {t("budgetPolicy.blockUnpriced", { defaultValue: "Block new work when usage has no reliable price" })}
           </label>
         )}
         {reservationSection}
@@ -93,38 +97,50 @@ export function BudgetPolicyCard({
   const observedBudgetGrid = isPlain ? (
     <div className="grid gap-6 sm:grid-cols-2">
       <div>
-        <div className="text-(length:--text-micro) uppercase tracking-(--tracking-caps) text-muted-foreground">Observed</div>
+        <div className="text-(length:--text-micro) uppercase tracking-(--tracking-caps) text-muted-foreground">{t("budgetPolicy.observed", { defaultValue: "Observed" })}</div>
         <div className="mt-2 text-xl font-semibold tabular-nums">{formatCents(summary.observedAmount)}</div>
         <div className="mt-1 text-xs text-muted-foreground">
-          {summary.amount > 0 ? `${summary.utilizationPercent}% of limit` : "No cap configured"}
+          {summary.amount > 0
+            ? t("budgetPolicy.percentOfLimit", { defaultValue: "{{percent}}% of limit", percent: summary.utilizationPercent })
+            : t("budgetPolicy.noCap", { defaultValue: "No cap configured" })}
         </div>
       </div>
       <div>
-        <div className="text-(length:--text-micro) uppercase tracking-(--tracking-caps) text-muted-foreground">Budget</div>
+        <div className="text-(length:--text-micro) uppercase tracking-(--tracking-caps) text-muted-foreground">{t("budgetPolicy.budget", { defaultValue: "Budget" })}</div>
         <div className="mt-2 text-xl font-semibold tabular-nums">
-          {summary.amount > 0 ? formatCents(summary.amount) : "Disabled"}
+          {summary.amount > 0
+            ? formatCents(summary.amount)
+            : t("budgetPolicy.disabled", { defaultValue: "Disabled" })}
         </div>
         <div className="mt-1 text-xs text-muted-foreground">
-          Soft alert at {summary.warnPercent}%{summary.paused && summary.pauseReason ? ` · ${summary.pauseReason} pause` : ""}
+          {t("budgetPolicy.softAlert", { defaultValue: "Soft alert at {{percent}}%", percent: summary.warnPercent })}{summary.paused && summary.pauseReason
+            ? t("budgetPolicy.pauseSuffix", { defaultValue: " · {{reason}} pause", reason: summary.pauseReason })
+            : ""}
         </div>
       </div>
     </div>
   ) : (
     <div className="grid gap-3 sm:grid-cols-2">
       <div className="rounded-xl border border-border/70 bg-black/[0.18] px-4 py-3">
-        <div className="text-(length:--text-micro) uppercase tracking-(--tracking-caps) text-muted-foreground">Observed</div>
+        <div className="text-(length:--text-micro) uppercase tracking-(--tracking-caps) text-muted-foreground">{t("budgetPolicy.observed", { defaultValue: "Observed" })}</div>
         <div className="mt-2 text-xl font-semibold tabular-nums">{formatCents(summary.observedAmount)}</div>
         <div className="mt-1 text-xs text-muted-foreground">
-          {summary.amount > 0 ? `${summary.utilizationPercent}% of limit` : "No cap configured"}
+          {summary.amount > 0
+            ? t("budgetPolicy.percentOfLimit", { defaultValue: "{{percent}}% of limit", percent: summary.utilizationPercent })
+            : t("budgetPolicy.noCap", { defaultValue: "No cap configured" })}
         </div>
       </div>
       <div className="rounded-xl border border-border/70 bg-black/[0.18] px-4 py-3">
-        <div className="text-(length:--text-micro) uppercase tracking-(--tracking-caps) text-muted-foreground">Budget</div>
+        <div className="text-(length:--text-micro) uppercase tracking-(--tracking-caps) text-muted-foreground">{t("budgetPolicy.budget", { defaultValue: "Budget" })}</div>
         <div className="mt-2 text-xl font-semibold tabular-nums">
-          {summary.amount > 0 ? formatCents(summary.amount) : "Disabled"}
+          {summary.amount > 0
+            ? formatCents(summary.amount)
+            : t("budgetPolicy.disabled", { defaultValue: "Disabled" })}
         </div>
         <div className="mt-1 text-xs text-muted-foreground">
-          Soft alert at {summary.warnPercent}%{summary.paused && summary.pauseReason ? ` · ${summary.pauseReason} pause` : ""}
+          {t("budgetPolicy.softAlert", { defaultValue: "Soft alert at {{percent}}%", percent: summary.warnPercent })}{summary.paused && summary.pauseReason
+            ? t("budgetPolicy.pauseSuffix", { defaultValue: " · {{reason}} pause", reason: summary.pauseReason })
+            : ""}
         </div>
       </div>
     </div>
@@ -132,13 +148,19 @@ export function BudgetPolicyCard({
 
   const progressSection = (
     <div className="space-y-2">
-      {summary.pendingRunCount > 0 && <p className="text-sm text-destructive">{summary.pendingRunCount} completed runs await accounting.</p>}
+      {summary.pendingRunCount > 0 && <p className="text-sm text-destructive">{summary.pendingRunCount === 1
+        ? t("budgetPolicy.pendingRuns_one", { defaultValue: "{{count}} completed run awaits accounting.", count: summary.pendingRunCount })
+        : t("budgetPolicy.pendingRuns_other", { defaultValue: "{{count}} completed runs await accounting.", count: summary.pendingRunCount })}</p>}
       {summary.unpricedEventCount > 0 && (
-        <p className="text-sm text-destructive">{summary.unpricedEventCount} usage events are unpriced. Known spend excludes their unknown cost.</p>
+        <p className="text-sm text-destructive">{summary.unpricedEventCount === 1
+          ? t("budgetPolicy.unpricedEvents_one", { defaultValue: "{{count}} usage event is unpriced. Known spend excludes its unknown cost.", count: summary.unpricedEventCount })
+          : t("budgetPolicy.unpricedEvents_other", { defaultValue: "{{count}} usage events are unpriced. Known spend excludes their unknown cost.", count: summary.unpricedEventCount })}</p>
       )}
       <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span>Remaining</span>
-        <span>{summary.amount > 0 ? formatCents(summary.remainingAmount) : "Unlimited"}</span>
+        <span>{t("budgetPolicy.remaining", { defaultValue: "Remaining" })}</span>
+        <span>{summary.amount > 0
+          ? formatCents(summary.remainingAmount)
+          : t("budgetPolicy.unlimited", { defaultValue: "Unlimited" })}</span>
       </div>
       <div className={cn("h-2 overflow-hidden rounded-full", isPlain ? "bg-border/70" : "bg-muted/70")}>
         <div
@@ -146,7 +168,7 @@ export function BudgetPolicyCard({
           aria-valuenow={Math.round(progress)}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-label={`Budget utilization: ${Math.round(progress)}% used`}
+          aria-label={t("budgetPolicy.utilizationAria", { defaultValue: "Budget utilization: {{percent}}% used", percent: Math.round(progress) })}
           className={cn(
             "h-full rounded-full transition-(--tp-width-background-color) duration-200",
             summary.status === "hard_stop"
@@ -166,8 +188,8 @@ export function BudgetPolicyCard({
       <PauseCircle className="mt-0.5 h-4 w-4 shrink-0" />
       <div>
         {summary.scopeType === "project"
-          ? "Execution is paused for this project until the budget block is resolved."
-          : "Heartbeats are paused for this scope until the budget block is resolved."}
+          ? t("budgetPolicy.pausedProject", { defaultValue: "Execution is paused for this project until the budget block is resolved." })
+          : t("budgetPolicy.pausedScope", { defaultValue: "Heartbeats are paused for this scope until the budget block is resolved." })}
       </div>
     </div>
   ) : null;
@@ -176,7 +198,7 @@ export function BudgetPolicyCard({
     <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-end", isPlain ? "" : "rounded-xl border border-border/70 bg-background/50 p-3")}>
       <div className="min-w-0 flex-1">
         <label className="text-(length:--text-micro) uppercase tracking-(--tracking-caps) text-muted-foreground">
-          Budget (USD)
+          {t("budgetPolicy.budgetUsd", { defaultValue: "Budget (USD)" })}
         </label>
         <Input
           value={draftBudget}
@@ -192,7 +214,11 @@ export function BudgetPolicyCard({
         }}
         disabled={!canSave || isSaving || parsedDraft === null}
       >
-        {isSaving ? "Saving..." : summary.amount > 0 ? "Update budget" : "Set budget"}
+        {isSaving
+          ? t("budgetPolicy.saving", { defaultValue: "Saving..." })
+          : summary.amount > 0
+            ? t("budgetPolicy.updateBudget", { defaultValue: "Update budget" })
+            : t("budgetPolicy.setBudget", { defaultValue: "Set budget" })}
       </Button>
     </div>
   ) : null;
@@ -219,7 +245,13 @@ export function BudgetPolicyCard({
             )}
           >
             <StatusIcon className="h-3.5 w-3.5" />
-            {summary.paused ? "Paused" : summary.status === "warning" ? "Warning" : summary.status === "hard_stop" ? "Hard stop" : "Healthy"}
+            {summary.paused
+              ? t("budgetPolicy.statusPaused", { defaultValue: "Paused" })
+              : summary.status === "warning"
+                ? t("budgetPolicy.statusWarning", { defaultValue: "Warning" })
+                : summary.status === "hard_stop"
+                  ? t("budgetPolicy.statusHardStop", { defaultValue: "Hard stop" })
+                  : t("budgetPolicy.statusHealthy", { defaultValue: "Healthy" })}
           </div>
         </div>
 
@@ -229,7 +261,7 @@ export function BudgetPolicyCard({
         {saveSection}
         {advancedSettings}
         {parsedDraft === null ? (
-          <p className="text-xs text-destructive">Enter a valid non-negative dollar amount.</p>
+          <p className="text-xs text-destructive">{t("budgetPolicy.invalidAmount", { defaultValue: "Enter a valid non-negative dollar amount." })}</p>
         ) : null}
       </div>
     );
@@ -248,7 +280,13 @@ export function BudgetPolicyCard({
           </div>
           <div className={cn("inline-flex items-center gap-2 rounded-full border px-3 py-1 text-(length:--text-micro) uppercase tracking-(--tracking-caps)", statusTone(summary.status))}>
             <StatusIcon className="h-3.5 w-3.5" />
-            {summary.paused ? "Paused" : summary.status === "warning" ? "Warning" : summary.status === "hard_stop" ? "Hard stop" : "Healthy"}
+            {summary.paused
+              ? t("budgetPolicy.statusPaused", { defaultValue: "Paused" })
+              : summary.status === "warning"
+                ? t("budgetPolicy.statusWarning", { defaultValue: "Warning" })
+                : summary.status === "hard_stop"
+                  ? t("budgetPolicy.statusHardStop", { defaultValue: "Hard stop" })
+                  : t("budgetPolicy.statusHealthy", { defaultValue: "Healthy" })}
           </div>
         </div>
       </CardHeader>
@@ -259,7 +297,7 @@ export function BudgetPolicyCard({
         {saveSection}
         {advancedSettings}
         {parsedDraft === null ? (
-          <p className="text-xs text-destructive">Enter a valid non-negative dollar amount.</p>
+          <p className="text-xs text-destructive">{t("budgetPolicy.invalidAmount", { defaultValue: "Enter a valid non-negative dollar amount." })}</p>
         ) : null}
       </CardContent>
     </Card>

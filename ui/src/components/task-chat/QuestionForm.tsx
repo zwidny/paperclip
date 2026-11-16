@@ -15,6 +15,7 @@ import { DecisionCardFooter } from "@/components/DecisionCardFooter";
 import { NeedsYouPanel } from "@/components/coordinator/NeedsYouCardKit";
 import { MarkdownBody } from "@/components/MarkdownBody";
 import { Button } from "@/components/ui/button";
+import { i18n, useTranslation } from "../../i18n";
 import { Input } from "@/components/ui/input";
 import {
   clearDraft,
@@ -78,27 +79,27 @@ function answerError(
   answer: Answer | undefined,
 ): string | null {
   if (question.required && !answerHasValue(answer))
-    return "This question is required.";
+    return i18n.t("taskChat.questionRequired", { defaultValue: "This question is required." });
   if (
     question.answerMode !== "text" &&
     answer?.customText !== undefined &&
     !answer.customText.trim()
   ) {
-    return "Enter a custom answer.";
+    return i18n.t("taskChat.enterCustomAnswer", { defaultValue: "Enter a custom answer." });
   }
   const value =
     question.answerMode === "text" ? answer?.text : answer?.customText;
   if (value == null || value.length === 0) return null;
   const validation = question.textValidation;
   if (validation?.minLength != null && value.length < validation.minLength)
-    return `Enter at least ${validation.minLength} characters.`;
+    return i18n.t("taskChat.enterAtLeastChars", { defaultValue: "Enter at least {{count}} characters.", count: validation.minLength });
   if (validation?.maxLength != null && value.length > validation.maxLength)
-    return `Enter no more than ${validation.maxLength} characters.`;
+    return i18n.t("taskChat.enterAtMostChars", { defaultValue: "Enter no more than {{count}} characters.", count: validation.maxLength });
   if (validation?.pattern) {
     const result = matchSafeQuestionValidationPattern(validation.pattern, value);
     if (result === "unsupported")
-      return "This question has an unsupported validation pattern.";
-    if (result === "no_match") return "Use the requested format.";
+      return i18n.t("taskChat.unsupportedValidationPattern", { defaultValue: "This question has an unsupported validation pattern." });
+    if (result === "no_match") return i18n.t("taskChat.useRequestedFormat", { defaultValue: "Use the requested format." });
   }
   if (
     validation?.inputType === "number" ||
@@ -109,12 +110,12 @@ function answerError(
       !Number.isFinite(numeric) ||
       (validation.inputType === "integer" && !Number.isInteger(numeric))
     ) {
-      return `Enter a valid ${validation.inputType}.`;
+      return i18n.t("taskChat.enterValidType", { defaultValue: "Enter a valid {{type}}.", type: validation.inputType });
     }
     if (validation.minimum != null && numeric < validation.minimum)
-      return `Enter a value of at least ${validation.minimum}.`;
+      return i18n.t("taskChat.enterValueAtLeast", { defaultValue: "Enter a value of at least {{min}}.", min: validation.minimum });
     if (validation.maximum != null && numeric > validation.maximum)
-      return `Enter a value no greater than ${validation.maximum}.`;
+      return i18n.t("taskChat.enterValueAtMost", { defaultValue: "Enter a value no greater than {{max}}.", max: validation.maximum });
   }
   return null;
 }
@@ -201,6 +202,7 @@ export function QuestionResponseSummary({
   questionSet: PaperclipQuestionSet;
   response: PaperclipQuestionResponse;
 }) {
+  const { t } = useTranslation();
   return (
     <dl className="grid gap-2 text-sm">
       {questionSet.questions.map((question) => {
@@ -228,7 +230,7 @@ export function QuestionResponseSummary({
               </span>
             </dt>
             <dd className="mt-0.5 text-foreground">
-              {values.length > 0 ? values.join(", ") : "No answer"}
+              {values.length > 0 ? values.join(", ") : t("taskChat.noAnswer", { defaultValue: "No answer" })}
             </dd>
           </div>
         );
@@ -258,6 +260,7 @@ function QuestionFormForRequest({
   onSubmit,
   onCancel,
 }: QuestionFormProps) {
+  const { t } = useTranslation();
   const takeoverActions = useTaskChatComposerTakeoverActions();
   // A provider default is an editable draft only. An existing response or
   // saved draft, including an explicitly cleared value, always wins. State
@@ -413,7 +416,7 @@ function QuestionFormForRequest({
       // question and say so rather than dropping the send.
       setPage(invalidIndex);
       setError({
-        message: `Question ${invalidIndex + 1} needs an answer before you can send.`,
+        message: t("taskChat.questionNeedsAnswer", { defaultValue: "Question {{number}} needs an answer before you can send.", number: invalidIndex + 1 }),
         fromMissingAnswer: true,
       });
       return;
@@ -432,7 +435,7 @@ function QuestionFormForRequest({
         message:
           cause instanceof Error
             ? cause.message
-            : "The answers could not be submitted.",
+            : t("taskChat.answersSubmitFailed", { defaultValue: "The answers could not be submitted." }),
       });
     } finally {
       setWorking(null);
@@ -451,7 +454,7 @@ function QuestionFormForRequest({
         message:
           cause instanceof Error
             ? cause.message
-            : "The questions could not be cancelled.",
+            : t("taskChat.questionsCancelFailed", { defaultValue: "The questions could not be cancelled." }),
       });
     } finally {
       setWorking(null);
@@ -481,26 +484,26 @@ function QuestionFormForRequest({
     questionSet.questions.length > 1 ? (
       <nav
         className="flex shrink-0 items-center gap-1"
-        aria-label="Question pagination"
+        aria-label={t("taskChat.questionPagination", { defaultValue: "Question pagination" })}
       >
         <Button
           type="button"
           size="icon-xs"
           variant="ghost"
-          aria-label="Previous question"
+          aria-label={t("taskChat.previousQuestion", { defaultValue: "Previous question" })}
           disabled={disabled || working != null || page === 0}
           onClick={() => setPage((current) => current - 1)}
         >
           <ChevronLeft aria-hidden />
         </Button>
         <span className="min-w-10 text-center tabular-nums">
-          {page + 1} of {questionSet.questions.length}
+          {t("taskChat.questionProgress", { defaultValue: "{{current}} of {{total}}", current: page + 1, total: questionSet.questions.length })}
         </span>
         <Button
           type="button"
           size="icon-xs"
           variant="ghost"
-          aria-label="Next question"
+          aria-label={t("taskChat.nextQuestion", { defaultValue: "Next question" })}
           // The arrows browse; they do not validate. A send that finds an
           // earlier answer missing returns to that question (see submit).
           disabled={disabled || working != null || isLastPage}
@@ -532,7 +535,7 @@ function QuestionFormForRequest({
       {questionSet.description ? (
         <div
           role="region"
-          aria-label="Question context"
+          aria-label={t("taskChat.questionContext", { defaultValue: "Question context" })}
           tabIndex={0}
           className={cn("max-h-96 overflow-auto text-muted-foreground", decision ? "text-xs" : "mb-3 text-sm")}
         >
@@ -541,7 +544,7 @@ function QuestionFormForRequest({
       ) : null}
       {question.answerMode === "text" && !decision ? (
         <div className="mb-2 flex items-center gap-3 text-xs text-muted-foreground">
-          {question.answerMode === "text" ? <span>Write an answer</span> : null}
+          {question.answerMode === "text" ? <span>{t("taskChat.writeAnAnswer", { defaultValue: "Write an answer" })}</span> : null}
         </div>
       ) : null}
       {pagination ? (
@@ -566,7 +569,7 @@ function QuestionFormForRequest({
             {decision && questionSet.questions.length > 1 ? <span>{page + 1}.</span> : null}
             <MarkdownBody mediaMode="reference" linkIssueReferences={false} className={cn("min-w-0", decision && "text-(length:--text-compact)")}>{question.prompt}</MarkdownBody>
           </div>
-          {decision ? <span aria-hidden className="text-muted-foreground"> · {question.required ? "Required" : "Optional"}</span> : null}
+          {decision ? <span aria-hidden className="text-muted-foreground"> · {question.required ? t("taskChat.requiredField", { defaultValue: "Required" }) : t("taskChat.optionalField", { defaultValue: "Optional" })}</span> : null}
         </div>
         {question.helpText ? (
           <p className="mt-1 text-xs leading-4 text-muted-foreground">
@@ -583,7 +586,7 @@ function QuestionFormForRequest({
             value={answer.text ?? ""}
             disabled={disabled || working != null}
             onChange={(value) => updateAnswer({ text: value })}
-            placeholder={decision ? "Add context for the agent…" : "Write your answer"}
+            placeholder={decision ? t("taskChat.addContextForAgent", { defaultValue: "Add context for the agent…" }) : t("taskChat.writeYourAnswer", { defaultValue: "Write your answer" })}
             imageUploadHandler={imageUploadHandler}
             mentions={mentions}
             autoFocus={!decision}
@@ -591,7 +594,7 @@ function QuestionFormForRequest({
             onSubmit={() => {
               progressOrSubmit();
             }}
-            attachAriaLabel={`Attach image to answer for ${question.prompt}`}
+            attachAriaLabel={t("taskChat.attachImageToAnswer", { defaultValue: "Attach image to answer for {{prompt}}", prompt: question.prompt })}
           />
         </div>
       ) : (
@@ -614,7 +617,7 @@ function QuestionFormForRequest({
                     [question.id]: event.target.value,
                   }))
                 }
-                placeholder="Filter choices"
+                placeholder={t("taskChat.filterChoices", { defaultValue: "Filter choices" })}
                 aria-label={`Filter choices for ${question.prompt}`}
                 className="pl-8"
               />
@@ -637,7 +640,7 @@ function QuestionFormForRequest({
             <div className="space-y-1.5">
               <SelectOption
                 id={`${id}-${question.id}-custom`}
-                label={question.customAnswer?.label ?? "Other"}
+                label={question.customAnswer?.label ?? t("taskChat.otherOption", { defaultValue: "Other" })}
                 selected={isCustomActive}
                 multiple={multiple}
                 disabled={disabled || working != null}
@@ -650,7 +653,7 @@ function QuestionFormForRequest({
                   testId="question-other-answer-composer"
                   value={answer.customText ?? ""}
                   placeholder={
-                    question.customAnswer?.placeholder ?? "Type your answer"
+                    question.customAnswer?.placeholder ?? t("taskChat.writeYourAnswer", { defaultValue: "Write your answer" })
                   }
                   disabled={disabled || working != null}
                   onChange={(value) =>
@@ -663,7 +666,7 @@ function QuestionFormForRequest({
                   onSubmit={() => {
                     progressOrSubmit();
                   }}
-                  attachAriaLabel={`Attach image to other answer for ${question.prompt}`}
+                  attachAriaLabel={t("taskChat.attachImageToOtherAnswer", { defaultValue: "Attach image to other answer for {{prompt}}", prompt: question.prompt })}
                 />
               ) : null}
             </div>
@@ -719,7 +722,7 @@ function QuestionFormForRequest({
               {working === "cancel" ? (
                 <Loader2 aria-hidden className="h-4 w-4 animate-spin" />
               ) : null}{" "}
-              Cancel
+              {t("common.cancel", { defaultValue: "Cancel" })}
             </Button>
           ) : null}
           {!question.required ? (
@@ -730,7 +733,7 @@ function QuestionFormForRequest({
               disabled={busy}
               onClick={skipQuestion}
             >
-              Skip
+              {t("taskChat.skip", { defaultValue: "Skip" })}
             </Button>
           ) : null}
           <Button
@@ -742,7 +745,7 @@ function QuestionFormForRequest({
             {working === "submit" ? (
               <Loader2 aria-hidden className="h-4 w-4 animate-spin" />
             ) : null}
-            {isLastPage ? (questionSet.submitLabel ?? "Submit answers") : "Next"}
+            {isLastPage ? (questionSet.submitLabel ?? t("taskChat.submitAnswers", { defaultValue: "Submit answers" })) : t("common.next", { defaultValue: "Next" })}
           </Button>
         </div>
       </DecisionCardFooter>

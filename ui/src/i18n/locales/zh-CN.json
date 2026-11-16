@@ -635,7 +635,17 @@
     "kept": "已保留",
     "keptOnDesk": "已保留在工作台",
     "couldNotKeep": "无法保留该决策",
-    "pleaseTryAgain": "请重试。"
+    "pleaseTryAgain": "请重试。",
+    "caughtUpMine": "你已全部处理完。",
+    "caughtUpUnassigned": "没有需要负责人的卡片。",
+    "caughtUpCompany": "目前没有公司级提醒。",
+    "caughtUpArchived": "没有已归档的内容。",
+    "caughtUpAll": "任何人都没有待处理卡片。",
+    "zeroMine": "目前没有需要你决策的事项。",
+    "zeroUnassigned": "每张待处理卡片都有负责人。",
+    "zeroCompany": "没有失败的运行、Agent 错误、预算暂停或加入请求。",
+    "zeroArchived": "你为自己归档或暂缓的卡片会显示在这里。恢复一张即可再次看到它。",
+    "zeroAll": "目前没有人有待处理的卡片。"
   },
   "inbox": {
     "markAsRead": "标记为已读",
@@ -820,7 +830,20 @@
     "eventCount_other": "{{count}} 个事件",
     "billerCount_one": "{{count}} 个计费方",
     "billerCount_other": "{{count}} 个计费方",
-    "dateRangeAria": "成本日期范围"
+    "dateRangeAria": "成本日期范围",
+    "agentCostLoadError": "无法加载 {{name}} 的费用。请稍后重试。",
+    "byModel": "按模型",
+    "costPeriod": "费用周期",
+    "fromLabel": "从",
+    "ledgerEvents_one": "{{count}} 条账目事件",
+    "ledgerEvents_other": "{{count}} 条账目事件",
+    "noCostEventsForAgent": "此周期内 {{name}} 没有费用记录。",
+    "noModelBreakdown": "此周期没有模型明细。",
+    "runs": "运行次数",
+    "runsBreakdownDetail": "{{api}} 次 API · {{subscription}} 次订阅",
+    "spend": "支出",
+    "toLabel": "至",
+    "tokens": "Token"
   },
   "newAgent": {
     "step": {
@@ -2977,7 +3000,8 @@
       "howStepTwo": "选择哪些智能体可以使用它，可在此处或智能体设置中进行。项目可以为该项目中的每个任务设置它。",
       "howStepThreePrefix": "运行开始时，智能体会将其作为环境变量读取，例如",
       "howStepThreeSuffix": "。该值之后不会再显示。",
-      "managedByPaperclip": "由 Paperclip 管理"
+      "managedByPaperclip": "由 Paperclip 管理",
+      "controls": "密钥控件"
     },
     "folder": {
       "allSecrets": "全部 Secrets",
@@ -3195,7 +3219,10 @@
       "fixItInVaults": "在“保险库”中修复",
       "linkSecret": "关联密钥",
       "usageNotePlaceholder": "用途说明",
-      "existingSecretsStay": "已有密钥保持原样。"
+      "existingSecretsStay": "已有密钥保持原样。",
+      "agentsThatCanUseIt": "可以使用它的 Agent",
+      "moreOptions": "更多选项",
+      "optionalSuffix": "（可选）"
     },
     "delete": {
       "title": "删除 Secret",
@@ -3343,7 +3370,8 @@
       "alsoSetIn": "还设置于",
       "definitionDisabledNotice": "已停用的密钥不会提供给智能体，也不会要求成员填写值。",
       "members": "成员",
-      "activity": "活动"
+      "activity": "活动",
+      "details": "详情"
     }
   },
   "secretsImport": {
@@ -4923,7 +4951,12 @@
       "moreTasks": "另有 {{total}} 个任务",
       "exploreSkills": "浏览技能",
       "suggestedTasks": "建议的任务",
-      "suggestedTasksTitle": "从一条建议任务开始"
+      "suggestedTasksTitle": "从一条建议任务开始",
+      "monthToDate": "本月至今",
+      "budgetUsedLabel": "已用预算",
+      "noMonthlyBudget": "未设置月度预算",
+      "ofBudgetThisMonth": "本月额度 {{amount}}",
+      "profile": "资料"
     },
     "auditLink": {
       "activity": "活动",
@@ -5024,7 +5057,10 @@
       "rootPathPlaceholder": "/绝对路径/到/agent/prompts",
       "fileNameExists": "已存在同名文件。",
       "fileNameInvalid": "只能使用字母、数字、连字符或下划线。",
-      "requiredFile": "此文件为必需文件"
+      "requiredFile": "此文件为必需文件",
+      "fileNameAria": "Markdown 文件名",
+      "deleteFileAria": "删除 {{path}}",
+      "deleteFileTitle": "删除文件"
     },
     "runs": {
       "loadingRun": "正在加载运行…",
@@ -5131,7 +5167,39 @@
       "totalCost": "总成本",
       "date": "日期",
       "run": "运行"
-    }
+    },
+    "discardUnsavedTitle": "放弃未保存的更改？",
+    "discardUnsavedBody": "你对 {{name}} 的{{section}}有未保存的更改。如果继续，这些更改将丢失。",
+    "discardSectionRuntime": "运行环境设置",
+    "discardSectionSecrets": "密钥与变量",
+    "discardSectionAdvanced": "配置",
+    "discardSectionInstructions": "指令",
+    "discardUnsavedKeepEditing": "继续编辑",
+    "allowedConnectors": "允许的连接器",
+    "connectorsAria": "连接器",
+    "connectorsLoadFailed": "无法加载此 Agent 的连接器。",
+    "history": {
+      "authorAgent": "某个 Agent",
+      "authorFormerMember": "前成员",
+      "by": "{{date}} · 操作者：{{author}}",
+      "columnConfiguration": "配置",
+      "columnDateConfigured": "配置时间",
+      "columnTeamMember": "团队成员",
+      "description": "{{name}} 的身份与配置的每一次保存变更。可恢复任意版本。",
+      "empty": "尚未保存任何变更。",
+      "loadFailed": "无法加载 Agent 历史。",
+      "loading": "正在加载 Agent 历史…",
+      "restore": "恢复",
+      "restoreBody": "继续操作会把 {{name}} 的身份与配置恢复到 {{date}} 保存的版本。此后所做的任何更改都会被替换。当前版本仍保留在 Agent 历史中。",
+      "restoreFailed": "无法恢复该版本。",
+      "restoreTitle": "恢复此版本？",
+      "restoreVersion": "恢复版本",
+      "restoring": "正在恢复…",
+      "title": "Agent 历史"
+    },
+    "manageConnectors": "管理连接器",
+    "noConnectors": "尚未允许任何连接器。",
+    "resolvingAccess": "正在解析访问权限…"
   },
   "agentNavigation": {
     "sections": {
@@ -8867,7 +8935,13 @@
       "copiedTitle": "已复制",
       "copyFailedTitle": "复制失败",
       "clipboardUnavailable": "剪贴板访问不可用。"
-    }
+    },
+    "activeCount": "{{count}} 个活跃",
+    "appsCount_one": "{{count}} 个应用",
+    "appsCount_other": "{{count}} 个应用",
+    "expiringCount": " · {{count}} 个即将过期",
+    "toolCount_one": "{{count}} 个工具",
+    "toolCount_other": "{{count}} 个工具"
   },
   "gatewayActivity": {
     "client": "客户端",
@@ -9012,7 +9086,8 @@
     "cached": "{{tokens}} 已缓存",
     "unpricedCharges_one": "{{count}} 个未定价的计费项",
     "unpricedCharges_other": "{{count}} 个未定价的计费项",
-    "unattributedNote": "此组织中没有归属用户的成本。"
+    "unattributedNote": "此组织中没有归属用户的成本。",
+    "unattributed": "未归属"
   },
   "providerQuota": {
     "periodSpend": "本期支出",
@@ -9441,12 +9516,10 @@
     "copyAsMarkdown": "复制为 Markdown",
     "copyFailed": "复制失败",
     "copyTaskAsMarkdown": "将任务复制为 Markdown",
-    "costRunCount": "（{{count}} 次运行）",
     "costRunCount_one": "（{{count}} 次运行）",
     "costRunCount_other": "（{{count}} 次运行）",
     "costRuntime": "运行时长 {{duration}}",
     "costSummary": "成本摘要",
-    "costTaskCount": "{{count}} 个任务",
     "costTaskCount_one": "{{count}} 个任务",
     "costTaskCount_other": "{{count}} 个任务",
     "costTokenBreakdown": "（输入 {{input}}，输出 {{output}}）",
@@ -10855,7 +10928,10 @@
     "collapseAll": "全部折叠",
     "expandAll": "全部展开",
     "filesSoFar": "目前 {{files}}",
-    "tooManyFiles": "还有 {{count}} 个文件被修改。此变更集过大，无法在此逐一列出。"
+    "tooManyFiles": "还有 {{count}} 个文件被修改。此变更集过大，无法在此逐一列出。",
+    "addContextForAgent": "为 Agent 添加上下文…",
+    "optionalField": "选填",
+    "requiredField": "必填"
   },
   "runnerGoal": {
     "pendingStarting": "正在启动",
@@ -11885,7 +11961,20 @@
     "loadingActivity": "正在加载活动…",
     "noActivity": "暂无活动。",
     "concurrency": "并发",
-    "catchUp": "补跑"
+    "catchUp": "补跑",
+    "forLabel": "负责",
+    "responsibleLabel": "负责人",
+    "noResponsible": "无负责人",
+    "searchResponsible": "搜索负责人...",
+    "noResponsibleFound": "未找到负责人。",
+    "inLabel": "位于",
+    "projectLabel": "项目",
+    "noProject": "无项目",
+    "searchProjects": "搜索项目...",
+    "noProjectsFound": "未找到项目。",
+    "addInstructions": "添加指令...",
+    "concurrencyLabel": "并发",
+    "catchUpLabel": "补跑"
   },
   "auditFeed": {
     "aUser": "某位用户",
@@ -12245,7 +12334,11 @@
     "updated_one": "已更新 {{count}} 个 {{harness}} Agent。",
     "updated_other": "已更新 {{count}} 个 {{harness}} Agent。",
     "notConfigured": "未配置",
-    "notAvailableYet": "尚不可用"
+    "notAvailableYet": "尚不可用",
+    "selectionChanged": "所选 Agent 已变更。请刷新名册后重新选择。",
+    "loadingCurrentSettings": "正在加载当前 Agent 设置…",
+    "chat": "聊天",
+    "status": "状态"
   },
   "skillFolders": {
     "add": "添加",
@@ -13796,8 +13889,12 @@
         "secretField": "将此值粘贴到 GitHub 的 Secret 字段。GitHub 使用 X-Hub-Signature-256 为请求签名；请勿使用 Bearer 身份验证。",
         "selectEvents": "选择应启动此例行任务的事件，启用 Webhook，然后保存。",
         "recentDeliveries": "要检查连接，请打开 Recent Deliveries 并重新交付某个事件。"
-      }
-    }
+      },
+      "signatureHeaderHub": "X-Hub-Signature"
+    },
+    "addTrigger": "添加触发器",
+    "webhookUrlLabel": "Webhook URL",
+    "secretLabel": "密钥"
   },
   "workspaceFileBrowser": {
     "remoteTitle": "不支持远程工作区预览",
@@ -13835,7 +13932,11 @@
     "announceNoMatches": "没有匹配的文件。",
     "announceCount_one": "找到 {{count}} 个项目。",
     "announceCount_other": "找到 {{count}} 个项目。",
-    "showingFirst": "仅显示前 {{count}} 个 — 请细化搜索以缩小范围。"
+    "showingFirst": "仅显示前 {{count}} 个 — 请细化搜索以缩小范围。",
+    "sourceAria": "工作区文件来源",
+    "liveWorkspace": "实时工作区",
+    "savedCopy": "已保存副本",
+    "savedCopyFrom": "来自"
   },
   "summarySlotCard": {
     "revisionLabel": "修订 {{number}}",
@@ -13878,7 +13979,23 @@
     "controls": "例行任务控件",
     "searchLabel": "搜索例行任务",
     "searchPlaceholder": "搜索例行任务…",
-    "viewAllRuns": "查看全部任务"
+    "viewAllRuns": "查看全部任务",
+    "agent": "Agent",
+    "asc": "升序",
+    "createRoutine": "创建例行任务",
+    "created": "已创建",
+    "desc": "降序",
+    "done": "完成",
+    "folder": "文件夹",
+    "group": "分组",
+    "lastRun": "上次运行",
+    "newFolder": "新建文件夹",
+    "none": "无",
+    "project": "项目",
+    "select": "选择",
+    "sort": "排序",
+    "title": "标题",
+    "updated": "已更新"
   },
   "agentsToolbar": {
     "controls": "Agent 控件",
@@ -13886,14 +14003,21 @@
     "searchPlaceholder": "搜索 Agent…",
     "view": "Agent 视图",
     "orgChartView": "组织架构视图",
-    "newAgent": "新建 Agent"
+    "newAgent": "新建 Agent",
+    "listView": "列表视图"
   },
   "agentProperties": {
     "errorReason": "错误原因",
     "lastError": "上次错误",
     "lastRunError": "上次运行错误",
     "lastHeartbeat": "上次心跳",
-    "reportsTo": "汇报对象"
+    "reportsTo": "汇报对象",
+    "adapter": "适配器",
+    "created": "创建时间",
+    "role": "角色",
+    "session": "会话",
+    "status": "状态",
+    "title": "职位"
   },
   "agentWorkPanels": {
     "sortLastUpdated": "上次更新",
@@ -13929,7 +14053,8 @@
     "loadingAgents": "正在加载 Agent…",
     "openFailed": "无法打开对话。请重试。",
     "addAgent": "请添加 Agent 以开始对话。",
-    "browseAllAgents": "浏览全部 Agent"
+    "browseAllAgents": "浏览全部 Agent",
+    "experimentalSettings": "实验性设置"
   },
   "agentsPage": {
     "selectCompany": "请选择组织以查看 Agent。",
@@ -14157,7 +14282,12 @@
     "confirmShort": "删除？",
     "yes": "是",
     "no": "否",
-    "confirmDelete": "删除此附件？此操作无法撤销。"
+    "confirmDelete": "删除此附件？此操作无法撤销。",
+    "attachments": "附件",
+    "delete": "删除",
+    "deleting": "正在删除...",
+    "download": "下载",
+    "openInNewTab": "在新标签页中打开"
   },
   "artifactCards": {
     "fileCount_one": "{{count}} 个文件",
@@ -14345,7 +14475,13 @@
     "valuePlaceholder": "粘贴密钥值",
     "valueHint": "该值仅存储一次，且永不重新显示。轮换以替换。",
     "descriptionPlaceholder": "可选备注（不含值）",
-    "createAndBind": "创建并绑定"
+    "createAndBind": "创建并绑定",
+    "secretLabel": "密钥",
+    "versionAria": "版本",
+    "createAria": "创建密钥",
+    "nameLabel": "名称",
+    "valueLabel": "值",
+    "descriptionLabel": "描述"
   },
   "taskBrowser": {
     "fitToPane": "适应窗格",
@@ -14489,7 +14625,20 @@
     "noCreatorsAvailable": "没有可用创建者。",
     "noAssigneesMatch": "没有匹配的负责人。",
     "noLabelsMatch": "没有匹配的标签。",
-    "noLabelsAvailable": "没有可用标签。"
+    "noLabelsAvailable": "没有可用标签。",
+    "noAssignee": "无负责人",
+    "me": "我",
+    "title": "筛选",
+    "status": "状态",
+    "visibility": "可见性",
+    "liveRunsOnly": "仅实时运行",
+    "showAgentCreatedTasks": "显示 Agent 创建的任务",
+    "routineTasks": "例行任务",
+    "project": "项目",
+    "creator": "创建者",
+    "noCreatorsMatch": "没有匹配的创建者。",
+    "assignee": "负责人",
+    "label": "标签"
   },
   "taskListColumns": {
     "taskId": "任务 ID",
@@ -14499,7 +14648,11 @@
     "sortAria": "{{label}}：按{{direction}}排序",
     "hierarchy": "任务层级",
     "screenReaderInstructions": "点击排序。水平拖动可重新排序，或使用 Alt 加左方向键或右方向键。",
-    "reorderHint": "拖动可重新排列列，或使用 Alt 加左方向键或右方向键。点击排序。"
+    "reorderHint": "拖动可重新排列列，或使用 Alt 加左方向键或右方向键。点击排序。",
+    "ascending": "升序",
+    "columns": "列",
+    "descending": "降序",
+    "resetDefaults": "恢复默认"
   },
   "workspaceBaseRef": {
     "errorInvalidBranch": "输入有效的分支名称，例如 master 或 release/next。",
@@ -14554,7 +14707,27 @@
   },
   "skillsToolbar": {
     "controls": "技能控件",
-    "searchPlaceholder": "{{label}}…"
+    "searchPlaceholder": "{{label}}…",
+    "all": "全部",
+    "allSources": "全部来源",
+    "createSkill": "创建新技能",
+    "discoverSkills": "发现技能",
+    "done": "完成",
+    "importFromGithub": "从 GitHub 导入",
+    "importFromPath": "从路径或 URL 导入",
+    "importFromProject": "从项目导入技能",
+    "manageSources": "管理来源",
+    "new": "新建",
+    "newFolder": "新建文件夹",
+    "scanAria": "扫描项目工作区中的技能",
+    "select": "选择",
+    "sort": "排序",
+    "sortAlphabetical": "按字母顺序",
+    "sortMostAgents": "Agent 数最多",
+    "sortMostForks": "分叉最多",
+    "sortMostStars": "星标最多",
+    "sortRecentlyUpdated": "最近更新",
+    "source": "来源"
   },
   "taskAttachmentPanel": {
     "loadFailed": "无法加载文件（{{status}}）。",
@@ -19992,6 +20165,53 @@
       "enableChrome": "启用 Chrome",
       "skipPermissions": "跳过权限确认",
       "maxTurnsPerRun": "每次运行最大轮次"
+    },
+    "hermesGateway": {
+      "hideField": "隐藏 {{label}}",
+      "showField": "显示 {{label}}",
+      "storedSecret": "已存储的密钥；输入新值可替换",
+      "apiBaseUrl": "API 基础 URL",
+      "apiBaseUrlHint": "Hermes API 服务的基础 URL，需为 Paperclip 可访问的地址，例如 http://127.0.0.1:8642 或私有 HTTPS URL。也接受默认控制台根地址或 /chat 地址，例如 http://127.0.0.1:9119/chat ，并映射到 /api。",
+      "apiKey": "API 密钥",
+      "apiKeyPlaceholder": "Hermes 的 API_SERVER_KEY，不是 PAPERCLIP_API_KEY",
+      "paperclipApiUrl": "Paperclip API URL",
+      "paperclipApiUrlHint": "可选的 Paperclip API URL，由 Hermes 主机访问。这不是凭据。",
+      "sessionKeyStrategy": "会话密钥策略",
+      "sessionKeyStrategyHint": "控制 X-Hermes-Session-Key。默认按任务隔离，避免跨任务记忆串味。",
+      "sessionScopedIssue": "按任务",
+      "sessionScopedAgent": "按 Agent",
+      "sessionScopedRun": "按运行",
+      "sessionScopedNone": "无",
+      "timeoutSeconds": "超时（秒）",
+      "eventReconnectMs": "事件重连间隔（毫秒）",
+      "eventReconnectMsHint": "非终止性断开后，重连 Hermes SSE 事件流前的延迟。",
+      "allowRemoteHttp": "危险：允许远程 HTTP",
+      "allowRemoteHttpHint": "仅限开发环境的不安全选项。远程 Hermes 网关应使用 HTTPS；回环 HTTP 仍然允许。",
+      "extraHeaders": "额外请求头",
+      "extraHeadersHint": "可选的 JSON 对象，包含额外的非敏感请求头。安全关键请求头由适配器生成。",
+      "instructions": "指令",
+      "instructionsHint": "可选且稳定的 Hermes 指令，与唤醒输入分开发送。"
+    },
+    "geminiLocal": {
+      "engine": "执行引擎",
+      "engineHint": "默认使用 ACP。若 ACP 不可用，运行会以设置错误失败。若要使用 CLI，请显式选择。",
+      "engineAuto": "默认（ACP）",
+      "acpCommand": "ACP 服务器命令",
+      "acpCommandHint": "可选，用于覆盖 Gemini ACP 服务器命令。默认为 gemini --acp。",
+      "sessionMode": "ACP 会话模式",
+      "sessionModeHint": "持久模式在多次运行之间保留 ACP 会话状态。一次性模式每次运行都重新开始。",
+      "modePersistent": "持久",
+      "modeOneShot": "一次性",
+      "nonInteractivePermissions": "ACP 非交互权限",
+      "nonInteractivePermissionsHint": "当 ACP Agent 在非交互会话中请求输入时的回退处理。",
+      "permissionDeny": "拒绝",
+      "permissionFail": "失败",
+      "stateDirectory": "ACP 状态目录",
+      "stateDirectoryHint": "可选的 ACP 会话状态目录。默认为 Paperclip 管理的组织/Agent 范围存储。",
+      "warmIdleMs": "ACP 热进程空闲毫秒数",
+      "warmIdleMsHint": "默认 0，表示每次运行后关闭 ACP 进程，但保留持久会话状态。",
+      "instructionsFile": "Agent 指令文件",
+      "instructionsFileHint": "指向 markdown 文件（如 AGENTS.md）的绝对路径，用于定义该 Agent 的行为。运行时会添加到 Gemini 提示词之前。"
     }
   },
   "agentConfigHelp": {
@@ -20036,5 +20256,46 @@
     "maxTurnContinuationMaxAttempts": "一次达到轮次上限后允许的最大自动续跑次数。与每次运行最大轮次相互独立。",
     "maxTurnContinuationDelaySec": "每次轮次上限续跑开始前等待的秒数。",
     "budgetMonthlyCents": "以分为单位的月度支出上限。0 表示不限制。"
+  },
+  "connectionInstructions": {
+    "title": "Agent 指令",
+    "toggleLabel": "告诉 Agent 使用 {{provider}}",
+    "disabledWarning": "Agent 仍可使用此连接的工具，但不会收到这些指令。",
+    "textAria": "指令文本",
+    "empty": "请输入指令。",
+    "doneEditing": "完成编辑",
+    "edit": "编辑指令",
+    "resetToDefault": "重置为默认",
+    "save": "保存指令",
+    "loading": "正在加载连接指令…",
+    "fromConnections": "来自连接",
+    "fromConnectionsBody": "当连接在任务中可用时，已启用的指令会被包含。可用性可能取决于任务的负责人和操作权限。",
+    "turnedOff": "此连接的这些指令已关闭。",
+    "incomplete": "请先完成此连接的配置，Agent 才能收到其指令。"
+  },
+  "issueChatLongThreadPerf": {
+    "pending": "等待中",
+    "description": "确定性的本地测试数据，用于测量当前直接渲染的任务聊天路径：包含数百条合并的线程行、Markdown 密集的助手内容、关联运行、文档、子任务和侧边栏上下文。",
+    "fixtureRows": "测试数据行",
+    "markdownRows": "Markdown 行",
+    "issueDocuments": "任务文档",
+    "subIssues": "子任务",
+    "baselineMetrics": "基线指标",
+    "profilerCommits": "Profiler 提交次数",
+    "mountDuration": "挂载耗时",
+    "latestDuration": "最近耗时",
+    "maxDuration": "最大耗时",
+    "totalDuration": "总耗时",
+    "fixtureShape": "测试数据结构"
+  },
+  "googleWorkspaceServices": {
+    "accessAria": "{{name}} 访问权限",
+    "chooseServices": "选择要连接的 Google 服务。",
+    "connectTitle": "连接 Google Workspace",
+    "loadFailed": "无法加载你已保存的服务访问权限。你的连接没有变化。",
+    "loadingSaved": "正在加载你已保存的服务访问权限…",
+    "readOnly": "只读",
+    "readWrite": "读取和写入",
+    "selectAtLeastOne": "至少选择一个服务才能继续。"
   }
 }

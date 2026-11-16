@@ -2406,7 +2406,7 @@ export function Secrets() {
         />
 
         <TabsContent value="secrets" className="flex flex-col gap-3">
-          <div data-canonical-toolbar="secrets" role="toolbar" aria-label="Secrets controls" className="flex flex-wrap items-center gap-2">
+          <div data-canonical-toolbar="secrets" role="toolbar" aria-label={t("secrets.list.controls", { defaultValue: "Secrets controls" })} className="flex flex-wrap items-center gap-2">
             <div className="relative w-48 sm:w-64 md:w-80">
               <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -2974,7 +2974,7 @@ export function Secrets() {
                     definitionId={selectedDefinition.id}
                   />
                 </DetailSection>
-                <DetailSection title="Details">
+                <DetailSection title={t("secrets.detail.details", { defaultValue: "Details" })}>
                   <UserSecretDetailsTab definition={selectedDefinition} />
                 </DetailSection>
               </div>
@@ -3046,7 +3046,7 @@ export function Secrets() {
             }}
           >
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium" htmlFor="new-secret-name">Name</label>
+              <label className="text-sm font-medium" htmlFor="new-secret-name">{t("secrets.create.nameLabel", { defaultValue: "Name" })}</label>
               <div className="flex items-center gap-2">
                 {createNamePrefix && !editingDefinition ? (
                   <span
@@ -3058,7 +3058,7 @@ export function Secrets() {
                     <button
                       type="button"
                       className="shrink-0 rounded-sm hover:text-foreground"
-                      aria-label="Remove folder prefix"
+                      aria-label={t("secrets.create.removeFolderPrefixAria", { defaultValue: "Remove folder prefix" })}
                       onClick={() => setCreateNamePrefix(null)}
                     >
                       <X className="h-3.5 w-3.5" />
@@ -3359,7 +3359,7 @@ export function Secrets() {
             {!editingDefinition ? (
               <div className="flex flex-col gap-1.5">
                 <p className="text-sm font-medium">
-                  Agents that can use it <span className="font-normal text-muted-foreground">(optional)</span>
+                  {t("secrets.create.agentsThatCanUseIt", { defaultValue: "Agents that can use it" })} <span className="font-normal text-muted-foreground">{t("secrets.create.optionalSuffix", { defaultValue: "(optional)" })}</span>
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
                   {(agentsQuery.data ?? EMPTY_AGENTS)
@@ -3421,12 +3421,12 @@ export function Secrets() {
                   className={cn("h-4 w-4 transition-transform motion-reduce:transition-none", createMoreOpen && "rotate-90")}
                   aria-hidden
                 />
-                More options
+                {t("secrets.create.moreOptions", { defaultValue: "More options" })}
               </button>
               {createMoreOpen ? (
                 <div id="new-secret-more" className="flex flex-col gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-medium" htmlFor="new-secret-description">Description</label>
+                    <label className="text-sm font-medium" htmlFor="new-secret-description">{t("secrets.create.descriptionLabel", { defaultValue: "Description" })}</label>
                     <Input
                       id="new-secret-description"
                       value={createForm.description}
@@ -4204,13 +4204,13 @@ export function ProviderVaultsTab({
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm font-medium">Paperclip</span>
-              {effectiveLocalDefaultId ? null : <Badge variant="secondary">Default</Badge>}
+              {effectiveLocalDefaultId ? null : <Badge variant="secondary">{t("secrets.vaults.default", { defaultValue: "Default" })}</Badge>}
             </div>
             <p className="text-xs text-muted-foreground">{t("secrets.vaults.builtInDescription", { defaultValue: "Encrypted and stored by Paperclip. Always available." })}</p>
           </div>
           {secretCounts ? (
             <span className="shrink-0 pt-0.5 text-sm tabular-nums text-muted-foreground">
-              {builtInCount} {builtInCount === 1 ? "secret" : "secrets"}
+              {t("secrets.list.secretCount", { defaultValue_one: "{{count}} secret", defaultValue_other: "{{count}} secrets", count: builtInCount })}
             </span>
           ) : null}
           <span className="h-9 w-9 shrink-0" aria-hidden />

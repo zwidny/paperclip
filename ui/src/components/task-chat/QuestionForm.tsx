@@ -139,6 +139,7 @@ function SelectOption({
   disabled: boolean;
   onClick: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <button
       type="button"
@@ -181,7 +182,7 @@ function SelectOption({
           <span>{label}</span>
           {recommended ? (
             <span className="rounded-sm bg-background/70 px-1.5 py-0.5 text-(length:--text-micro) font-medium text-muted-foreground">
-              Recommended
+              {t("taskChat.recommended", { defaultValue: "Recommended" })}
             </span>
           ) : null}
         </span>
@@ -339,7 +340,7 @@ function QuestionFormForRequest({
   if (!question)
     return (
       <p className="text-sm text-muted-foreground">
-        No answerable questions were provided.
+        {t("taskChat.noAnswerableQuestions", { defaultValue: "No answerable questions were provided." })}
       </p>
     );
   const answer = answers[question.id] ?? {};
@@ -618,7 +619,7 @@ function QuestionFormForRequest({
                   }))
                 }
                 placeholder={t("taskChat.filterChoices", { defaultValue: "Filter choices" })}
-                aria-label={`Filter choices for ${question.prompt}`}
+                aria-label={t("taskChat.filterChoicesFor", { defaultValue: "Filter choices for {{prompt}}", prompt: question.prompt })}
                 className="pl-8"
               />
             </label>

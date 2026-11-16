@@ -934,7 +934,7 @@ export function AgentDetail() {
           <div className="mt-1 flex min-w-0 items-center gap-2 text-sm leading-5 text-muted-foreground">
             <Link
               to={agentDetailHref(canonicalAgentRef, "runtime")}
-              aria-label={`Open ${getAdapterDisplay(agentDisplayAdapterType(agent)).label} harness settings`}
+              aria-label={t("agentDetail.harnessSettingsAria", { defaultValue: "Open {{harness}} harness settings", harness: getAdapterDisplay(agentDisplayAdapterType(agent)).label })}
               className="flex shrink-0 items-center gap-1 rounded-sm no-underline transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
             >
               {agent.adapterType === "claude_local" || agent.adapterType === "codex_local"
@@ -1040,7 +1040,7 @@ export function AgentDetail() {
                 }
               }}
             >
-              Discard changes
+              {t("routineHistory.conflict.discard", { defaultValue: "Discard changes" })}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1524,7 +1524,7 @@ export function AgentOverview({
           icon={PlayCircle}
           value={formatWindowCount(runsThisWeek)}
           label={t("agentDetail.auditLink.runs", { defaultValue: "Runs" })}
-          description={`${formatWindowCount(recentFailures)} failed in the last 2 days`}
+          description={t("agentDetail.runs.failedLastTwoDays", { defaultValue: "{{failed}} failed in the last 2 days", failed: formatWindowCount(recentFailures) })}
           to={agentDetailHref(agentRef, "runs")}
         />
         <AgentMetricTile
@@ -1580,7 +1580,7 @@ export function AgentOverview({
           title={t("agentDetail.overview.recentTasks", { defaultValue: "Recent tasks" })}
           action={
             <Link to={`/issues?participantAgentId=${agent.id}`} className="text-xs text-muted-foreground no-underline transition-colors hover:text-foreground">
-              See all tasks
+              {t("agentDetail.overview.seeAllTasks", { defaultValue: "See all tasks" })}
             </Link>
           }
         />
@@ -2658,7 +2658,7 @@ export function PromptsTab({
                     </div>
                   ) : (
                     <button type="button" disabled={isSaving || Boolean(candidateRunId) || selectedFileSummary?.deprecated || selectedFileDetail?.binary || !selectedOrEntryFile.endsWith(".md")}
-                      aria-label={`Rename ${displayedFilePath}`} onClick={() => setEditingFileName(true)}
+                      aria-label={t("agentDetail.prompts.renameFileAria", { defaultValue: "Rename {{path}}", path: displayedFilePath })} onClick={() => setEditingFileName(true)}
                       className={cn("agent-identity-preview-title min-w-0 truncate rounded font-mono text-(length:--agent-identity-preview-title-size) text-left hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", pendingFiles.includes(selectedOrEntryFile) ? "italic text-muted-foreground/60" : "text-foreground")}>
                       {displayedFilePath}
                     </button>
@@ -2710,7 +2710,7 @@ export function PromptsTab({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span tabIndex={0} aria-label={t("agentDetail.prompts.requiredFile", { defaultValue: "This file is required" })} className="inline-flex">
-                      <Button type="button" variant="ghost" size="icon-xs" className="size-8" aria-label={`Delete ${selectedOrEntryFile}`} disabled><Trash2 className="size-4" /></Button>
+                      <Button type="button" variant="ghost" size="icon-xs" className="size-8" aria-label={t("agentDetail.prompts.deleteFileAria", { defaultValue: "Delete {{path}}", path: selectedOrEntryFile })} disabled><Trash2 className="size-4" /></Button>
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>{t("agentDetail.prompts.requiredFile", { defaultValue: "This file is required" })}</TooltipContent>
@@ -2834,7 +2834,7 @@ export function PromptsTab({
               placeholder={t("agentDetail.prompts.fileContents", { defaultValue: "File contents" })}
             />
           ) : (
-            <div role="button" tabIndex={0} aria-label={`Edit ${selectedOrEntryFile} contents`}
+            <div role="button" tabIndex={0} aria-label={t("agentDetail.prompts.editFileContentsAria", { defaultValue: "Edit {{path}} contents", path: selectedOrEntryFile })}
               className="cursor-text outline-none focus-visible:ring-2 focus-visible:ring-ring"
               onClick={() => setInstructionMode("edit")}
               onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setInstructionMode("edit"); } }}>

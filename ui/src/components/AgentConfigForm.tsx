@@ -1634,8 +1634,7 @@ export function AgentConfigForm(props: AgentConfigFormProps) {
             <div className="min-w-0 flex-1 space-y-1">
               <p className="text-sm font-medium">{t("config.upgradeRunner", { defaultValue: "Upgrade to Paperclip Runner" })}</p>
               <p className="text-sm text-muted-foreground">
-                Keep your harness, model, account, and compatible settings.
-                New sessions start fresh; past runs stay available.
+                {t("config.upgradeRunnerDescription", { defaultValue: "Keep your harness, model, account, and compatible settings. New sessions start fresh; past runs stay available." })}
               </p>
               {canQualifyRunnerUpgrade && runnerAvailability?.defaultRunner !== "paperclip" ? (
                 <p className="text-xs text-muted-foreground">{t("config.upgradeVerify", { defaultValue: "The upgrade will verify your computer first. This can take a few minutes." })}</p>

@@ -3423,7 +3423,7 @@ export function TaskChatThread(props: TaskChatThreadProps) {
                     : t("taskChatThread.historyLoading", { defaultValue: "Some task history is still loading." })}
                   {historyError ? (
                     <Button variant="ghost" size="sm" onClick={retryHistory}>
-                      Retry
+                      {t("common.retry", { defaultValue: "Retry" })}
                     </Button>
                   ) : null}
                 </div>

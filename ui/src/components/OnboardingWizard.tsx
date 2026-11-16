@@ -3603,7 +3603,7 @@ function OnboardingWizardInner({
 
                       {runnerDiscoveryError && (
                         <Button type="button" variant="outline" disabled={runnerDiscovery.isFetching || loginEnvironmentsFetching || loginSettingsFetching || loginPolicyFetching} onClick={() => void retryRunnerAvailability()}>
-                          Retry setup
+                          {t("onboarding.runner.retrySetup", { defaultValue: "Retry setup" })}
                         </Button>
                       )}
 
@@ -3670,12 +3670,12 @@ function OnboardingWizardInner({
                               : `${effectiveAdapterCommand} --print - --output-format stream-json --verbose`}
                           </p>
                           <p className="text-muted-foreground">
-                            Prompt:{" "}
+                            {t("onboarding.debug.promptLabel", { defaultValue: "Prompt:" })}{" "}
                             <span className="font-mono">Respond with hello.</span>
                           </p>
                           {adapterType === "claude_local" || adapterType === "codex_local" ? (
                             <p className="text-muted-foreground">
-                              If authentication fails, connect your subscription in the browser above or use an API key.
+                              {t("onboarding.debug.claudeAuth", { defaultValue: "If authentication fails, connect your subscription in the browser above or use an API key." })}
                             </p>
                           ) : adapterType === "cursor" ||
                           adapterType === "gemini_local" ||
@@ -3828,6 +3828,7 @@ function AdapterEnvironmentResult({
   result: AdapterEnvironmentTestResult;
   showHints: boolean;
 }) {
+  const { t } = useTranslation();
   const statusLabel =
     result.status === "pass"
       ? "Passed"
@@ -3867,7 +3868,7 @@ function AdapterEnvironmentResult({
             )}
             {showHints && check.hint && (
               <span className="block opacity-90 break-words">
-                Hint: {check.hint}
+                {t("config.environmentResult.hintPrefix", { defaultValue: "Hint:" })} {check.hint}
               </span>
             )}
           </div>

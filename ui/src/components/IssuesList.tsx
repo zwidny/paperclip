@@ -2194,8 +2194,8 @@ function StreamlinedIssuesList({
                     variant="ghost"
                     size="icon-xs"
                     className="-mr-2 text-muted-foreground"
-                    title={`New task in ${group.label}`}
-                    aria-label={`New task in ${group.label}`}
+                    title={t("issuesList.newTaskInGroup", { defaultValue: "New task in {{group}}", group: group.label })}
+                    aria-label={t("issuesList.newTaskInGroup", { defaultValue: "New task in {{group}}", group: group.label })}
                     onClick={() => openCreateIssueDialog(group)}
                   >
                     <Plus className="h-3 w-3" />

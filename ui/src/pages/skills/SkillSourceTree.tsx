@@ -144,8 +144,8 @@ export function SkillSourceTree({ candidates, selected, excludedFolders, onChang
           const count = skill.inspection?.files.length ?? skill.fileCount;
           return <>
             {label && <Badge variant="outline" className="hidden font-normal text-muted-foreground sm:inline-flex" title={skill.error ?? skill.note}>{label}</Badge>}
-            {count !== undefined && <span className="shrink-0 text-xs tabular-nums text-muted-foreground">{count} {count === 1 ? 'file' : 'files'}</span>}
-            {onPreview && <Button type="button" size="icon-xs" variant="ghost" disabled={disabled} aria-label={`Inspect ${skill.name}`} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); onPreview(skill); }}>{skill.inspection?.references.length ? <AlertTriangle className="size-3.5" /> : <Info className="size-3.5" />}</Button>}
+            {count !== undefined && <span className="shrink-0 text-xs tabular-nums text-muted-foreground">{t("skillSourceTree.fileCount", { count, defaultValue_one: "{{count}} file", defaultValue_other: "{{count}} files" })}</span>}
+            {onPreview && <Button type="button" size="icon-xs" variant="ghost" disabled={disabled} aria-label={t("skillSourceTree.inspectAria", { defaultValue: "Inspect {{name}}", name: skill.name })} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); onPreview(skill); }}>{skill.inspection?.references.length ? <AlertTriangle className="size-3.5" /> : <Info className="size-3.5" />}</Button>}
           </>;
         }}
       />

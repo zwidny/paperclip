@@ -405,24 +405,24 @@ export function IssueWorkspaceCard({
           )}
           {environmentsEnabled && currentEnvironmentId && (
             <div className="text-muted-foreground" style={{ overflowWrap: "anywhere" }}>
-              Environment: <span className="text-foreground">{currentEnvironment?.name ?? currentEnvironmentId}</span>
+              {t("issueWorkspaceCard.environment", { defaultValue: "Environment:" })} <span className="text-foreground">{currentEnvironment?.name ?? currentEnvironmentId}</span>
               {currentSelection === "reuse_existing" && currentReusableEnvironmentId === currentEnvironmentId
-                ? " · reused workspace"
+                ? t("issueWorkspaceCard.reusedSuffix", { defaultValue: " · reused workspace" })
                 : null}
             </div>
           )}
           {!workspace && (
             <div className="text-muted-foreground">
               {currentSelection === "isolated_workspace"
-                ? "A fresh isolated workspace will be created when this task runs."
+                ? t("issueWorkspaceCard.emptyIsolated", { defaultValue: "A fresh isolated workspace will be created when this task runs." })
                 : currentSelection === "reuse_existing"
-                  ? "This task will reuse an existing workspace when it runs."
-                  : "This task will use the project default workspace configuration when it runs."}
+                  ? t("issueWorkspaceCard.emptyReuse", { defaultValue: "This task will reuse an existing workspace when it runs." })
+                  : t("issueWorkspaceCard.emptyDefault", { defaultValue: "This task will use the project default workspace configuration when it runs." })}
             </div>
           )}
           {currentSelection === "reuse_existing" && selectedReusableExecutionWorkspace && (
             <div className="text-muted-foreground" style={{ overflowWrap: "anywhere" }}>
-              Reusing:{" "}
+              {t("issueWorkspaceCard.reusing", { defaultValue: "Reusing: " })}
               {selectedReusableWorkspaceLink ? (
                 <Link
                   to={selectedReusableWorkspaceLink}
@@ -441,7 +441,7 @@ export function IssueWorkspaceCard({
                 to={currentWorkspaceLink}
                 className="text-(length:--text-micro) text-muted-foreground hover:text-foreground hover:underline"
               >
-                View workspace details →
+                {t("issueWorkspaceCard.viewDetails", { defaultValue: "View workspace details →" })}
               </Link>
             </div>
           )}
@@ -487,7 +487,7 @@ export function IssueWorkspaceCard({
           {workspace && (
             <div className="text-(length:--text-micro) text-muted-foreground space-y-0.5 pt-1 border-t border-border/50">
               <div style={{ overflowWrap: "anywhere" }}>
-                Current:{" "}
+                {t("issueWorkspaceCard.current", { defaultValue: "Current: " })}
                 {currentWorkspaceLink ? (
                   <Link
                     to={currentWorkspaceLink}
@@ -515,7 +515,7 @@ export function IssueWorkspaceCard({
             className="inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
           >
             <FolderSearch className="h-3.5 w-3.5 shrink-0" />
-            Browse files…
+            {t("issueWorkspaceCard.browseFiles", { defaultValue: "Browse files…" })}
           </button>
           <button
             type="button"
@@ -523,7 +523,7 @@ export function IssueWorkspaceCard({
             className="inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
           >
             <FileSearch className="h-3.5 w-3.5 shrink-0" />
-            Open file by path…
+            {t("issueWorkspaceCard.openFilePath", { defaultValue: "Open file by path…" })}
           </button>
         </div>
       )}

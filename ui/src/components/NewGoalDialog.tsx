@@ -250,7 +250,7 @@ export function NewGoalDialog() {
                 )}
                 onClick={() => { setParentId(""); setParentOpen(false); }}
               >
-                No parent
+                {t("properties.noParent", { defaultValue: "No parent" })}
               </button>
               {(goals ?? []).map((g) => (
                 <button

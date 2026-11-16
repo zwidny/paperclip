@@ -481,7 +481,7 @@ export function Agents({ initialView = "list" }: { initialView?: AgentsView } = 
                   <button
                     type="button"
                     className="inline-flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground opacity-0 transition-opacity hover:bg-accent hover:text-foreground group-hover/agent-row:opacity-100 focus-visible:opacity-100"
-                    aria-label={`Chat with ${agent.name}`}
+                    aria-label={t("agentActionButtons.chatWith", { defaultValue: "Chat with {{name}}", name: agent.name })}
                     onClick={() => navigate(`/chats/${agentRouteRef(agent)}`)}
                   >
                     <MessagesSquare className="size-3.5" aria-hidden />

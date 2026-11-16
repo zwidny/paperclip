@@ -108,7 +108,7 @@ export function TaskChatMarker({
               disabled={tryAgainPending}
               data-testid="task-chat-run-failed-try-again"
             >
-              {tryAgainPending ? "Trying again..." : "Try again"}
+              {tryAgainPending ? t("taskChat.tryingAgain", { defaultValue: "Trying again..." }) : t("common.tryAgain", { defaultValue: "Try again" })}
             </Button>
           ) : null}
         </div>
@@ -132,7 +132,7 @@ export function TaskChatMarker({
                 ) : null}
                 {item.runHref ? (
                   <Button asChild variant="ghost" size="xs">
-                    <Link to={item.runHref}>View run</Link>
+                    <Link to={item.runHref}>{t("taskChat.viewRun", { defaultValue: "View run" })}</Link>
                   </Button>
                 ) : null}
                 {onTryAgain ? (
@@ -143,7 +143,7 @@ export function TaskChatMarker({
                     disabled={tryAgainPending}
                     data-testid="task-chat-run-failed-try-again"
                   >
-                    {tryAgainPending ? "Trying again..." : "Try again"}
+                    {tryAgainPending ? t("taskChat.tryingAgain", { defaultValue: "Trying again..." }) : t("common.tryAgain", { defaultValue: "Try again" })}
                   </Button>
                 ) : null}
               </div>
@@ -182,7 +182,7 @@ export function TaskChatMarker({
             disabled={tryAgainPending}
             data-testid="task-chat-run-failed-try-again"
           >
-            {tryAgainPending ? "Trying again..." : "Try again"}
+            {tryAgainPending ? t("taskChat.tryingAgain", { defaultValue: "Trying again..." }) : t("common.tryAgain", { defaultValue: "Try again" })}
           </Button>
         ) : null}
       </span>

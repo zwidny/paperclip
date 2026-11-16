@@ -2237,9 +2237,9 @@ export function CompanyImport() {
           previewMutation.variables === previewGenerationRef.current && (
           <div className="mt-3 rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2.5">
             <p className="text-xs text-destructive">
-              Preview failed:{" "}
+              {t("companyImport.preview.failedPrefix", { defaultValue: "Preview failed:" })}{" "}
               {describeError(previewMutation.error).body}{" "}
-              Retry, or re-export the package without large attachments to shrink it.
+              {t("companyImport.preview.retryAdvice", { defaultValue: "Retry, or re-export the package without large attachments to shrink it." })}
             </p>
           </div>
         )}
@@ -2335,10 +2335,9 @@ export function CompanyImport() {
           {importMutation.isError && !importMutation.isPending && ( // query-error-ok: mutation outcome for the import the user just started, not a read
             <div className="mx-5 mt-3 rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2.5">
               <p className="text-xs text-destructive">
-                Import failed:{" "}
+                {t("companyImport.importFailedPrefix", { defaultValue: "Import failed:" })}{" "}
                 {describeError(importMutation.error).body}{" "}
-                Nothing may have been created, or the import stopped partway — check the target company
-                before retrying.
+                {t("companyImport.importFailedAdvice", { defaultValue: "Nothing may have been created, or the import stopped partway — check the target company before retrying." })}
               </p>
             </div>
           )}

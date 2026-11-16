@@ -584,7 +584,7 @@ function ChatSdkEndpointSetup() {
               >{t("chatSetup.agent.useOwnApp", { defaultValue: "Use your own app" })}</Button>}
             </SlackSetupAdvanced>}
             {isSlack && !endpoint && !slackChoices.data && ((slackChoicesView.kind === "error")
-              ? <div role="alert" className="text-sm text-destructive">Couldn&apos;t load Slack setup. <Button variant="link" disabled={slackChoices.isFetching} onClick={() => void slackChoices.refetch()}>{t("common.retry", { defaultValue: "Retry" })}</Button></div>
+              ? <div role="alert" className="text-sm text-destructive">{t("chatSetup.agent.slackLoadFailed", { defaultValue: "Couldn't load Slack setup." })}{" "}<Button variant="link" disabled={slackChoices.isFetching} onClick={() => void slackChoices.refetch()}>{t("common.retry", { defaultValue: "Retry" })}</Button></div>
               : <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" />{t("chatSetup.agent.loadingSlack", { defaultValue: "Loading Slack…" })}</p>)}
             {provider === "github" && <GitHubAgentTrustWarning agent={selectedAgent} />}
             <SetupWizardFooter disabled={agentStepBusy || isSlack && !endpoint && Boolean(agentId) && !slackChoices.data} onSaveExit={() => void continueFromAgent(true)}>

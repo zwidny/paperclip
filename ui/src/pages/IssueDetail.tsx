@@ -1056,7 +1056,7 @@ export function IssueDetailLoadingState({
                 <Badge
                   variant="outline"
                   className="border-violet-500/30 bg-violet-500/10 text-(length:--text-nano) text-violet-600 dark:text-violet-400"
-                  title={`Routine execution from routine ${headerSeed.originId}`}
+                  title={t("issueDetail.routineExecutionTitle", { defaultValue: "Routine execution from routine {{id}}", id: headerSeed.originId })}
                 >
                   <Repeat className="h-3 w-3" />
                   {t("issueDetail.routine", { defaultValue: "Routine" })}
@@ -7817,7 +7817,7 @@ export function TaskDetailSurface({ conversation, tasksTab }: { tasksTab?: TaskS
           <Link
             to={`/routines/${issue.originId}`}
             className="inline-flex items-center gap-1 rounded-full bg-violet-500/10 border border-violet-500/30 px-2 py-0.5 text-(length:--text-nano) font-medium text-violet-600 dark:text-violet-400 shrink-0 hover:bg-violet-500/20 transition-colors"
-            title={`Routine execution from routine ${issue.originId}`}
+            title={t("issueDetail.routineExecutionTitle", { defaultValue: "Routine execution from routine {{id}}", id: issue.originId })}
           >
             <Repeat className="h-3 w-3" />
             {t("issueDetail.routine", { defaultValue: "Routine" })}
@@ -7851,7 +7851,7 @@ export function TaskDetailSurface({ conversation, tasksTab }: { tasksTab?: TaskS
                     "text-(length:--text-nano)",
                     workModeMeta.classes.badge,
                   )}
-                  title={`This task is in ${workModeMeta.label.toLowerCase()}.`}
+                  title={t("issueDetail.workModeTitle", { defaultValue: "This task is in {{mode}}.", mode: workModeMeta.label.toLowerCase() })}
                 >
                   <WorkModeIcon className="h-3 w-3" aria-hidden />
                   {workModeMeta.label}

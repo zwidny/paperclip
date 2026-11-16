@@ -432,7 +432,7 @@ function ActivityDetailsBody({ item }: { item: Activity }) {
       {item.target ? (
         <p className="break-all font-mono">{item.target}</p>
       ) : null}
-      {item.blockedReason ? <p className="text-destructive">Blocked: {item.blockedReason}</p> : null}
+      {item.blockedReason ? <p className="text-destructive">{t("runWorkspaceSourceInspection.blocked", { defaultValue: "Blocked:" })} {item.blockedReason}</p> : null}
       {item.detail ? (
         <pre className="whitespace-pre-wrap break-words font-mono">
           {item.detail}

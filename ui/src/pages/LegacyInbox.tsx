@@ -539,7 +539,7 @@ function ApprovalInboxRow({
                   onClick={onApprove}
                   disabled={isPending}
                 >
-                  Approve
+                  {t("interaction.approve", { defaultValue: "Approve" })}
                 </Button>
                 <Button
                   variant="destructive"
@@ -548,7 +548,7 @@ function ApprovalInboxRow({
                   onClick={onReject}
                   disabled={isPending}
                 >
-                  Reject
+                  {t("interaction.reject", { defaultValue: "Reject" })}
                 </Button>
               </>
             ) : null}
@@ -563,7 +563,7 @@ function ApprovalInboxRow({
             onClick={onApprove}
             disabled={isPending}
           >
-            Approve
+            {t("interaction.approve", { defaultValue: "Approve" })}
           </Button>
           <Button
             variant="destructive"
@@ -572,7 +572,7 @@ function ApprovalInboxRow({
             onClick={onReject}
             disabled={isPending}
           >
-            Reject
+            {t("interaction.reject", { defaultValue: "Reject" })}
           </Button>
         </div>
       ) : null}
@@ -663,7 +663,7 @@ function JoinRequestInboxRow({
             onClick={onApprove}
             disabled={isPending}
           >
-            Approve
+            {t("interaction.approve", { defaultValue: "Approve" })}
           </Button>
           <Button
             variant="destructive"
@@ -672,7 +672,7 @@ function JoinRequestInboxRow({
             onClick={onReject}
             disabled={isPending}
           >
-            Reject
+            {t("interaction.reject", { defaultValue: "Reject" })}
           </Button>
         </div>
       </div>
@@ -2921,7 +2921,7 @@ export function Inbox() {
                         <div key={`today-divider-${group.key}-${index}`} className="my-2 flex items-center gap-3 px-4">
                           <div className="flex-1 border-t border-zinc-600" />
                           <span className="shrink-0 text-(length:--text-micro) font-medium uppercase tracking-wider text-zinc-500">
-                            Earlier
+                            {t("tasks.dateGroup.earlier", { defaultValue: "Earlier" })}
                           </span>
                         </div>,
                       );

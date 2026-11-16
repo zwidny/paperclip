@@ -2059,7 +2059,7 @@ function StandardConnectionSetupFlow({
           {t("connections.setupFlow.savedConnectionMissing", { defaultValue: "The saved connection no longer exists or is not available to this organization." })}
         </p>
         <Button type="button" variant="outline" className="mt-5" onClick={() => navigate("/apps")}>
-          Back to apps
+          {t("connections.setupFlow.backToApps", { defaultValue: "Back to apps" })}
         </Button>
       </div>
     );
@@ -2079,7 +2079,7 @@ function StandardConnectionSetupFlow({
           {t("connections.setupFlow.draftProviderMismatch", { defaultValue: "This saved draft does not match the requested provider. The connection was not changed." })}
         </p>
         <Button type="button" variant="outline" className="mt-5" onClick={() => navigate("/apps")}>
-          Back to apps
+          {t("connections.setupFlow.backToApps", { defaultValue: "Back to apps" })}
         </Button>
       </div>
     );
@@ -2100,7 +2100,7 @@ function StandardConnectionSetupFlow({
             : t("connections.setupFlow.reconnectProviderMismatch", { defaultValue: "This reconnect link does not match the retained connection's provider." })}
         </p>
         <Button type="button" variant="outline" className="mt-5" onClick={() => navigate("/apps")}>
-          Back to apps
+          {t("connections.setupFlow.backToApps", { defaultValue: "Back to apps" })}
         </Button>
       </div>
     );
@@ -2133,7 +2133,7 @@ function StandardConnectionSetupFlow({
           {t("connections.setupFlow.noSupportedSetupMethod", { defaultValue: "Paperclip no longer has a supported setup method for this retained connection. The retained connection was not changed." })}
         </p>
         <Button type="button" variant="outline" className="mt-5" onClick={() => navigate("/apps")}>
-          Back to apps
+          {t("connections.setupFlow.backToApps", { defaultValue: "Back to apps" })}
         </Button>
       </div>
     );
@@ -2172,10 +2172,12 @@ function StandardConnectionSetupFlow({
       <div className="max-w-5xl" data-testid="connection-existing-choice">
         <div className="mb-6">
           <h1 className="text-2xl font-bold tracking-tight">
-            Use an existing {requestedAppKey ? "connection" : "app connection"}
+            {requestedAppKey
+              ? t("connections.setupFlow.useExistingConnection", { defaultValue: "Use an existing connection" })
+              : t("connections.setupFlow.useExistingAppConnection", { defaultValue: "Use an existing app connection" })}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Reuse a connection without changing who already has access, or connect a new one.
+            {t("connections.setupFlow.reuseDescription", { defaultValue: "Reuse a connection without changing who already has access, or connect a new one." })}
           </p>
         </div>
         <ConnectionChoiceList
@@ -2648,10 +2650,10 @@ function StandardConnectionSetupFlow({
               </div>
               <div className="min-w-0">
                 <h2 className="text-lg font-semibold text-foreground">
-                  Connect with Paperclip
+                  {t("connections.setupFlow.connectWithPaperclip", { defaultValue: "Connect with Paperclip" })}
                 </h2>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  You must connect this instance to Paperclip to connect to {entry.name} (you only need to do this once).
+                  {t("connections.setupFlow.connectInstanceRequired", { defaultValue: "You must connect this instance to Paperclip to connect to {{app}} (you only need to do this once).", app: entry.name })}
                 </p>
               </div>
             </div>
@@ -2670,9 +2672,9 @@ function StandardConnectionSetupFlow({
 
             {enrollmentAuthorizationUrl ? (
               <p className="mt-4 text-sm text-muted-foreground">
-                Finish authorization in the opened window.{' '}
+                {t("connections.setupFlow.finishAuthorization", { defaultValue: "Finish authorization in the opened window." })}{' '}
                 <a className="underline" href={enrollmentAuthorizationUrl} target="_blank" rel="noopener noreferrer">
-                  Open authorization in a new tab
+                  {t("connections.setupFlow.openAuthorizationNewTab", { defaultValue: "Open authorization in a new tab" })}
                 </a>
               </p>
             ) : null}
@@ -2801,7 +2803,7 @@ function StandardConnectionSetupFlow({
           The Access step used to carry that wait; without it the connect screen
           has to show the wait itself rather than render nothing. */}
       {step === "key" && !entry && !linkUrl && !zapierSource && requestedAppKey && (
-        <div className="mx-auto max-w-xl" aria-busy="true" aria-label={`Loading ${requestedAppKey} setup`}>
+        <div className="mx-auto max-w-xl" aria-busy="true" aria-label={t("connections.setupFlow.loadingAppSetup", { defaultValue: "Loading {{app}} setup", app: requestedAppKey })}>
           <Skeleton className="h-6 w-2/3 rounded-md" />
           <Skeleton className="mt-3 h-4 w-full rounded-md" />
           <Skeleton className="mt-8 h-11 w-40 rounded-md" />
@@ -3009,7 +3011,7 @@ export function OAuthConnectStateScreen({
             {recoveryActions.installationUrl ? (
               <Button type="button" variant="outline" asChild>
                 <a href={recoveryActions.installationUrl} target="_blank" rel="noreferrer">
-                  Install Paperclip on GitHub
+                  {t("connections.setupFlow.installPaperclipGithub", { defaultValue: "Install Paperclip on GitHub" })}
                   <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
                 </a>
               </Button>
@@ -3017,7 +3019,7 @@ export function OAuthConnectStateScreen({
             {recoveryActions.managementUrl ? (
               <Button type="button" variant="ghost" asChild>
                 <a href={recoveryActions.managementUrl} target="_blank" rel="noreferrer">
-                  Manage repositories on GitHub
+                  {t("connections.setupFlow.manageRepositoriesGithub", { defaultValue: "Manage repositories on GitHub" })}
                 </a>
               </Button>
             ) : null}
@@ -3190,13 +3192,13 @@ function GalleryStep({
             <div>
               <h2 className="text-lg font-bold tracking-tight">{t("connections.setupFlow.connectThroughVercel", { defaultValue: "Connect through Vercel" })}</h2>
               <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-                Create and manage the provider connector in Vercel. Paperclip stores its reference and applies agent access, policy, approval, and audit controls here.
+                {t("connections.setupFlow.vercelConnectorDescription", { defaultValue: "Create and manage the provider connector in Vercel. Paperclip stores its reference and applies agent access, policy, approval, and audit controls here." })}
               </p>
             </div>
             {vercelConnectAvailability ? (
               <Button asChild variant="outline" size="sm" className="shrink-0">
                 <a href={vercelConnectAvailability.manageUrl} target="_blank" rel="noreferrer">
-                  Open Vercel Connect
+                  {t("connections.setupFlow.openVercelConnect", { defaultValue: "Open Vercel Connect" })}
                   <ArrowUpRight className="ml-2 h-3.5 w-3.5" />
                 </a>
               </Button>
@@ -3650,12 +3652,12 @@ function KeyStep({
                 <CopyValueButton value={robotEmail} ariaLabel="Copy sharing email" />
               </div>
               <p className="mt-2 text-xs text-muted-foreground">
-                In Google Sheets, click Share and add this email as an Editor. Then paste the sheet links below.
+                {t("connections.setupFlow.sheetsShareInstructions", { defaultValue: "In Google Sheets, click Share and add this email as an Editor. Then paste the sheet links below." })}
               </p>
             </div>
           ) : (
             <div className="rounded-lg bg-muted/50 p-4 text-sm text-muted-foreground">
-              Google Sheets is not available on this instance yet.
+              {t("connections.setupFlow.sheetsUnavailable", { defaultValue: "Google Sheets is not available on this instance yet." })}
             </div>
           )}
 
@@ -3704,7 +3706,7 @@ function KeyStep({
             rel="noreferrer"
             className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground underline underline-offset-2 hover:text-foreground"
           >
-            Review requirements
+            {t("connections.setupFlow.reviewRequirements", { defaultValue: "Review requirements" })}
             <ArrowUpRight className="h-3 w-3" />
           </a>
         </div>
@@ -3724,7 +3726,7 @@ function KeyStep({
             <div>
               <div className="text-sm font-medium text-foreground">{t("connections.setupFlow.createConnectorInVercel", { defaultValue: "Create or attach the connector in Vercel" })}</div>
               <p className="mt-1 text-xs text-muted-foreground">
-                Paperclip does not copy Vercel’s setup forms. Finish connector setup there, then paste its UID below.
+                {t("connections.setupFlow.vercelSetupFormsHint", { defaultValue: "Paperclip does not copy Vercel’s setup forms. Finish connector setup there, then paste its UID below." })}
               </p>
               <a
                 href={vercelConnectAvailability.manageUrl}
@@ -3732,13 +3734,13 @@ function KeyStep({
                 rel="noreferrer"
                 className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-foreground underline underline-offset-2"
               >
-                Open Vercel Connect
+                {t("connections.setupFlow.openVercelConnect", { defaultValue: "Open Vercel Connect" })}
                 <ArrowUpRight className="h-3 w-3" />
               </a>
             </div>
             <div>
               <label className="text-sm font-medium text-foreground" htmlFor="vercel-connect-connector">
-                Connector UID or ID
+                {t("connections.setupFlow.connectorUidLabel", { defaultValue: "Connector UID or ID" })}
               </label>
               <Input
                 id="vercel-connect-connector"
@@ -3749,7 +3751,7 @@ function KeyStep({
                 className="mt-2 h-11 font-mono"
               />
               <p className="mt-2 text-xs text-muted-foreground">
-                Paperclip validates the connector and stores only its reference and redacted verification metadata.
+                {t("connections.setupFlow.connectorValidationHint", { defaultValue: "Paperclip validates the connector and stores only its reference and redacted verification metadata." })}
               </p>
             </div>
           </div>
@@ -4238,8 +4240,8 @@ export function AccessStepContent({
               </div>
             ) : lockedAgentId ? (
               <p className="mt-2 text-sm text-muted-foreground">
-                This task grants access only to <span className="font-medium text-foreground">{lockedAgentName}</span>.
-                Existing connection access is left unchanged.
+                {t("connections.setupFlow.grantOnlyTo", { defaultValue: "This task grants access only to {{name}}.", name: lockedAgentName })}{" "}
+                {t("connections.setupFlow.existingAccessUnchanged", { defaultValue: "Existing connection access is left unchanged." })}
               </p>
             ) : (
               grantKind === "agent" ? (
@@ -4291,7 +4293,7 @@ export function AccessStepContent({
                     grantKind === "agent" && next.size > 1 ? new Set([[...next].at(-1)!]) : next,
                   )}
                   loading={agentsLoading}
-                  emptyMessage="You cannot edit any agents yet."
+                  emptyMessage={t("appDetail.permissions.noEditableAgents", { defaultValue: "You cannot edit any agents yet." })}
                   showSelectionPreview={false}
                 />
               </div>

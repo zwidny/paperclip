@@ -1869,7 +1869,7 @@ export function Secrets() {
           <Button
             variant="ghost"
             size="icon-sm"
-            aria-label={`Actions for ${name}`}
+            aria-label={t("secrets.actions.actionsFor", { defaultValue: "Actions for {{name}}", name })}
             onClick={(event) => event.stopPropagation()}
           >
             <MoreHorizontal className="h-4 w-4" />
@@ -2211,7 +2211,7 @@ export function Secrets() {
             {vaultLine.unavailable ? (
               <span className="inline-flex shrink-0 items-center gap-1 text-destructive">
                 <AlertTriangle className="h-3.5 w-3.5" aria-hidden />
-                Vault unavailable
+                {t("secrets.vault.unavailable", { defaultValue: "Vault unavailable" })}
               </span>
             ) : null}
           </div>
@@ -2435,7 +2435,7 @@ export function Secrets() {
                 <button
                   type="button"
                   className="rounded-sm p-0.5 text-muted-foreground hover:text-foreground"
-                  aria-label={`Remove filter ${chip.label}`}
+                  aria-label={t("searchFilters.removeFilterAria", { defaultValue: "Remove filter {{label}}", label: chip.label })}
                   onClick={chip.clear}
                 >
                   <X className="h-3.5 w-3.5" />
@@ -2609,7 +2609,7 @@ export function Secrets() {
                       <span className="shrink-0 text-sm font-medium">{t("secrets.list.managedByPaperclip", { defaultValue: "Managed by Paperclip" })}</span>
                       <span className="shrink-0 text-sm tabular-nums text-muted-foreground">{managedCount}</span>
                       <span className="hidden min-w-0 truncate text-sm text-muted-foreground @min-[40rem]:inline">
-                        · Saved by your connections and sign-ins, and kept up to date for you
+                        {t("secrets.list.managedSuffix", { defaultValue: "· Saved by your connections and sign-ins, and kept up to date for you" })}
                       </span>
                     </button>
                     {managedExpanded
@@ -2710,10 +2710,10 @@ export function Secrets() {
                   ) : null}
                 </SheetTitle>
                 <SheetDescription className="sr-only">
-                  {providerLabel(providers, selectedSecret.provider)} secret {selectedSecret.key}
+                  {t("secrets.details.sheetSecretDescriptionLive", { defaultValue: "{{provider}} secret {{key}}", provider: providerLabel(providers, selectedSecret.provider), key: selectedSecret.key })}
                 </SheetDescription>
                 <div className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
-                  <span className="shrink-0">Key</span>
+                  <span className="shrink-0">{t("secrets.details.key", { defaultValue: "Key" })}</span>
                   <code className="min-w-0 truncate font-mono text-foreground">{selectedSecret.key}</code>
                   <Button
                     type="button"
@@ -2853,10 +2853,10 @@ export function Secrets() {
                   ) : null}
                 </SheetTitle>
                 <SheetDescription className="sr-only">
-                  Secret each user provides, {selectedDefinition.key}
+                  {t("secrets.details.sheetDefinitionDescriptionLive", { defaultValue: "Secret each user provides, {{key}}", key: selectedDefinition.key })}
                 </SheetDescription>
                 <div className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
-                  <span className="shrink-0">Key</span>
+                  <span className="shrink-0">{t("secrets.details.key", { defaultValue: "Key" })}</span>
                   <code className="min-w-0 truncate font-mono text-foreground">{selectedDefinition.key}</code>
                   <Button
                     type="button"
@@ -3371,7 +3371,7 @@ export function Secrets() {
                         <button
                           type="button"
                           className="rounded-sm p-0.5 text-muted-foreground hover:text-foreground"
-                          aria-label={`Remove ${agent.name}`}
+                          aria-label={t("secrets.agentAccess.removeAgentAria", { defaultValue: "Remove {{name}}", name: agent.name })}
                           onClick={() =>
                             setCreateAgentIds((current) => {
                               const next = new Set(current);
@@ -3390,12 +3390,12 @@ export function Secrets() {
                     onChange={setCreateAgentIds}
                     loading={agentsQuery.isPending}
                     disabled={createMutation.isPending}
-                    triggerLabel="Add agent"
+                    triggerLabel={t("secrets.agentAccess.addAgent", { defaultValue: "Add agent" })}
                     triggerIcon={<Plus className="h-3.5 w-3.5" />}
                     triggerVariant="outline"
                     triggerSize="sm"
                     contentAlign="start"
-                    emptyMessage="No agents yet."
+                    emptyMessage={t("secrets.agentAccess.noAgentsYet", { defaultValue: "No agents yet." })}
                     showSelectionPreview={false}
                   />
                 </div>
@@ -3631,7 +3631,7 @@ export function Secrets() {
                     className={cn("h-4 w-4 transition-transform motion-reduce:transition-none", vaultAdvancedOpen && "rotate-90")}
                     aria-hidden
                   />
-                  Naming and tags
+                  {t("secrets.vaultFields.namingAndTags", { defaultValue: "Naming and tags" })}
                 </button>
                 {vaultAdvancedOpen ? <ProviderVaultFields form={vaultForm} onChange={setVaultForm} /> : null}
               </div>
@@ -5026,8 +5026,7 @@ function UserSecretCoverageTab({
         </p>
       ) : null}
       <p className="text-xs text-muted-foreground">
-        Members without a value are asked for one when an agent working for them needs it. Each person adds theirs
-        under My secrets.
+        {t("secrets.agentAccess.individualValuesHint", { defaultValue: "Members without a value are asked for one when an agent working for them needs it. Each person adds theirs under My secrets." })}
       </p>
     </div>
   );
@@ -5316,7 +5315,7 @@ function SecretDetailsTab({
         {blockReason ? (
           <span className="mt-1 flex items-start gap-1.5 text-xs text-destructive">
             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-            {blockReason} Agents can&apos;t read this secret until the vault is fixed.
+            {blockReason} {t("secrets.vault.blockedHint", { defaultValue: "Agents can't read this secret until the vault is fixed." })}
           </span>
         ) : null}
       </DetailRow>

@@ -227,7 +227,8 @@
       "authFailsMiddle": " in env or run ",
       "authFailsSuffix": ".",
       "connectProvider": "If login is required, connect the provider above and retry.",
-      "hint": "Hint: "
+      "hint": "Hint: ",
+      "promptLabel": "Prompt:"
     },
     "gatewayUrl": "Gateway URL",
     "webhookUrl": "Webhook URL",
@@ -1104,7 +1105,8 @@
       "configure": {
         "effortAuto": "Auto"
       }
-    }
+    },
+    "upgradeRunnerDescription": "Keep your harness, model, account, and compatible settings. New sessions start fresh; past runs stay available."
   },
   "properties": {
     "status": "Status",
@@ -2899,7 +2901,9 @@
       "makeDefault": "Make default",
       "enable": "Enable",
       "disable": "Disable",
-      "removeVault": "Remove vault"
+      "removeVault": "Remove vault",
+      "blockedHint": "Agents can't read this secret until the vault is fixed.",
+      "unavailable": "Vault unavailable"
     },
     "toast": {
       "secretCreated": "Secret created",
@@ -3020,7 +3024,8 @@
       "howStepThreePrefix": "When a run starts, the agent finds it as an environment variable, such as",
       "howStepThreeSuffix": ". The value is never shown again.",
       "managedByPaperclip": "Managed by Paperclip",
-      "controls": "Secrets controls"
+      "controls": "Secrets controls",
+      "managedSuffix": "· Saved by your connections and sign-ins, and kept up to date for you"
     },
     "folder": {
       "allSecrets": "All secrets",
@@ -3132,7 +3137,8 @@
       "address": "Address",
       "mountPath": "Mount path",
       "secretPathPrefix": "Secret path prefix",
-      "optional": " (optional)"
+      "optional": " (optional)",
+      "namingAndTags": "Naming and tags"
     },
     "discovery": {
       "title": "Check access",
@@ -3344,7 +3350,9 @@
       "membersAddedValue_one": "{{count}} of {{total}} member has added their value.",
       "membersAddedValue_other": "{{count}} of {{total}} members have added their value.",
       "valuesTurnedOff_one": "{{count}} value is turned off.",
-      "valuesTurnedOff_other": "{{count}} values are turned off."
+      "valuesTurnedOff_other": "{{count}} values are turned off.",
+      "sheetDefinitionDescriptionLive": "Secret each user provides, {{key}}",
+      "sheetSecretDescriptionLive": "{{provider}} secret {{key}}"
     },
     "coverage": {
       "set": "Set",
@@ -3373,7 +3381,10 @@
       "addAgent": "Add agent",
       "everyAgentHasAccess": "Every agent already has access.",
       "envVarHint": "The name the agent reads it under.",
-      "giveAccess": "Give access"
+      "giveAccess": "Give access",
+      "individualValuesHint": "Members without a value are asked for one when an agent working for them needs it. Each person adds theirs under My secrets.",
+      "noAgentsYet": "No agents yet.",
+      "removeAgentAria": "Remove {{name}}"
     },
     "events": {
       "empty": "No activity yet. Each time an agent reads it, that shows here.",
@@ -4498,7 +4509,10 @@
       "fileCount_one": "{{count}} file",
       "fileCount_other": "{{count}} files"
     },
-    "skillCatalogControls": "Skill catalog controls"
+    "skillCatalogControls": "Skill catalog controls",
+    "fork": {
+      "forking": "Forking {{name}}"
+    }
   },
   "chatSetup": {
     "breadcrumb": {
@@ -5007,7 +5021,8 @@
       "noMonthlyBudget": "No monthly budget set",
       "ofBudgetThisMonth": "of {{amount}} this month",
       "profile": "Profile",
-      "eventsThisWeek": "Events this week"
+      "eventsThisWeek": "Events this week",
+      "seeAllTasks": "See all tasks"
     },
     "auditLink": {
       "activity": "Activity",
@@ -5111,7 +5126,9 @@
       "requiredFile": "This file is required",
       "fileNameAria": "Markdown file name",
       "deleteFileAria": "Delete {{path}}",
-      "deleteFileTitle": "Delete file"
+      "deleteFileTitle": "Delete file",
+      "editFileContentsAria": "Edit {{path}} contents",
+      "renameFileAria": "Rename {{path}}"
     },
     "runs": {
       "loadingRun": "Loading run…",
@@ -5180,7 +5197,8 @@
       "events": "Events ({{total}})",
       "storageWarning": "Agent storage warning",
       "fileSyncFailed": "Agent file sync failed for this run",
-      "eventsLoadFailed": "Could not load events. Try again."
+      "eventsLoadFailed": "Could not load events. Try again.",
+      "failedLastTwoDays": "{{failed}} failed in the last 2 days"
     },
     "keys": {
       "apiKeyCreated": "API key created — copy it now, it will not be shown again.",
@@ -5266,7 +5284,8 @@
     },
     "reportsToLabel": "Reports to:",
     "discard": "Discard",
-    "unsavedChangesAria": "Unsaved agent changes"
+    "unsavedChangesAria": "Unsaved agent changes",
+    "harnessSettingsAria": "Open {{harness}} harness settings"
   },
   "agentNavigation": {
     "sections": {
@@ -13311,7 +13330,9 @@
     "newChat": "New chat",
     "paused": "Paused",
     "terminated": "Terminated",
-    "awaitingApproval": "Awaiting approval"
+    "awaitingApproval": "Awaiting approval",
+    "unreadFrom_one": "{{count}} unread message from {{name}}",
+    "unreadFrom_other": "{{count}} unread messages from {{name}}"
   },
   "issueDocuments": {
     "deleteFailed": "Failed to delete document",
@@ -17829,7 +17850,8 @@
     "boardColumnLimit": "Some board columns are showing up to {{limit}} tasks. Refine filters or search to reveal the rest.",
     "hierarchyError": "Failed to load task hierarchy: {{message}}",
     "noResponsible": "No responsible",
-    "subTasks": "(sub-tasks)"
+    "subTasks": "(sub-tasks)",
+    "newTaskInGroup": "New task in {{group}}"
   },
   "aiConnectionSelect": {
     "chooseConnection": "Choose a connection",
@@ -18058,7 +18080,12 @@
     "pages": "Pages",
     "myWork": "My work",
     "dialogTitle": "Command Palette",
-    "dialogDescription": "Search for a command to run..."
+    "dialogDescription": "Search for a command to run...",
+    "headingActions": "Actions",
+    "headingAgents": "Agents",
+    "headingQuickFilters": "Quick filters",
+    "headingSearch": "Search",
+    "headingTasks": "Tasks"
   },
   "deferredOverlay": {
     "failedTitle": "Couldn't open {{title}}",
@@ -19888,7 +19915,14 @@
       "toolsCount_one": "{{count}} tool",
       "toolsCount_other": "{{count}} tools",
       "agentsWithAccess_one": "{{count}} agent with access",
-      "agentsWithAccess_other": "{{count}} agents with access"
+      "agentsWithAccess_other": "{{count}} agents with access",
+      "disconnect": "Disconnect",
+      "disconnectAction": "Disconnect connection",
+      "disconnectDescription": "Delete this connection’s saved credentials and stop further calls through Paperclip. Other connections are unaffected. Actions already sent to the provider may still complete. Connecting again requires a new sign-in or key.",
+      "disconnecting": "Disconnecting…",
+      "disconnectTitle": "Disconnect {{provider}}?",
+      "manageIn": "Manage in {{provider}}",
+      "reconnect": "Reconnect"
     },
     "setupFlow": {
       "oauthDenied": "Authorization was cancelled or declined. Your saved connection was not changed.",
@@ -19961,7 +19995,27 @@
       "chooseExactlyOneAgent": "Choose exactly one agent. This identity cannot be shared with other agents.",
       "sheetsReady_one": "{{count}} sheet ready to connect.",
       "sheetsReady_other": "{{count}} sheets ready to connect.",
-      "useYourOwnNamedOauthApp": "Use your own {{app}} OAuth app"
+      "useYourOwnNamedOauthApp": "Use your own {{app}} OAuth app",
+      "connectInstanceRequired": "You must connect this instance to Paperclip to connect to {{app}} (you only need to do this once).",
+      "connectorUidLabel": "Connector UID or ID",
+      "connectorValidationHint": "Paperclip validates the connector and stores only its reference and redacted verification metadata.",
+      "connectWithPaperclip": "Connect with Paperclip",
+      "existingAccessUnchanged": "Existing connection access is left unchanged.",
+      "finishAuthorization": "Finish authorization in the opened window.",
+      "grantOnlyTo": "This task grants access only to {{name}}.",
+      "installPaperclipGithub": "Install Paperclip on GitHub",
+      "loadingAppSetup": "Loading {{app}} setup",
+      "manageRepositoriesGithub": "Manage repositories on GitHub",
+      "openAuthorizationNewTab": "Open authorization in a new tab",
+      "openVercelConnect": "Open Vercel Connect",
+      "reuseDescription": "Reuse a connection without changing who already has access, or connect a new one.",
+      "reviewRequirements": "Review requirements",
+      "sheetsShareInstructions": "In Google Sheets, click Share and add this email as an Editor. Then paste the sheet links below.",
+      "sheetsUnavailable": "Google Sheets is not available on this instance yet.",
+      "useExistingAppConnection": "Use an existing app connection",
+      "useExistingConnection": "Use an existing connection",
+      "vercelConnectorDescription": "Create and manage the provider connector in Vercel. Paperclip stores its reference and applies agent access, policy, approval, and audit controls here.",
+      "vercelSetupFormsHint": "Paperclip does not copy Vercel’s setup forms. Finish connector setup there, then paste its UID below."
     }
   },
   "tailscale": {
@@ -20387,7 +20441,8 @@
       "warmIdleMs": "ACP warm process idle ms",
       "warmIdleMsHint": "Defaults to 0, which closes the ACP process after each run while retaining persistent session state.",
       "instructionsFile": "Agent instructions file",
-      "instructionsFileHint": "Absolute path to a markdown file (e.g. AGENTS.md) that defines this agent's behavior. Prepended to the Gemini prompt at runtime."
+      "instructionsFileHint": "Absolute path to a markdown file (e.g. AGENTS.md) that defines this agent's behavior. Prepended to the Gemini prompt at runtime.",
+      "engineCli": "Gemini CLI"
     },
     "cursorLocal": {
       "instructionsFile": "Agent instructions file",

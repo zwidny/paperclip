@@ -60,7 +60,7 @@ export function AiConnectionAccountControls({
         )}
       </div>
       {revoking && <RevokeGrantDialog grant={grant} providerName={account.name} pending={revokePending} credentialPolicy={account.ownership === "shared" ? "shared" : "per_user"} isOwnIdentity={account.ownerUserId === currentUserId}
-        description="New runs using this account will be blocked. Existing runs may retain credentials already issued to them. No other account will be selected automatically."
+        description={t("aiConnections.account.revokeDescription", { defaultValue: "New runs using this account will be blocked. Existing runs may retain credentials already issued to them. No other account will be selected automatically." })}
         onCancel={() => setRevoking(false)} onConfirm={async () => { setRevokePending(true); setRevokeError(undefined); try { await onRevoke(); setRevoking(false); } catch (error) { setRevokeError(describeError(error).body); } finally { setRevokePending(false); } }}>{revokeError && <p role="alert" className="text-sm text-destructive">{revokeError}</p>}{revocationDetails}</RevokeGrantDialog>}
     </section>
   );

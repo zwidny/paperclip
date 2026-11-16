@@ -136,9 +136,10 @@ function VideoPreview({ artifact }: { artifact: PreviewArtifact }) {
 }
 
 function TextPreview({ artifact }: { artifact: PreviewArtifact }) {
+  const { t } = useTranslation();
   const preview = artifact.previewText?.trim();
   if (!preview) {
-    return <PlaceholderPreview label={artifact.source === "document" ? "Document" : "Text"} />;
+    return <PlaceholderPreview label={artifact.source === "document" ? t("artifactCard.document", { defaultValue: "Document" }) : t("artifactCard.text", { defaultValue: "Text" })} />;
   }
   return (
     <PreviewFrame className="bg-card">
@@ -153,6 +154,7 @@ function TextPreview({ artifact }: { artifact: PreviewArtifact }) {
 }
 
 export function ArtifactPreview({ artifact }: { artifact: PreviewArtifact }) {
+  const { t } = useTranslation();
   switch (artifact.mediaKind) {
     case "image":
       return <ImagePreview key={artifact.contentPath} artifact={artifact} />;
@@ -162,7 +164,7 @@ export function ArtifactPreview({ artifact }: { artifact: PreviewArtifact }) {
     case "document":
       return <TextPreview artifact={artifact} />;
     case "file":
-      return <PlaceholderPreview label="File" />;
+      return <PlaceholderPreview label={t("artifactCards.file", { defaultValue: "File" })} />;
     case "empty":
     default:
       return <PlaceholderPreview />;

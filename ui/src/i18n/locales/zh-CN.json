@@ -227,7 +227,8 @@
       "authFailsMiddle": " 环境变量，或运行 ",
       "authFailsSuffix": "。",
       "connectProvider": "如需登录，请连接上方的提供商并重试。",
-      "hint": "提示："
+      "hint": "提示：",
+      "promptLabel": "提示词："
     },
     "gatewayUrl": "网关 URL",
     "webhookUrl": "Webhook URL",
@@ -1104,7 +1105,8 @@
       "configure": {
         "effortAuto": "自动"
       }
-    }
+    },
+    "upgradeRunnerDescription": "保留你的 harness、模型、账号与兼容设置。新会话从零开始；过往运行仍可查看。"
   },
   "properties": {
     "status": "状态",
@@ -2899,7 +2901,9 @@
       "makeDefault": "设为默认",
       "enable": "启用",
       "disable": "禁用",
-      "removeVault": "移除保管库"
+      "removeVault": "移除保管库",
+      "blockedHint": "修复保险库之前，智能体无法读取此密钥。",
+      "unavailable": "保险库不可用"
     },
     "toast": {
       "secretCreated": "Secret 已创建",
@@ -3020,7 +3024,8 @@
       "howStepThreePrefix": "运行开始时，智能体会将其作为环境变量读取，例如",
       "howStepThreeSuffix": "。该值之后不会再显示。",
       "managedByPaperclip": "由 Paperclip 管理",
-      "controls": "密钥控件"
+      "controls": "密钥控件",
+      "managedSuffix": "· 由你的连接和登录保存，并为你保持最新"
     },
     "folder": {
       "allSecrets": "全部 Secrets",
@@ -3132,7 +3137,8 @@
       "address": "地址",
       "mountPath": "挂载路径",
       "secretPathPrefix": "Secret 路径前缀",
-      "optional": "（可选）"
+      "optional": "（可选）",
+      "namingAndTags": "命名与标签"
     },
     "discovery": {
       "title": "检查访问权限",
@@ -3344,7 +3350,9 @@
       "membersAddedValue_one": "{{total}} 位成员中有 {{count}} 位已添加值。",
       "membersAddedValue_other": "{{total}} 位成员中有 {{count}} 位已添加值。",
       "valuesTurnedOff_one": "{{count}} 个值已关闭。",
-      "valuesTurnedOff_other": "{{count}} 个值已关闭。"
+      "valuesTurnedOff_other": "{{count}} 个值已关闭。",
+      "sheetDefinitionDescriptionLive": "每个用户各自提供的密钥，{{key}}",
+      "sheetSecretDescriptionLive": "{{provider}} 密钥 {{key}}"
     },
     "coverage": {
       "set": "已设置",
@@ -3373,7 +3381,10 @@
       "addAgent": "添加智能体",
       "everyAgentHasAccess": "所有智能体都已有访问权限。",
       "envVarHint": "智能体读取该值所用的名称。",
-      "giveAccess": "授予访问权限"
+      "giveAccess": "授予访问权限",
+      "individualValuesHint": "没有值的成员会在其归属的智能体需要时收到填写提示。每个人在“我的密钥”下添加自己的值。",
+      "noAgentsYet": "暂无智能体。",
+      "removeAgentAria": "移除 {{name}}"
     },
     "events": {
       "empty": "还没有活动。每次智能体读取它时，都会显示在这里。",
@@ -4498,7 +4509,10 @@
       "fileCount_one": "{{count}} 个文件",
       "fileCount_other": "{{count}} 个文件"
     },
-    "skillCatalogControls": "技能目录控件"
+    "skillCatalogControls": "技能目录控件",
+    "fork": {
+      "forking": "正在派生 {{name}}"
+    }
   },
   "chatSetup": {
     "breadcrumb": {
@@ -5007,7 +5021,8 @@
       "noMonthlyBudget": "未设置月度预算",
       "ofBudgetThisMonth": "本月额度 {{amount}}",
       "profile": "资料",
-      "eventsThisWeek": "本周事件"
+      "eventsThisWeek": "本周事件",
+      "seeAllTasks": "查看全部任务"
     },
     "auditLink": {
       "activity": "活动",
@@ -5111,7 +5126,9 @@
       "requiredFile": "此文件为必需文件",
       "fileNameAria": "Markdown 文件名",
       "deleteFileAria": "删除 {{path}}",
-      "deleteFileTitle": "删除文件"
+      "deleteFileTitle": "删除文件",
+      "editFileContentsAria": "编辑 {{path}} 内容",
+      "renameFileAria": "重命名 {{path}}"
     },
     "runs": {
       "loadingRun": "正在加载运行…",
@@ -5180,7 +5197,8 @@
       "events": "事件（{{total}}）",
       "storageWarning": "Agent 存储警告",
       "fileSyncFailed": "本次运行中 Agent 文件同步失败",
-      "eventsLoadFailed": "无法加载事件。请重试。"
+      "eventsLoadFailed": "无法加载事件。请重试。",
+      "failedLastTwoDays": "最近 2 天有 {{failed}} 次失败"
     },
     "keys": {
       "apiKeyCreated": "API 密钥已创建——请立即复制，之后将不再显示。",
@@ -5266,7 +5284,8 @@
     },
     "reportsToLabel": "汇报对象：",
     "discard": "放弃",
-    "unsavedChangesAria": "未保存的 Agent 更改"
+    "unsavedChangesAria": "未保存的 Agent 更改",
+    "harnessSettingsAria": "打开 {{harness}} harness 设置"
   },
   "agentNavigation": {
     "sections": {
@@ -13311,7 +13330,9 @@
     "newChat": "新聊天",
     "paused": "已暂停",
     "terminated": "已终止",
-    "awaitingApproval": "等待审批"
+    "awaitingApproval": "等待审批",
+    "unreadFrom_one": "{{name}} 有 {{count}} 条未读消息",
+    "unreadFrom_other": "{{name}} 有 {{count}} 条未读消息"
   },
   "issueDocuments": {
     "deleteFailed": "删除文档失败",
@@ -17829,7 +17850,8 @@
     "boardColumnLimit": "部分看板列最多显示 {{limit}} 个任务。请优化筛选或搜索以显示其余任务。",
     "hierarchyError": "无法加载任务层级：{{message}}",
     "noResponsible": "无负责人",
-    "subTasks": "（子任务）"
+    "subTasks": "（子任务）",
+    "newTaskInGroup": "在 {{group}} 中新建任务"
   },
   "aiConnectionSelect": {
     "chooseConnection": "选择一个连接",
@@ -18058,7 +18080,12 @@
     "pages": "页面",
     "myWork": "我的工作",
     "dialogTitle": "命令面板",
-    "dialogDescription": "搜索要运行的命令…"
+    "dialogDescription": "搜索要运行的命令…",
+    "headingActions": "操作",
+    "headingAgents": "智能体",
+    "headingQuickFilters": "快速筛选",
+    "headingSearch": "搜索",
+    "headingTasks": "任务"
   },
   "deferredOverlay": {
     "failedTitle": "无法打开{{title}}",
@@ -19888,7 +19915,14 @@
       "toolsCount_one": "{{count}} 个工具",
       "toolsCount_other": "{{count}} 个工具",
       "agentsWithAccess_one": "{{count}} 个 Agent 可访问",
-      "agentsWithAccess_other": "{{count}} 个 Agent 可访问"
+      "agentsWithAccess_other": "{{count}} 个 Agent 可访问",
+      "disconnect": "断开连接",
+      "disconnectAction": "断开此连接",
+      "disconnectDescription": "删除此连接保存的凭据，并停止通过 Paperclip 发起的后续调用。其他连接不受影响。已发送给提供方的操作仍可能完成。再次连接需要重新登录或输入密钥。",
+      "disconnecting": "正在断开…",
+      "disconnectTitle": "断开 {{provider}}？",
+      "manageIn": "在 {{provider}} 中管理",
+      "reconnect": "重新连接"
     },
     "setupFlow": {
       "oauthDenied": "授权已被取消或拒绝。已保存的连接没有改变。",
@@ -19961,7 +19995,27 @@
       "chooseExactlyOneAgent": "请只选择一个 agent。此身份不能与其他 agent 共享。",
       "sheetsReady_one": "{{count}} 个表格可以连接。",
       "sheetsReady_other": "{{count}} 个表格可以连接。",
-      "useYourOwnNamedOauthApp": "使用你自己的 {{app}} OAuth 应用"
+      "useYourOwnNamedOauthApp": "使用你自己的 {{app}} OAuth 应用",
+      "connectInstanceRequired": "你必须先将此实例连接到 Paperclip，才能连接 {{app}}（只需操作一次）。",
+      "connectorUidLabel": "连接器 UID 或 ID",
+      "connectorValidationHint": "Paperclip 会校验该连接器，只保存其引用与脱敏后的验证元数据。",
+      "connectWithPaperclip": "使用 Paperclip 连接",
+      "existingAccessUnchanged": "现有连接访问权限保持不变。",
+      "finishAuthorization": "在已打开的窗口中完成授权。",
+      "grantOnlyTo": "此任务只向 {{name}} 授予访问权限。",
+      "installPaperclipGithub": "在 GitHub 上安装 Paperclip",
+      "loadingAppSetup": "正在加载 {{app}} 设置",
+      "manageRepositoriesGithub": "在 GitHub 上管理仓库",
+      "openAuthorizationNewTab": "在新标签页中打开授权",
+      "openVercelConnect": "打开 Vercel Connect",
+      "reuseDescription": "复用现有连接且不改变已有访问者，或连接一个新账号。",
+      "reviewRequirements": "查看要求",
+      "sheetsShareInstructions": "在 Google Sheets 中点击“共享”，将此邮箱添加为编辑者，然后在下方粘贴表格链接。",
+      "sheetsUnavailable": "此实例尚不支持 Google Sheets。",
+      "useExistingAppConnection": "使用现有的应用连接",
+      "useExistingConnection": "使用现有连接",
+      "vercelConnectorDescription": "在 Vercel 中创建并管理提供方连接器。Paperclip 只保存其引用，并在此处应用智能体访问、策略、审批与审计控制。",
+      "vercelSetupFormsHint": "Paperclip 不会复制 Vercel 的设置表单。请在 Vercel 中完成连接器设置，然后在下方粘贴其 UID。"
     }
   },
   "tailscale": {
@@ -20387,7 +20441,8 @@
       "warmIdleMs": "ACP 热进程空闲毫秒数",
       "warmIdleMsHint": "默认 0，表示每次运行后关闭 ACP 进程，但保留持久会话状态。",
       "instructionsFile": "Agent 指令文件",
-      "instructionsFileHint": "指向 markdown 文件（如 AGENTS.md）的绝对路径，用于定义该 Agent 的行为。运行时会添加到 Gemini 提示词之前。"
+      "instructionsFileHint": "指向 markdown 文件（如 AGENTS.md）的绝对路径，用于定义该 Agent 的行为。运行时会添加到 Gemini 提示词之前。",
+      "engineCli": "Gemini CLI"
     },
     "cursorLocal": {
       "instructionsFile": "Agent 说明文件",

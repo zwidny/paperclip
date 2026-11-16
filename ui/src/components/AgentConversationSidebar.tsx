@@ -99,10 +99,10 @@ export function AgentConversationSidebar({ agents, existingChatAgentIds, availab
           <AgentAvatar agent={agent} size={40} />
           <span className="agent-pin-text flex min-w-0 flex-1 flex-col gap-0.5">
             <span className="truncate text-sm font-medium">{agent.name}</span>
-            <span className="truncate text-xs text-muted-foreground">{agent.status === "terminated" ? "Terminated" : agent.title ?? agent.role}</span>
+            <span className="truncate text-xs text-muted-foreground">{agent.status === "terminated" ? t("agentChatPicker.terminated", { defaultValue: "Terminated" }) : agent.title ?? agent.role}</span>
           </span>
-          {unreadCount > 0 ? <Badge variant="ghost" aria-label={`${unreadCount} unread ${unreadCount === 1 ? "message" : "messages"} from ${agent.name}`} className="shrink-0 bg-primary font-mono tabular-nums text-primary-foreground">{unreadCount}</Badge>
-            : unreadIds.has(agent.id) && <span role="img" aria-label={`Unread messages from ${agent.name}`} className="size-2 shrink-0 rounded-full bg-primary" />}
+          {unreadCount > 0 ? <Badge variant="ghost" aria-label={t("agentChatPicker.unreadFrom", { count: unreadCount, defaultValue_one: "{{count}} unread message from {{name}}", defaultValue_other: "{{count}} unread messages from {{name}}", name: agent.name })} className="shrink-0 bg-primary font-mono tabular-nums text-primary-foreground">{unreadCount}</Badge>
+            : unreadIds.has(agent.id) && <span role="img" aria-label={t("agentConversationSidebar.unreadMessagesFrom", { defaultValue: "Unread messages from {{name}}", name: agent.name })} className="size-2 shrink-0 rounded-full bg-primary" />}
         </Link>{renderAgentAction?.(agent)}</>;
           return <SortablePinnedRow key={agent.id} id={agent.id} label={agent.name} disabled={!canReorder} className={contactRowClassName}
             data-selected={activeId === agent.id || undefined} data-has-unread={hasUnread || undefined}
@@ -123,7 +123,7 @@ export function AgentConversationSidebar({ agents, existingChatAgentIds, availab
     </div>
     {onBrowse && <div className="shrink-0 px-3 py-4">
       <Button variant="ghost" size="sm" className="w-full justify-start gap-2 px-2 text-muted-foreground" onClick={onBrowse}>
-        <Users className="size-4" />Browse all agents
+        <Users className="size-4" />{t("agentConversationSidebar.browseAllAgents", { defaultValue: "Browse all agents" })}
       </Button>
     </div>}
     <AgentChatPicker agents={availableAgents} open={pickerOpen} onOpenChange={setPickerOpen}

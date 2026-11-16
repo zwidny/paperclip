@@ -895,7 +895,7 @@ function SkillCard({
             type="checkbox"
             className="mt-1 h-4 w-4 rounded border-border"
             checked={selected}
-            aria-label={`Select ${card.name}`}
+            aria-label={t("companySkills.card.select", { defaultValue: "Select {{name}}", name: card.name })}
             onClick={(event) => event.stopPropagation()}
             onChange={(event) => onSelectChange?.(card, event.target.checked)}
           />
@@ -920,7 +920,7 @@ function SkillCard({
           const meta = sourceMeta(card.sourceBadge ?? "catalog", card.sourceLabel ?? null);
           const SourceIcon = meta.icon;
           return (
-            <span className="shrink-0 text-muted-foreground" title={`From ${meta.label}`} aria-label={`From ${meta.label}`}>
+            <span className="shrink-0 text-muted-foreground" title={t("companySkills.card.fromSource", { defaultValue: "From {{label}}", label: meta.label })} aria-label={t("companySkills.card.fromSource", { defaultValue: "From {{label}}", label: meta.label })}>
               <SourceIcon className="h-3.5 w-3.5" aria-hidden="true" />
             </span>
           );
@@ -932,7 +932,7 @@ function SkillCard({
                 variant="ghost"
                 size="icon-sm"
                 className="-mr-1 -mt-1 opacity-70 group-hover:opacity-100"
-                aria-label={`More actions for ${card.name}`}
+                aria-label={t("companySkills.card.moreActions", { defaultValue: "More actions for {{name}}", name: card.name })}
                 onClick={(event) => event.stopPropagation()}
               >
                 <MoreHorizontal className="h-4 w-4" />
@@ -1444,8 +1444,8 @@ export function DiscoveryGrid({
                   size="sm"
                   onClick={() => onScan(activeProjectId)}
                   disabled={scanPending}
-                  aria-label={`Refresh ${activeProjectFolder.name} project skills`}
-                  title={`Refresh skills from ${activeProjectFolder.name}`}
+                  aria-label={t("companySkills.scan.refreshProjectAria", { defaultValue: "Refresh {{name}} project skills", name: activeProjectFolder.name })}
+                  title={t("companySkills.scan.refreshProjectTitle", { defaultValue: "Refresh skills from {{name}}", name: activeProjectFolder.name })}
                 >
                   <RefreshCw className={cn("h-3.5 w-3.5", scanPending && "animate-spin")} />
                   {t("companySkills.scan.refresh", { defaultValue: "Refresh" })}
@@ -1612,7 +1612,7 @@ function NewSkillWizard({
       {draft.forkedFromName ? (
         <div className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
           <GitFork className="h-3.5 w-3.5" />
-          Forking {draft.forkedFromName}
+          {t("companySkills.fork.forking", { defaultValue: "Forking {{name}}", name: draft.forkedFromName })}
         </div>
       ) : null}
 
@@ -1698,7 +1698,7 @@ function NewSkillWizard({
                     draft.color === color ? "border-foreground" : "border-border",
                   )}
                   style={{ backgroundColor: color }}
-                  aria-label={`Use ${color}`}
+                  aria-label={t("companySkills.wizard.useColor", { defaultValue: "Use {{color}}", color })}
                 />
               ))}
               <Input
@@ -3046,7 +3046,7 @@ function SkillTagsEditor({
             {tag}
             <button
               type="button"
-              aria-label={`Remove tag ${tag}`}
+              aria-label={t("companySkills.tags.remove", { defaultValue: "Remove tag {{tag}}", tag })}
               disabled={pending}
               onClick={() => onSave(categories.filter((entry) => entry !== tag))}
               className="text-muted-foreground hover:text-foreground disabled:opacity-50"
@@ -3573,7 +3573,7 @@ export function SkillDetailPage({
                     <TooltipTrigger asChild>
                       <span
                         className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground"
-                        aria-label={`Installed from ${source.label}`}
+                        aria-label={t("companySkills.detail.installedFrom", { defaultValue: "Installed from {{label}}", label: source.label })}
                       >
                         <SourceIcon className="h-4 w-4" />
                       </span>

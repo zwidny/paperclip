@@ -47,7 +47,7 @@ export function GeminiLocalConfigFields({
           }}
         >
           <option value="auto">{t("adapterConfig.geminiLocal.engineAuto", { defaultValue: "Default (ACP)" })}</option>
-          <option value="cli">Gemini CLI</option>
+          <option value="cli">{t("adapterConfig.geminiLocal.engineCli", { defaultValue: "Gemini CLI" })}</option>
           <option value="acp">ACP</option>
         </select>
       </Field>}

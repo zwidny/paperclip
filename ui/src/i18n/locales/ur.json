@@ -4,7 +4,8 @@
       "title": "اپنی پہلی کمپنی بنائیں",
       "description": "کمپنی بنا کر شروع کریں۔",
       "newCompany": "نئی کمپنی"
-    }
+    },
+    "cloudCreateUnavailable": "Organizations are created in Paperclip Cloud. This instance can't reach it right now — try again from your Cloud portfolio."
   },
   "sidebar": {
     "companyMenu": {
@@ -302,7 +303,8 @@
     "in": "in",
     "out": "out",
     "close": "Close",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "continue": "Continue"
   },
   "auth": {
     "failed": "Authentication failed",
@@ -555,7 +557,8 @@
       "recoveryStatus": "Task recovery status"
     },
     "myTasks": "My Tasks",
-    "noAssigned": "No tasks assigned to you."
+    "noAssigned": "No tasks assigned to you.",
+    "retryHierarchy": "Retry hierarchy"
   },
   "filters": {
     "label": "Filters",
@@ -660,7 +663,8 @@
     "retryMissing": "Retry missing items",
     "selectOrganization": "Select an organization to view {{surface}}.",
     "controlsAria": "{{surface}} controls",
-    "searchPlaceholder": "Search {{surface}}…"
+    "searchPlaceholder": "Search {{surface}}…",
+    "loadFailed": "Unable to load the inbox: {{message}}"
   },
   "projects": {
     "selectOrganization": "Select an organization to view projects.",
@@ -853,7 +857,8 @@
       "saveEnvironmentFailed": "Could not save the environment.",
       "testFailed": "Could not test the agent.",
       "retryPreparationFailed": "Could not retry computer preparation.",
-      "loadCreatedAgent": "Could not load the created agent. Return to Agents to view it."
+      "loadCreatedAgent": "Could not load the created agent. Return to Agents to view it.",
+      "cursorCloudModelIdRequired": "Enter the exact Cursor Cloud model ID."
     },
     "saved": {
       "submittedForApproval": "Agent submitted for approval",
@@ -1064,7 +1069,12 @@
     "noModelsFound": "No models found.",
     "thinkingEffort": "Thinking effort",
     "upgradeRunnerPending": "Upgrading…",
-    "upgradeRunnerAction": "Upgrade runner"
+    "upgradeRunnerAction": "Upgrade runner",
+    "newAgent": {
+      "configure": {
+        "effortAuto": "Auto"
+      }
+    }
   },
   "properties": {
     "status": "Status",
@@ -1229,7 +1239,8 @@
     "unarchiveFailed": "Failed to unarchive this issue. Please try again.",
     "monitorPaused": "Automatic checks paused",
     "monitorPausedCheckNow": "Check now to request a manual check",
-    "monitorPausedResume": "Resume this task to continue checking"
+    "monitorPausedResume": "Resume this task to continue checking",
+    "loadingUsageLimit": "Loading usage limit"
   },
   "chat": {
     "copy": "Copy",
@@ -4420,7 +4431,8 @@
       "signingSecretWarningPrefix": "Use the ",
       "signingSecretWarningSuffix": ", NOT an app or bot token. The Signing Secret has no token prefix.",
       "reconnect": "Reconnect Slack app",
-      "connect": "Connect Slack app"
+      "connect": "Connect Slack app",
+      "saveAppDetailsFailed": "Couldn't save the Slack app details. Try again before continuing."
     },
     "try": {
       "freshPhoton": "send a fresh message to your Photon number",
@@ -5282,7 +5294,8 @@
         "title": "Team installed",
         "body": "{{name}} was imported."
       }
-    }
+    },
+    "controls": "Teams controls"
   },
   "workspaceDetail": {
     "tabs": {
@@ -7366,7 +7379,8 @@
       "onBody": "{{name}} is exposing its tools again.",
       "offBody": "{{name}} is off — every client goes silent.",
       "errorTitle": "Couldn't update the gateway"
-    }
+    },
+    "controls": "Gateway controls"
   },
   "assistantConnection": {
     "title": "Assistant Connection (MCP)",
@@ -8400,7 +8414,8 @@
       "mcpServerDescription": "Enter the URL for a custom or self-hosted MCP server.",
       "pasteConfigTitle": "Paste a config",
       "pasteConfigDescription": "Paste an existing setup snippet and connect it."
-    }
+    },
+    "defaultUnavailable": "Default unavailable"
   },
   "appsConnect": {
     "checkingComposio": "Checking saved Composio accounts…",
@@ -10548,7 +10563,13 @@
     "kindReviewPlan": "Review plan",
     "kindApproveToolAction": "Approve tool action",
     "kindReviewSecretProposal": "Review secret proposal",
-    "waitingToStart": "Waiting to start"
+    "waitingToStart": "Waiting to start",
+    "changedInThisTurn": "Changed in this turn",
+    "changingFiles": "Changing files",
+    "collapseAll": "Collapse all",
+    "expandAll": "Expand all",
+    "filesSoFar": "{{files}} so far",
+    "tooManyFiles": "{{count}} more files changed. This change set is too large to list them here."
   },
   "runnerGoal": {
     "pendingStarting": "Starting",
@@ -11413,7 +11434,8 @@
     "previousPage": "Previous page",
     "nextPage": "Next page",
     "range_one": "{{from}}–{{to}} of {{total}} message",
-    "range_other": "{{from}}–{{to}} of {{total}} messages"
+    "range_other": "{{from}}–{{to}} of {{total}} messages",
+    "filtersAria": "Commentary filters"
   },
   "observability": {
     "conflict": "Another administrator changed these settings. Reload the saved settings to continue.",
@@ -11663,7 +11685,8 @@
       "clearFilters": "Clear filters",
       "emptyAllBody": "As soon as anyone in your company does something, it shows up here.",
       "loadMore": "Load more"
-    }
+    },
+    "filters": "Audit filters"
   },
   "agentTools": {
     "accessVsInstalled": "Has access means the app is permitted. Installed means its tools are added to this agent's runtime context.",
@@ -12279,7 +12302,8 @@
     "toastRevokeFailed": "Failed to revoke invite",
     "toastRevokedTitle": "Invite revoked",
     "unknownInviter": "Unknown inviter",
-    "viewMore": "View more"
+    "viewMore": "View more",
+    "intro": "Invite people to request access to this organization. New invite links are copied to your clipboard when they are generated."
   },
   "agentConfigPrimitives": {
     "choose": "Choose",
@@ -13133,7 +13157,8 @@
     "recentRuns": "Recent runs",
     "unknownAgent": "Unknown agent",
     "sourceRun": "{{source}} run",
-    "showingRuns": "Showing the {{limit}} most recent runs."
+    "showingRuns": "Showing the {{limit}} most recent runs.",
+    "filtersAria": "Audit filters"
   },
   "skillPackagePreview": {
     "includedFiles": "Included repository files",
@@ -13158,7 +13183,8 @@
     "openOnGithubHint": "Open on GitHub to preview or download this file.",
     "truncated": "Showing the first 64 KB. The complete file is imported.",
     "backToSelection": "Back to selection",
-    "openOnGithub": "Open on GitHub"
+    "openOnGithub": "Open on GitHub",
+    "validationFailedHint": "Preview unavailable for a package that failed validation."
   },
   "wizardToolsStep": {
     "loadingTools": "Loading tools…",
@@ -14022,7 +14048,9 @@
     "agentConnection": "Agent connection",
     "readAndEdit": "Read and edit work",
     "readOnly": "Read only",
-    "you": "You"
+    "you": "You",
+    "checkingPairingCode": "Checking pairing code…",
+    "allowConnection": "Allow this connection to work as {{agent}} in {{company}}."
   },
   "composioApps": {
     "manageTitle": "Manage {{name}}",
@@ -14479,7 +14507,10 @@
     "avatarAlt": "{{name}} avatar",
     "newPrimaryAria": "New primary agent",
     "changeTitle": "Change your primary agent?",
-    "changeDescription": "This will make {{name}} your primary agent, do you want to do this?"
+    "changeDescription": "This will make {{name}} your primary agent, do you want to do this?",
+    "retryLoadHint": "Couldn't load your primary agent. Select to retry.",
+    "myPrimaryAria": "My primary agent",
+    "loadingPrimaryAgent": "Loading your primary agent…"
   },
   "agentSecretAccess": {
     "accessAliasAria": "Access alias",
@@ -17578,7 +17609,8 @@
     "terminatedSuffix": " (terminated)",
     "noManager": "No manager",
     "current": "Current: {{name}} (terminated)",
-    "missingManager": "Saved manager is missing from this organization. Choose a new manager or clear."
+    "missingManager": "Saved manager is missing from this organization. Choose a new manager or clear.",
+    "chooseManager": "Choose manager"
   },
   "reusableExecutionWorkspaceSelect": {
     "placeholder": "Choose an existing workspace",
@@ -18915,7 +18947,8 @@
     "savingProgress": "Saving: {{progress}}…",
     "configurationFallback": "configuration",
     "noConfigurationChanges": "No configuration changes",
-    "agentYamlAria": "Agent YAML configuration"
+    "agentYamlAria": "Agent YAML configuration",
+    "noUnsavedChanges": "No unsaved changes"
   },
   "runWorkspaceSourceInspection": {
     "noRecordedFailure": "No recorded system recovery failure.",
@@ -18948,7 +18981,8 @@
     "clearFilters": "Clear filters",
     "couldNotLoad": "Could not load tasks",
     "rowDetailsFailed": "Task details couldn’t load.",
-    "loadedSummary": "{{count}} tasks loaded. Load more to include them in filters."
+    "loadedSummary": "{{count}} tasks loaded. Load more to include them in filters.",
+    "tasksLoaded": "tasks loaded. Load more to include them in filters."
   },
   "legacyBoardSend": {
     "discardTrigger": "Discard saved delivery record",
@@ -19291,5 +19325,14 @@
     "connect": "Connect",
     "dialogDescription": "Complete connection setup without leaving this task.",
     "retryUsingConnection": "Retry using this connection"
+  },
+  "issueArtifactCard": {
+    "loadingPatchPreview": "Loading patch preview…"
+  },
+  "taskChatRunnerTurn": {
+    "activityUnavailable": "Live runner activity is temporarily unavailable. Retrying…"
+  },
+  "companyAccess": {
+    "permissionDeniedMembers": "You do not have permission to manage organization members."
   }
 }

@@ -4,7 +4,8 @@
       "title": "创建您的第一家公司",
       "description": "通过创建公司开始。",
       "newCompany": "新公司"
-    }
+    },
+    "cloudCreateUnavailable": "组织在 Paperclip Cloud 中创建。此实例当前无法连接 — 请从你的 Cloud 作品集重试。"
   },
   "sidebar": {
     "companyMenu": {
@@ -302,7 +303,8 @@
     "in": "输入",
     "out": "输出",
     "close": "关闭",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "continue": "继续"
   },
   "auth": {
     "failed": "认证失败",
@@ -555,7 +557,8 @@
       "recoveryStatus": "任务恢复状态"
     },
     "myTasks": "我的任务",
-    "noAssigned": "没有分配给你的任务。"
+    "noAssigned": "没有分配给你的任务。",
+    "retryHierarchy": "重试整个层级"
   },
   "filters": {
     "label": "筛选",
@@ -660,7 +663,8 @@
     "retryMissing": "重试加载缺失项",
     "selectOrganization": "选择组织以查看 {{surface}}。",
     "controlsAria": "{{surface}} 控件",
-    "searchPlaceholder": "搜索 {{surface}}…"
+    "searchPlaceholder": "搜索 {{surface}}…",
+    "loadFailed": "无法加载收件箱：{{message}}"
   },
   "projects": {
     "selectOrganization": "请选择组织以查看项目。",
@@ -853,7 +857,8 @@
       "saveEnvironmentFailed": "无法保存环境。",
       "testFailed": "无法测试 Agent。",
       "retryPreparationFailed": "无法重试运行环境准备。",
-      "loadCreatedAgent": "无法加载已创建的 Agent。请返回 Agents 页面查看。"
+      "loadCreatedAgent": "无法加载已创建的 Agent。请返回 Agents 页面查看。",
+      "cursorCloudModelIdRequired": "请输入准确的 Cursor Cloud 模型 ID。"
     },
     "saved": {
       "submittedForApproval": "Agent 已提交审批",
@@ -1064,7 +1069,12 @@
     "noModelsFound": "未找到模型。",
     "thinkingEffort": "思考强度",
     "upgradeRunnerPending": "升级中…",
-    "upgradeRunnerAction": "升级运行器"
+    "upgradeRunnerAction": "升级运行器",
+    "newAgent": {
+      "configure": {
+        "effortAuto": "自动"
+      }
+    }
   },
   "properties": {
     "status": "状态",
@@ -1229,7 +1239,8 @@
     "unarchiveFailed": "无法取消归档此任务。请重试。",
     "monitorPaused": "自动检查已暂停",
     "monitorPausedCheckNow": "立即检查以请求手动检查",
-    "monitorPausedResume": "恢复此任务以继续检查"
+    "monitorPausedResume": "恢复此任务以继续检查",
+    "loadingUsageLimit": "正在加载用量上限"
   },
   "chat": {
     "copy": "复制",
@@ -4420,7 +4431,8 @@
       "signingSecretWarningPrefix": "请使用 ",
       "signingSecretWarningSuffix": "，而不是应用或机器人 token。Signing Secret 没有 token 前缀。",
       "reconnect": "重新连接 Slack 应用",
-      "connect": "连接 Slack 应用"
+      "connect": "连接 Slack 应用",
+      "saveAppDetailsFailed": "无法保存 Slack 应用详情。请重试后再继续。"
     },
     "try": {
       "freshPhoton": "向你的 Photon 号码发送一条新消息",
@@ -5282,7 +5294,8 @@
         "title": "团队已安装",
         "body": "已导入 {{name}}。"
       }
-    }
+    },
+    "controls": "团队控件"
   },
   "workspaceDetail": {
     "tabs": {
@@ -7366,7 +7379,8 @@
       "onBody": "{{name}} 已重新暴露其工具。",
       "offBody": "{{name}} 已关闭 —— 所有客户端都将停止工作。",
       "errorTitle": "无法更新网关"
-    }
+    },
+    "controls": "网关控件"
   },
   "assistantConnection": {
     "title": "Assistant Connection (MCP)",
@@ -8400,7 +8414,8 @@
       "mcpServerDescription": "输入自定义或自托管 MCP 服务器的 URL。",
       "pasteConfigTitle": "粘贴配置",
       "pasteConfigDescription": "粘贴现有设置片段并连接它。"
-    }
+    },
+    "defaultUnavailable": "默认项不可用"
   },
   "appsConnect": {
     "checkingComposio": "正在检查已保存的 Composio 账户…",
@@ -10548,7 +10563,13 @@
     "kindReviewPlan": "审阅计划",
     "kindApproveToolAction": "批准工具操作",
     "kindReviewSecretProposal": "审阅密钥提案",
-    "waitingToStart": "等待开始"
+    "waitingToStart": "等待开始",
+    "changedInThisTurn": "本轮修改",
+    "changingFiles": "正在修改文件",
+    "collapseAll": "全部折叠",
+    "expandAll": "全部展开",
+    "filesSoFar": "目前 {{files}}",
+    "tooManyFiles": "还有 {{count}} 个文件被修改。此变更集过大，无法在此逐一列出。"
   },
   "runnerGoal": {
     "pendingStarting": "正在启动",
@@ -11413,7 +11434,8 @@
     "previousPage": "上一页",
     "nextPage": "下一页",
     "range_one": "第 {{from}}–{{to}} 条，共 {{total}} 条消息",
-    "range_other": "第 {{from}}–{{to}} 条，共 {{total}} 条消息"
+    "range_other": "第 {{from}}–{{to}} 条，共 {{total}} 条消息",
+    "filtersAria": "评论筛选"
   },
   "observability": {
     "conflict": "另一位管理员更改了这些设置。请重新加载已保存的设置以继续。",
@@ -11663,7 +11685,8 @@
       "entityCompany": "公司",
       "loadMore": "加载更多",
       "title": "活动"
-    }
+    },
+    "filters": "审计筛选"
   },
   "agentTools": {
     "accessVsInstalled": "拥有访问权限表示应用已获许可。已安装表示其工具已添加到该 Agent 的运行时上下文。",
@@ -12279,7 +12302,8 @@
     "toastRevokeFailed": "撤销邀请失败",
     "toastRevokedTitle": "邀请已撤销",
     "unknownInviter": "未知邀请人",
-    "viewMore": "查看更多"
+    "viewMore": "查看更多",
+    "intro": "邀请他人请求加入此组织。邀请链接生成后会自动复制到剪贴板。"
   },
   "agentConfigPrimitives": {
     "choose": "选择",
@@ -13133,7 +13157,8 @@
     "recentRuns": "最近的运行",
     "unknownAgent": "未知 Agent",
     "sourceRun": "{{source}} 运行",
-    "showingRuns": "显示最近 {{limit}} 次运行。"
+    "showingRuns": "显示最近 {{limit}} 次运行。",
+    "filtersAria": "审计筛选"
   },
   "skillPackagePreview": {
     "includedFiles": "包含的仓库文件",
@@ -13158,7 +13183,8 @@
     "openOnGithubHint": "在 GitHub 上打开以预览或下载此文件。",
     "truncated": "仅显示前 64 KB。完整文件已导入。",
     "backToSelection": "返回选择",
-    "openOnGithub": "在 GitHub 上打开"
+    "openOnGithub": "在 GitHub 上打开",
+    "validationFailedHint": "校验未通过的包无法预览。"
   },
   "wizardToolsStep": {
     "loadingTools": "正在加载工具…",
@@ -14022,7 +14048,9 @@
     "agentConnection": "智能体连接",
     "readAndEdit": "读取并编辑工作",
     "readOnly": "只读",
-    "you": "你"
+    "you": "你",
+    "checkingPairingCode": "正在检查配对码…",
+    "allowConnection": "允许此连接以 {{agent}} 的身份在 {{company}} 中工作。"
   },
   "composioApps": {
     "manageTitle": "管理 {{name}}",
@@ -14479,7 +14507,10 @@
     "avatarAlt": "{{name}} 头像",
     "newPrimaryAria": "新的主要 Agent",
     "changeTitle": "更改你的主要 Agent？",
-    "changeDescription": "这会将 {{name}} 设为主要 Agent，你确定要这样做吗？"
+    "changeDescription": "这会将 {{name}} 设为主要 Agent，你确定要这样做吗？",
+    "retryLoadHint": "无法加载你的主代理。点击重试。",
+    "myPrimaryAria": "我的主代理",
+    "loadingPrimaryAgent": "正在加载你的主代理…"
   },
   "agentSecretAccess": {
     "accessAliasAria": "访问别名",
@@ -17578,7 +17609,8 @@
     "terminatedSuffix": "（已终止）",
     "noManager": "无管理者",
     "current": "当前：{{name}}（已终止）",
-    "missingManager": "已保存的管理者不在此组织中。请选择新的管理者或清除。"
+    "missingManager": "已保存的管理者不在此组织中。请选择新的管理者或清除。",
+    "chooseManager": "选择管理者"
   },
   "reusableExecutionWorkspaceSelect": {
     "placeholder": "选择现有工作区",
@@ -18915,7 +18947,8 @@
     "savingProgress": "Saving: {{progress}}…",
     "configurationFallback": "configuration",
     "noConfigurationChanges": "No configuration changes",
-    "agentYamlAria": "Agent YAML configuration"
+    "agentYamlAria": "Agent YAML configuration",
+    "noUnsavedChanges": "没有未保存的更改"
   },
   "runWorkspaceSourceInspection": {
     "noRecordedFailure": "No recorded system recovery failure.",
@@ -18948,7 +18981,8 @@
     "clearFilters": "Clear filters",
     "couldNotLoad": "Could not load tasks",
     "rowDetailsFailed": "无法加载任务详情。",
-    "loadedSummary": "{{count}} tasks loaded. Load more to include them in filters."
+    "loadedSummary": "{{count}} tasks loaded. Load more to include them in filters.",
+    "tasksLoaded": "个任务已加载。加载更多以将其纳入筛选。"
   },
   "legacyBoardSend": {
     "discardTrigger": "Discard saved delivery record",
@@ -19291,5 +19325,14 @@
     "connect": "连接",
     "dialogDescription": "无需离开此任务即可完成连接设置。",
     "retryUsingConnection": "使用此连接重试"
+  },
+  "issueArtifactCard": {
+    "loadingPatchPreview": "正在加载补丁预览…"
+  },
+  "taskChatRunnerTurn": {
+    "activityUnavailable": "实时运行器活动暂时不可用，正在重试…"
+  },
+  "companyAccess": {
+    "permissionDeniedMembers": "你没有管理组织成员的权限。"
   }
 }

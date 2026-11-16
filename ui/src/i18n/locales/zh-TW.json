@@ -4,7 +4,8 @@
       "title": "建立您的第一家公司",
       "description": "從建立公司開始。",
       "newCompany": "新公司"
-    }
+    },
+    "cloudCreateUnavailable": "Organizations are created in Paperclip Cloud. This instance can't reach it right now — try again from your Cloud portfolio."
   },
   "sidebar": {
     "companyMenu": {
@@ -302,7 +303,8 @@
     "in": "輸入",
     "out": "輸出",
     "close": "關閉",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "continue": "Continue"
   },
   "auth": {
     "failed": "驗證失敗",
@@ -555,7 +557,8 @@
       "recoveryStatus": "任務恢復狀態"
     },
     "myTasks": "我的任務",
-    "noAssigned": "沒有指派給您的任務。"
+    "noAssigned": "沒有指派給您的任務。",
+    "retryHierarchy": "Retry hierarchy"
   },
   "filters": {
     "label": "篩選",
@@ -660,7 +663,8 @@
     "retryMissing": "重試載入缺少項目",
     "selectOrganization": "選擇組織以檢視 {{surface}}。",
     "controlsAria": "{{surface}} 控制項",
-    "searchPlaceholder": "搜尋 {{surface}}…"
+    "searchPlaceholder": "搜尋 {{surface}}…",
+    "loadFailed": "Unable to load the inbox: {{message}}"
   },
   "projects": {
     "selectOrganization": "請選擇組織以檢視專案。",
@@ -853,7 +857,8 @@
       "saveEnvironmentFailed": "無法儲存環境。",
       "testFailed": "無法測試 Agent。",
       "retryPreparationFailed": "無法重試執行環境準備。",
-      "loadCreatedAgent": "無法載入已建立的 Agent。請返回 Agents 頁面檢視。"
+      "loadCreatedAgent": "無法載入已建立的 Agent。請返回 Agents 頁面檢視。",
+      "cursorCloudModelIdRequired": "Enter the exact Cursor Cloud model ID."
     },
     "saved": {
       "submittedForApproval": "Agent 已提交審批",
@@ -1064,7 +1069,12 @@
     "noModelsFound": "找不到模型。",
     "thinkingEffort": "思考強度",
     "upgradeRunnerPending": "Upgrading…",
-    "upgradeRunnerAction": "Upgrade runner"
+    "upgradeRunnerAction": "Upgrade runner",
+    "newAgent": {
+      "configure": {
+        "effortAuto": "Auto"
+      }
+    }
   },
   "properties": {
     "status": "狀態",
@@ -1229,7 +1239,8 @@
     "unarchiveFailed": "無法取消封存此任務。請重試。",
     "monitorPaused": "自動檢查已暫停",
     "monitorPausedCheckNow": "立即檢查以請求手動檢查",
-    "monitorPausedResume": "恢復此任務以繼續檢查"
+    "monitorPausedResume": "恢復此任務以繼續檢查",
+    "loadingUsageLimit": "Loading usage limit"
   },
   "chat": {
     "copy": "複製",
@@ -4420,7 +4431,8 @@
       "signingSecretWarningPrefix": "請使用 ",
       "signingSecretWarningSuffix": "，而不是應用程式或機器人 token。Signing Secret 沒有 token 前綴。",
       "reconnect": "重新連線 Slack 應用程式",
-      "connect": "連線 Slack 應用程式"
+      "connect": "連線 Slack 應用程式",
+      "saveAppDetailsFailed": "Couldn't save the Slack app details. Try again before continuing."
     },
     "try": {
       "freshPhoton": "傳送一則新訊息到你的 Photon 號碼",
@@ -5282,7 +5294,8 @@
         "title": "團隊已安裝",
         "body": "已匯入 {{name}}。"
       }
-    }
+    },
+    "controls": "Teams controls"
   },
   "workspaceDetail": {
     "tabs": {
@@ -7366,7 +7379,8 @@
       "onBody": "{{name}} 已重新暴露其工具。",
       "offBody": "{{name}} 已關閉 —— 所有用戶端都將停止運作。",
       "errorTitle": "無法更新閘道"
-    }
+    },
+    "controls": "Gateway controls"
   },
   "assistantConnection": {
     "title": "Assistant Connection (MCP)",
@@ -8400,7 +8414,8 @@
       "mcpServerDescription": "輸入自訂或自架 MCP 伺服器的 URL。",
       "pasteConfigTitle": "貼上設定",
       "pasteConfigDescription": "貼上現有設定片段並連線它。"
-    }
+    },
+    "defaultUnavailable": "Default unavailable"
   },
   "appsConnect": {
     "checkingComposio": "正在檢查已儲存的 Composio 帳戶…",
@@ -10548,7 +10563,13 @@
     "kindReviewPlan": "Review plan",
     "kindApproveToolAction": "Approve tool action",
     "kindReviewSecretProposal": "Review secret proposal",
-    "waitingToStart": "Waiting to start"
+    "waitingToStart": "Waiting to start",
+    "changedInThisTurn": "Changed in this turn",
+    "changingFiles": "Changing files",
+    "collapseAll": "Collapse all",
+    "expandAll": "Expand all",
+    "filesSoFar": "{{files}} so far",
+    "tooManyFiles": "{{count}} more files changed. This change set is too large to list them here."
   },
   "runnerGoal": {
     "pendingStarting": "正在啟動",
@@ -11413,7 +11434,8 @@
     "previousPage": "上一頁",
     "nextPage": "下一頁",
     "range_one": "第 {{from}}–{{to}} 則，共 {{total}} 則訊息",
-    "range_other": "第 {{from}}–{{to}} 則，共 {{total}} 則訊息"
+    "range_other": "第 {{from}}–{{to}} 則，共 {{total}} 則訊息",
+    "filtersAria": "Commentary filters"
   },
   "observability": {
     "conflict": "另一位管理員變更了這些設定。請重新載入已儲存的設定以繼續。",
@@ -11663,7 +11685,8 @@
       "entityCompany": "公司",
       "loadMore": "載入更多",
       "title": "活動"
-    }
+    },
+    "filters": "Audit filters"
   },
   "agentTools": {
     "accessVsInstalled": "擁有存取權限表示應用程式已獲許可。已安裝表示其工具已新增到該 Agent 的執行階段內容。",
@@ -12279,7 +12302,8 @@
     "toastRevokeFailed": "撤銷邀請失敗",
     "toastRevokedTitle": "邀請已撤銷",
     "unknownInviter": "未知邀請人",
-    "viewMore": "查看更多"
+    "viewMore": "查看更多",
+    "intro": "Invite people to request access to this organization. New invite links are copied to your clipboard when they are generated."
   },
   "agentConfigPrimitives": {
     "choose": "選擇",
@@ -13133,7 +13157,8 @@
     "recentRuns": "最近的執行",
     "unknownAgent": "未知 Agent",
     "sourceRun": "{{source}} 執行",
-    "showingRuns": "顯示最近 {{limit}} 次執行。"
+    "showingRuns": "顯示最近 {{limit}} 次執行。",
+    "filtersAria": "Audit filters"
   },
   "skillPackagePreview": {
     "includedFiles": "包含的倉庫檔案",
@@ -13158,7 +13183,8 @@
     "openOnGithubHint": "在 GitHub 上開啟以預覽或下載此檔案。",
     "truncated": "僅顯示前 64 KB。完整檔案已匯入。",
     "backToSelection": "返回選擇",
-    "openOnGithub": "在 GitHub 上開啟"
+    "openOnGithub": "在 GitHub 上開啟",
+    "validationFailedHint": "Preview unavailable for a package that failed validation."
   },
   "wizardToolsStep": {
     "loadingTools": "正在載入工具…",
@@ -14022,7 +14048,9 @@
     "agentConnection": "智慧體連線",
     "readAndEdit": "讀取並編輯工作",
     "readOnly": "唯讀",
-    "you": "你"
+    "you": "你",
+    "checkingPairingCode": "Checking pairing code…",
+    "allowConnection": "Allow this connection to work as {{agent}} in {{company}}."
   },
   "composioApps": {
     "manageTitle": "管理 {{name}}",
@@ -14479,7 +14507,10 @@
     "avatarAlt": "{{name}} 大頭貼",
     "newPrimaryAria": "新的主要 Agent",
     "changeTitle": "變更你的主要 Agent？",
-    "changeDescription": "這會將 {{name}} 設為主要 Agent，你確定要這樣做嗎？"
+    "changeDescription": "這會將 {{name}} 設為主要 Agent，你確定要這樣做嗎？",
+    "retryLoadHint": "Couldn't load your primary agent. Select to retry.",
+    "myPrimaryAria": "My primary agent",
+    "loadingPrimaryAgent": "Loading your primary agent…"
   },
   "agentSecretAccess": {
     "accessAliasAria": "存取別名",
@@ -17578,7 +17609,8 @@
     "terminatedSuffix": "（已終止）",
     "noManager": "無管理者",
     "current": "目前：{{name}}（已終止）",
-    "missingManager": "已儲存的管理者不在此組織中。請選擇新的管理者或清除。"
+    "missingManager": "已儲存的管理者不在此組織中。請選擇新的管理者或清除。",
+    "chooseManager": "Choose manager"
   },
   "reusableExecutionWorkspaceSelect": {
     "placeholder": "選擇現有工作區",
@@ -18915,7 +18947,8 @@
     "savingProgress": "Saving: {{progress}}…",
     "configurationFallback": "configuration",
     "noConfigurationChanges": "No configuration changes",
-    "agentYamlAria": "Agent YAML configuration"
+    "agentYamlAria": "Agent YAML configuration",
+    "noUnsavedChanges": "No unsaved changes"
   },
   "runWorkspaceSourceInspection": {
     "noRecordedFailure": "No recorded system recovery failure.",
@@ -18948,7 +18981,8 @@
     "clearFilters": "Clear filters",
     "couldNotLoad": "Could not load tasks",
     "rowDetailsFailed": "無法載入任務詳細資料。",
-    "loadedSummary": "{{count}} tasks loaded. Load more to include them in filters."
+    "loadedSummary": "{{count}} tasks loaded. Load more to include them in filters.",
+    "tasksLoaded": "tasks loaded. Load more to include them in filters."
   },
   "legacyBoardSend": {
     "discardTrigger": "Discard saved delivery record",
@@ -19291,5 +19325,14 @@
     "connect": "Connect",
     "dialogDescription": "Complete connection setup without leaving this task.",
     "retryUsingConnection": "Retry using this connection"
+  },
+  "issueArtifactCard": {
+    "loadingPatchPreview": "Loading patch preview…"
+  },
+  "taskChatRunnerTurn": {
+    "activityUnavailable": "Live runner activity is temporarily unavailable. Retrying…"
+  },
+  "companyAccess": {
+    "permissionDeniedMembers": "You do not have permission to manage organization members."
   }
 }

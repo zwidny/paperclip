@@ -11882,7 +11882,9 @@
     "webhookUrl": "Webhook URL",
     "updateTaskFailed": "更新任务失败",
     "loadingActivity": "正在加载活动…",
-    "noActivity": "暂无活动。"
+    "noActivity": "暂无活动。",
+    "concurrency": "并发",
+    "catchUp": "补跑"
   },
   "auditFeed": {
     "aUser": "某位用户",
@@ -12033,7 +12035,15 @@
     "unsavedChanges": "未保存的更改",
     "useDedicatedAccount": "使用专用账号",
     "useResponsibleGithub": "使用负责人的 GitHub",
-    "whyTheseTools": "为什么是这些工具？"
+    "whyTheseTools": "为什么是这些工具？",
+    "githubIdentityTitle": "GitHub 身份",
+    "dedicatedGithubAccount": "专用 GitHub 账号",
+    "allowedTools": "允许的工具",
+    "columnTool": "工具",
+    "columnRisk": "风险",
+    "columnSource": "来源",
+    "accessProfiles": "访问配置",
+    "orgDefault": "组织默认"
   },
   "legacyInbox": {
     "agentErrorsOne": "个 Agent 有错误",
@@ -12427,7 +12437,9 @@
     "variableFallback": "变量",
     "variableName": "变量名",
     "variableValue": "变量值",
-    "version": "版本"
+    "version": "版本",
+    "undo": "撤销",
+    "latest": "最新"
   },
   "spekoIncomingCalls": {
     "approvalSent": "已为此通话发送批准。先前的指令已被丢弃。请在 Activity 中查看该通话。",

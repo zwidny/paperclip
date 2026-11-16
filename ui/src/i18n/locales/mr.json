@@ -11882,7 +11882,9 @@
     "webhookUrl": "Webhook URL",
     "updateTaskFailed": "Failed to update task",
     "loadingActivity": "Loading activity…",
-    "noActivity": "No activity yet."
+    "noActivity": "No activity yet.",
+    "concurrency": "Concurrency",
+    "catchUp": "Catch-up"
   },
   "auditFeed": {
     "aUser": "a user",
@@ -12033,7 +12035,15 @@
     "unsavedChanges": "Unsaved changes",
     "useDedicatedAccount": "Use a dedicated account",
     "useResponsibleGithub": "Use responsible person's GitHub",
-    "whyTheseTools": "Why these tools?"
+    "whyTheseTools": "Why these tools?",
+    "githubIdentityTitle": "GitHub identity",
+    "dedicatedGithubAccount": "Dedicated GitHub account",
+    "allowedTools": "Allowed tools",
+    "columnTool": "Tool",
+    "columnRisk": "Risk",
+    "columnSource": "Source",
+    "accessProfiles": "Access profiles",
+    "orgDefault": "Organization default"
   },
   "legacyInbox": {
     "agentErrorsOne": "agent has errors",
@@ -12427,7 +12437,9 @@
     "variableFallback": "variable",
     "variableName": "Variable name",
     "variableValue": "Variable value",
-    "version": "Version"
+    "version": "Version",
+    "undo": "Undo",
+    "latest": "latest"
   },
   "spekoIncomingCalls": {
     "approvalSent": "Approval was sent for this call. Earlier instructions were discarded. Follow the call in Activity.",

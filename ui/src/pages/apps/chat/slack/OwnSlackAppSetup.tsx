@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { SetupWizardFooter } from "@/components/SetupWizard";
+import { useTranslation } from "../../../../i18n";
 import { sanitizedSetupErrorMessage } from "../chat-setup-error";
 import { SlackSetupAdvanced } from "../SlackAppDetails";
 import { createUuid } from "../../../../lib/uuid";
@@ -25,6 +26,7 @@ export function OwnSlackAppSetup({ endpoint, stage, disabled, saveDetails, onSav
   onContinue: () => void;
   onSaveExit: () => void;
 }) {
+  const { t } = useTranslation();
   const [configurationToken, setConfigurationToken] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,8 +70,8 @@ export function OwnSlackAppSetup({ endpoint, stage, disabled, saveDetails, onSav
     const installWindow = window.open("about:blank", "_blank");
     if (installWindow) {
       installWindow.opener = null;
-      installWindow.document.title = "Preparing Slack installation";
-      installWindow.document.body.textContent = "Preparing your Slack installation…";
+      installWindow.document.title = t("ownSlackAppSetup.preparingTitle", { defaultValue: "Preparing Slack installation" });
+      installWindow.document.body.textContent = t("ownSlackAppSetup.preparingBody", { defaultValue: "Preparing your Slack installation…" });
       pendingWindow.current = installWindow;
     }
     let token = configurationToken.trim();
@@ -103,13 +105,13 @@ export function OwnSlackAppSetup({ endpoint, stage, disabled, saveDetails, onSav
       // Pending/uncertain configuration and existing installations must not start OAuth.
       if (saved.status !== "install" || saved.errorCode) return;
       if (!installWindow || installWindow.closed) {
-        setError("Select Install in Slack to open the installation page.");
+        setError(t("ownSlackAppSetup.installPrompt", { defaultValue: "Select Install in Slack to open the installation page." }));
         return;
       }
       const result = await chatEndpointsApi.installSlackApp(endpoint.id);
       if (!mounted.current) return;
       if (installWindow.closed) {
-        setError("Select Install in Slack to reopen the installation page.");
+        setError(t("ownSlackAppSetup.reopenPrompt", { defaultValue: "Select Install in Slack to reopen the installation page." }));
         return;
       }
       installWindow.location.replace(result.authorizationUrl);
@@ -135,54 +137,54 @@ export function OwnSlackAppSetup({ endpoint, stage, disabled, saveDetails, onSav
     </p> : null}
     {(stage === "app" && !created && !creating || configurationPending) && <>
       {uncertain && <div className="space-y-3 text-sm">
-        <a href={registration?.managementUrl ?? "https://api.slack.com/apps"} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">Open Slack app settings <ExternalLink className="inline size-3" /></a>
+        <a href={registration?.managementUrl ?? "https://api.slack.com/apps"} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">{t("ownSlackAppSetup.openAppSettings", { defaultValue: "Open Slack app settings" })} <ExternalLink className="inline size-3" /></a>
         <label className="flex items-center gap-2">
           <Checkbox checked={checkedNoApp} disabled={busy} onCheckedChange={value => setCheckedNoApp(value === true)} />
-          I checked Slack and no app was created. Create a new app.
+          {t("ownSlackAppSetup.checkedNoApp", { defaultValue: "I checked Slack and no app was created. Create a new app." })}
         </label>
       </div>}
       {(!uncertain || checkedNoApp) && <div className="space-y-2">
         <Button asChild size="lg" className="mb-4 h-auto w-full whitespace-normal py-4">
-          <a href="https://api.slack.com/apps" target="_blank" rel="noopener noreferrer">Get your App configuration access token <ExternalLink className="size-4" /></a>
+          <a href="https://api.slack.com/apps" target="_blank" rel="noopener noreferrer">{t("ownSlackAppSetup.getToken", { defaultValue: "Get your App configuration access token" })} <ExternalLink className="size-4" /></a>
         </Button>
         <div id="slack-configuration-token-help" className="space-y-3 pb-3 text-sm">
           <ol className="list-decimal space-y-2 pl-5">
-            <li>In Slack app settings, find <strong>Your App Configuration Tokens</strong> and choose <strong>Generate Token</strong>.</li>
-            <li>Select the workspace where you want to install your bot.</li>
-            <li>Copy the <strong>Access Token</strong> and paste it below.</li>
+            <li>{t("ownSlackAppSetup.stepOnePrefix", { defaultValue: "In Slack app settings, find " })}<strong>{t("ownSlackAppSetup.stepOneTokensLabel", { defaultValue: "Your App Configuration Tokens" })}</strong>{t("ownSlackAppSetup.stepOneMid", { defaultValue: " and choose " })}<strong>{t("ownSlackAppSetup.stepOneGenerateLabel", { defaultValue: "Generate Token" })}</strong>{t("ownSlackAppSetup.stepOneSuffix", { defaultValue: "." })}</li>
+            <li>{t("ownSlackAppSetup.stepTwo", { defaultValue: "Select the workspace where you want to install your bot." })}</li>
+            <li>{t("ownSlackAppSetup.stepThreePrefix", { defaultValue: "Copy the " })}<strong>{t("ownSlackAppSetup.stepThreeTokenLabel", { defaultValue: "Access Token" })}</strong>{t("ownSlackAppSetup.stepThreeSuffix", { defaultValue: " and paste it below." })}</li>
           </ol>
-          <p className="text-muted-foreground">Paperclip uses this token to create your app</p>
+          <p className="text-muted-foreground">{t("ownSlackAppSetup.tokenUsage", { defaultValue: "Paperclip uses this token to create your app" })}</p>
         </div>
-        <label htmlFor="slack-configuration-token" className="text-sm font-medium">App configuration access token</label>
+        <label htmlFor="slack-configuration-token" className="text-sm font-medium">{t("ownSlackAppSetup.appConfigTokenLabel", { defaultValue: "App configuration access token" })}</label>
         <Input id="slack-configuration-token" type="password" autoComplete="off" spellCheck={false}
           value={configurationToken} disabled={busy} onChange={event => setConfigurationToken(event.target.value)}
           aria-describedby="slack-configuration-token-help" />
       </div>}
     </>}
-    {creating && <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" /> Creating your Slack app. You can return to this saved setup.</p>}
+    {creating && <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" /> {t("ownSlackAppSetup.creating", { defaultValue: "Creating your Slack app. You can return to this saved setup." })}</p>}
     {created && <p className="text-sm">
-      <strong>{endpoint.setup?.slackApp?.appName ?? "Your Slack app"}</strong> is created.
-      {stage === "credentials" && " Approve installation with your Slack account. Paperclip will link it to your signed-in Paperclip account and send you a welcome DM."}
+      <strong>{endpoint.setup?.slackApp?.appName ?? t("ownSlackAppSetup.yourSlackApp", { defaultValue: "Your Slack app" })}</strong> {t("ownSlackAppSetup.createdSuffix", { defaultValue: "is created." })}
+      {stage === "credentials" && <> {t("ownSlackAppSetup.credentialsNote", { defaultValue: "Approve installation with your Slack account. Paperclip will link it to your signed-in Paperclip account and send you a welcome DM." })}</>}
     </p>}
     {stage === "credentials" && registration?.status === "credentials_saved" && <div className="space-y-2">
-      <p className="text-sm text-muted-foreground">Your installation credentials are saved. Retry connecting to finish setup. If Slack access has changed, authorize the same app again.</p>
-      <Button variant="link" className="h-auto p-0" disabled={busy || disabled} onClick={() => void run(authorize)}>Authorize in Slack again</Button>
+      <p className="text-sm text-muted-foreground">{t("ownSlackAppSetup.credentialsSaved", { defaultValue: "Your installation credentials are saved. Retry connecting to finish setup. If Slack access has changed, authorize the same app again." })}</p>
+      <Button variant="link" className="h-auto p-0" disabled={busy || disabled} onClick={() => void run(authorize)}>{t("ownSlackAppSetup.authorizeAgain", { defaultValue: "Authorize in Slack again" })}</Button>
     </div>}
     {stage === "app" && <SlackSetupAdvanced><div className="flex flex-wrap gap-4 text-sm">
-      {onManaged && !registration && <Button variant="link" className="h-auto p-0" disabled={busy} onClick={() => void run(onManaged)}>Use managed setup</Button>}
-      <Button variant="link" className="h-auto p-0" disabled={busy || creating} onClick={() => void run(() => onManual(false))}>Create manually</Button>
-      <Button variant="link" className="h-auto p-0" disabled={busy || creating} onClick={() => void run(() => onManual(true))}>Use an existing app</Button>
+      {onManaged && !registration && <Button variant="link" className="h-auto p-0" disabled={busy} onClick={() => void run(onManaged)}>{t("ownSlackAppSetup.useManagedSetup", { defaultValue: "Use managed setup" })}</Button>}
+      <Button variant="link" className="h-auto p-0" disabled={busy || creating} onClick={() => void run(() => onManual(false))}>{t("ownSlackAppSetup.createManually", { defaultValue: "Create manually" })}</Button>
+      <Button variant="link" className="h-auto p-0" disabled={busy || creating} onClick={() => void run(() => onManual(true))}>{t("ownSlackAppSetup.useExistingApp", { defaultValue: "Use an existing app" })}</Button>
     </div></SlackSetupAdvanced>}
     <SetupWizardFooter onSaveExit={onSaveExit} disabled={busy}>
       {configurationPending ? <Button disabled={busy || disabled || !configurationToken.trim()} onClick={() => void run(create)}>
-        {busy && <Loader2 className="size-4 animate-spin" />}Retry app configuration
+        {busy && <Loader2 className="size-4 animate-spin" />}{t("ownSlackAppSetup.retryAppConfiguration", { defaultValue: "Retry app configuration" })}
       </Button> : stage === "app" ? <Button disabled={busy || disabled || creating || (!created && (!configurationToken.trim() || uncertain && !checkedNoApp))}
         onClick={() => created ? onContinue() : void run(create)}>
-        {busy && <Loader2 className="size-4 animate-spin" />}{created ? "Continue to installation" : "Create Slack app"}
+        {busy && <Loader2 className="size-4 animate-spin" />}{created ? t("ownSlackAppSetup.continueToInstallation", { defaultValue: "Continue to installation" }) : t("ownSlackAppSetup.createSlackApp", { defaultValue: "Create Slack app" })}
       </Button> : registration?.status === "credentials_saved" ? <Button disabled={busy} onClick={() => void run(async () => onSaved(await chatEndpointsApi.resumeSlackInstallation(endpoint.id)))}>
-        {busy && <Loader2 className="size-4 animate-spin" />}Retry connecting
+        {busy && <Loader2 className="size-4 animate-spin" />}{t("ownSlackAppSetup.retryConnecting", { defaultValue: "Retry connecting" })}
       </Button> : <Button disabled={busy || !created || disabled} onClick={() => void run(authorize)}>
-        {busy ? <Loader2 className="size-4 animate-spin" /> : <ExternalLink className="size-4" />}Install in Slack
+        {busy ? <Loader2 className="size-4 animate-spin" /> : <ExternalLink className="size-4" />}{t("ownSlackAppSetup.installInSlack", { defaultValue: "Install in Slack" })}
       </Button>}
     </SetupWizardFooter>
   </div>;

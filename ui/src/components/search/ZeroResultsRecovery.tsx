@@ -8,6 +8,7 @@ import {
   type FilterChipLookups,
   type SearchFilters,
 } from "@/lib/search-filters";
+import { useTranslation } from "../../i18n";
 
 export function ZeroResultsRecovery({
   query,
@@ -24,6 +25,7 @@ export function ZeroResultsRecovery({
   onChange: (next: SearchFilters) => void;
   onClearAll: () => void;
 }) {
+  const { t } = useTranslation();
   const activeCount = countActiveFilters(filters);
   const { unfilteredTotal } = zeroResults;
   // Rank suggestions by how many results each one recovers (highest impact first).
@@ -38,9 +40,9 @@ export function ZeroResultsRecovery({
     >
       <FilterX className="h-10 w-10 text-muted-foreground" aria-hidden />
       <div className="space-y-1">
-        <div className="text-base font-semibold">No results with these filters</div>
+        <div className="text-base font-semibold">{t("searchFilters.zeroResults.title", { defaultValue: "No results with these filters" })}</div>
         <p className="text-sm text-muted-foreground">
-          {unfilteredTotal === 1 ? "1 result matches" : `${unfilteredTotal} results match`}
+          {unfilteredTotal === 1 ? t("searchFilters.zeroResults.match_one", { count: unfilteredTotal, defaultValue: "{{count}} result matches" }) : t("searchFilters.zeroResults.match_other", { count: unfilteredTotal, defaultValue: "{{count}} results match" })}
           {query ? <> &ldquo;{query}&rdquo;</> : null}, but your{" "}
           {activeCount === 1 ? "active filter hides" : `${activeCount} active filters hide`} all of them.
         </p>

@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useTranslation } from "../../../i18n";
 
 export type ProfileActionDialogKind = "archive" | "delete" | "restore";
 
@@ -29,6 +30,7 @@ export function ProfileActionDialog({
   onRestore: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation();
   if (!kind || !profile) return null;
 
   const defaultDeleteBlocked = kind === "delete" && profile.summary.isCompanyDefault;
@@ -65,11 +67,11 @@ export function ProfileActionDialog({
         {defaultDeleteBlocked ? (
           <div className="flex gap-3 rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-            <span>Choose another access profile and make it the organization default first.</span>
+            <span>{t("profileActionDialog.defaultBlocked", { defaultValue: "Choose another access profile and make it the organization default first." })}</span>
           </div>
         ) : null}
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button variant="ghost" onClick={onClose}>{t("common.cancel", { defaultValue: "Cancel" })}</Button>
           <Button
             variant={kind === "delete" ? "destructive" : "default"}
             disabled={pending || defaultDeleteBlocked}

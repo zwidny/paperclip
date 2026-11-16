@@ -488,7 +488,7 @@ export function Agents({ initialView = "list" }: { initialView?: AgentsView } = 
                     {t("nav.chat", { defaultValue: "Chat" })}
                   </button>
                 </TooltipTrigger>
-                <TooltipContent>chat with this agent</TooltipContent>
+                <TooltipContent>{t("agentsPage.chatWithAgent", { defaultValue: "chat with this agent" })}</TooltipContent>
               </Tooltip>
             </TooltipPrimitive.Provider>
           ) : undefined} />

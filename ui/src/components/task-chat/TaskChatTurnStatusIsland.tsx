@@ -348,7 +348,7 @@ export function TaskChatTurnPlan({ plan, workspace = null, defaultCollapsed = fa
       <div
         className="h-0.5 w-full bg-muted"
         role="progressbar"
-        aria-label="Plan progress"
+        aria-label={t("taskChat.planProgress", { defaultValue: "Plan progress" })}
         aria-valuemin={0}
         aria-valuemax={total}
         aria-valuenow={completed}
@@ -378,7 +378,7 @@ export function TaskChatTurnPlan({ plan, workspace = null, defaultCollapsed = fa
             <li>
               <button type="button" className={ROW_BUTTON_CLASS_NAME} onClick={() => setShowAll(false)}>
                 <Circle className="size-4 shrink-0 opacity-0" aria-hidden />
-                <span>Show fewer</span>
+                <span>{t("taskChat.showFewer", { defaultValue: "Show fewer" })}</span>
               </button>
             </li>
           ) : null}

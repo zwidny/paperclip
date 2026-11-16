@@ -6,6 +6,7 @@ import { useCopyAction } from "@/lib/use-copy-action";
 import { IssueChatFeedbackButtons } from "@/components/AgentBubbleActionRow";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Check, Copy, X, Info } from "lucide-react";
+import { useTranslation } from "../../i18n";
 
 /** Feedback-vote wiring for an agent bubble, resolved per comment by the host. */
 export interface TaskChatBubbleFeedback {
@@ -35,6 +36,7 @@ export function TaskChatBubbleActions({
   fastResponse?: boolean;
   feedback?: TaskChatBubbleFeedback | null;
 }) {
+  const { t } = useTranslation();
   const { copied, failed, copy } = useCopyAction(2000);
   const label = failed ? "Couldn’t copy message" : "Copy message";
 
@@ -57,7 +59,7 @@ export function TaskChatBubbleActions({
           <Copy className="h-3.5 w-3.5" />
         )}
       </button>
-      {fastResponse && <Popover><PopoverTrigger asChild><button type="button" aria-label="Message details" title="Message details" className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"><Info className="h-3.5 w-3.5" /></button></PopoverTrigger><PopoverContent className="text-xs">Platform-generated acknowledgement. The agent’s substantive response follows separately.</PopoverContent></Popover>}
+      {fastResponse && <Popover><PopoverTrigger asChild><button type="button" aria-label={t("taskChat.messageDetails", { defaultValue: "Message details" })} title={t("taskChat.messageDetails", { defaultValue: "Message details" })} className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"><Info className="h-3.5 w-3.5" /></button></PopoverTrigger><PopoverContent className="text-xs">{t("chat.acknowledgement", { defaultValue: "Platform-generated acknowledgement. The agent’s substantive response follows separately." })}</PopoverContent></Popover>}
       {feedback ? (
         <IssueChatFeedbackButtons
           activeVote={feedback.activeVote}

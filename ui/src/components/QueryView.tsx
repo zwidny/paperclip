@@ -32,6 +32,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useConnectivity, useConnectivityStore, type ConnectivityStatus } from "@/lib/connectivity";
 import { cn } from "@/lib/utils";
+import { i18n } from "../i18n";
 
 export type QueryViewKind = "loading" | "ready" | "stale" | "reconnecting" | "error";
 
@@ -201,7 +202,7 @@ export interface QueryPlaceholderProps {
 }
 
 /** A quiet placeholder for `loading` and `reconnecting`: it fills in by itself. */
-export function QueryPlaceholder({ size = "panel", label = "Loading", className }: QueryPlaceholderProps) {
+export function QueryPlaceholder({ size = "panel", label = i18n.t("queryView.loading", { defaultValue: "Loading" }), className }: QueryPlaceholderProps) {
   if (size === "page") {
     return (
       <div role="status" aria-busy="true" aria-label={label} data-query-view="placeholder" className={className}>
@@ -271,7 +272,7 @@ export function QueryView<TData>({
     case "loading":
       return <>{loading ?? <QueryPlaceholder size={size} className={className} />}</>;
     case "reconnecting":
-      return <>{reconnecting ?? loading ?? <QueryPlaceholder size={size} label="Reconnecting" className={className} />}</>;
+      return <>{reconnecting ?? loading ?? <QueryPlaceholder size={size} label={i18n.t("queryView.reconnecting", { defaultValue: "Reconnecting" })} className={className} />}</>;
     case "error":
       if (view.errorKind === "not_found" && notFound !== undefined) return <>{notFound}</>;
       return (

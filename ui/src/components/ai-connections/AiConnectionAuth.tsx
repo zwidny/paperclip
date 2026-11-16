@@ -12,6 +12,7 @@ import {
   type AiAuthMethod,
   type AiProvider,
 } from "./model";
+import { useTranslation } from "../../i18n";
 
 /** Redacted view of the existing login lifecycle, supplied by the host. */
 export type AiAuthState =
@@ -49,6 +50,7 @@ function AuthAttempt({
   onCancel,
   onDone,
 }: AiConnectionAuthProps) {
+  const { t } = useTranslation();
   const [value, setValue] = useState("");
   const info = AI_PROVIDERS[provider];
   const busy = state.phase === "starting" || state.phase === "submitting";
@@ -77,7 +79,7 @@ function AuthAttempt({
           <p role="status" className="text-sm">
             Connected. This account is saved in Connections and can be reused.
           </p>
-          <Button onClick={onDone}>Use connection</Button>
+          <Button onClick={onDone}>{t("aiConnectionAuth.useConnection", { defaultValue: "Use connection" })}</Button>
         </>
       ) : (
         <>
@@ -105,7 +107,7 @@ function AuthAttempt({
                   value={value}
                   onChange={setValue}
                   onSubmit={submit}
-                  placeholder="Enter API key here"
+                  placeholder={t("aiConnectionAuth.apiKeyPlaceholder", { defaultValue: "Enter API key here" })}
                   disabled={busy}
                   autoFocus
                 />

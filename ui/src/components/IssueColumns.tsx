@@ -25,6 +25,7 @@ import { Identity } from "./Identity";
 import { StatusIcon } from "./StatusIcon";
 import { Badge } from "@/components/ui/badge";
 import { taskStatusIconProps } from "@/lib/task-status-presentation";
+import { useTranslation } from "../i18n";
 
 export const issueTrailingColumns: InboxIssueColumn[] = ["assignee", "kickedOffBy", "project", "workspace", "parent", "labels", "updated"];
 
@@ -108,6 +109,7 @@ export function IssueColumnPicker({
   iconOnly?: boolean;
   rowPresentation?: "legacy" | "task";
 }) {
+  const { t } = useTranslation();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -116,10 +118,10 @@ export function IssueColumnPicker({
           variant={iconOnly ? "outline" : "ghost"}
           size={iconOnly ? "icon" : "sm"}
           className={iconOnly ? "h-8 w-8 shrink-0" : "hidden h-8 shrink-0 px-2 text-xs sm:inline-flex"}
-          title="Columns"
+          title={t("issueColumns.columns", { defaultValue: "Columns" })}
         >
           <Columns3 className={iconOnly ? "h-3.5 w-3.5" : "mr-1 h-3.5 w-3.5"} />
-          {!iconOnly && "Columns"}
+          {!iconOnly && t("issueColumns.columns", { defaultValue: "Columns" })}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-(--sz-300px) rounded-xl border-border/70 p-1.5 shadow-xl shadow-black/10">
@@ -175,7 +177,7 @@ export function IssueColumnPicker({
           className="rounded-lg px-3 py-2 text-sm"
         >
           Reset defaults
-          <span className="ml-auto text-xs text-muted-foreground">status, id, updated</span>
+          <span className="ml-auto text-xs text-muted-foreground">{t("issueColumns.statusIdUpdated", { defaultValue: "status, id, updated" })}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -316,6 +318,7 @@ export function InboxIssueTrailingColumns({
   assigneeContent?: ReactNode;
   onFilterWorkspace?: (workspaceId: string) => void;
 }) {
+  const { t } = useTranslation();
   const activityText = issueActivityTimestamp(issue);
   const userLabel = assigneeUserName ?? formatAssigneeUserLabel(issue.assigneeUserId, currentUserId) ?? "User";
   const originatingActor = deriveOriginatingActor(issue);
@@ -508,7 +511,7 @@ export function InboxIssueTrailingColumns({
               {parentIdentifier ? (
                 <span className="font-mono">{parentIdentifier}</span>
               ) : (
-                <span className="italic">Sub-task</span>
+                <span className="italic">{t("issueColumns.subTask", { defaultValue: "Sub-task" })}</span>
               )}
             </span>
           );

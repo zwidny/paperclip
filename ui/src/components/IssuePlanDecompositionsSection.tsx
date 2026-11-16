@@ -6,6 +6,7 @@ import { Link } from "@/lib/router";
 import { issuesApi } from "../api/issues";
 import { queryKeys } from "../lib/queryKeys";
 import { cn, formatDateTime, relativeTime } from "../lib/utils";
+import { useTranslation } from "../i18n";
 
 interface IssuePlanDecompositionsSectionProps {
   issueId: string;
@@ -35,6 +36,7 @@ export function IssuePlanDecompositionsSection({
   issueIdentifier,
   agentMap,
 }: IssuePlanDecompositionsSectionProps) {
+  const { t } = useTranslation();
   const { data: decompositions } = useQuery({
     queryKey: queryKeys.issues.acceptedPlanDecompositions(issueId),
     queryFn: () => issuesApi.listAcceptedPlanDecompositions(issueId),
@@ -46,9 +48,9 @@ export function IssuePlanDecompositionsSection({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-sm font-medium text-muted-foreground">Plan decomposition</h3>
+        <h3 className="text-sm font-medium text-muted-foreground">{t("issuePlanDecompositions.title", { defaultValue: "Plan decomposition" })}</h3>
         <span className="text-(length:--text-micro) text-muted-foreground/80">
-          {items.length === 1 ? "1 accepted plan revision" : `${items.length} accepted plan revisions`}
+          {items.length === 1 ? t("issuePlanDecompositions.acceptedOne", { defaultValue: "1 accepted plan revision" }) : t("issuePlanDecompositions.acceptedOther", { count: items.length, defaultValue: "{{count}} accepted plan revisions" })}
         </span>
       </div>
 
@@ -101,7 +103,7 @@ export function IssuePlanDecompositionsSection({
                 {record.status === "completed" && requested > 0 ? (
                   <span
                     className="inline-flex items-center gap-1 rounded-sm border border-sky-500/40 bg-sky-500/10 px-1.5 py-0.5 text-(length:--text-nano) font-medium text-sky-900 dark:text-sky-100"
-                    title="Repeat attempts with this fingerprint reuse this record instead of creating new children"
+                    title={t("issuePlanDecompositions.idempotentTitle", { defaultValue: "Repeat attempts with this fingerprint reuse this record instead of creating new children" })}
                   >
                     <Repeat className="h-3 w-3" />
                     Idempotent claim

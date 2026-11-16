@@ -21,6 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { useTranslation } from "../i18n";
 
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
@@ -77,6 +78,7 @@ interface DecisionTriageStripProps {
  * expiry chip surfaces the underlying decision's TTL read-only.
  */
 export function DecisionTriageStrip({ item, companyId, agents }: DecisionTriageStripProps) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { pushToast } = useToastActions();
   const sourceKind = item.sourceKind;
@@ -163,8 +165,8 @@ export function DecisionTriageStrip({ item, companyId, agents }: DecisionTriageS
 
       {/* When to decide — the importance signal that drives desk ordering. */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-medium text-muted-foreground">When to decide</span>
-        <div className="flex flex-wrap items-center gap-1" role="group" aria-label="When to decide">
+        <span className="text-xs font-medium text-muted-foreground">{t("decisionTriageStrip.whenToDecide", { defaultValue: "When to decide" })}</span>
+        <div className="flex flex-wrap items-center gap-1" role="group" aria-label={t("decisionTriageStrip.whenToDecide", { defaultValue: "When to decide" })}>
           {DECIDE_BY_OPTIONS.map(([value, label]) => (
             <SegmentButton
               key={value}
@@ -201,7 +203,7 @@ export function DecisionTriageStrip({ item, companyId, agents }: DecisionTriageS
 
       {/* Queues — current membership as removable chips + add/create. */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-medium text-muted-foreground">Queues</span>
+        <span className="text-xs font-medium text-muted-foreground">{t("decisionTriageStrip.queues", { defaultValue: "Queues" })}</span>
         {item.queues.map((queue) => (
           <span
             key={queue.key}
@@ -313,6 +315,7 @@ function QueuePicker({
   disabled?: boolean;
   onAdd: (key: string) => void;
 }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { pushToast } = useToastActions();
   const [open, setOpen] = useState(false);
@@ -362,7 +365,7 @@ function QueuePicker({
                 if (event.key === "Enter" && title.trim()) create.mutate(title);
                 if (event.key === "Escape") setCreating(false);
               }}
-              placeholder="New queue name…"
+              placeholder={t("decisionTriageStrip.newQueueName", { defaultValue: "New queue name…" })}
               className="w-full rounded-sm border border-border bg-background px-2 py-1 text-xs"
             />
             <div className="flex justify-end gap-1">
@@ -378,7 +381,7 @@ function QueuePicker({
         ) : (
           <div className="max-h-64 space-y-0.5 overflow-y-auto">
             {available.length === 0 && (
-              <p className="px-2 py-1.5 text-xs text-muted-foreground">No other queues yet.</p>
+              <p className="px-2 py-1.5 text-xs text-muted-foreground">{t("decisionTriageStrip.noOtherQueues", { defaultValue: "No other queues yet." })}</p>
             )}
             {available.map((queue) => (
               <button

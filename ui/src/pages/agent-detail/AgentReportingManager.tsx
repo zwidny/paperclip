@@ -9,6 +9,7 @@ import { queryKeys } from "@/lib/queryKeys";
 import { Link } from "@/lib/router";
 import { agentRouteRef } from "@/lib/utils";
 import { agentDetailHref } from "../agent-detail-navigation";
+import { useTranslation } from "@/i18n";
 
 /** A manager cannot be the agent itself or any member of its reporting subtree. */
 export function invalidManagerIds(agentId: string, agents: Agent[]): string[] {
@@ -27,6 +28,7 @@ export function invalidManagerIds(agentId: string, agents: Agent[]): string[] {
 }
 
 export function AgentReportingManager({ agent }: { agent: Agent }) {
+  const { t } = useTranslation();
   const client = useQueryClient();
   const directory = useQuery({
     queryKey: queryKeys.agents.list(agent.companyId),
@@ -41,7 +43,7 @@ export function AgentReportingManager({ agent }: { agent: Agent }) {
   const manager = agents.find((candidate) => candidate.id === agent.reportsTo);
   const disabled = !directory.data || directoryView.kind === "error" || update.isPending;
   return <div className="flex flex-col gap-1.5 px-(--agent-detail-module-inset) py-1.5 text-sm">
-    <span className="text-muted-foreground">Reports to:</span>
+    <span className="text-muted-foreground">{t("agentDetail.reportsToLabel", { defaultValue: "Reports to:" })}</span>
     <div className="flex items-center gap-1.5">
       {manager ? <Link to={agentDetailHref(agentRouteRef(manager))} className={`${agentIdentityChipClass} no-underline`}>
         <AgentIdentityChipContent agent={manager} />

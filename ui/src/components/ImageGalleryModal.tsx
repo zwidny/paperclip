@@ -3,6 +3,7 @@ import { Dialog as DialogPrimitive } from "radix-ui";
 import { ChevronLeft, ChevronRight, Download, ExternalLink, X } from "lucide-react";
 import { attachmentDownloadPath, attachmentFilename, attachmentOpenPath } from "@/lib/issue-attachments";
 import { isVideoLikeOutput } from "@/lib/issue-output";
+import { useTranslation } from "../i18n";
 
 export interface GalleryMediaItem {
   id: string;
@@ -30,6 +31,7 @@ export function ImageGalleryModal({
   onIndexChange,
   returnFocusRef,
 }: ImageGalleryModalProps) {
+  const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const mediaRef = useRef<HTMLImageElement | HTMLVideoElement | null>(null);
   const setMediaRef = useCallback((node: HTMLImageElement | HTMLVideoElement | null) => {
@@ -105,7 +107,7 @@ export function ImageGalleryModal({
             returnFocusRef.current?.focus({ preventScroll: true });
           } : undefined}
         >
-          <DialogPrimitive.Title className="sr-only">Image gallery</DialogPrimitive.Title>
+          <DialogPrimitive.Title className="sr-only">{t("imageGallery.title", { defaultValue: "Image gallery" })}</DialogPrimitive.Title>
           {/* Top bar */}
           <div className="flex items-center justify-between px-5 py-3 text-white/80 text-sm shrink-0">
             <span className="truncate max-w-(--pct-50) font-medium" title={filename}>
@@ -120,8 +122,8 @@ export function ImageGalleryModal({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white/50 hover:text-white transition-colors"
-                title="Open original"
-                aria-label={`Open original ${filename}`}
+                title={t("imageGallery.openOriginal", { defaultValue: "Open original" })}
+                aria-label={t("imageGallery.openOriginalAria", { defaultValue: "Open original {{name}}", name: filename })}
                 onClick={(e) => e.stopPropagation()}
               >
                 <ExternalLink className="h-4.5 w-4.5" />
@@ -130,8 +132,8 @@ export function ImageGalleryModal({
                 href={attachmentDownloadPath(current)}
                 download={filename}
                 className="text-white/50 hover:text-white transition-colors"
-                title="Download"
-                aria-label={`Download ${filename}`}
+                title={t("imageGallery.download", { defaultValue: "Download" })}
+                aria-label={t("imageGallery.downloadAria", { defaultValue: "Download {{name}}", name: filename })}
                 onClick={(e) => e.stopPropagation()}
               >
                 <Download className="h-4.5 w-4.5" />
@@ -140,7 +142,7 @@ export function ImageGalleryModal({
                 type="button"
                 onClick={() => onOpenChange(false)}
                 className="text-white/50 hover:text-white transition-colors"
-                title="Close"
+                title={t("imageGallery.close", { defaultValue: "Close" })}
               >
                 <X className="h-5 w-5" />
               </button>
@@ -156,7 +158,7 @@ export function ImageGalleryModal({
                   type="button"
                   onClick={goPrev}
                   className="rounded-full bg-white/10 p-3 text-white/60 hover:text-white hover:bg-white/20 transition-colors"
-                  title="Previous"
+                  title={t("imageGallery.previous", { defaultValue: "Previous" })}
                 >
                   <ChevronLeft className="h-7 w-7" />
                 </button>
@@ -191,7 +193,7 @@ export function ImageGalleryModal({
                   type="button"
                   onClick={goNext}
                   className="rounded-full bg-white/10 p-3 text-white/60 hover:text-white hover:bg-white/20 transition-colors"
-                  title="Next"
+                  title={t("imageGallery.next", { defaultValue: "Next" })}
                 >
                   <ChevronRight className="h-7 w-7" />
                 </button>

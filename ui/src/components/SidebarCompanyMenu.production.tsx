@@ -43,6 +43,7 @@ import { useSidebar } from "../context/SidebarContext";
 import { CompanyPatternIcon } from "./CompanyPatternIcon";
 
 import { PluginOrganizationSwitcher } from "./PluginOrganizationSwitcher";
+import { useTranslation } from "../i18n";
 
 interface SidebarCompanyMenuProps {
   open?: boolean;
@@ -153,6 +154,7 @@ export function SidebarCompanyMenu(props: SidebarCompanyMenuProps = {}) {
 }
 
 function BuiltinCompanyMenu({ open: controlledOpen, onOpenChange }: SidebarCompanyMenuProps) {
+  const { t } = useTranslation();
   const [internalOpen, setInternalOpen] = useState(false);
   const [isEditingOrder, setIsEditingOrder] = useState(false);
   const { companies, selectedCompany, setSelectedCompanyId, companyListUnavailable, retryCompanies } =
@@ -339,7 +341,7 @@ function BuiltinCompanyMenu({ open: controlledOpen, onOpenChange }: SidebarCompa
             // offer the way back.
             companyListUnavailable ? (
               <>
-                <DropdownMenuItem disabled>Couldn&apos;t load companies</DropdownMenuItem>
+                <DropdownMenuItem disabled>{t("companySwitcher.loadFailedCompanies", { defaultValue: "Couldn't load companies" })}</DropdownMenuItem>
                 <DropdownMenuItem
                   onSelect={(event) => {
                     // Keep the menu open so the result of the retry is visible.
@@ -352,7 +354,7 @@ function BuiltinCompanyMenu({ open: controlledOpen, onOpenChange }: SidebarCompa
                 </DropdownMenuItem>
               </>
             ) : (
-              <DropdownMenuItem disabled>No companies</DropdownMenuItem>
+              <DropdownMenuItem disabled>{t("companySwitcher.noCompanies", { defaultValue: "No companies" })}</DropdownMenuItem>
             )
           ) : null}
         </div>
@@ -366,7 +368,7 @@ function BuiltinCompanyMenu({ open: controlledOpen, onOpenChange }: SidebarCompa
               <span className="flex size-5 shrink-0 items-center justify-center text-muted-foreground">
                 <Plus className="size-4" />
               </span>
-              <span className="min-w-0 flex-1 truncate">Create organization</span>
+              <span className="min-w-0 flex-1 truncate">{t("companySwitcher.createOrganization", { defaultValue: "Create organization" })}</span>
             </DropdownMenuItem>
           )}
           {showInvitePeople ? (

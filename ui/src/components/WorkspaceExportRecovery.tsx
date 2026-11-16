@@ -14,6 +14,7 @@ import { asObject, cn } from "../lib/utils";
 import { createUuid } from "../lib/uuid";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
+import { useTranslation } from "@/i18n";
 
 /** Reports whether this surface owns the task's next recovery action. The task's
  * generic Retry stays hidden only while this surface offers its own control. */
@@ -169,6 +170,7 @@ export function PreviousServerStopConfirmation({ action, runId: givenRunId, form
   confirmStop?: (stopEvidence: string) => Promise<unknown>;
   copy?: { waiting: string; question: string; placeholder: string; resuming: string; confirm?: string };
 }) {
+  const { t } = useTranslation();
   const runId = givenRunId ?? action!.evidence.runId as string;
   const formId = givenFormId ?? action!.id;
   const client = useQueryClient();
@@ -203,7 +205,7 @@ export function PreviousServerStopConfirmation({ action, runId: givenRunId, form
         <Textarea id={`previous-server-stop-${formId}`} value={evidence} onChange={event => setEvidence(event.target.value)}
           placeholder={copy?.placeholder ?? "For example: the old server process exited and was not restarted."} maxLength={12000} rows={3} />
         <div className="flex items-center justify-between gap-2">
-          <Button type="button" variant="ghost" size="sm" disabled={confirm.isPending} onClick={() => setOpen(false)}>Cancel</Button>
+          <Button type="button" variant="ghost" size="sm" disabled={confirm.isPending} onClick={() => setOpen(false)}>{t("common.cancel", { defaultValue: "Cancel" })}</Button>
           <Button type="submit" size="sm" disabled={!ready || confirm.isPending}>
             {confirm.isPending ? "Confirming…" : "Confirm and resume"}</Button>
         </div>
@@ -230,6 +232,7 @@ function RetainedFilesRecovery({ action, issueId, companyId, className, onRecove
   action: IssueRecoveryAction; issueId: string; companyId: string; className?: string;
   onRecoveryControlChange?: (owns: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const runId = action.evidence.runId as string;
   const owner = useDraftOwner();
   const readOwner = useDraftOwnerReader();
@@ -378,18 +381,18 @@ function RetainedFilesRecovery({ action, issueId, companyId, className, onRecove
         disabled={request.isPending || check.isPending} onClick={() => check.mutate()}>
         {check.isPending ? "Checking file recovery…" : "Check file recovery status"}
       </Button> : null}
-      {sourceView.kind === "loading" || sourceView.kind === "reconnecting" ? <p className="text-xs text-muted-foreground">Inspecting the recorded file source…</p> : null}
+      {sourceView.kind === "loading" || sourceView.kind === "reconnecting" ? <p className="text-xs text-muted-foreground">{t("workspaceExportRecovery.inspectingSource", { defaultValue: "Inspecting the recorded file source…" })}</p> : null}
       {sourceView.kind === "error" || checkError || notice ? <p role="alert" className="text-sm text-destructive">
         {notice ?? (checkError instanceof Error ? checkError.message : "File recovery could not be inspected. Check its status again.")}
       </p> : null}
       {current && recovery.status === "blocked" && (serverAcknowledged || recovery.retryable !== true)
-        ? <p role="alert">File recovery has not finished. The saved files remain protected and are not applied.</p> : null}
+        ? <p role="alert">{t("workspaceExportRecovery.notFinished", { defaultValue: "File recovery has not finished. The saved files remain protected and are not applied." })}</p> : null}
       {unverified ? <p role="status" className="text-muted-foreground">
         {unverifiedSourceText(source.data?.sourceInspection)} Paperclip does not apply files it can’t verify.
       </p> : null}
-      {sourceReady && !current ? <p role="alert">This file recovery was replaced. Check its status to show the task’s current recovery.</p> : null}
-    </> : accessView.kind === "error" ? <p role="alert" className="text-sm text-destructive">Task access could not be checked. Refresh before requesting file recovery.</p>
-      : accessView.kind === "loading" || accessView.kind === "reconnecting" || !owner ? <p role="status" className="text-xs text-muted-foreground">Checking file recovery access…</p>
-        : <p className="text-xs text-muted-foreground">A board member with task access can request file recovery.</p>}
+      {sourceReady && !current ? <p role="alert">{t("workspaceExportRecovery.replaced", { defaultValue: "This file recovery was replaced. Check its status to show the task’s current recovery." })}</p> : null}
+    </> : accessView.kind === "error" ? <p role="alert" className="text-sm text-destructive">{t("workspaceExportRecovery.accessCheckFailed", { defaultValue: "Task access could not be checked. Refresh before requesting file recovery." })}</p>
+      : accessView.kind === "loading" || accessView.kind === "reconnecting" || !owner ? <p role="status" className="text-xs text-muted-foreground">{t("workspaceExportRecovery.checkingAccess", { defaultValue: "Checking file recovery access…" })}</p>
+        : <p className="text-xs text-muted-foreground">{t("workspaceExportRecovery.boardMemberHint", { defaultValue: "A board member with task access can request file recovery." })}</p>}
   </div>;
 }

@@ -8,6 +8,7 @@ import {
   type ReusableWorkspaceOption,
 } from "@/lib/reusable-execution-workspaces";
 import { cn } from "@/lib/utils";
+import { i18n } from "../i18n";
 
 const COMPACT_TRIGGER_CLASS = "h-8 px-2 py-1.5 text-xs font-normal";
 
@@ -28,7 +29,7 @@ export function ReusableExecutionWorkspaceSelect<TWorkspace extends ReusableExec
   value,
   workspaces,
   onValueChange,
-  placeholder = "Choose an existing workspace",
+  placeholder = i18n.t("reusableExecutionWorkspaceSelect.placeholder", { defaultValue: "Choose an existing workspace" }),
   loading = false,
   error = false,
   disabled = false,

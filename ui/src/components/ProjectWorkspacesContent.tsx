@@ -7,6 +7,7 @@ import { queryKeys } from "../lib/queryKeys";
 import type { ProjectWorkspaceSummary } from "../lib/project-workspaces-tab";
 import { ExecutionWorkspaceCloseDialog } from "./ExecutionWorkspaceCloseDialog";
 import { ProjectWorkspaceSummaryCard } from "./ProjectWorkspaceSummaryCard";
+import { useTranslation } from "@/i18n";
 
 export function ProjectWorkspacesContent({
   companyId,
@@ -19,6 +20,7 @@ export function ProjectWorkspacesContent({
   projectRef: string | null;
   summaries: ProjectWorkspaceSummary[];
 }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [runtimeActionKey, setRuntimeActionKey] = useState<string | null>(null);
   const [closingWorkspace, setClosingWorkspace] = useState<{
@@ -53,7 +55,7 @@ export function ProjectWorkspacesContent({
   });
 
   if (summaries.length === 0) {
-    return <p className="text-sm text-muted-foreground">No non-default workspace activity yet.</p>;
+    return <p className="text-sm text-muted-foreground">{t("projectWorkspacesContent.empty", { defaultValue: "No non-default workspace activity yet." })}</p>;
   }
 
   const activeSummaries = summaries.filter((summary) => summary.executionWorkspaceStatus !== "cleanup_failed");

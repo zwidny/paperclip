@@ -6,6 +6,7 @@ import { describeError } from "@/api/errors";
 import { Button } from "@/components/ui/button";
 import { AgentMailCredentialField } from "./AgentMailCredentialField";
 import { createUuid } from "../../lib/uuid";
+import { useTranslation } from "../../i18n";
 
 interface InlineEmailDraft {
   setupRequestId: string;
@@ -32,6 +33,7 @@ export function AgentMailIntentSetup({ companyId, agentId, requestId, savedCrede
   onDecline(): void;
   declining?: boolean;
 }) {
+  const { t } = useTranslation();
   const draftKey = `paperclip.agentmail-inline:${companyId}:${requestId}`;
   const [draft] = useState(() => readDraft(draftKey));
   const [setupRequestId, setSetupRequestId] = useState(draft?.setupRequestId ?? requestId);
@@ -108,7 +110,7 @@ export function AgentMailIntentSetup({ companyId, agentId, requestId, savedCrede
     {changeKey.error && <p className="text-sm text-destructive" role="alert">{describeError(changeKey.error).body}</p>}
     {setup.error && <p className="text-sm text-destructive" role="alert">{describeError(setup.error).body}</p>}
     <div className="flex items-center justify-between gap-2">
-      <Button type="button" variant="ghost" disabled={setup.isPending || changeKey.isPending || declining} onClick={onDecline}>Not now</Button>
+      <Button type="button" variant="ghost" disabled={setup.isPending || changeKey.isPending || declining} onClick={onDecline}>{t("configureBuiltInAgent.notNow", { defaultValue: "Not now" })}</Button>
       <Button type="submit" disabled={setup.isPending || changeKey.isPending || declining || (!credentialId && !selectedCredentialId && !inboxConnectionId && !apiKey.trim())}>
         {setup.isPending ? "Connecting…" : inboxConnectionId ? "Continue" : credentialId ? "Finish setup" : "Connect AgentMail"}
       </Button>

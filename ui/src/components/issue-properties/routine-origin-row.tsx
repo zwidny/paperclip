@@ -6,8 +6,10 @@ import { routinesApi } from "../../api/routines";
 import { queryKeys } from "../../lib/queryKeys";
 import { cn } from "../../lib/utils";
 import { PropertyRow } from "./primitives";
+import { useTranslation } from "../../i18n";
 
 export function RoutineOriginRow({ routineId }: { routineId: string }) {
+  const { t } = useTranslation();
   const { data: routine } = useQuery({
     queryKey: queryKeys.routines.detail(routineId),
     queryFn: () => routinesApi.get(routineId),
@@ -17,7 +19,7 @@ export function RoutineOriginRow({ routineId }: { routineId: string }) {
   if (!title) return null;
 
   return (
-    <PropertyRow label="Routine">
+    <PropertyRow label={t("routineOriginRow.label", { defaultValue: "Routine" })}>
       <Link
         to={`/routines/${routineId}`}
         className={cn(

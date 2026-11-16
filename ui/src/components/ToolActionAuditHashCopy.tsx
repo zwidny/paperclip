@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Check, Copy, X } from "lucide-react";
 import { useCopyAction } from "@/lib/use-copy-action";
 import { Button } from "./ui/button";
+import { useTranslation } from "@/i18n";
 
 /**
  * The reviewed-arguments hash identifies exactly what an approval covers, which
@@ -11,9 +12,14 @@ import { Button } from "./ui/button";
  * value never becomes unreachable.
  */
 export function ToolActionAuditHashCopy({ hash }: { hash: string }) {
+  const { t } = useTranslation();
   const { status, copy } = useCopyAction();
   const [copyFailed, setCopyFailed] = useState(false);
-  const label = status === "copied" ? "Copied" : status === "failed" ? "Couldn’t copy" : "Copy audit hash";
+  const label = status === "copied"
+    ? t("auditTool.copied", { defaultValue: "Copied" })
+    : status === "failed"
+      ? t("auditTool.copyFailed", { defaultValue: "Couldn’t copy" })
+      : t("auditTool.copyAuditHash", { defaultValue: "Copy audit hash" });
   const Icon = status === "copied" ? Check : status === "failed" ? X : Copy;
   return (
     <div className="mt-1 space-y-1">
@@ -22,7 +28,7 @@ export function ToolActionAuditHashCopy({ hash }: { hash: string }) {
         size="xs"
         variant="ghost"
         className="text-muted-foreground"
-        title="Copy the hash that identifies these exact arguments"
+        title={t("auditTool.copyAuditHashHint", { defaultValue: "Copy the hash that identifies these exact arguments" })}
         onClick={() => {
           void copy(hash).then(result => {
             if (result === "failed") setCopyFailed(true);
@@ -33,7 +39,7 @@ export function ToolActionAuditHashCopy({ hash }: { hash: string }) {
         {label}
       </Button>
       {copyFailed ? (
-        <p className="select-all break-all font-mono text-xs text-muted-foreground" aria-label="Audit hash">
+        <p className="select-all break-all font-mono text-xs text-muted-foreground" aria-label={t("auditTool.auditHash", { defaultValue: "Audit hash" })}>
           {hash}
         </p>
       ) : null}

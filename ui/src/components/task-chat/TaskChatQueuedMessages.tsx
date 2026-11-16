@@ -198,7 +198,7 @@ function SortableQueuedMessage({
             type="button"
             onClick={onEdit}
             disabled={!entry.canEdit}
-            title="Edit before it is sent"
+            title={t("taskChat.editBeforeSent", { defaultValue: "Edit before it is sent" })}
             className="flex h-7 shrink-0 items-center rounded-md px-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-40"
             data-testid={`task-chat-queued-auto-steer-edit-${entry.comment.id}`}
           >
@@ -207,7 +207,7 @@ function SortableQueuedMessage({
           <button
             type="button"
             onClick={onCancelAutoSteer}
-            title="Keep this message in the queue"
+            title={t("taskChat.keepInQueue", { defaultValue: "Keep this message in the queue" })}
             className="flex h-7 shrink-0 items-center rounded-md px-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             data-testid={`task-chat-queued-auto-steer-cancel-${entry.comment.id}`}
           >

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Link } from "@/lib/router";
 import { useStreamlinedUiEnabled } from "@/hooks/useStreamlinedUiEnabled";
 import { SKILLS_NAVIGATION_HREFS, type SkillsNavigationView } from "@/pages/skills/skills-navigation";
+import { useTranslation } from "../../i18n";
 
 const views = [
   { value: "installed", label: "Installed" },
@@ -11,7 +12,8 @@ const views = [
 
 /** Route navigation with the canonical tab appearance. Sources stays in the actions menu. */
 export function SkillsNavigationTabs({ activeView }: { activeView: SkillsNavigationView }) {
-  return <nav aria-label="Skills views" data-canonical-tabs="standard" className="canonical-tab-list">
+  const { t } = useTranslation();
+  return <nav aria-label={t("skillsNavigationTabs.viewsAria", { defaultValue: "Skills views" })} data-canonical-tabs="standard" className="canonical-tab-list">
     {views.map(view => <Link key={view.value} to={SKILLS_NAVIGATION_HREFS[view.value]}
       className="canonical-tab" data-state={activeView === view.value ? "active" : "inactive"}
       aria-current={activeView === view.value ? "page" : undefined}>{view.label}</Link>)}

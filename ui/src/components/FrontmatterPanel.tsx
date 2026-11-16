@@ -17,6 +17,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "../i18n";
 
 /**
  * Skill Studio frontmatter editor (PAP-13145 Option B / PAP-13155).
@@ -225,6 +226,7 @@ export function FrontmatterPanel({
   onChange,
   className,
 }: FrontmatterPanelProps) {
+  const { t } = useTranslation();
   const isSkillFile = isSkillMarkdown(fileName);
 
   // `yamlText` is the canonical raw block — always equal to whatever we've last
@@ -339,12 +341,12 @@ export function FrontmatterPanel({
             aria-controls="frontmatter-panel-body"
           >
             {chevron}
-            <span className="text-sm font-medium">Frontmatter</span>
+            <span className="text-sm font-medium">{t("frontmatterPanel.frontmatter", { defaultValue: "Frontmatter" })}</span>
             {!open && present ? (
               <span className="truncate text-xs text-muted-foreground">{summary}</span>
             ) : null}
             {!open && !present ? (
-              <span className="text-xs text-muted-foreground">None</span>
+              <span className="text-xs text-muted-foreground">{t("frontmatterPanel.none", { defaultValue: "None" })}</span>
             ) : null}
           </button>
 
@@ -466,6 +468,7 @@ function FieldsForm({
   readOnly: boolean;
   onCommit: (form: FormModel) => void;
 }) {
+  const { t } = useTranslation();
   const nameWarning = fieldWarning(validation, "name");
   const descriptionWarning = fieldWarning(validation, "description");
   const toolsWarning = fieldWarning(validation, "allowed-tools");
@@ -517,7 +520,7 @@ function FieldsForm({
             <ChipInput
               values={form.allowedTools}
               readOnly={readOnly}
-              placeholder="Add a tool…"
+              placeholder={t("frontmatterPanel.addToolPlaceholder", { defaultValue: "Add a tool…" })}
               onChange={(next) => onCommit({ ...form, allowedTools: next })}
             />
           )}
@@ -528,7 +531,7 @@ function FieldsForm({
         <div>
           <Label className="text-xs text-muted-foreground">metadata</Label>
           {form.metadataComplex !== null ? (
-            <p className="mt-1 text-xs text-muted-foreground">Complex value — edit in YAML.</p>
+            <p className="mt-1 text-xs text-muted-foreground">{t("frontmatterPanel.complexValue", { defaultValue: "Complex value — edit in YAML." })}</p>
           ) : (
             <MetadataRows
               rows={form.metaRows}
@@ -560,7 +563,7 @@ function FieldsForm({
         ) : (
           <div key={row.id}>
             <Label className="text-xs text-muted-foreground">{row.key}</Label>
-            <p className="mt-1 text-xs text-muted-foreground">Complex value — edit in YAML.</p>
+            <p className="mt-1 text-xs text-muted-foreground">{t("frontmatterPanel.complexValue", { defaultValue: "Complex value — edit in YAML." })}</p>
           </div>
         ),
       )}
@@ -646,6 +649,7 @@ function ChipInput({
   placeholder?: string;
   onChange: (values: string[]) => void;
 }) {
+  const { t } = useTranslation();
   const [draft, setDraft] = useState("");
 
   const commit = () => {
@@ -686,7 +690,7 @@ function ChipInput({
             }
           }}
           onBlur={commit}
-          aria-label="Add tool"
+          aria-label={t("frontmatterPanel.addToolAria", { defaultValue: "Add tool" })}
           className="min-w-24 flex-1 bg-transparent text-xs outline-none"
         />
       ) : null}
@@ -707,12 +711,13 @@ function YamlEditor({
   parseError: boolean;
   onChange: (value: string) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="pt-1">
       {!canReturnToFields && !parseError ? (
         <div className="mb-1.5 flex items-start gap-2 rounded-md bg-muted/40 px-2 py-1.5 text-xs text-muted-foreground">
           <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-          <span>Editing raw YAML to preserve formatting the form can't reconstruct.</span>
+          <span>{t("frontmatterPanel.editingRawYaml", { defaultValue: "Editing raw YAML to preserve formatting the form can't reconstruct." })}</span>
         </div>
       ) : null}
       <Textarea
@@ -722,7 +727,7 @@ function YamlEditor({
         rows={Math.min(12, Math.max(3, value.split("\n").length))}
         onChange={(event) => onChange(event.target.value)}
         className="font-mono text-xs"
-        aria-label="Frontmatter YAML"
+        aria-label={t("frontmatterPanel.yamlAria", { defaultValue: "Frontmatter YAML" })}
       />
       <p className="mt-1 text-xs text-muted-foreground">
         Raw YAML is the source of truth in this mode.

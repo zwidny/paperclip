@@ -3,6 +3,7 @@ import { Download, ExternalLink, Paperclip, Play } from "lucide-react";
 import type { CompanyArtifact } from "@/api/artifacts";
 import { Link } from "@/lib/router";
 import { cn, formatDate } from "@/lib/utils";
+import { useTranslation } from "../../i18n";
 
 interface ArtifactCardProps {
   artifact: CompanyArtifact;
@@ -35,9 +36,10 @@ function PlaceholderPreview({ label }: { label?: string }) {
 type PreviewArtifact = Pick<CompanyArtifact, "mediaKind" | "contentPath" | "title"> & Partial<Pick<CompanyArtifact, "source" | "previewText">>;
 
 function ImagePreview({ artifact }: { artifact: PreviewArtifact }) {
+  const { t } = useTranslation();
   const [errored, setErrored] = useState(false);
   if (errored || !artifact.contentPath) {
-    return <PlaceholderPreview label="Image" />;
+    return <PlaceholderPreview label={t("artifactCard.image", { defaultValue: "Image" })} />;
   }
   return (
     <PreviewFrame>
@@ -193,6 +195,7 @@ function SecondaryAction({
 }
 
 export function ArtifactCard({ artifact }: ArtifactCardProps) {
+  const { t } = useTranslation();
   return (
     <Link
       // design-allow(card-pattern): navigation <Link> card; Card renders a div and would break anchor semantics (C5a Run 3)
@@ -214,12 +217,12 @@ export function ArtifactCard({ artifact }: ArtifactCardProps) {
           </h3>
           <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
             {artifact.openPath ? (
-              <SecondaryAction href={artifact.openPath} title="Open file in new tab">
+              <SecondaryAction href={artifact.openPath} title={t("artifactCard.openFileNewTab", { defaultValue: "Open file in new tab" })}>
                 <ExternalLink className="h-3.5 w-3.5" />
               </SecondaryAction>
             ) : null}
             {artifact.downloadPath ? (
-              <SecondaryAction href={artifact.downloadPath} download title="Download file">
+              <SecondaryAction href={artifact.downloadPath} download title={t("artifactCard.downloadFile", { defaultValue: "Download file" })}>
                 <Download className="h-3.5 w-3.5" />
               </SecondaryAction>
             ) : null}
@@ -227,7 +230,7 @@ export function ArtifactCard({ artifact }: ArtifactCardProps) {
         </div>
 
         <div className="mt-0.5 flex items-center gap-1.5 text-(length:--text-micro) text-muted-foreground/65">
-          <span>Last edited {formatDate(artifact.updatedAt)}</span>
+          <span>{t("artifactCard.lastEdited", { defaultValue: "Last edited {{date}}", date: formatDate(artifact.updatedAt) })}</span>
           {artifact.createdByAgent ? (
             <>
               <span className="text-muted-foreground/50">·</span>

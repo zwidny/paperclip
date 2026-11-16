@@ -2536,7 +2536,7 @@ export function IssueProperties({
         ) : null}
 
         {assigneeRuntimeStateLoading || (assigneeRateLimits && summarizeProviderRateLimits(assigneeRateLimits, Date.now())) ? (
-          <PropertyRow label="Usage limit">
+          <PropertyRow label={t("properties.usageLimit", { defaultValue: "Usage limit" })}>
             {assigneeRuntimeStateLoading ? (
               <Skeleton className="h-4 w-32" role="status" aria-label={t("properties.loadingUsageLimit", { defaultValue: "Loading usage limit" })} />
             ) : (

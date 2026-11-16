@@ -5,6 +5,7 @@ import type { Agent, AgentLifecycleState } from "@paperclipai/shared";
 import { Loader2 } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import { useTranslation } from "../i18n";
 
 const phases = {
   preparing: ["Preparing agent", "Required resources are being prepared. Work stays queued."],
@@ -47,10 +48,11 @@ export function AgentLifecycleStatus({ agent, onRetry, retryPending, refreshErro
   retryPending: boolean;
   refreshError?: boolean;
 }) {
+  const { t } = useTranslation();
   const phase = pendingPhase(agent.lifecycleState);
   if (!phase && !refreshError) return null;
   return <div role="status" aria-live="polite" className="space-y-2 text-sm">
-    {refreshError && <p className="text-destructive">Could not refresh agent lifecycle status.</p>}
+    {refreshError && <p className="text-destructive">{t("agentLifecycleStatus.refreshError", { defaultValue: "Could not refresh agent lifecycle status." })}</p>}
     {phase && <div className="flex flex-wrap items-center gap-2">
       <Badge variant={agent.lifecycleError ? "destructive" : "secondary"}>
         {!agent.lifecycleError && <Loader2 aria-hidden="true" className="mr-1 size-3 animate-spin motion-reduce:animate-none" />}

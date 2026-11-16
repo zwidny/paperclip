@@ -5,6 +5,7 @@ import { BudgetIncidentCard } from "../components/BudgetIncidentCard";
 import { BudgetPolicyCard } from "../components/BudgetPolicyCard";
 import { PageSkeleton } from "../components/PageSkeleton";
 import { queryKeys } from "../lib/queryKeys";
+import { useTranslation } from "../i18n";
 
 type BudgetAgent = Pick<AgentDetailRecord, "id" | "name" | "status" | "pauseReason" | "budgetMonthlyCents" | "spentMonthlyCents">;
 
@@ -41,6 +42,7 @@ export function agentBudgetSummary(overview: BudgetOverview | undefined, agent: 
 }
 
 export function AgentBudgetsPanel({ agent, companyId }: { agent: BudgetAgent; companyId: string }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const overview = useQuery({
     queryKey: queryKeys.budgets.overview(companyId),
@@ -78,7 +80,7 @@ export function AgentBudgetsPanel({ agent, companyId }: { agent: BudgetAgent; co
   return (
     <div className="space-y-4">
       {overview.error && !overview.data ? (
-        <p role="alert" className="text-sm text-destructive">Budget data could not be loaded. Showing the agent's saved monthly budget.</p>
+        <p role="alert" className="text-sm text-destructive">{t("agentBudgetsPanel.loadFailed", { defaultValue: "Budget data could not be loaded. Showing the agent's saved monthly budget." })}</p>
       ) : null}
       {policy.error ? (
         <p role="alert" className="text-sm text-destructive">Could not update {agent.name}'s budget. Review the amount and try again.</p>

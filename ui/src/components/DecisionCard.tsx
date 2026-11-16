@@ -22,6 +22,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { MarkdownBody } from "./MarkdownBody";
+import { useTranslation } from "../i18n";
 
 /**
  * Presentational card for a single Decisions-v1 decision (PAP-14966 / PAP-14939
@@ -240,6 +241,7 @@ export function DecisionCard({
   onDecide,
   className,
 }: DecisionCardProps) {
+  const { t } = useTranslation();
   const [inputValues, setInputValues] = useState<Record<string, string>>({});
   const [confirmOptionId, setConfirmOptionId] = useState<string | null>(null);
   const [confirmText, setConfirmText] = useState("");
@@ -374,7 +376,7 @@ export function DecisionCard({
         {runHref && (
           <>
             {" · "}
-            <a href={runHref} className="hover:underline">view run</a>
+            <a href={runHref} className="hover:underline">{t("decisionCard.viewRun", { defaultValue: "view run" })}</a>
           </>
         )}
       </p>
@@ -528,7 +530,7 @@ export function DecisionCard({
                       value={confirmText}
                       onChange={(event) => setConfirmText(event.target.value)}
                       placeholder={confirmToken}
-                      aria-label="Type the issue identifier to confirm"
+                      aria-label={t("decisionCard.confirmAria", { defaultValue: "Type the issue identifier to confirm" })}
                       autoFocus
                       className="mt-1"
                     />

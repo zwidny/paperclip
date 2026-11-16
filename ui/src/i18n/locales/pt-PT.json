@@ -1268,7 +1268,8 @@
     "monitorPaused": "Automatic checks paused",
     "monitorPausedCheckNow": "Check now to request a manual check",
     "monitorPausedResume": "Resume this task to continue checking",
-    "loadingUsageLimit": "Loading usage limit"
+    "loadingUsageLimit": "Loading usage limit",
+    "usageLimit": "Usage limit"
   },
   "chat": {
     "copy": "Copy",
@@ -2299,7 +2300,12 @@
     "allApps": "All apps",
     "searchActivity": "Search activity…",
     "noMatches": "No activity matches these filters",
-    "empty": "Nothing here yet"
+    "empty": "Nothing here yet",
+    "auditHash": "Audit hash",
+    "copied": "Copied",
+    "copyAuditHash": "Copy audit hash",
+    "copyAuditHashHint": "Copy the hash that identifies these exact arguments",
+    "copyFailed": "Couldn’t copy"
   },
   "experimental": {
     "title": "Experimental",
@@ -2821,7 +2827,8 @@
     "tailscale": {
       "connectLink": "Connect Tailscale Network",
       "chooseMachinesSuffix": "to choose machines from your tailnet."
-    }
+    },
+    "loadingEnvironments": "Loading environments"
   },
   "secrets": {
     "page": {
@@ -3624,7 +3631,9 @@
       "importSkills_other": "Import {{count}} skills",
       "scanning": "Scanning…",
       "findSkills": "Find skills"
-    }
+    },
+    "changeBranch": "Change branch",
+    "changingBranch": "Changing branch…"
   },
   "skillStudio": {
     "breadcrumbSkills": "Skills",
@@ -3888,6 +3897,26 @@
       "deleted": "Test task deleted",
       "unavailable": "Test task unavailable",
       "body": "Stored run snapshots are still shown. Harness documents, attachments, and work products are no longer available."
+    },
+    "forkDialog": {
+      "alreadyCopyBody": "An unedited copy of this skill already exists. Open it instead of making another.",
+      "alreadyCopyTitle": "You already have a copy",
+      "createAnotherCopy": "Create another copy",
+      "createCopy": "Create copy",
+      "createCopySwitch": "Create copy & switch {{count}} agents",
+      "description": "{{name}} is read-only because it comes from an external source. Creating a fully editable copy in your workspace leaves the original untouched and still updatable.",
+      "keepBody": "These agents keep running the original — your copy won't change what they do.",
+      "nothingAssigned": "Nothing is assigned to it, so your copy won't change any agent's behaviour.",
+      "openExisting": "Open your existing copy",
+      "reassignBody": "These agents will run your copy instead of the original.",
+      "switchToCopy": "Switch these agents to the copy",
+      "title": "Edit a copy of {{name}}",
+      "toastBodyPlain": "Created a copy of {{name}}. It's now editable.",
+      "toastBodySwitchedOne": "Created a copy of {{name}} and switched 1 agent to it.",
+      "toastBodySwitchedOther": "Created a copy of {{name}} and switched {{count}} agents to it.",
+      "toastFailedBody": "The fork request failed.",
+      "toastFailedTitle": "Couldn't create a copy",
+      "toastTitle": "Editing a copy"
     }
   },
   "companySkills": {
@@ -4456,7 +4485,8 @@
       "waitingForReview_other": "{{count}} waiting for review.",
       "fileCount_one": "{{count}} file",
       "fileCount_other": "{{count}} files"
-    }
+    },
+    "skillCatalogControls": "Skill catalog controls"
   },
   "chatSetup": {
     "breadcrumb": {
@@ -5199,7 +5229,23 @@
     },
     "manageConnectors": "Manage connectors",
     "noConnectors": "No connectors are allowed yet.",
-    "resolvingAccess": "Resolving access…"
+    "resolvingAccess": "Resolving access…",
+    "instructionsBundle": {
+      "advancedManagement": "Advanced management",
+      "entryInsideRoot": "The entry file has to sit inside the root path.",
+      "externalHint": "Point this agent at a directory on disk. Paperclip checks that the root file exists before it switches over.",
+      "externalManagement": "External management",
+      "loadProfile": "Load profile",
+      "loadedFrom": "Loaded {{entry}} from {{root}}",
+      "rootFile": "Root file",
+      "rootMustBeAbsolute": "Use an absolute path that starts with / or ~.",
+      "rootPath": "Root path",
+      "saveOrDiscardFirst": "Save or discard your file changes first.",
+      "useManagedBundle": "Use managed bundle"
+    },
+    "reportsToLabel": "Reports to:",
+    "discard": "Discard",
+    "unsavedChangesAria": "Unsaved agent changes"
   },
   "agentNavigation": {
     "sections": {
@@ -9900,7 +9946,7 @@
     "liveBody_one": "Queued behind {{count}} task being worked in order. This task resumes automatically when the chain is done. Comments still notify the assignee.",
     "liveBody_other": "Queued behind {{count}} tasks being worked in order. This task resumes automatically when the chain is done. Comments still notify the assignee.",
     "progressDone": "{{done}} of {{total}} done",
-    "progressRunning": "· {{value}} running",
+    "progressRunning": " · {{value}} running",
     "progressAria": "Blocker chain progress",
     "stepTitle": "{{id}}: {{status}}",
     "thisTaskResumes": "This task — resumes automatically when the chain is done",
@@ -10248,7 +10294,8 @@
       "optionAria": "{{title}}: {{label}}",
       "test": "Test"
     },
-    "openGithubInstallationSettings": "Open installation settings on GitHub"
+    "openGithubInstallationSettings": "Open installation settings on GitHub",
+    "recentActivity": "Recent activity"
   },
   "appNotConnected": {
     "appFallback": "App",
@@ -10402,7 +10449,10 @@
     "attachmentRemoved": "Attachment was removed",
     "fileTypeUnsupported": "This file type cannot be attached here",
     "reviewUnavailable": "Review unavailable",
-    "retryAttachment": "Retry {{name}}"
+    "retryAttachment": "Retry {{name}}",
+    "imageAttachments": "Image attachments",
+    "addImagesAndFilesToMessage": "Add images and files to your message",
+    "addImagesAndFilesToTask": "Add images and files to your new task"
   },
   "taskChat": {
     "agentCouldNotStart": "{{agentName}} couldn’t start",
@@ -10931,7 +10981,12 @@
     "tooManyFiles": "{{count}} more files changed. This change set is too large to list them here.",
     "addContextForAgent": "Add context for the agent…",
     "optionalField": "Optional",
-    "requiredField": "Required"
+    "requiredField": "Required",
+    "editBeforeSent": "Edit before it is sent",
+    "keepInQueue": "Keep this message in the queue",
+    "planProgress": "Plan progress",
+    "showFewer": "Show fewer",
+    "subagentsAria": "Subagents"
   },
   "runnerGoal": {
     "pendingStarting": "Starting",
@@ -14085,7 +14140,8 @@
     "liveWithCount": "Live ({{count}})",
     "noSearchMatches": "No agents match your search and selected status.",
     "breadcrumb": "Agents",
-    "newAgent": "New Agent"
+    "newAgent": "New Agent",
+    "chatWithAgent": "chat with this agent"
   },
   "slackIdentityStep": {
     "title": "Connect your Slack account",
@@ -15533,7 +15589,8 @@
     "removeBlockerBody": "Remove {{label}} as a blocker for this task.",
     "showFewerAria": "Show fewer items",
     "showMoreAria": "Show {{count}} more items",
-    "showMore": "Show {{count}} more"
+    "showMore": "Show {{count}} more",
+    "privateTask": "Private task"
   },
   "agentBasicsDialog": {
     "selectOrganization": "Select an organization to create an agent.",
@@ -16017,7 +16074,8 @@
     "useBranch": "Use “{{branch}}”",
     "defaultBadge": "Default",
     "loading": "Loading branches…",
-    "errorSuffix": "You can still enter a branch name."
+    "errorSuffix": "You can still enter a branch name.",
+    "branchAria": "Branch"
   },
   "routineTriggerCard": {
     "triggerAria": "Trigger: {{name}}",
@@ -16027,7 +16085,11 @@
     "label": "Label",
     "delete": "Delete",
     "rotateSecret": "Rotate secret",
-    "saveTrigger": "Save trigger"
+    "saveTrigger": "Save trigger",
+    "replayWindow": "Replay window (seconds)",
+    "schedule": "Schedule",
+    "signingMode": "Signing mode",
+    "webhookUrl": "Webhook URL"
   },
   "sidebarRecentTasks": {
     "taskRenamed": "Task renamed",
@@ -16058,7 +16120,8 @@
     "projectPausedByBudget": "Project paused by budget",
     "openActionsAria": "Open actions for {{name}}",
     "removeFromStarred": "Remove from starred",
-    "leaveProject": "Leave project"
+    "leaveProject": "Leave project",
+    "privateProject": "Private project"
   },
   "actionCard": {
     "application": "Application",
@@ -16228,7 +16291,9 @@
     "document": "Document",
     "lastEdited": "Last edited {{date}}",
     "openFileNewTab": "Open file in new tab",
-    "text": "Text"
+    "text": "Text",
+    "downloadFile": "Download file",
+    "image": "Image"
   },
   "caseDocumentPreview": {
     "emptyDocument": "This document is empty.",
@@ -16254,7 +16319,12 @@
     "storeDescriptionSuffix": "to it.",
     "storeHeading": "Store value as secret",
     "thisVariable": "this variable",
-    "valueRequired": "Value is required"
+    "valueRequired": "Value is required",
+    "createAndBind": "Create & bind",
+    "createFailed": "Failed to create secret",
+    "createHeading": "Create secret",
+    "nameLabel": "Name",
+    "valueLabel": "Value"
   },
   "dashboardLive": {
     "activeRecent": "Active / recent",
@@ -16371,7 +16441,9 @@
     "sortAlphabetical": "Alphabetical",
     "sortRecent": "Recent",
     "starAgent": "Star agent",
-    "updating": "Updating..."
+    "updating": "Updating...",
+    "resumeAgent": "Resume agent",
+    "seeAllAgents": "See all agents"
   },
   "spekoPhoneCallback": {
     "allowCalls": "Allow this agent to call me about my tasks",
@@ -16778,7 +16850,8 @@
     "openAria": "Open {{filename}}",
     "sectionAria": "Task outputs",
     "heading": "Output",
-    "alsoProduced": "Also produced"
+    "alsoProduced": "Also produced",
+    "browseAria": "Browse {{filename}} in gallery"
   },
   "externalObjects": {
     "ariaLabel": "{{provider}} {{type}} - {{status}}: {{title}}",
@@ -17001,7 +17074,8 @@
     "starAgentAria": "Star {{name}}",
     "unstarAgent": "Unstar agent",
     "starAgentToPin": "Star agent to pin",
-    "chats": "Chats"
+    "chats": "Chats",
+    "chatWithAgent": "Chat with an agent"
   },
   "agentMultiSelect": {
     "selectAgentPlaceholder": "Select agent…",
@@ -17014,7 +17088,10 @@
     "selectedCount_one": "{{count}} selected",
     "selectedCount_other": "{{count}} selected",
     "andMore_one": "and {{count}} more",
-    "andMore_other": "and {{count}} more"
+    "andMore_other": "and {{count}} more",
+    "filterPlaceholder": "Filter agents",
+    "noMatches": "No matches.",
+    "selectAgents": "Select agents"
   },
   "agentProjectAccessSettings": {
     "loadFailed": "Couldn’t load project access.",
@@ -17077,7 +17154,13 @@
   },
   "imageGallery": {
     "downloadAria": "Download {{name}}",
-    "close": "Close"
+    "close": "Close",
+    "download": "Download",
+    "next": "Next",
+    "openOriginal": "Open original",
+    "openOriginalAria": "Open original {{name}}",
+    "previous": "Previous",
+    "title": "Image gallery"
   },
   "interactionGovernance": {
     "title": "Interaction governance",
@@ -17218,7 +17301,8 @@
     "declinedBody": "{{action}} won’t run.",
     "actionFallback": "This action",
     "saveFailed": "Couldn’t save that",
-    "pleaseTryAgain": "Please try again."
+    "pleaseTryAgain": "Please try again.",
+    "review": "Review"
   },
   "auditHub": {
     "selectOrg": "Select an organization to view Audit."
@@ -17357,7 +17441,8 @@
   },
   "chatComposer": {
     "dropToAttach": "Drop to attach",
-    "attachFiles": "Attach files"
+    "attachFiles": "Attach files",
+    "messagePlaceholder": "Message…"
   },
   "cloudSignIn": {
     "title": "Sign in to Paperclip Cloud",
@@ -17667,7 +17752,8 @@
       "updated": "Latest visible activity time.",
       "idTask": "Task identifier like PAP-1009 on the trailing edge.",
       "statusTask": "Task state icon on the leading edge."
-    }
+    },
+    "columns": "Columns"
   },
   "issuesList": {
     "doneCount": "{{done}}/{{total}} done",
@@ -17688,7 +17774,11 @@
     "connectAccount": "Connect an account…",
     "noDefaultAccount": "You have no default account for this provider. Connect an account or choose another connection.",
     "connectionUnavailable": "This connection is unavailable. Choose another connection.",
-    "incompatibleHarness": "This connection does not support the selected harness. Choose a compatible connection."
+    "incompatibleHarness": "This connection does not support the selected harness. Choose a compatible connection.",
+    "connection": "Connection",
+    "loadingConnections": "Loading connections…",
+    "reconnectAccount": "Reconnect account",
+    "retryConnections": "Retry connections"
   },
   "artifactFileRow": {
     "previewData": "Preview data",
@@ -17803,7 +17893,8 @@
   "copyableGatewayUrl": {
     "copiedTitle": "Gateway URL copied",
     "title": "{{url}} — click to copy",
-    "ariaLabel": "Copy gateway URL"
+    "ariaLabel": "Copy gateway URL",
+    "copyTitle": "{{url}} — click to copy"
   },
   "companyActivity": {
     "selectOrg": "Select an organization to view activity."
@@ -17823,7 +17914,9 @@
     "selectOrgCreate": "Select an organization to create a profile.",
     "finishYourProfile": "Finish your profile",
     "newAccessProfile": "New access profile",
-    "wizardDescription": "Choose which tools this profile allows, then assign it to the agents that need them."
+    "wizardDescription": "Choose which tools this profile allows, then assign it to the agents that need them.",
+    "accessProfiles": "Access profiles",
+    "newProfile": "New profile"
   },
   "toolsShared": {
     "unknownRisk": "unknown",
@@ -18075,7 +18168,8 @@
     "allowAria": "Allow {{label}}",
     "noneSelected": "No people selected",
     "selectedCount": "{{value}} selected",
-    "more": "and {{value}} more"
+    "more": "and {{value}} more",
+    "noMatches": "No matches."
   },
   "missingPluginTabPlaceholder": {
     "unavailable": "Workspace plugin tab is not available."
@@ -18321,7 +18415,8 @@
     "title": "Project created"
   },
   "taskChatSkillCreatedCard": {
-    "ariaLabel": "Skill created: {{name}}"
+    "ariaLabel": "Skill created: {{name}}",
+    "title": "Skill created"
   },
   "issueCreatedFromNote": {
     "byAgent": "by {{name}}"
@@ -20212,6 +20307,26 @@
       "warmIdleMsHint": "Defaults to 0, which closes the ACP process after each run while retaining persistent session state.",
       "instructionsFile": "Agent instructions file",
       "instructionsFileHint": "Absolute path to a markdown file (e.g. AGENTS.md) that defines this agent's behavior. Prepended to the Gemini prompt at runtime."
+    },
+    "cursorLocal": {
+      "instructionsFile": "Agent instructions file",
+      "instructionsFileHint": "Absolute path to a markdown file (e.g. AGENTS.md) that defines this agent's behavior. Injected into the prompt at runtime."
+    },
+    "grokLocal": {
+      "instructionsFile": "Agent instructions file",
+      "instructionsFileHint": "Absolute path to a markdown file (e.g. AGENTS.md) that defines this agent's behavior. Paperclip stages it into the Grok workspace as Agents.md when possible."
+    },
+    "openCodeLocal": {
+      "skipPermissions": "Skip permissions"
+    },
+    "process": {
+      "command": "Command",
+      "commandPlaceholder": "e.g. node, python",
+      "argsLabel": "Args (comma-separated)",
+      "argsPlaceholder": "e.g. script.js, --flag"
+    },
+    "http": {
+      "webhookUrl": "Webhook URL"
     }
   },
   "agentConfigHelp": {
@@ -20297,5 +20412,94 @@
     "readOnly": "Read only",
     "readWrite": "Read & write",
     "selectAtLeastOne": "Select at least one service to continue."
+  },
+  "apiKeyCredentialField": {
+    "checkingSaved": "Checking saved API key…",
+    "checkingSavedPlural": "Checking saved API keys…",
+    "enterNew": "Enter a new API key",
+    "getKey": "Get an {{provider}} API key ↗",
+    "label": "API key",
+    "loadFailed": "Could not load saved API keys. {{error}}",
+    "newAria": "New API key",
+    "pasteKey": "Paste your {{provider}} API key",
+    "unavailableSaved": "Previously selected key · unavailable"
+  },
+  "classicWorkspace": {
+    "defaultNote": "Off by default. Turn it off to return to Coordinator. Your work and your teammates’ settings stay the same.",
+    "description": "Use the previous workspace instead of the standard Coordinator workspace. This changes your interface across companies on this instance.",
+    "enable": "Enable classic workspace",
+    "loading": "Loading your preference…",
+    "localBoardNote": "This local instance uses the shared Local Board identity.",
+    "saving": "Saving your workspace…",
+    "title": "Classic workspace"
+  },
+  "contextUsage": {
+    "autoCompactNear": "Compacts automatically near {{tokens}}.",
+    "cachedValue": "{{tokens}} · {{cached}} cached",
+    "closeToFull": "Close to full. The agent will compact its context soon.",
+    "compactAvailableBody": "Summarizes the conversation so far so the agent has room to keep working.",
+    "compactNow": "Compact now",
+    "compactPendingBody": "The agent is summarizing its conversation. This usually takes under a minute.",
+    "compacting": "Compacting…",
+    "compactions": "Compactions",
+    "contextWindow": "Context window",
+    "cost": "Cost",
+    "inOut": "{{input}} in · {{output}} out",
+    "input": "Input",
+    "lastRequest": "Last request",
+    "ofTokens": "{{used}} of {{total}} tokens",
+    "output": "Output",
+    "percentOfTokens": "of {{tokens}}",
+    "reasoning": "Reasoning",
+    "triggerAria": "Context window: {{percent}}% of {{tokens}} tokens used",
+    "updatedAt": "updated {{time}}"
+  },
+  "honchoWorkspace": {
+    "ariaLabel": "Honcho workspace",
+    "label": "Honcho workspace",
+    "missingHint": "Enter a workspace to include Honcho instructions. Existing tools remain available.",
+    "save": "Save workspace",
+    "workspaceIdPlaceholder": "Workspace ID"
+  },
+  "searchSortMenu": {
+    "sortBy": "Sort by",
+    "sortPrefix": "Sort:",
+    "sortResults": "Sort results"
+  },
+  "taskChatRunnerActivityGroup": {
+    "filesRead": "Files read",
+    "readFiles_one": "Read {{count}} file",
+    "readFiles_other": "Read {{count}} files"
+  },
+  "workspaceExportRecovery": {
+    "accessCheckFailed": "Task access could not be checked. Refresh before requesting file recovery.",
+    "boardMemberHint": "A board member with task access can request file recovery.",
+    "checkingAccess": "Checking file recovery access…",
+    "inspectingSource": "Inspecting the recorded file source…",
+    "notFinished": "File recovery has not finished. The saved files remain protected and are not applied.",
+    "replaced": "This file recovery was replaced. Check its status to show the task’s current recovery."
+  },
+  "agentBudgetsPanel": {
+    "loadFailed": "Budget data could not be loaded. Showing the agent's saved monthly budget."
+  },
+  "missingUserSecretsBanner": {
+    "title": "Set your user secrets"
+  },
+  "pluginSdk": {
+    "loading": "Loading",
+    "project": "Project",
+    "noProject": "No project",
+    "searchProjects": "Search projects...",
+    "responsible": "Responsible",
+    "noResponsible": "No responsible",
+    "searchResponsible": "Search responsible..."
+  },
+  "routineResponsibleUser": {
+    "responsibleUser": "Responsible user",
+    "currentResponsibleUserAria": "Current responsible user",
+    "findPersonPlaceholder": "Find a person…",
+    "findResponsibleUserAria": "Find a responsible user",
+    "hint": "Automatic tasks use this person. Manual runs use the person who starts them.",
+    "noPeopleFound": "No people found."
   }
 }

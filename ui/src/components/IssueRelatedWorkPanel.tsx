@@ -4,6 +4,7 @@ import { ExternalObjectPill } from "./ExternalObjectPill";
 import type { IssueExternalObjectGroup } from "../hooks/useIssueExternalObjects";
 import { externalObjectToneSeverity } from "../lib/external-objects";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/i18n";
 
 type GroupedSource = {
   label: string;
@@ -99,6 +100,7 @@ function ExternalObjectsSection({
   onRetry?: () => void;
 }) {
   // Severity-first sort with most-recently-changed as the secondary sort.
+  const { t } = useTranslation();
   const sorted = [...groups].sort((a, b) => {
     const aTone = externalObjectToneSeverity(a.pill.statusCategory ? a.group.object?.statusTone ?? null : null);
     const bTone = externalObjectToneSeverity(b.pill.statusCategory ? b.group.object?.statusTone ?? null : null);
@@ -111,30 +113,30 @@ function ExternalObjectsSection({
   return (
     <section className="space-y-3 rounded-lg border border-border p-3">
       <div className="space-y-1">
-        <h3 className="text-sm font-semibold">External objects</h3>
+        <h3 className="text-sm font-semibold">{t("issueRelatedWork.externalObjectsTitle", { defaultValue: "External objects" })}</h3>
         <p className="text-xs text-muted-foreground">
-          Remote work referenced from this issue — pull requests, deployments, tickets in other systems, and more.
+          {t("issueRelatedWork.externalObjectsDescription", { defaultValue: "Remote work referenced from this issue — pull requests, deployments, tickets in other systems, and more." })}
         </p>
       </div>
 
       {isError ? ( // query-error-ok: set only for a real failure (useIssueExternalObjects keeps data through outages)
         <p className="text-xs text-muted-foreground">
-          Couldn't load external objects.{" "}
+          {t("issueRelatedWork.externalObjectsLoadFailed", { defaultValue: "Couldn't load external objects." })}{" "}
           {onRetry ? (
             <button
               type="button"
               onClick={onRetry}
               className="text-primary underline-offset-2 hover:underline"
             >
-              Retry
+              {t("common.retry", { defaultValue: "Retry" })}
             </button>
           ) : null}
         </p>
       ) : isLoading ? (
-        <p className="text-xs text-muted-foreground">Loading external objects…</p>
+        <p className="text-xs text-muted-foreground">{t("issueRelatedWork.loadingExternalObjects", { defaultValue: "Loading external objects…" })}</p>
       ) : sorted.length === 0 ? (
         <p className="text-xs text-muted-foreground">
-          This issue does not reference any external objects yet.
+          {t("issueRelatedWork.emptyExternalObjects", { defaultValue: "This issue does not reference any external objects yet." })}
         </p>
       ) : (
         <ul className="-mx-1 flex flex-col">
@@ -185,16 +187,17 @@ export function IssueRelatedWorkPanel({
   externalObjectsError?: boolean;
   onRetryExternalObjects?: () => void;
 }) {
+  const { t } = useTranslation();
   const outbound = relatedWork?.outbound ?? [];
   const inbound = relatedWork?.inbound ?? [];
 
   return (
     <div className="space-y-3">
       <Section
-        title="References"
-        description="Other tasks this task currently points at in its title, description, comments, or documents."
+        title={t("issueRelatedWork.referencesTitle", { defaultValue: "References" })}
+        description={t("issueRelatedWork.referencesDescription", { defaultValue: "Other tasks this task currently points at in its title, description, comments, or documents." })}
         items={outbound}
-        emptyLabel="This task does not reference any other tasks yet."
+        emptyLabel={t("issueRelatedWork.referencesEmpty", { defaultValue: "This task does not reference any other tasks yet." })}
       />
       {externalObjectsEnabled ? (
         <ExternalObjectsSection
@@ -205,10 +208,10 @@ export function IssueRelatedWorkPanel({
         />
       ) : null}
       <Section
-        title="Referenced by"
-        description="Other tasks that currently point at this task."
+        title={t("issueRelatedWork.referencedByTitle", { defaultValue: "Referenced by" })}
+        description={t("issueRelatedWork.referencedByDescription", { defaultValue: "Other tasks that currently point at this task." })}
         items={inbound}
-        emptyLabel="No other tasks reference this task yet."
+        emptyLabel={t("issueRelatedWork.referencedByEmpty", { defaultValue: "No other tasks reference this task yet." })}
       />
     </div>
   );

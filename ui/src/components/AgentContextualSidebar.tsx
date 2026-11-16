@@ -92,7 +92,7 @@ export function AgentContextualSidebar({
           <div key={section.label} className="contents">
             {section.label === "Audit" && pluginTabs.length > 0 ? (
               <div data-slot="contextual-sidebar-section" className={contextualSidebarStyles.section}>
-                <p className={contextualSidebarStyles.sectionLabel}>Apps</p>
+                <p className={contextualSidebarStyles.sectionLabel}>{t("agentNavigation.apps", { defaultValue: "Apps" })}</p>
                 <div className={contextualSidebarStyles.group}>
                   {pluginTabs.map(slot => <SidebarNavItem key={`${slot.pluginKey}:${slot.id}`} to={`/agents/${encodeURIComponent(agentRef)}/${encodeURIComponent(`plugin:${slot.pluginKey}:${slot.id}`)}`} label={slot.displayName} icon={Wrench} />)}
                 </div>

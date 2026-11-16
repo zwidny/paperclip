@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ImageIcon, Loader2, RotateCw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/i18n";
 
 export interface ComposerImageAttachment {
   id: string;
@@ -78,11 +79,12 @@ export function ComposerImageAttachments({ images, disabled, onRemove, onRetry }
   onRemove: (id: string) => void;
   onRetry?: (id: string) => void;
 }) {
+  const { t } = useTranslation();
   if (!images.length) return null;
   return (
     <div
       className="mb-2 flex flex-wrap gap-2 px-1"
-      role="group" aria-label="Image attachments"
+      role="group" aria-label={t("composer.imageAttachments", { defaultValue: "Image attachments" })}
       data-testid="task-chat-composer-images"
     >
       {images.map(image => (

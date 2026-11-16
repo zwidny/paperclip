@@ -11,6 +11,7 @@ import type {
 } from "./task-chat-model";
 
 import { TaskChatRunnerActivityGroup } from "./TaskChatRunnerActivityGroup";
+import { useTranslation } from "../../i18n";
 
 export type { TaskChatSubagent, TaskChatSubagentStatus } from "./task-chat-model";
 
@@ -176,6 +177,7 @@ export function TaskChatSubagentCard({
 /** Parallel subagents dispatched together, shown as a small tree. A single
  * subagent renders as its own card with no group header. */
 export function TaskChatSubagentTree({ subagents }: { subagents: readonly TaskChatSubagent[] }) {
+  const { t } = useTranslation();
   if (subagents.length === 0) return null;
   if (subagents.length === 1) return <TaskChatSubagentCard subagent={subagents[0]!} />;
   const running = subagents.filter((subagent) => subagent.status === "running").length;
@@ -191,7 +193,7 @@ export function TaskChatSubagentTree({ subagents }: { subagents: readonly TaskCh
         <span className="flex size-5 items-center justify-center"><Bot className="size-3.5" aria-hidden /></span>
         <span className={cn(running > 0 && "text-foreground")}>{label}</span>
       </div>
-      <ol className="ml-5 flex min-w-0 flex-col gap-0.5 border-l border-border py-1 pl-2 pr-1 pb-2" aria-label="Subagents">
+      <ol className="ml-5 flex min-w-0 flex-col gap-0.5 border-l border-border py-1 pl-2 pr-1 pb-2" aria-label={t("taskChat.subagentsAria", { defaultValue: "Subagents" })}>
         {subagents.map((subagent) => (
           <li key={subagent.id} className="min-w-0">
             <TaskChatSubagentCard subagent={subagent} nested />

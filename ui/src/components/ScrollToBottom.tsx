@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { useSidebar } from "../context/SidebarContext";
 import { usePanel } from "../context/PanelContext";
 import { cn } from "../lib/utils";
+import { useTranslation } from "../i18n";
 
 function resolveScrollTarget() {
   const mainContent = document.getElementById("main-content");
@@ -36,6 +37,7 @@ function distanceFromBottom(target: ReturnType<typeof resolveScrollTarget>) {
  * On desktop that is `#main-content`; on mobile it falls back to window/page scroll.
  */
 export function ScrollToBottom() {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
   const { panelVisible, panelContent } = usePanel();
   const { isMobile } = useSidebar();
@@ -101,7 +103,7 @@ export function ScrollToBottom() {
           : "fixed bottom-(--sz-calc-21) right-6 md:bottom-6",
         !isMobile && panelVisible && panelContent && "md:right-(--sz-calc-22)",
       )}
-      aria-label="Scroll to bottom"
+      aria-label={t("scrollToBottom.scrollToBottomAria", { defaultValue: "Scroll to bottom" })}
     >
       <ArrowDown className="h-4 w-4" />
     </button>

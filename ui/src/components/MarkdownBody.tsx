@@ -56,6 +56,7 @@ import type {
   ExternalObjectLivenessState,
   ExternalObjectStatusCategory,
 } from "@paperclipai/shared";
+import { useTranslation } from "../i18n";
 
 function MarkdownAgentMention({ agentId, children, style }: {
   agentId: string;
@@ -610,6 +611,7 @@ function CodeBlock({
   children: ReactNode;
   preProps: React.HTMLAttributes<HTMLPreElement>;
 }) {
+  const { t } = useTranslation();
   const code = Array.isArray(children) ? children.find(isValidElement) : children;
   const patchCode = isValidElement<{ className?: string; children?: ReactNode }>(code)
     && /\blanguage-(diff|patch)\b/i.test(code.props.className ?? "");
@@ -687,7 +689,7 @@ function CodeBlock({
         <button
           type="button"
           onClick={handleCopy}
-          aria-label="Copy code"
+          aria-label={t("markdownBody.copyCode", { defaultValue: "Copy code" })}
           title={copyLabel}
           className="paperclip-markdown-codeblock-action paperclip-markdown-codeblock-copy"
           style={codeBlockActionStyle}
@@ -778,6 +780,7 @@ function MarkdownBodyImpl({
   mediaMode = "render",
   resolveWorkspaceFileRef,
 }: MarkdownBodyProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const coordinator = useCoordinatorPresentation();
   const streamWords = useContext(MarkdownWordStreaming);
@@ -848,7 +851,7 @@ function MarkdownBodyImpl({
       </blockquote>
     ),
     table: ({ node: _node, style: tableStyle, children: tableChildren, ...tableProps }) => (
-      <div className="paperclip-markdown-table-scroll" role="region" aria-label="Scrollable table" tabIndex={0}>
+      <div className="paperclip-markdown-table-scroll" role="region" aria-label={t("markdownBody.scrollableTable", { defaultValue: "Scrollable table" })} tabIndex={0}>
         <table {...tableProps} style={tableStyle as React.CSSProperties | undefined}>
           {tableChildren}
         </table>

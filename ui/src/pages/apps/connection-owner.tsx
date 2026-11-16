@@ -2,6 +2,7 @@ import type { McpConnection, ToolConnection } from "@paperclipai/shared";
 import { humanizeConnectionDisplayName } from "@paperclipai/shared";
 import { Identity } from "@/components/Identity";
 import type { CompanyUserProfile } from "@/lib/company-members";
+import { useTranslation } from "@/i18n";
 
 export type ConnectionOwnerProfile = CompanyUserProfile;
 
@@ -60,7 +61,8 @@ export function assistantConnectionDisplayName(connection: McpConnection): strin
 }
 
 export function ConnectionOwnerIdentity({ owner }: { owner: ConnectionOwnerProfile | null }) {
-  if (!owner) return <span className="text-xs text-muted-foreground">Unknown</span>;
+  const { t } = useTranslation();
+  if (!owner) return <span className="text-xs text-muted-foreground">{t("connectionOwner.unknown", { defaultValue: "Unknown" })}</span>;
   return (
     <Identity
       name={owner.label}

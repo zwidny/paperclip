@@ -1,6 +1,7 @@
 import { GitBranch, LoaderCircle } from 'lucide-react';
 import { SearchableSelect, type SearchableSelectGroup, type SearchableSelectOption } from '@/components/SearchableSelect';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/i18n';
 
 export interface RepositoryBranch {
   name: string;
@@ -21,18 +22,24 @@ export function RepositoryBranchSelect({ value, branches, loading, error, disabl
   onChange: (branch: string) => void;
   onRetry?: () => void;
 }) {
+  const { t } = useTranslation();
   const uniqueBranches = [...new Map(branches.map(branch => [branch.name, branch])).values()];
-  const options: BranchOption[] = uniqueBranches.map(branch => ({ key: branch.name, value: branch.name, label: branch.name, searchText: branch.isDefault ? 'default branch' : undefined, isDefault: branch.isDefault }));
+  const options: BranchOption[] = uniqueBranches.map(branch => ({ key: branch.name, value: branch.name, label: branch.name, searchText: branch.isDefault ? t("repositoryBranchSelect.defaultBranchSearch", { defaultValue: "default branch" }) : undefined, isDefault: branch.isDefault }));
   if (value && !options.some(option => option.value === value)) options.push({ key: value, value, label: value });
   const groups: SearchableSelectGroup<string, BranchOption>[] = [
-    { id: 'default', label: 'Default branch', options: options.filter(option => option.isDefault) },
-    { id: 'branches', label: 'Branches', options: options.filter(option => !option.isDefault) },
+    { id: 'default', label: t("repositoryBranchSelect.defaultBranchGroup", { defaultValue: "Default branch" }), options: options.filter(option => option.isDefault) },
+    { id: 'branches', label: t("repositoryBranchSelect.branches", { defaultValue: "Branches" }), options: options.filter(option => !option.isDefault) },
   ];
   return <div className="flex min-w-0 flex-col gap-2">
     <SearchableSelect<string, BranchOption>
-      value={value} groups={groups} disabled={disabled} triggerAriaLabel="Branch" mobileTitle="Choose a branch"
-      placeholder="Choose a branch" searchPlaceholder="Search or enter a branch name…"
-      emptyMessage={loading ? 'Branches are loading. You can still enter a name.' : 'No matching branches. Enter a branch name to use it.'}
+      value={value} groups={groups} disabled={disabled}
+      triggerAriaLabel={t("repositoryBranchSelect.branchAria", { defaultValue: "Branch" })}
+      mobileTitle={t("repositoryBranchSelect.chooseBranchTitle", { defaultValue: "Choose a branch" })}
+      placeholder={t("repositoryBranchSelect.chooseBranch", { defaultValue: "Choose a branch" })}
+      searchPlaceholder={t("repositoryBranchSelect.searchBranch", { defaultValue: "Search or enter a branch name…" })}
+      emptyMessage={loading
+        ? t("repositoryBranchSelect.loadingEmpty", { defaultValue: "Branches are loading. You can still enter a name." })
+        : t("repositoryBranchSelect.noMatchesEmpty", { defaultValue: "No matching branches. Enter a branch name to use it." })}
       onValueChange={branch => onChange(branch)}
       deriveGroups={(query, current) => {
         const name = query.trim();
@@ -42,13 +49,13 @@ export function RepositoryBranchSelect({ value, branches, loading, error, disabl
       }}
       renderOption={option => <>
         <GitBranch className="size-4 shrink-0 text-muted-foreground" />
-        <span className="min-w-0 flex-1 truncate" title={option.value}>{option.entered ? `Use “${option.value}”` : option.label}</span>
-        {option.isDefault && <span className="text-xs text-muted-foreground">Default</span>}
+        <span className="min-w-0 flex-1 truncate" title={option.value}>{option.entered ? t("repositoryBranchSelect.useBranch", { defaultValue: "Use “{{branch}}”", branch: option.value }) : option.label}</span>
+        {option.isDefault && <span className="text-xs text-muted-foreground">{t("repositoryBranchSelect.defaultBadge", { defaultValue: "Default" })}</span>}
       </>}
     />
-    {loading && <p role="status" className="flex items-center gap-2 text-xs text-muted-foreground"><LoaderCircle className="size-3.5 animate-spin motion-reduce:animate-none" />Loading branches…</p>}
-    {error && <div className="flex flex-wrap items-center gap-2"><p role="alert" className="text-sm text-destructive">{error} You can still enter a branch name.</p>
-      {onRetry && <Button type="button" size="sm" variant="ghost" disabled={loading || disabled} onClick={onRetry}>Try again</Button>}
+    {loading && <p role="status" className="flex items-center gap-2 text-xs text-muted-foreground"><LoaderCircle className="size-3.5 animate-spin motion-reduce:animate-none" />{t("repositoryBranchSelect.loading", { defaultValue: "Loading branches…" })}</p>}
+    {error && <div className="flex flex-wrap items-center gap-2"><p role="alert" className="text-sm text-destructive">{error} {t("repositoryBranchSelect.errorSuffix", { defaultValue: "You can still enter a branch name." })}</p>
+      {onRetry && <Button type="button" size="sm" variant="ghost" disabled={loading || disabled} onClick={onRetry}>{t("common.tryAgain", { defaultValue: "Try again" })}</Button>}
     </div>}
   </div>;
 }

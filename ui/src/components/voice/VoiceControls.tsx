@@ -2,6 +2,7 @@ import { Mic, MicOff, Phone, PhoneOff, RotateCcw, Volume2 } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "../../i18n";
 
 export const VOICE_CONTROL_STATES = ["idle", "connecting", "listening", "speaking", "working", "interrupted", "reconnecting", "ending", "ended", "failed", "cleanup_failed"] as const;
 export type VoiceControlState = typeof VOICE_CONTROL_STATES[number];
@@ -27,6 +28,7 @@ export interface VoiceControlsProps {
   className?: string;
 }
 export function VoiceControls({ state, agentName, muted = false, busy = false, playbackBlocked = false, canRepeat = false, onRepeat, error, announcement, onStart, onMute, onEnd, onResumeAudio, className }: VoiceControlsProps) {
+  const { t } = useTranslation();
   const inactive = state === "idle" || state === "ended" || state === "failed";
   const connecting = state === "connecting" || state === "reconnecting";
   const startButton = useRef<HTMLButtonElement>(null);
@@ -54,10 +56,10 @@ export function VoiceControls({ state, agentName, muted = false, busy = false, p
             <Button size="sm" variant="outline" disabled={state === "ending"} onClick={() => { restoreFocus.current = true; onEnd(); }}><PhoneOff aria-hidden="true" />{state === "cleanup_failed" ? "Retry ending call" : "End call"}</Button>
           </>
         )}
-        {canRepeat && onRepeat && !inactive && <Button size="sm" variant="outline" disabled={busy || connecting || state === "ending" || state === "cleanup_failed"} onClick={onRepeat}><RotateCcw aria-hidden="true" />Repeat answer</Button>}
-        {playbackBlocked && !inactive && <Button size="sm" variant="outline" onClick={onResumeAudio}><Volume2 aria-hidden="true" />Enable audio</Button>}
+        {canRepeat && onRepeat && !inactive && <Button size="sm" variant="outline" disabled={busy || connecting || state === "ending" || state === "cleanup_failed"} onClick={onRepeat}><RotateCcw aria-hidden="true" />{t("voiceControls.repeatAnswer", { defaultValue: "Repeat answer" })}</Button>}
+        {playbackBlocked && !inactive && <Button size="sm" variant="outline" onClick={onResumeAudio}><Volume2 aria-hidden="true" />{t("voiceControls.enableAudio", { defaultValue: "Enable audio" })}</Button>}
       </div>
-      {!inactive && <p className="text-xs text-muted-foreground">Ending the call keeps your task running. Speko voice charges are separate from agent costs.</p>}
+      {!inactive && <p className="text-xs text-muted-foreground">{t("voiceControls.footnote", { defaultValue: "Ending the call keeps your task running. Speko voice charges are separate from agent costs." })}</p>}
       <span className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</span>
     </section>
   );

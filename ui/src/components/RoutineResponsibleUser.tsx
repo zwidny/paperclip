@@ -11,8 +11,10 @@ import { queryKeys } from "@/lib/queryKeys";
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from "./ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { QueryErrorState, useQueryView } from "./QueryView";
+import { useTranslation } from "../i18n";
 
 export function RoutineResponsibleUser({ routine }: { routine: RoutineDetail }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
   const directory = useQuery({
@@ -45,7 +47,7 @@ export function RoutineResponsibleUser({ routine }: { routine: RoutineDetail }) 
 
   return (
     <section className="flex min-w-0 flex-col gap-2" aria-labelledby="routine-responsible-heading">
-      <h2 id="routine-responsible-heading" className="text-sm font-semibold">Responsible user</h2>
+      <h2 id="routine-responsible-heading" className="text-sm font-semibold">{t("routineResponsibleUser.responsibleUser", { defaultValue: "Responsible user" })}</h2>
       {routine.canChangeResponsibleUser ? (
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
@@ -62,9 +64,9 @@ export function RoutineResponsibleUser({ routine }: { routine: RoutineDetail }) 
           </PopoverTrigger>
           <PopoverContent align="start" className="w-72 p-0">
             <Command>
-              <CommandInput placeholder="Find a person…" aria-label="Find a responsible user" />
-              <CommandList aria-label="Responsible user">
-                <CommandEmpty>No people found.</CommandEmpty>
+              <CommandInput placeholder={t("routineResponsibleUser.findPersonPlaceholder", { defaultValue: "Find a person…" })} aria-label={t("routineResponsibleUser.findResponsibleUserAria", { defaultValue: "Find a responsible user" })} />
+              <CommandList aria-label={t("routineResponsibleUser.responsibleUser", { defaultValue: "Responsible user" })}>
+                <CommandEmpty>{t("routineResponsibleUser.noPeopleFound", { defaultValue: "No people found." })}</CommandEmpty>
                 {(directory.data?.users ?? []).map((member) => (
                   <CommandItem
                     key={member.principalId}
@@ -76,7 +78,7 @@ export function RoutineResponsibleUser({ routine }: { routine: RoutineDetail }) 
                   >
                     <UserRound className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
                     <span className="min-w-0 flex-1 truncate">{profiles.get(member.principalId)?.label}</span>
-                    {member.principalId === routine.responsibleUserId ? <Check className="h-4 w-4" aria-label="Current responsible user" /> : null}
+                    {member.principalId === routine.responsibleUserId ? <Check className="h-4 w-4" aria-label={t("routineResponsibleUser.currentResponsibleUserAria", { defaultValue: "Current responsible user" })} /> : null}
                   </CommandItem>
                 ))}
               </CommandList>
@@ -89,7 +91,7 @@ export function RoutineResponsibleUser({ routine }: { routine: RoutineDetail }) 
           <span className="truncate">{label}</span>
         </p>
       )}
-      <p className="text-xs text-muted-foreground">Automatic tasks use this person. Manual runs use the person who starts them.</p>
+      <p className="text-xs text-muted-foreground">{t("routineResponsibleUser.hint", { defaultValue: "Automatic tasks use this person. Manual runs use the person who starts them." })}</p>
       {directoryView.kind === "error" ? (
         <QueryErrorState error={directoryView.error} size="inline" action="load people" onRetry={directoryView.retry} retrying={directoryView.isFetching} />
       ) : null}

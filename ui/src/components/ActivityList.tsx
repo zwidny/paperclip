@@ -1,10 +1,11 @@
 import type { ActivityEvent } from "@paperclipai/shared";
 import { ActivityRow, type ActivityRowProps } from "./ActivityRow";
+import { i18n } from "../i18n";
 
 /** Caller-ordered events, with the same row tokens and responsive metadata
  * priorities as task summaries. Event destinations and task hover cards remain
  * owned by ActivityRow and the shared Link; non-task events never get task IDs. */
-export function ActivityList({ events, label = "Recent activity", density = "comfortable", rowClassName, ...directories }: {
+export function ActivityList({ events, label = i18n.t("chatDetail.recentActivity", { defaultValue: "Recent activity" }), density = "comfortable", rowClassName, ...directories }: {
   events: readonly ActivityEvent[];
   label?: string;
   density?: "comfortable" | "compact";

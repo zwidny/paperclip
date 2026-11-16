@@ -5,6 +5,7 @@ import { isNativeWorkspaceExportRepairCause } from "@paperclipai/shared";
 import { RunWorkspaceSourceInspection } from "./RunWorkspaceSourceInspection";
 import { useNavigate } from "@/lib/router";
 import { issuesApi } from "../api/issues";
+import { useTranslation } from "../i18n";
 import { executionWorkspacesApi } from "../api/execution-workspaces";
 import { accessApi } from "../api/access";
 import { queryKeys } from "../lib/queryKeys";
@@ -62,6 +63,7 @@ export function RunWorkspaceRecoverySurface({ run }: { run: HeartbeatRun }) {
 }
 
 function WorkspaceValidationRecoverySurface({ run }: { run: HeartbeatRun }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { pushToast } = useToastActions();
@@ -264,7 +266,7 @@ function WorkspaceValidationRecoverySurface({ run }: { run: HeartbeatRun }) {
   return (
     <div className="space-y-2" data-testid="run-workspace-recovery-surface">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-xs font-medium text-muted-foreground">Workspace recovery</span>
+        <span className="text-xs font-medium text-muted-foreground">{t("runWorkspaceRecoverySurface.title", { defaultValue: "Workspace recovery" })}</span>
         {issue?.identifier ? (
           <a
             href={`/issues/${issue.identifier}`}

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { secretsApi, type MyUserSecretEntry } from "../../api/secrets";
 import { queryKeys } from "../../lib/queryKeys";
 import { SetMyUserSecretDialog } from "./SetMyUserSecretDialog";
+import { i18n } from "../../i18n";
 
 /**
  * Warning surface for user secrets the current user has not yet set. Renders
@@ -20,7 +21,7 @@ import { SetMyUserSecretDialog } from "./SetMyUserSecretDialog";
 export function MissingUserSecretsBanner({
   companyId,
   definitionKeys,
-  title = "Set your user secrets",
+  title = i18n.t("missingUserSecretsBanner.title", { defaultValue: "Set your user secrets" }),
   secretsPath,
   className,
 }: {

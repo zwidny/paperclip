@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Search, Info, AlertTriangle } from 'lucide-react';
+import { useTranslation } from "../../i18n";
 
 export type SkillTreeCandidate = Pick<SkillSourceCandidate, 'path' | 'name' | 'description' | 'error' | 'inspection'> & { note?: string; warnings?: string[]; fileCount?: number };
 export function updateSkillTreeSelection(candidates: SkillTreeCandidate[], selected: Set<string>, folder: string, checked: boolean) {
@@ -58,6 +59,7 @@ export function SkillSourceTree({ candidates, selected, excludedFolders, onChang
   onPreview?: (skill: SkillTreeCandidate, filePath?: string) => void; disabled?: boolean;
   packageMode?: 'skills' | 'repository';
 }) {
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [expansion, setExpansion] = useState(new Map<string, boolean>());
   const { nodes, included } = useMemo(() => buildSkillPackageTree(candidates), [candidates]);
@@ -98,15 +100,15 @@ export function SkillSourceTree({ candidates, selected, excludedFolders, onChang
   return <div className="flex min-h-0 flex-col overflow-hidden rounded-md border border-border">
     <div className="flex items-center gap-2 px-3">
       <Search className="size-4 shrink-0 text-muted-foreground" />
-      <Input className="border-0 bg-transparent px-0 shadow-none focus-visible:ring-0 dark:bg-transparent" value={search} onChange={event => setSearch(event.target.value)} placeholder="Search skills or files…" aria-label="Search discovered skills" />
+      <Input className="border-0 bg-transparent px-0 shadow-none focus-visible:ring-0 dark:bg-transparent" value={search} onChange={event => setSearch(event.target.value)} placeholder={t("skillSourceTree.searchPlaceholder", { defaultValue: "Search skills or files…" })} aria-label={t("skillSourceTree.searchAria", { defaultValue: "Search discovered skills" })} />
     </div>
     <div className="flex items-center justify-between gap-2 border-y border-border bg-muted/30 px-3 py-1.5">
       <label className="flex items-center gap-2 text-xs text-muted-foreground">
-        <input type="checkbox" className="size-3.5 accent-foreground" aria-label="Import folder Repository"
+        <input type="checkbox" className="size-3.5 accent-foreground" aria-label={t("skillSourceTree.importRepositoryAria", { defaultValue: "Import folder Repository" })}
           checked={candidates.length > 0 && selectedCount === candidates.length}
           ref={element => { if (element) element.indeterminate = selectedCount > 0 && selectedCount < candidates.length; }}
           disabled={disabled || candidates.length === 0} onChange={() => toggleCheck('')} />
-        <span>{selectedCount} of {candidates.length} selected</span>
+        <span>{t("skillSourceTree.selectedCount", { selected: selectedCount, total: candidates.length, defaultValue: "{{selected}} of {{total}} selected" })}</span>
       </label>
       <Button type="button" variant="ghost" size="xs" className="font-normal text-muted-foreground" disabled={disabled || Boolean(search) || allDirs.size === 0} onClick={() => setExpansion(new Map([...allDirs].map(path => [path, allCollapsed])))}>{allCollapsed ? 'Expand all' : 'Collapse all'}</Button>
     </div>
@@ -137,8 +139,8 @@ export function SkillSourceTree({ candidates, selected, excludedFolders, onChang
         }}
         renderNodeExtra={node => {
           const skill = skillsByPath.get(node.path);
-          if (!skill) return node.kind === 'file' ? <span className="text-xs text-muted-foreground">Included</span> : null;
-          const label = skill.error ? 'Needs setup' : skill.note === 'New skill' ? 'New' : skill.note === 'Already imported' ? 'Installed' : skill.note?.startsWith('Removed from source') ? 'Removed' : skill.note;
+          if (!skill) return node.kind === 'file' ? <span className="text-xs text-muted-foreground">{t("skillSourceTree.included", { defaultValue: "Included" })}</span> : null;
+          const label = skill.error ? t("skillSourceTree.needsSetup", { defaultValue: "Needs setup" }) : skill.note === 'New skill' ? t("skillSourceTree.noteNew", { defaultValue: "New" }) : skill.note === 'Already imported' ? t("skillSourceTree.noteInstalled", { defaultValue: "Installed" }) : skill.note?.startsWith('Removed from source') ? t("skillSourceTree.noteRemoved", { defaultValue: "Removed" }) : skill.note;
           const count = skill.inspection?.files.length ?? skill.fileCount;
           return <>
             {label && <Badge variant="outline" className="hidden font-normal text-muted-foreground sm:inline-flex" title={skill.error ?? skill.note}>{label}</Badge>}
@@ -148,6 +150,6 @@ export function SkillSourceTree({ candidates, selected, excludedFolders, onChang
         }}
       />
     </div>
-    {packageMode === 'skills' && <p className="border-t border-border px-3 py-2 text-xs text-muted-foreground">Select whole skill packages. Expand a skill to see its included files. Nested skills are selected separately.</p>}
+    {packageMode === 'skills' && <p className="border-t border-border px-3 py-2 text-xs text-muted-foreground">{t("skillSourceTree.footerHint", { defaultValue: "Select whole skill packages. Expand a skill to see its included files. Nested skills are selected separately." })}</p>}
   </div>;
 }

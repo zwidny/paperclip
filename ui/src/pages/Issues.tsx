@@ -42,6 +42,7 @@ import {
 } from "../lib/task-views";
 import { useUpdateIssueMutation } from "../hooks/useUpdateIssueMutation";
 import { usePageContentReady } from "../hooks/usePageContentReady";
+import { useTranslation } from "../i18n";
 
 const WORKSPACE_FILTER_ISSUE_LIMIT = 1000;
 const ISSUES_PAGE_SIZE = 100;
@@ -109,6 +110,7 @@ export function Issues() {
 }
 
 function StreamlinedTasks() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { selectedCompanyId } = useCompany();
@@ -156,9 +158,9 @@ function StreamlinedTasks() {
         toolbarContext={(
           <div className="flex min-w-0 items-center gap-2">
             {viewsMenu}
-            <Button size="sm" variant="outline" aria-label="New Task" onClick={() => openNewIssue()}>
+            <Button size="sm" variant="outline" aria-label={t("nav.newTask", { defaultValue: "New Task" })} onClick={() => openNewIssue()}>
               <Plus className="h-4 w-4 sm:mr-1" />
-              <span className="hidden sm:inline">New Task</span>
+              <span className="hidden sm:inline">{t("nav.newTask", { defaultValue: "New Task" })}</span>
             </Button>
           </div>
         )}

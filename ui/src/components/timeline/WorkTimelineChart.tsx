@@ -27,6 +27,7 @@ import {
   type LayoutOptions,
   type PositionedBar,
 } from "@/lib/timeline/layout";
+import { useTranslation } from "../../i18n";
 
 export type ZoomLevel = "hour" | "day" | "week";
 
@@ -821,6 +822,7 @@ function MiniMap({
   scrollLeft: number;
   onVisibleRangeChange: (fromMs: number, toMs: number) => void;
 }) {
+  const { t } = useTranslation();
   const documentDragCleanupRef = useRef<(() => void) | null>(null);
   const W = Math.max(320, viewportW || 900);
   const H = 54;
@@ -946,7 +948,7 @@ function MiniMap({
           height={H - 2}
           width={handleW}
           testId="timeline-minimap-left-handle"
-          label="Drag left edge to resize visible range"
+          label={t("timeline.dragLeftHandle", { defaultValue: "Drag left edge to resize visible range" })}
           onMouseDown={(e) => startRangeDrag("left", e)}
         />
         <MiniMapHandle
@@ -955,7 +957,7 @@ function MiniMap({
           height={H - 2}
           width={handleW}
           testId="timeline-minimap-right-handle"
-          label="Drag right edge to resize visible range"
+          label={t("timeline.dragRightHandle", { defaultValue: "Drag right edge to resize visible range" })}
           onMouseDown={(e) => startRangeDrag("right", e)}
         />
       </svg>

@@ -6,6 +6,7 @@ import {
   type MentionOption,
 } from "@/components/MarkdownEditor";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "../../i18n";
 
 interface TaskChatRichInputProps {
   value: string;
@@ -41,6 +42,7 @@ export function TaskChatRichInput({
   showImageAttachControls = false,
   questionAnswer = false,
 }: TaskChatRichInputProps) {
+  const { t } = useTranslation();
   const editorRef = useRef<MarkdownEditorRef>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadCountRef = useRef(0);
@@ -137,7 +139,7 @@ export function TaskChatRichInput({
             )}
             Attach image
           </Button>
-          <span>or drop/paste an image into the note</span>
+          <span>{t("taskChat.orDropPasteImage", { defaultValue: "or drop/paste an image into the note" })}</span>
         </div>
       ) : null}
       {uploadError ? (

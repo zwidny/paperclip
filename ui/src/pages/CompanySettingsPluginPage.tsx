@@ -5,8 +5,10 @@ import { useCompany } from "@/context/CompanyContext";
 import { QueryErrorState } from "@/components/QueryView";
 import { PluginSlotMount, usePluginSlots } from "@/plugins/slots";
 import { NotFoundPage } from "./NotFound";
+import { useTranslation } from "@/i18n";
 
 export function CompanySettingsPluginPage() {
+  const { t } = useTranslation();
   const params = useParams<{
     companyPrefix?: string;
     settingsRoutePath?: string;
@@ -51,11 +53,11 @@ export function CompanySettingsPluginPage() {
     if (hasInvalidCompanyPrefix) {
       return <NotFoundPage scope="invalid_company_prefix" requestedPrefix={routeCompanyPrefix} />;
     }
-    return <div className="text-sm text-muted-foreground">Select an organization to view this page.</div>;
+    return <div className="text-sm text-muted-foreground">{t("companySettingsPluginPage.selectOrg", { defaultValue: "Select an organization to view this page." })}</div>;
   }
 
   if (!settingsRoutePath || isLoading) {
-    return <div className="text-sm text-muted-foreground">Loading...</div>;
+    return <div className="text-sm text-muted-foreground">{t("companySettingsPluginPage.loading", { defaultValue: "Loading..." })}</div>;
   }
 
   // Only a real failure reaches here; an outage keeps `isLoading` true above.

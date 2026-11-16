@@ -5,6 +5,7 @@ import { GitHubSettingsDisclosure } from "./GitHubSettingsDisclosure";
 import { CopyText } from "@/components/CopyText";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/lib/router";
+import { useTranslation } from "../../../i18n";
 
 export function gitHubBotMention(endpoint: Pick<ChatEndpoint, "botUsername">) {
   const slug = endpoint.botUsername?.replace(/^@/, "").replace(/\[bot\]$/, "");
@@ -24,12 +25,13 @@ export function gitHubAppSettingsUrl(endpoint: ChatEndpoint) {
 }
 
 export function GitHubBotMention({ endpoint }: { endpoint: ChatEndpoint }) {
+  const { t } = useTranslation();
   const mention = gitHubBotMention(endpoint);
   return mention ? (
     <CopyText
       text={mention}
-      ariaLabel="Copy GitHub mention"
-      title="Copy GitHub mention"
+      ariaLabel={t("githubAppIdentity.copyMention", { defaultValue: "Copy GitHub mention" })}
+      title={t("githubAppIdentity.copyMention", { defaultValue: "Copy GitHub mention" })}
       className="break-all font-mono text-xs"
     >
       {mention}
@@ -45,8 +47,9 @@ export function GitHubAppBranding({
   endpoint: ChatEndpoint;
   avatarUrl?: string;
 }) {
+  const { t } = useTranslation();
   return (
-    <GitHubSettingsDisclosure title="GitHub App name and logo">
+    <GitHubSettingsDisclosure title={t("githubAppIdentity.settingsTitle", { defaultValue: "GitHub App name and logo" })}>
       <div className="mt-4 space-y-4">
         <p className="text-sm text-muted-foreground">
           Change the name or upload a logo in the App’s Display information
@@ -71,7 +74,7 @@ export function GitHubAppBranding({
               href={gitHubAppSettingsUrl(endpoint)}
               target="_blank"
               rel="noreferrer"
-              aria-label="Edit App name and logo on GitHub"
+              aria-label={t("githubAppIdentity.editOnGitHub", { defaultValue: "Edit App name and logo on GitHub" })}
             >
               Edit on GitHub <ExternalLink className="size-4" />
             </a>
@@ -100,6 +103,7 @@ export function GitHubAppIdentityActions({
   endpoint: ChatEndpoint;
   avatarUrl?: string;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-wrap items-center gap-1">
       {avatarUrl && (
@@ -114,8 +118,8 @@ export function GitHubAppIdentityActions({
           href={gitHubAppSettingsUrl(endpoint)}
           target="_blank"
           rel="noreferrer"
-          aria-label="Edit App name and logo on GitHub"
-          title="Change the App name or upload its logo on GitHub"
+          aria-label={t("githubAppIdentity.editOnGitHub", { defaultValue: "Edit App name and logo on GitHub" })}
+          title={t("githubAppIdentity.changeAppTitle", { defaultValue: "Change the App name or upload its logo on GitHub" })}
         >
           Edit App <ExternalLink className="size-3.5" />
         </a>
@@ -123,8 +127,8 @@ export function GitHubAppIdentityActions({
       <Button variant="ghost" size="icon" asChild>
         <Link
           to={`/apps/chat/connect?provider=github&resume=${endpoint.id}&reconnect=1`}
-          aria-label="Refresh GitHub App identity"
-          title="Reconnect after renaming the App to refresh its @mention"
+          aria-label={t("githubAppIdentity.refreshIdentity", { defaultValue: "Refresh GitHub App identity" })}
+          title={t("githubAppIdentity.reconnectTitle", { defaultValue: "Reconnect after renaming the App to refresh its @mention" })}
         >
           <RefreshCw className="size-3.5" />
         </Link>

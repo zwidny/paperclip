@@ -4,6 +4,7 @@ import type { Agent, Issue, IssueCommentMetadata, IssueRecoveryAction } from "@p
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { timeAgo } from "@/lib/timeAgo";
+import { useTranslation } from "../i18n";
 
 export type DispositionRecoverySnapshot = NonNullable<IssueCommentMetadata["recovery"]>;
 export type DispositionRecoveryContextValue = {
@@ -73,6 +74,7 @@ export function DispositionRecoveryNotice({ snapshot, createdAt, defaultExpanded
   createdAt?: string;
   defaultExpanded?: boolean;
 }) {
+  const { t } = useTranslation();
   const context = useContext(RecoveryContext);
   const [expanded, setExpanded] = useState(defaultExpanded);
   const [pending, setPending] = useState(false);
@@ -117,7 +119,7 @@ export function DispositionRecoveryNotice({ snapshot, createdAt, defaultExpanded
         </div>
         {unavailableReason && !requested ? (
           <p id={unavailableId} className="text-xs leading-relaxed text-muted-foreground">
-            {!historical && <span className="font-medium text-foreground">Retry unavailable. </span>}{unavailableReason}
+            {!historical && <span className="font-medium text-foreground">{t("dispositionRecovery.retryUnavailable", { defaultValue: "Retry unavailable." })} </span>}{unavailableReason}
           </p>
         ) : null}
         {error ? <p role="alert" className="text-sm text-destructive">Couldn’t confirm the retry. {error}</p> : null}
@@ -137,12 +139,12 @@ export function DispositionRecoveryNotice({ snapshot, createdAt, defaultExpanded
         {expanded ? (
           <div id={detailsId} className="flex flex-col gap-3 rounded-lg border border-border bg-muted/20 p-3">
             <dl className="flex flex-col gap-2 text-xs">
-              <div className="flex flex-wrap justify-between gap-1"><dt className="text-muted-foreground">Assigned when recovery stopped</dt><dd>{agentName}</dd></div>
-              <div className="flex flex-wrap justify-between gap-1"><dt className="text-muted-foreground">Automatic attempts</dt><dd className="font-mono">{snapshot.attemptCount} of {snapshot.maxAttempts}</dd></div>
-              <div className="flex flex-wrap justify-between gap-1"><dt className="text-muted-foreground">Automatic retries for this recovery</dt><dd>Stopped</dd></div>
+              <div className="flex flex-wrap justify-between gap-1"><dt className="text-muted-foreground">{t("dispositionRecovery.assignedWhenStopped", { defaultValue: "Assigned when recovery stopped" })}</dt><dd>{agentName}</dd></div>
+              <div className="flex flex-wrap justify-between gap-1"><dt className="text-muted-foreground">{t("dispositionRecovery.automaticAttempts", { defaultValue: "Automatic attempts" })}</dt><dd className="font-mono">{snapshot.attemptCount} of {snapshot.maxAttempts}</dd></div>
+              <div className="flex flex-wrap justify-between gap-1"><dt className="text-muted-foreground">{t("dispositionRecovery.automaticRetries", { defaultValue: "Automatic retries for this recovery" })}</dt><dd>{t("dispositionRecovery.stopped", { defaultValue: "Stopped" })}</dd></div>
             </dl>
-            <p className="text-xs leading-relaxed text-muted-foreground">Recovery asked the assigned agent to record an outcome or a next step. Retrying keeps the same task and agent, and checks the task’s current controls before continuing.</p>
-            <div className="flex flex-col gap-1"><span className="text-xs text-muted-foreground">Technical reason</span><code className="break-all font-mono text-xs">{snapshot.reason}</code></div>
+            <p className="text-xs leading-relaxed text-muted-foreground">{t("dispositionRecovery.recoveryDetail", { defaultValue: "Recovery asked the assigned agent to record an outcome or a next step. Retrying keeps the same task and agent, and checks the task’s current controls before continuing." })}</p>
+            <div className="flex flex-col gap-1"><span className="text-xs text-muted-foreground">{t("dispositionRecovery.technicalReason", { defaultValue: "Technical reason" })}</span><code className="break-all font-mono text-xs">{snapshot.reason}</code></div>
           </div>
         ) : null}
       </div>

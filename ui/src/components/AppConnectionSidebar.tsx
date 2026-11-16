@@ -24,12 +24,14 @@ import {
   type AppGalleryDisplayEntry,
 } from "@/pages/apps/app-definition-display";
 import { SidebarNavItem } from "./SidebarNavItem";
+import { useTranslation } from "../i18n";
 
 type AppDetailSidebarProps =
   | { kind: "connection"; connectionId: string }
   | { kind: "application"; applicationId: string };
 
 export function AppDetailSidebar(props: AppDetailSidebarProps) {
+  const { t } = useTranslation();
   const { selectedCompanyId } = useCompany();
   const { isMobile, setSidebarOpen } = useSidebar();
 
@@ -92,7 +94,7 @@ export function AppDetailSidebar(props: AppDetailSidebarProps) {
           className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
         >
           <ChevronLeft className="h-3.5 w-3.5 shrink-0" />
-          <span className="truncate">All connectors</span>
+          <span className="truncate">{t("appConnectionSidebar.allConnectors", { defaultValue: "All connectors" })}</span>
         </Link>
         <div className="flex min-w-0 items-center gap-2 px-2 py-1">
           <AppLogo

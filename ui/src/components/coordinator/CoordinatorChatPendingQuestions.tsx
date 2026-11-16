@@ -6,6 +6,7 @@ import { Link } from "@/lib/router";
 import { useCoordinatorWorkspaceEnabled } from "@/hooks/useCoordinatorWorkspaceEnabled";
 import { AttentionInteractionResolver } from "@/components/AttentionInteractionResolver";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "../../i18n";
 
 const EMPTY_QUESTIONS: AttentionItem[] = [];
 
@@ -43,8 +44,9 @@ export function CoordinatorChatPendingQuestion({ item }: { item: AttentionItem }
 }
 
 export function CoordinatorChatQuestionStatus({ query }: { query: ReturnType<typeof useCoordinatorChatPendingQuestions> }) {
+  const { t } = useTranslation();
   if (!query.enabled || !query.isError) return null;
   return <div role="status" className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-    <span>Task questions couldn’t load.</span><Button size="sm" variant="ghost" onClick={() => void query.refetch()}>Retry</Button>
+    <span>{t("coordinator.pendingQuestions.loadFailed", { defaultValue: "Task questions couldn’t load." })}</span><Button size="sm" variant="ghost" onClick={() => void query.refetch()}>{t("common.retry", { defaultValue: "Retry" })}</Button>
   </div>;
 }

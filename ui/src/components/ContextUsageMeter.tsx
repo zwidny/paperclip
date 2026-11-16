@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { timeAgo } from "@/lib/timeAgo";
 import { formatContextTokens } from "@/lib/context-tokens";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useTranslation } from "../i18n";
 
 export { formatContextTokens };
 
@@ -88,6 +89,7 @@ export type ContextCompactState =
   | { status: "unavailable"; reason: string };
 
 function CompactAction({ compact, level }: { compact: ContextCompactState; level: ContextUsageLevel }) {
+  const { t } = useTranslation();
   return (
     <div className="mt-3 flex flex-col gap-1.5 border-t border-border pt-3">
       <Button
@@ -102,14 +104,16 @@ function CompactAction({ compact, level }: { compact: ContextCompactState; level
         {compact.status === "pending"
           ? <Loader2 className="size-3.5 animate-spin" aria-hidden />
           : <FoldVertical className="size-3.5" aria-hidden />}
-        {compact.status === "pending" ? "Compacting…" : "Compact now"}
+        {compact.status === "pending"
+          ? t("contextUsage.compacting", { defaultValue: "Compacting…" })
+          : t("contextUsage.compactNow", { defaultValue: "Compact now" })}
       </Button>
       <p className="text-muted-foreground" role={compact.status === "unavailable" ? "note" : undefined}>
         {compact.status === "unavailable"
           ? compact.reason
           : compact.status === "pending"
-            ? "The agent is summarizing its conversation. This usually takes under a minute."
-            : "Summarizes the conversation so far so the agent has room to keep working."}
+            ? t("contextUsage.compactPendingBody", { defaultValue: "The agent is summarizing its conversation. This usually takes under a minute." })
+            : t("contextUsage.compactAvailableBody", { defaultValue: "Summarizes the conversation so far so the agent has room to keep working." })}
       </p>
     </div>
   );
@@ -117,50 +121,51 @@ function CompactAction({ compact, level }: { compact: ContextCompactState; level
 
 /** The hover card body; exported for Storybook galleries. */
 export function ContextUsageCard({ usage, compact }: { usage: ContextUsage; compact?: ContextCompactState | null }) {
+  const { t } = useTranslation();
   const percent = Math.min(100, Math.round((usage.usedTokens / usage.contextWindow) * 100));
   const level = contextUsageLevel(usage);
   const totals = usage.totals;
   return (
     <div className="flex flex-col">
       <div className="flex items-baseline justify-between gap-2">
-        <span className="font-medium text-foreground">Context window</span>
+        <span className="font-medium text-foreground">{t("contextUsage.contextWindow", { defaultValue: "Context window" })}</span>
         <span className={cn("font-medium tabular-nums", LEVEL_TEXT[level])}>{percent}%</span>
       </div>
       <p className="mt-0.5 text-muted-foreground tabular-nums">
-        {formatContextTokens(usage.usedTokens)} of {formatContextTokens(usage.contextWindow)} tokens
-        {usage.observedAt ? <> · updated {timeAgo(usage.observedAt)}</> : null}
+        {t("contextUsage.ofTokens", { defaultValue: "{{used}} of {{total}} tokens", used: formatContextTokens(usage.usedTokens), total: formatContextTokens(usage.contextWindow) })}
+        {usage.observedAt ? <> · {t("contextUsage.updatedAt", { defaultValue: "updated {{time}}", time: timeAgo(usage.observedAt) })}</> : null}
       </p>
       <Bar percent={percent} level={level} className="mt-2 w-full" />
       {level !== "normal" ? (
         <p className={cn("mt-2", LEVEL_TEXT[level])}>
           {usage.autoCompactTokens
-            ? `Compacts automatically near ${formatContextTokens(usage.autoCompactTokens)}.`
-            : "Close to full. The agent will compact its context soon."}
+            ? t("contextUsage.autoCompactNear", { defaultValue: "Compacts automatically near {{tokens}}.", tokens: formatContextTokens(usage.autoCompactTokens) })
+            : t("contextUsage.closeToFull", { defaultValue: "Close to full. The agent will compact its context soon." })}
         </p>
       ) : null}
       {totals || usage.lastTurn || usage.costUsd != null || usage.compactions ? (
         <dl className="mt-3 flex flex-col gap-1 border-t border-border pt-2">
           {totals?.inputTokens != null ? (
             <Row
-              label="Input"
+              label={t("contextUsage.input", { defaultValue: "Input" })}
               value={totals.cachedInputTokens
-                ? `${formatContextTokens(totals.inputTokens)} · ${formatContextTokens(totals.cachedInputTokens)} cached`
+                ? t("contextUsage.cachedValue", { defaultValue: "{{tokens}} · {{cached}} cached", tokens: formatContextTokens(totals.inputTokens), cached: formatContextTokens(totals.cachedInputTokens) })
                 : formatContextTokens(totals.inputTokens)}
             />
           ) : null}
-          {totals?.outputTokens != null ? <Row label="Output" value={formatContextTokens(totals.outputTokens)} /> : null}
+          {totals?.outputTokens != null ? <Row label={t("contextUsage.output", { defaultValue: "Output" })} value={formatContextTokens(totals.outputTokens)} /> : null}
           {totals?.reasoningOutputTokens ? (
-            <Row label="Reasoning" value={formatContextTokens(totals.reasoningOutputTokens)} muted />
+            <Row label={t("contextUsage.reasoning", { defaultValue: "Reasoning" })} value={formatContextTokens(totals.reasoningOutputTokens)} muted />
           ) : null}
           {usage.lastTurn ? (
             <Row
-              label="Last request"
-              value={`${formatContextTokens(usage.lastTurn.inputTokens ?? 0)} in · ${formatContextTokens(usage.lastTurn.outputTokens ?? 0)} out`}
+              label={t("contextUsage.lastRequest", { defaultValue: "Last request" })}
+              value={t("contextUsage.inOut", { defaultValue: "{{input}} in · {{output}} out", input: formatContextTokens(usage.lastTurn.inputTokens ?? 0), output: formatContextTokens(usage.lastTurn.outputTokens ?? 0) })}
               muted
             />
           ) : null}
-          {usage.costUsd != null ? <Row label="Cost" value={`$${usage.costUsd.toFixed(2)}`} /> : null}
-          {usage.compactions ? <Row label="Compactions" value={String(usage.compactions)} muted /> : null}
+          {usage.costUsd != null ? <Row label={t("contextUsage.cost", { defaultValue: "Cost" })} value={`$${usage.costUsd.toFixed(2)}`} /> : null}
+          {usage.compactions ? <Row label={t("contextUsage.compactions", { defaultValue: "Compactions" })} value={String(usage.compactions)} muted /> : null}
         </dl>
       ) : null}
       {compact ? <CompactAction compact={compact} level={level} /> : null}
@@ -182,6 +187,7 @@ export function ContextUsageMeter({
   compact?: ContextCompactState | null;
   defaultOpen?: boolean;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(defaultOpen);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const percent = Math.min(100, Math.round((usage.usedTokens / usage.contextWindow) * 100));
@@ -201,7 +207,7 @@ export function ContextUsageMeter({
       <PopoverTrigger asChild>
         <button
           type="button"
-          aria-label={`Context window: ${percent}% of ${windowLabel} tokens used`}
+          aria-label={t("contextUsage.triggerAria", { defaultValue: "Context window: {{percent}}% of {{tokens}} tokens used", percent, tokens: windowLabel })}
           data-testid="context-usage-meter"
           data-level={level}
           onMouseEnter={show}
@@ -211,7 +217,7 @@ export function ContextUsageMeter({
           <Bar percent={percent} level={level} className="w-12 shrink-0" />
           <span className={cn("truncate tabular-nums", level === "normal" ? "text-foreground" : LEVEL_TEXT[level])}>
             {percent}%
-            <span className="text-muted-foreground"> of {windowLabel}</span>
+            <span className="text-muted-foreground"> {t("contextUsage.percentOfTokens", { defaultValue: "of {{tokens}}", tokens: windowLabel })}</span>
           </span>
         </button>
       </PopoverTrigger>

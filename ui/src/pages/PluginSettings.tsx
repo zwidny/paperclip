@@ -146,7 +146,7 @@ export function PluginSettings() {
   }, [pluginId]);
 
   if (pluginView.kind === "loading" || pluginView.kind === "reconnecting") {
-    return <QueryPlaceholder size="page" label="Loading plugin details" className="p-4" />;
+    return <QueryPlaceholder size="page" label={t("pluginSettings.loading", { defaultValue: "Loading plugin details..." })} className="p-4" />;
   }
 
   // A failed load must not bounce the operator back to the plugin list: a
@@ -694,7 +694,7 @@ function PluginLocalFoldersSettings({ pluginId, companyId, declarations }: Plugi
         />
       ) : null}
       {foldersView.kind === "loading" || foldersView.kind === "reconnecting" ? (
-        <QueryPlaceholder size="panel" label="Loading local folders" className="py-3" />
+        <QueryPlaceholder size="panel" label={t("pluginSettings.loadingFolders", { defaultValue: "Loading local folders..." })} className="py-3" />
       ) : (
         <div className="space-y-3">
           {declarations.map((declaration) => (

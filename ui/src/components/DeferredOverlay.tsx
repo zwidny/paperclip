@@ -3,6 +3,7 @@ import { captureBrowserException } from "../lib/sentry";
 import { PaperclipLoading } from "./AnimatedPaperclipIcon";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
+import { useTranslation } from "../i18n";
 
 interface DeferredOverlayProps {
   requested: boolean;
@@ -12,13 +13,18 @@ interface DeferredOverlayProps {
 }
 
 function OverlayNotice({ title, onClose, failed = false }: Pick<DeferredOverlayProps, "title" | "onClose"> & { failed?: boolean }) {
+  const { t } = useTranslation();
   return <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
     <DialogContent showCloseButton={false} aria-describedby={undefined}>
-      <DialogTitle>{failed ? `Couldn't open ${title.toLowerCase()}` : `Loading ${title.toLowerCase()}…`}</DialogTitle>
+      <DialogTitle>{failed
+        ? t("deferredOverlay.failedTitle", { defaultValue: "Couldn't open {{title}}", title: title.toLowerCase() })
+        : t("deferredOverlay.loadingTitle", { defaultValue: "Loading {{title}}…", title: title.toLowerCase() })}</DialogTitle>
       {failed
-        ? <p className="text-sm text-muted-foreground">Close this window to keep working. Reload the page before trying again.</p>
+        ? <p className="text-sm text-muted-foreground">{t("deferredOverlay.failedBody", { defaultValue: "Close this window to keep working. Reload the page before trying again." })}</p>
         : <PaperclipLoading className="min-h-0" />}
-      <div className="flex justify-end"><Button variant="outline" onClick={onClose}>{failed ? "Close" : "Cancel"}</Button></div>
+      <div className="flex justify-end"><Button variant="outline" onClick={onClose}>{failed
+        ? t("common.close", { defaultValue: "Close" })
+        : t("common.cancel", { defaultValue: "Cancel" })}</Button></div>
     </DialogContent>
   </Dialog>;
 }

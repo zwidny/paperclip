@@ -552,6 +552,7 @@ function readRunPreview(items: ToolActivity[]): string {
 }
 
 function ReadRunActivity({ items }: { items: ToolActivity[] }) {
+  const { t } = useTranslation();
   const id = `runner-reads:${items[0]!.id}`;
   const [open, setOpen] = useTaskChatExpansion(id, false);
   const listId = useId();
@@ -569,14 +570,14 @@ function ReadRunActivity({ items }: { items: ToolActivity[] }) {
             <BookOpen className="size-3.5" aria-hidden="true" />
           </span>
           <span className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden whitespace-nowrap">
-            <span className="shrink-0 text-xs">Read {items.length} files</span>
+            <span className="shrink-0 text-xs">{t("taskChatRunnerActivityGroup.readFiles", { count: items.length, defaultValue: "Read {{count}} files" })}</span>
             <span className="truncate font-mono text-xs text-muted-foreground">{readRunPreview(items)}</span>
           </span>
         </span>
         <ChevronRight className={cn("size-3.5 shrink-0", open && "rotate-90")} aria-hidden="true" />
       </button>
       {open ? (
-        <ol id={listId} className="ml-2.5 flex min-w-0 flex-col border-l border-border pl-2" aria-label="Files read">
+        <ol id={listId} className="ml-2.5 flex min-w-0 flex-col border-l border-border pl-2" aria-label={t("taskChatRunnerActivityGroup.filesRead", { defaultValue: "Files read" })}>
           {items.map((item) => (
             <ExpandedActivity key={item.id} item={item} active={false} />
           ))}

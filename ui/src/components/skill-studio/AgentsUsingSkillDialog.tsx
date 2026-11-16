@@ -29,6 +29,7 @@ import {
   type SearchableSelectOption,
 } from "@/components/SearchableSelect";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/i18n";
 
 const LATEST_VALUE = "__latest__";
 
@@ -421,6 +422,7 @@ function AddAgentPicker({
   disabled: boolean;
   onSelect: (agent: Agent) => void;
 }) {
+  const { t } = useTranslation();
   type AgentOption = SearchableSelectOption<string> & { agent: Agent };
   const groups = useMemo<readonly SearchableSelectGroup<string, AgentOption>[]>(() => {
     const options: AgentOption[] = agents.map((agent) => ({
@@ -439,10 +441,10 @@ function AddAgentPicker({
       value=""
       groups={groups}
       loading={loading}
-      loadingMessage="Loading agents..."
-      placeholder="Add agent…"
-      searchPlaceholder="Search agents..."
-      emptyMessage="All eligible agents already have this skill."
+      loadingMessage={t("agentsUsingSkill.loadingAgents", { defaultValue: "Loading agents..." })}
+      placeholder={t("agentsUsingSkill.addAgent", { defaultValue: "Add agent…" })}
+      searchPlaceholder={t("agentsUsingSkill.searchAgents", { defaultValue: "Search agents..." })}
+      emptyMessage={t("agentsUsingSkill.emptyEligible", { defaultValue: "All eligible agents already have this skill." })}
       disabled={disabled}
       onValueChange={(_value, option) => {
         onSelect(option.agent);

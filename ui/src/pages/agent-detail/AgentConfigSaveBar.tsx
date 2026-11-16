@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "../../i18n";
 
 /** Tracks the content viewport so sidebar resizing never covers navigation. */
 export function AgentConfigSaveBar({ dirty, saving, savedVersion = 0, onDiscard, onSave }: {
@@ -9,6 +10,7 @@ export function AgentConfigSaveBar({ dirty, saving, savedVersion = 0, onDiscard,
   onDiscard: () => void;
   onSave: () => void;
 }) {
+  const { t } = useTranslation();
   const anchor = useRef<HTMLDivElement>(null);
   const [bounds, setBounds] = useState<{ left: number; width: number } | null>(null);
   const lastSave = useRef(savedVersion);
@@ -55,7 +57,7 @@ export function AgentConfigSaveBar({ dirty, saving, savedVersion = 0, onDiscard,
     return () => { observer?.disconnect(); window.removeEventListener("resize", measure); };
   }, []);
   return <div ref={anchor}>
-    <footer aria-label="Unsaved agent changes" aria-hidden={!visible} inert={!visible}
+    <footer aria-label={t("agentDetail.unsavedChangesAria", { defaultValue: "Unsaved agent changes" })} aria-hidden={!visible} inert={!visible}
       data-visible={visible} style={bounds ?? undefined}
       className="agent-config-save-bar flex flex-wrap items-center justify-between gap-3">
       <p role="status" className="agent-save-status text-xs text-muted-foreground">
@@ -70,8 +72,8 @@ export function AgentConfigSaveBar({ dirty, saving, savedVersion = 0, onDiscard,
         </span>}
       </p>
       <div className="flex gap-2">
-        <Button variant="ghost" disabled={!dirty || saving} onClick={onDiscard}>Discard</Button>
-        <Button disabled={!dirty || saving} onClick={onSave}>{saving ? "Saving…" : "Save changes"}</Button>
+        <Button variant="ghost" disabled={!dirty || saving} onClick={onDiscard}>{t("agentDetail.discard", { defaultValue: "Discard" })}</Button>
+        <Button disabled={!dirty || saving} onClick={onSave}>{saving ? t("common.saving", { defaultValue: "Saving…" }) : t("common.saveChanges", { defaultValue: "Save changes" })}</Button>
       </div>
     </footer>
   </div>;

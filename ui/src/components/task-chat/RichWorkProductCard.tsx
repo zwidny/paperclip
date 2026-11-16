@@ -25,6 +25,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { GithubIcon } from "@/components/icons/github-icon";
 import { cn, formatDateTime } from "@/lib/utils";
+import { i18n, useTranslation } from "@/i18n";
 
 type StateChip = {
   label: string;
@@ -33,40 +34,44 @@ type StateChip = {
 };
 
 /** Resting states stay quiet. A completed work product never gets a chip. */
+function tr(key: string, defaultValue: string): string {
+  return i18n.t(`taskChat.${key}`, { defaultValue });
+}
+
 export function stateChipFor(
   kind: IssueWorkProduct["type"],
   status: string | null | undefined,
   reviewState: IssueWorkProduct["reviewState"] | string | null | undefined,
 ): StateChip | null {
   if (reviewState === "changes_requested" || status === "changes_requested") {
-    return { label: "Changes requested", tone: "failure" };
+    return { label: tr("workProductChangesRequested", "Changes requested"), tone: "failure" };
   }
   if (reviewState === "needs_board_review" || status === "ready_for_review") {
-    return { label: "Review", tone: "review" };
+    return { label: tr("workProductReview", "Review"), tone: "review" };
   }
   if (["failed", "unhealthy", "down"].includes(status ?? "")) {
-    return { label: "Failed", tone: "failure" };
+    return { label: tr("workProductFailed", "Failed"), tone: "failure" };
   }
   if (["pending", "opening"].includes(status ?? "")) {
-    return { label: status === "opening" ? "Opening" : "Pending", tone: "progress", dashed: true };
+    return { label: status === "opening" ? tr("workProductOpening", "Opening") : tr("workProductPending", "Pending"), tone: "progress", dashed: true };
   }
   if (kind === "pull_request" && (status === "active" || status === "open")) {
-    return { label: "Open", tone: "progress" };
+    return { label: tr("workProductOpen", "Open"), tone: "progress" };
   }
   if (kind === "pull_request" && status === "draft") {
-    return { label: "Draft", tone: "review" };
+    return { label: tr("workProductDraft", "Draft"), tone: "review" };
   }
   if (kind === "pull_request" && status === "merged") {
-    return { label: "Merged", tone: "success" };
+    return { label: tr("workProductMerged", "Merged"), tone: "success" };
   }
   if (kind === "pull_request" && status === "closed") {
-    return { label: "Closed", tone: "neutral" };
+    return { label: tr("workProductClosed", "Closed"), tone: "neutral" };
   }
   if (kind === "runtime_service" && status === "active") {
-    return { label: "Running", tone: "progress" };
+    return { label: tr("workProductRunning", "Running"), tone: "progress" };
   }
   if (kind === "runtime_service" && status === "closed") {
-    return { label: "Stopped", tone: "failure" };
+    return { label: tr("workProductStopped", "Stopped"), tone: "failure" };
   }
   return null;
 }
@@ -134,6 +139,7 @@ export interface RichWorkProductCardProps {
 }
 
 export function RichWorkProductCard({ workProduct, href, variant = "card" }: RichWorkProductCardProps) {
+  const { t } = useTranslation();
   const openIssueGallery = useContext(IssueGalleryContext);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -143,7 +149,7 @@ export function RichWorkProductCard({ workProduct, href, variant = "card" }: Ric
   const isVideo = isVideoLikeOutput(contentType, stringMeta(metadata, "originalFilename") ?? workProduct.title);
   let Icon: LucideIcon = File;
   let meta: Array<string | null> = [];
-  let action = "Open preview";
+  let action = t("taskChat.workProductOpenPreview", { defaultValue: "Open preview" });
 
   switch (workProduct.type) {
     case "pull_request": {
@@ -153,40 +159,52 @@ export function RichWorkProductCard({ workProduct, href, variant = "card" }: Ric
       const base = stringMeta(metadata, "baseRef", "base", "baseBranch");
       const head = stringMeta(metadata, "headRef", "head", "headBranch", "branch");
       meta = [repository, number ? `#${number.replace(/^#/, "")}` : null, base && head ? `${base} ← ${head}` : null, urlLabel(workProduct.url)];
-      action = "Open on GitHub";
+      action = t("taskChat.workProductOpenOnGithub", { defaultValue: "Open on GitHub" });
       break;
     }
     case "commit":
       Icon = GitCommit;
       meta = [stringMeta(metadata, "shortSha", "sha")?.slice(0, 8) ?? workProduct.externalId?.slice(0, 8) ?? null, stringMeta(metadata, "branch", "branchName"), urlLabel(workProduct.url)];
-      action = "Open on GitHub";
+      action = t("taskChat.workProductOpenOnGithub", { defaultValue: "Open on GitHub" });
       break;
     case "branch":
       Icon = GitBranch;
-      meta = [href ? "Branch" : "Branch · no remote link", stringMeta(metadata, "repository", "repo", "repositoryName"), stringMeta(metadata, "branch", "branchName") ?? workProduct.externalId, urlLabel(workProduct.url)];
-      action = "Open on GitHub";
+      meta = [href
+      ? t("taskChat.workProductBranch", { defaultValue: "Branch" })
+      : t("taskChat.workProductBranchNoRemoteLink", { defaultValue: "Branch · no remote link" }), stringMeta(metadata, "repository", "repo", "repositoryName"), stringMeta(metadata, "branch", "branchName") ?? workProduct.externalId, urlLabel(workProduct.url)];
+      action = t("taskChat.workProductOpenOnGithub", { defaultValue: "Open on GitHub" });
       break;
     case "artifact": {
       Icon = isImage ? Image : isVideo ? Film : File;
       const size = numberMeta(metadata, "byteSize", "size");
-      meta = [isImage ? "Image" : isVideo ? "Video" : stringMeta(metadata, "kind", "fileType") ?? "File", size === null ? null : formatBytes(size)];
-      action = isImage || isVideo ? "Open gallery" : "Download";
+      meta = [isImage
+        ? t("taskChat.workProductImage", { defaultValue: "Image" })
+        : isVideo
+          ? t("taskChat.workProductVideo", { defaultValue: "Video" })
+          : stringMeta(metadata, "kind", "fileType") ?? t("taskChat.workProductFile", { defaultValue: "File" }), size === null ? null : formatBytes(size)];
+      action = isImage || isVideo
+        ? t("taskChat.workProductOpenGallery", { defaultValue: "Open gallery" })
+        : t("taskChat.workProductDownload", { defaultValue: "Download" });
       break;
     }
     case "document":
       Icon = FileText;
-      meta = ["Document", stringMeta(metadata, "revision", "revisionNumber") ? `rev ${stringMeta(metadata, "revision", "revisionNumber")}` : null];
-      action = "Open document";
+      meta = [t("taskChat.workProductDocument", { defaultValue: "Document" }), stringMeta(metadata, "revision", "revisionNumber")
+        ? t("taskChat.workProductRevision", { defaultValue: "rev {{revision}}", revision: stringMeta(metadata, "revision", "revisionNumber") })
+        : null];
+      action = t("taskChat.workProductOpenDocument", { defaultValue: "Open document" });
       break;
     case "preview_url":
       Icon = Globe;
       meta = [urlLabel(workProduct.url)];
-      action = "Open preview";
+      action = t("taskChat.workProductOpenPreview", { defaultValue: "Open preview" });
       break;
     case "runtime_service":
       Icon = Server;
-      meta = [stringMeta(metadata, "service", "serviceName") ?? workProduct.provider, stringMeta(metadata, "port") ? `port ${stringMeta(metadata, "port")}` : null];
-      action = "Open service";
+      meta = [stringMeta(metadata, "service", "serviceName") ?? workProduct.provider, stringMeta(metadata, "port")
+        ? t("taskChat.workProductPort", { defaultValue: "port {{port}}", port: stringMeta(metadata, "port") })
+        : null];
+      action = t("taskChat.workProductOpenService", { defaultValue: "Open service" });
       break;
   }
 
@@ -199,9 +217,9 @@ export function RichWorkProductCard({ workProduct, href, variant = "card" }: Ric
   const unhealthyChip =
     workProduct.healthStatus === "unhealthy"
       ? workProduct.type === "preview_url"
-        ? { label: "Down", tone: "failure" as const }
+        ? { label: t("taskChat.workProductDown", { defaultValue: "Down" }), tone: "failure" as const }
         : workProduct.type === "runtime_service" && workProduct.status !== "closed"
-          ? { label: "Unhealthy", tone: "failure" as const }
+          ? { label: t("taskChat.workProductUnhealthy", { defaultValue: "Unhealthy" }), tone: "failure" as const }
           : null
       : null;
   const chip =
@@ -221,7 +239,9 @@ export function RichWorkProductCard({ workProduct, href, variant = "card" }: Ric
   const changeCounts = [additions === null ? null : `+${additions}`, deletions === null ? null : `−${deletions}`]
     .filter(Boolean)
     .join(" ");
-  const fileCount = files === null ? null : `${files} ${files === 1 ? "file" : "files"}`;
+  const fileCount = files === null
+    ? null
+    : t("taskChat.workProductFileCount", { count: files, defaultValue: "{{count}} files" });
   const statsLabel = [changeCounts || null, fileCount].filter(Boolean).join(" · ");
   const compact = variant === "compact";
   const mediaPath = workProduct.type === "artifact" && (isImage || isVideo)
@@ -287,11 +307,11 @@ export function RichWorkProductCard({ workProduct, href, variant = "card" }: Ric
         {!compact && summary && !linklessBranch ? <p className={cn("mt-1 text-xs text-muted-foreground", detailsOpen ? "whitespace-pre-wrap break-words" : "line-clamp-2")}>{summary}</p> : null}
         {expandable && detailsOpen ? (
           <div className="mt-2 flex flex-col gap-1 text-xs text-muted-foreground">
-            {workProduct.type !== "branch" ? <p>No link was provided for this work product.</p> : null}
-            <p>{workProduct.provider} · {workProduct.status.replaceAll("_", " ")} · Updated {formatDateTime(workProduct.updatedAt)}</p>
+            {workProduct.type !== "branch" ? <p>{t("taskChat.workProductNoLink", { defaultValue: "No link was provided for this work product." })}</p> : null}
+            <p>{workProduct.provider} · {workProduct.status.replaceAll("_", " ")} · {t("taskChat.workProductUpdated", { defaultValue: "Updated {{date}}", date: formatDateTime(workProduct.updatedAt) })}</p>
             {linklessBranch && summary ? (
               <details className="relative z-10 mt-1">
-                <summary className="w-fit cursor-pointer font-medium text-foreground">Saved description</summary>
+                <summary className="w-fit cursor-pointer font-medium text-foreground">{t("taskChat.workProductSavedDescription", { defaultValue: "Saved description" })}</summary>
                 <p className="mt-1 whitespace-pre-wrap break-words">{summary}</p>
               </details>
             ) : null}
@@ -304,29 +324,33 @@ export function RichWorkProductCard({ workProduct, href, variant = "card" }: Ric
           <button
             type="button"
             onClick={() => openText!(textMetadata!.attachmentId, textMetadata!.originalFilename ?? workProduct.title)}
-            aria-label={`Open in tab: ${workProduct.title}`}
+            aria-label={t("taskChat.workProductOpenInTabAria", { defaultValue: "Open in tab: {{title}}", title: workProduct.title })}
             className="inline-flex items-center gap-1 text-xs font-medium text-foreground after:absolute after:inset-0 after:rounded-md focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-ring"
           >
-            {compact ? null : <span className="hidden @sm:inline">Open in tab</span>}<FileText aria-hidden className="h-3 w-3" />
+            {compact ? null : <span className="hidden @sm:inline">{t("taskChat.workProductOpenInTab", { defaultValue: "Open in tab" })}</span>}<FileText aria-hidden className="h-3 w-3" />
           </button>
         ) : null}
         {mediaPath ? (
-          <button type="button" onClick={openGallery} aria-label={`${action}: ${workProduct.title}`} className="inline-flex items-center gap-1 text-xs font-medium text-foreground after:absolute after:inset-0 after:rounded-md focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-ring">
+          <button type="button" onClick={openGallery} aria-label={t("taskChat.workProductActionAria", { defaultValue: "{{action}}: {{title}}", action, title: workProduct.title })} className="inline-flex items-center gap-1 text-xs font-medium text-foreground after:absolute after:inset-0 after:rounded-md focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-ring">
             {compact ? null : <span className="hidden @sm:inline">{action}</span>}<Maximize2 aria-hidden className="h-3 w-3" />
           </button>
         ) : actionHref ? (
-          <a href={actionHref} aria-label={`${action}: ${workProduct.title}`} className={cn("inline-flex items-center gap-1 text-xs font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", canOpenText ? "relative z-10" : "after:absolute after:inset-0 after:rounded-md focus-visible:after:ring-2 focus-visible:after:ring-ring")} target={actionHref.startsWith("http") ? "_blank" : undefined} rel={actionHref.startsWith("http") ? "noreferrer" : undefined}>
+          <a href={actionHref} aria-label={t("taskChat.workProductActionAria", { defaultValue: "{{action}}: {{title}}", action, title: workProduct.title })} className={cn("inline-flex items-center gap-1 text-xs font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", canOpenText ? "relative z-10" : "after:absolute after:inset-0 after:rounded-md focus-visible:after:ring-2 focus-visible:after:ring-ring")} target={actionHref.startsWith("http") ? "_blank" : undefined} rel={actionHref.startsWith("http") ? "noreferrer" : undefined}>
             {compact ? null : <span className="hidden @sm:inline">{action}</span>}<ExternalLink aria-hidden className="h-3 w-3" />
           </a>
         ) : expandable ? (
           <button
             type="button"
             onClick={() => setDetailsOpen((open) => !open)}
-            aria-label={`${detailsOpen ? "Hide" : "Show"} details: ${workProduct.title}`}
+            aria-label={detailsOpen
+              ? t("taskChat.workProductHideDetailsAria", { defaultValue: "Hide details: {{title}}", title: workProduct.title })
+              : t("taskChat.workProductShowDetailsAria", { defaultValue: "Show details: {{title}}", title: workProduct.title })}
             aria-expanded={detailsOpen}
             className="inline-flex cursor-pointer items-center gap-1 text-xs font-medium text-foreground after:absolute after:inset-0 after:rounded-md focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-ring"
           >
-            <span>{detailsOpen ? "Hide details" : "Show details"}</span>
+            <span>{detailsOpen
+              ? t("taskChat.workProductHideDetails", { defaultValue: "Hide details" })
+              : t("taskChat.workProductShowDetails", { defaultValue: "Show details" })}</span>
             <ChevronDown aria-hidden className={cn("h-4 w-4", detailsOpen && "rotate-180")} />
           </button>
         ) : null}

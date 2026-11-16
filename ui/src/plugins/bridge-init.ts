@@ -60,6 +60,7 @@ import {
 } from "@/lib/recent-assignees";
 import { getRecentProjectIds, trackRecentProject } from "@/lib/recent-projects";
 import { copyTextToClipboard } from "@/lib/clipboard";
+import { i18n } from "../i18n";
 
 // ---------------------------------------------------------------------------
 // Global bridge registry
@@ -346,9 +347,9 @@ function PluginSdkAssigneePicker({
   companyId,
   value,
   onChange,
-  placeholder = "Responsible",
-  noneLabel = "No responsible",
-  searchPlaceholder = "Search responsible...",
+  placeholder = i18n.t("pluginSdk.responsible", { defaultValue: "Responsible" }),
+  noneLabel = i18n.t("pluginSdk.noResponsible", { defaultValue: "No responsible" }),
+  searchPlaceholder = i18n.t("pluginSdk.searchResponsible", { defaultValue: "Search responsible..." }),
   emptyMessage = "No responsible found.",
   includeUsers = true,
   includeTerminatedAgents = false,
@@ -456,9 +457,9 @@ function PluginSdkProjectPicker({
   companyId,
   value,
   onChange,
-  placeholder = "Project",
-  noneLabel = "No project",
-  searchPlaceholder = "Search projects...",
+  placeholder = i18n.t("pluginSdk.project", { defaultValue: "Project" }),
+  noneLabel = i18n.t("pluginSdk.noProject", { defaultValue: "No project" }),
+  searchPlaceholder = i18n.t("pluginSdk.searchProjects", { defaultValue: "Search projects..." }),
   emptyMessage = "No projects found.",
   includeArchived = false,
   className,
@@ -641,7 +642,7 @@ function PluginSdkJsonTree({ data }: { data: unknown }) {
   return createElement("pre", { className: "max-h-80 overflow-auto rounded-md border bg-muted/30 p-2 text-xs" }, JSON.stringify(data, null, 2));
 }
 
-function PluginSdkSpinner({ label = "Loading" }: { size?: "sm" | "md" | "lg"; label?: string }) {
+function PluginSdkSpinner({ label = i18n.t("pluginSdk.loading", { defaultValue: "Loading" }) }: { size?: "sm" | "md" | "lg"; label?: string }) {
   return createElement("span", {
     className: "inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-foreground align-middle",
     role: "status",

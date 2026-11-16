@@ -2059,7 +2059,7 @@ export function CompanyEnvironments({ mode = "list" }: CompanyEnvironmentsProps)
         </div>
 
         {environmentsQuery.isLoading || environmentsView.kind === "reconnecting" ? (
-          <QueryPlaceholder label="Loading environments" />
+          <QueryPlaceholder label={t("environments.loadingEnvironments", { defaultValue: "Loading environments" })} />
         ) : environmentsView.kind === "error" ? (
           <QueryErrorState
             error={environmentsQuery.error}

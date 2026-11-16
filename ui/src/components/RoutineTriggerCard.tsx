@@ -15,6 +15,7 @@ import {
 import { ScheduleEditor } from "./ScheduleEditor";
 import { buildRoutineTriggerPatch } from "../lib/routine-trigger-patch";
 import { describeCron } from "../lib/cron-readable";
+import { useTranslation } from "../i18n";
 
 const signingModes = ["app_webhook", "bearer", "hmac_sha256", "github_hmac", "none"];
 const SIGNING_MODES_WITHOUT_REPLAY_WINDOW = new Set(["app_webhook", "bearer", "github_hmac", "fireflies_hmac", "none"]);
@@ -44,6 +45,7 @@ export function RoutineTriggerCard({
   onDelete: (id: string) => void;
   disabled?: boolean;
 }) {
+  const { t } = useTranslation();
   const [draft, setDraft] = useState({
     label: trigger.label ?? "",
     cronExpression: trigger.cronExpression ?? "",
@@ -65,12 +67,12 @@ export function RoutineTriggerCard({
   const humanCron = trigger.kind === "schedule" ? describeCron(draft.cronExpression) : null;
   const lastResultFailed = /fail|error/i.test(trigger.lastResult ?? "");
   const lastResultLabel = trigger.lastResult?.startsWith("Created execution issue ")
-    ? "Task created"
+    ? t("routineTriggerCard.taskCreated", { defaultValue: "Task created" })
     : trigger.lastResult;
 
   return (
     <form
-      aria-label={`Trigger: ${trigger.label ?? trigger.kind}`}
+      aria-label={t("routineTriggerCard.triggerAria", { defaultValue: "Trigger: {{name}}", name: trigger.label ?? trigger.kind })}
       className="space-y-4 rounded-lg border border-border p-4"
       onSubmit={(event) => event.preventDefault()}
     >
@@ -94,7 +96,7 @@ export function RoutineTriggerCard({
           ) : null}
           <span className="text-xs text-muted-foreground">
             {trigger.kind === "schedule" && trigger.nextRunAt
-              ? `Next: ${new Date(trigger.nextRunAt).toLocaleString()}`
+              ? t("routineTriggerCard.nextRun", { defaultValue: "Next: {{date}}", date: new Date(trigger.nextRunAt).toLocaleString() })
               : trigger.kind === "webhook"
                 ? "Webhook"
                 : "API"}
@@ -104,17 +106,17 @@ export function RoutineTriggerCard({
 
       {trigger.kind === "webhook" && trigger.webhookUrl && (
         <div className="space-y-1.5">
-          <Label htmlFor={`webhook-url-${trigger.id}`} className="text-xs">Webhook URL</Label>
+          <Label htmlFor={`webhook-url-${trigger.id}`} className="text-xs">{t("routineTriggerCard.webhookUrl", { defaultValue: "Webhook URL" })}</Label>
           <Input id={`webhook-url-${trigger.id}`} value={trigger.webhookUrl} readOnly onFocus={(event) => event.target.select()} />
           <p className="text-xs text-muted-foreground">
-            Send a POST request with Content-Type: application/json. Keep this URL private when signing is disabled.
+            {t("routineTriggerCard.webhookHint", { defaultValue: "Send a POST request with Content-Type: application/json. Keep this URL private when signing is disabled." })}
           </p>
         </div>
       )}
 
       <div className="grid gap-3 md:grid-cols-2">
         <div className="space-y-1.5">
-          <Label className="text-xs">Label</Label>
+          <Label className="text-xs">{t("routineTriggerCard.label", { defaultValue: "Label" })}</Label>
           <Input
             value={draft.label}
             disabled={disabled}
@@ -123,7 +125,7 @@ export function RoutineTriggerCard({
         </div>
         {trigger.kind === "schedule" && (
           <div className="space-y-1.5 md:col-span-2">
-            <Label className="text-xs">Schedule</Label>
+            <Label className="text-xs">{t("routineTriggerCard.schedule", { defaultValue: "Schedule" })}</Label>
             <ScheduleEditor
               value={draft.cronExpression}
               onChange={(cronExpression) =>
@@ -135,7 +137,7 @@ export function RoutineTriggerCard({
         {trigger.kind === "webhook" && (
           <>
             <div className="space-y-1.5">
-              <Label className="text-xs">Signing mode</Label>
+              <Label className="text-xs">{t("routineTriggerCard.signingMode", { defaultValue: "Signing mode" })}</Label>
               <Select
                 value={draft.signingMode}
                 onValueChange={(signingMode) =>
@@ -157,7 +159,7 @@ export function RoutineTriggerCard({
             </div>
             {!SIGNING_MODES_WITHOUT_REPLAY_WINDOW.has(draft.signingMode) && (
               <div className="space-y-1.5">
-                <Label className="text-xs">Replay window (seconds)</Label>
+                <Label className="text-xs">{t("routineTriggerCard.replayWindow", { defaultValue: "Replay window (seconds)" })}</Label>
                 <Input
                   value={draft.replayWindowSec}
                   disabled={disabled}
@@ -180,12 +182,12 @@ export function RoutineTriggerCard({
             onClick={() => onDelete(trigger.id)}
           >
             <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-            Delete
+            {t("routineTriggerCard.delete", { defaultValue: "Delete" })}
           </Button>
           {trigger.kind === "webhook" && (
             <Button variant="outline" size="sm" onClick={() => onRotate(trigger.id)}>
               <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
-              Rotate secret
+              {t("routineTriggerCard.rotateSecret", { defaultValue: "Rotate secret" })}
             </Button>
           )}
           <Button
@@ -196,7 +198,7 @@ export function RoutineTriggerCard({
             }
           >
             <Save className="mr-1.5 h-3.5 w-3.5" />
-            Save trigger
+            {t("routineTriggerCard.saveTrigger", { defaultValue: "Save trigger" })}
           </Button>
         </div>
       )}

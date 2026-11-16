@@ -26,6 +26,7 @@ import {
   bindingEnvKey,
   bindingSecretLabel,
 } from "../pages/secrets/proposal-review";
+import { useTranslation } from "../i18n";
 
 /* -------------------------------------------------------------------------- */
 /* Pure model (exported for tests)                                            */
@@ -201,6 +202,7 @@ export function AgentSecretAccessEditor({
   onApproveProposal,
   onRejectProposal,
 }: AgentSecretAccessEditorProps) {
+  const { t } = useTranslation();
   const bindingProposals = useMemo(
     () => (proposals ?? []).filter((proposal) => proposal.kind === "binding"),
     [proposals],
@@ -285,7 +287,7 @@ export function AgentSecretAccessEditor({
           ))}
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground">No company secret references are bound to this agent yet.</p>
+        <p className="text-sm text-muted-foreground">{t("agentSecretAccess.noSecrets", { defaultValue: "No company secret references are bound to this agent yet." })}</p>
       )}
 
       {/* Pending binding proposals targeting this agent (PAP-14731). */}
@@ -357,7 +359,7 @@ export function AgentSecretAccessEditor({
                           }
                         }}
                         placeholder="ALIAS"
-                        aria-label="Access alias"
+                        aria-label={t("agentSecretAccess.accessAliasAria", { defaultValue: "Access alias" })}
                         disabled={disabled}
                         className={cn(
                           "h-9 font-mono text-sm",
@@ -450,7 +452,7 @@ export function AgentSecretAccessEditor({
                           });
                         }}
                         disabled={disabled || !selectedSecret}
-                        aria-label="Version"
+                        aria-label={t("agentSecretAccess.versionAria", { defaultValue: "Version" })}
                       >
                         <option value="latest">latest</option>
                         {selectedSecret
@@ -470,7 +472,7 @@ export function AgentSecretAccessEditor({
                       type="button"
                       onClick={() => removeRow(row.id)}
                       disabled={disabled}
-                      aria-label="Remove API access"
+                      aria-label={t("agentSecretAccess.removeApiAccess", { defaultValue: "Remove API access" })}
                       className="mt-1 inline-flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
                     >
                       <Trash2 className="size-3.5" />
@@ -481,7 +483,7 @@ export function AgentSecretAccessEditor({
                       Invalid alias — use letters, digits and _
                     </p>
                   ) : aliasDuplicate ? (
-                    <p className="pl-0.5 text-(length:--text-micro) text-destructive">Duplicate alias</p>
+                    <p className="pl-0.5 text-(length:--text-micro) text-destructive">{t("agentSecretAccess.duplicateAlias", { defaultValue: "Duplicate alias" })}</p>
                   ) : null}
                 </div>
               );
@@ -501,7 +503,7 @@ export function AgentSecretAccessEditor({
       </div>
 
       <p className="text-(length:--text-micro) text-muted-foreground/70">
-        {deliveryModeDescription("api")} The agent reads them by alias through <code>GET /agents/me/secrets</code>.
+        {t("agentSecretAccess.apiDeliveryPrefix", { description: deliveryModeDescription("api"), defaultValue: "{{description}} The agent reads them by alias through" })} <code>GET /agents/me/secrets</code>{t("agentSecretAccess.apiDeliverySuffix", { defaultValue: "." })}
       </p>
     </div>
   );

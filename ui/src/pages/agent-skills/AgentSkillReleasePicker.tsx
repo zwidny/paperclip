@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslation } from "../../i18n";
 
 /** Sentinel value for the "no pin / live default" option (Radix forbids ""). */
 export const RELEASE_DEFAULT_VALUE = "default";
@@ -68,6 +69,7 @@ export function AgentSkillReleasePicker({
   disabled = false,
   onChange,
 }: AgentSkillReleasePickerProps) {
+  const { t } = useTranslation();
   const selected = value ? releases.find((release) => release.id === value) ?? null : null;
   // Closed trigger shows the release name only; the `· released <date>` suffix
   // lives in the open menu, where dates are meaningful for comparing options.
@@ -82,7 +84,7 @@ export function AgentSkillReleasePicker({
       <SelectTrigger
         size="sm"
         className="w-full max-w-(--sz-16rem) sm:w-(--sz-16rem)"
-        aria-label="Skill release"
+        aria-label={t("agentSkillReleasePicker.ariaLabel", { defaultValue: "Skill release" })}
       >
         <SelectValue placeholder={DEFAULT_LABEL}>{triggerLabel}</SelectValue>
       </SelectTrigger>

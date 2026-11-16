@@ -3,7 +3,7 @@ import { ApiKeyCredentialField } from "./ApiKeyCredentialField";
 
 export const AGENTMAIL_API_KEYS_URL = getAppStoreDefinition("agentmail")!.methods[0]!.consoleLinks!.keys!;
 
-export function AgentMailApiKeyField({ value, onChange, disabled = false, label = "API key" }: {
+export function AgentMailApiKeyField({ value, onChange, disabled = false, label }: {
   value: string;
   onChange(value: string): void;
   disabled?: boolean;

@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import "./composer-run-settings.css";
+import { useTranslation } from "../../i18n";
 
 const MOBILE_SHELL_QUERY = "(max-width: 767px)";
 
@@ -32,6 +33,7 @@ interface ComposerAddMenuProps {
 export function ComposerAddMenu({
   mode, onModeChange, onAttachFile, attachDisabled, onGoal, privacy, disabled, mobile: mobileProp, triggerTestId, menuTestId,
 }: ComposerAddMenuProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const mobileViewportStyle = useMobileEntityPickerViewportStyle();
   const goalFocusRef = useRef(false);
@@ -54,7 +56,7 @@ export function ComposerAddMenu({
       { id: "composer-add-ask", label: "Ask mode", detail: "Answer without changes", Icon: MessageCircleQuestion, select: () => onModeChange(mode === "ask" ? "standard" : "ask"), selected: mode === "ask" },
     ] : []),
   ];
-  const trigger = <button type="button" aria-label="Add to composer" aria-keyshortcuts={onModeChange ? "Meta+Period Control+Period Shift+Tab" : undefined}
+  const trigger = <button type="button" aria-label={t("composer.addToComposer", { defaultValue: "Add to composer" })} aria-keyshortcuts={onModeChange ? "Meta+Period Control+Period Shift+Tab" : undefined}
     disabled={disabled} data-testid={triggerTestId}
     className="flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50">
     <Plus className="size-4" aria-hidden />
@@ -70,8 +72,8 @@ export function ComposerAddMenu({
       onCloseAutoFocus={(event) => { if (goalFocusRef.current) { event.preventDefault(); goalFocusRef.current = false; } }}
       className="composer-mobile-dialog flex flex-col translate-y-0 gap-0 overflow-hidden p-0 md:translate-y-0">
       <div className="flex shrink-0 items-center gap-2 px-3 py-2">
-        <DialogTitle className="min-w-0 flex-1 text-sm font-medium">Add</DialogTitle>
-        <DialogClose asChild><button type="button" aria-label="Close Add menu" className="grid size-11 place-items-center rounded-md text-muted-foreground hover:bg-accent"><X className="size-4" /></button></DialogClose>
+        <DialogTitle className="min-w-0 flex-1 text-sm font-medium">{t("composer.addMenuTitle", { defaultValue: "Add" })}</DialogTitle>
+        <DialogClose asChild><button type="button" aria-label={t("composer.closeAddMenu", { defaultValue: "Close Add menu" })} className="grid size-11 place-items-center rounded-md text-muted-foreground hover:bg-accent"><X className="size-4" /></button></DialogClose>
       </div>
       <div className="min-h-0 overflow-y-auto overscroll-contain p-2 pt-0">{actions.map((action) => <button key={action.id} type="button" disabled={action.disabled} data-testid={action.id}
         onClick={() => { goalFocusRef.current = action.id === "composer-add-goal"; action.select(); setOpen(false); }}
@@ -114,6 +116,7 @@ export function ComposerModeChip({ mode, onRemove, disabled, testId, mobile = fa
 }
 
 export function ComposerPrivacyChip({ inherited, onRemove, disabled }: { inherited?: string; onRemove: () => void; disabled?: boolean }) {
+  const { t } = useTranslation();
   const [hintOpen, setHintOpen] = useState(false);
   const explanation = inherited ?? "Only you and people you share with can read this task";
   return <TooltipProvider><Tooltip open={hintOpen} onOpenChange={setHintOpen}>
@@ -129,7 +132,7 @@ export function ComposerPrivacyChip({ inherited, onRemove, disabled }: { inherit
           disabled={disabled || Boolean(inherited)} data-testid="composer-private-chip"
           className="inline-flex h-8 shrink-0 items-center gap-1 rounded-full border border-border bg-muted px-2 text-xs font-medium text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50">
           <Lock className="size-3.5" aria-hidden />
-          <span className="max-sm:sr-only">Private</span>
+          <span className="max-sm:sr-only">{t("composer.private", { defaultValue: "Private" })}</span>
           {!inherited ? <X className="size-3.5" aria-hidden /> : null}
         </button>
       </span>

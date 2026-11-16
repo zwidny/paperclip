@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AppLogo } from "./AppLogo";
 import { remoteMcpProviders } from "@/features/connections/remote-mcp/providers";
 import { ComposioAppSetup } from "./ComposioAppSetup";
+import { useTranslation } from "../../i18n";
 
 export function aggregatorAppConnectHref(route: AggregatorAppRoute, connection?: ToolConnection) {
   const params = new URLSearchParams({ source: route.provider, targetToolkit: route.toolkit });
@@ -23,6 +24,7 @@ export function AggregatorConnectDialog({ app, connections, initialProvider, onC
   onClose: () => void;
   onNavigate: (href: string) => void;
 }) {
+  const { t } = useTranslation();
   const [selectedAccountId, setSelectedAccountId] = useState("");
   const [selected, setSelected] = useState<AggregatorAppRoute | null>(() => app.routes.find(route => route.provider === initialProvider) ?? (app.routes.length === 1 ? app.routes[0] : null));
   const canChooseProvider = app.routes.length > 1;
@@ -55,7 +57,7 @@ export function AggregatorConnectDialog({ app, connections, initialProvider, onC
           className="flex w-full items-center gap-3 rounded-lg border border-border px-4 py-3 text-left hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <AppLogo name={name} brandKey={route.provider} size={24} />
           <div className="min-w-0 flex-1"><div className="text-sm font-medium">{name}</div><div className="text-xs text-muted-foreground">{status}</div></div>
-          <span className="text-xs text-muted-foreground">Continue →</span>
+          <span className="text-xs text-muted-foreground">{t("aggregatorConnectDialog.continueWithArrow", { defaultValue: "Continue →" })}</span>
         </button>;
       })}</div> : <div className="space-y-4">
         {selected.provider !== "composio" ? <div className="space-y-2"><Label htmlFor="aggregator-account">{provider!.name} account</Label>
@@ -70,8 +72,8 @@ export function AggregatorConnectDialog({ app, connections, initialProvider, onC
       {selected?.provider !== "composio" ? <DialogFooter className="sm:items-center sm:justify-between">
         <Button variant="ghost" onClick={selected && canChooseProvider ? () => setSelected(null) : onClose}>{selected && canChooseProvider ? "Back" : "Cancel"}</Button>
         {selected ? <div className="flex flex-wrap items-center gap-3">
-          {managementUrl ? <Button asChild><a href={managementUrl} target="_blank" rel="noopener noreferrer" onClick={onClose}>Continue<ExternalLink className="size-4" /></a></Button> : null}
-          <Button variant="link" size="sm" className="h-auto p-0 text-xs text-muted-foreground hover:text-foreground" onClick={() => { onNavigate(`${aggregatorAppConnectHref(selected)}&new=1`); onClose(); }}>Connect a new account</Button>
+          {managementUrl ? <Button asChild><a href={managementUrl} target="_blank" rel="noopener noreferrer" onClick={onClose}>{t("aggregatorConnectDialog.continue", { defaultValue: "Continue" })}<ExternalLink className="size-4" /></a></Button> : null}
+          <Button variant="link" size="sm" className="h-auto p-0 text-xs text-muted-foreground hover:text-foreground" onClick={() => { onNavigate(`${aggregatorAppConnectHref(selected)}&new=1`); onClose(); }}>{t("aggregatorConnectDialog.connectNewAccount", { defaultValue: "Connect a new account" })}</Button>
         </div> : null}
       </DialogFooter> : null}
     </DialogContent>

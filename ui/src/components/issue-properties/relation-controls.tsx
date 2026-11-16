@@ -1,6 +1,7 @@
 import { useState, type MouseEvent } from "react";
 import type { Issue, IssueLockedStub } from "@paperclipai/shared";
 import { Link } from "@/lib/router";
+import { useTranslation } from "@/i18n";
 import { LockedIssueChip, isLockedIssueStub } from "../LockedIssueChip";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,13 +33,14 @@ export function RemovableIssueReferencePill({
   onRemove: (issueId: string) => void;
   isMobile?: boolean;
 }) {
+  const { t } = useTranslation();
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const locked = isLockedIssueStub(issue);
   const issueLabel = locked
-    ? issue.identifier ?? "Private task"
+    ? issue.identifier ?? t("taskRelations.privateTask", { defaultValue: "Private task" })
     : issue.identifier ?? issue.title;
   const confirmLabel = locked
-    ? issue.identifier ?? "this private task"
+    ? issue.identifier ?? t("taskRelations.thisPrivateTask", { defaultValue: "this private task" })
     : issue.identifier
       ? `${issue.identifier}: ${issue.title}`
       : issue.title;
@@ -129,7 +131,7 @@ export function RemovableIssueReferencePill({
                 data-mention-kind="issue"
                 className={chipClassName}
                 title={issue.title}
-                aria-label={`Task: ${issue.title}`}
+                aria-label={t("taskRelations.taskTitleAria", { defaultValue: "Task: {{title}}", title: issue.title })}
               >
                 {content}
               </span>
@@ -140,17 +142,17 @@ export function RemovableIssueReferencePill({
       <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Remove blocker?</DialogTitle>
+            <DialogTitle>{t("taskRelations.removeBlockerTitle", { defaultValue: "Remove blocker?" })}</DialogTitle>
             <DialogDescription>
-              Remove {confirmLabel} as a blocker for this task.
+              {t("taskRelations.removeBlockerBody", { defaultValue: "Remove {{label}} as a blocker for this task.", label: confirmLabel })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
-              <Button type="button" variant="outline">Cancel</Button>
+              <Button type="button" variant="outline">{t("common.cancel", { defaultValue: "Cancel" })}</Button>
             </DialogClose>
             <Button type="button" variant="destructive" onClick={confirmRemove}>
-              Remove blocker
+              {t("taskRelations.removeBlocker", { defaultValue: "Remove blocker" })}
             </Button>
           </DialogFooter>
         </DialogContent>

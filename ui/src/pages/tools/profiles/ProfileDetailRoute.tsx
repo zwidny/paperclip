@@ -5,8 +5,10 @@ import { useCompany } from "@/context/CompanyContext";
 import { advancedTabHref } from "../tool-tabs";
 import { ToolsAdminGate } from "./ToolsAdminGate";
 import { ProfileDetail } from "./ProfileDetail";
+import { useTranslation } from "../../../i18n";
 
 export function ProfileDetailRoute() {
+  const { t } = useTranslation();
   const { selectedCompany, selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const params = useParams<{ profileId?: string }>();
@@ -22,7 +24,7 @@ export function ProfileDetailRoute() {
   }, [setBreadcrumbs, selectedCompany?.name]);
 
   if (!selectedCompanyId || !params.profileId) {
-    return <div className="p-6 text-sm text-muted-foreground">Select an organization and profile.</div>;
+    return <div className="p-6 text-sm text-muted-foreground">{t("profileRoutes.selectOrgAndProfile", { defaultValue: "Select an organization and profile." })}</div>;
   }
 
   return (

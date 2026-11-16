@@ -7,6 +7,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Input } from "@/components/ui/input";
 import { AgentPanel } from "@/components/agent-detail/AgentPanels";
 import { queryKeys } from "@/lib/queryKeys";
+import { i18n, useTranslation } from "@/i18n";
 
 type Field = "root" | "entry";
 type LoadState =
@@ -16,9 +17,11 @@ type LoadState =
   | { kind: "error"; field: Field | null; message: string };
 
 export function checkExternalProfile(root: string, entry: string): { field: Field; message: string } | null {
-  if (!root.startsWith("/") && !root.startsWith("~")) return { field: "root", message: "Use an absolute path that starts with / or ~." };
+  if (!root.startsWith("/") && !root.startsWith("~")) {
+    return { field: "root", message: i18n.t("agentDetail.instructionsBundle.rootMustBeAbsolute", { defaultValue: "Use an absolute path that starts with / or ~." }) };
+  }
   if (entry.startsWith("/") || entry.split(/[\\/]/).includes("..")) {
-    return { field: "entry", message: "The entry file has to sit inside the root path." };
+    return { field: "entry", message: i18n.t("agentDetail.instructionsBundle.entryInsideRoot", { defaultValue: "The entry file has to sit inside the root path." }) };
   }
   return null;
 }
@@ -47,6 +50,7 @@ export function InstructionsBundleSettings({
   const queryClient = useQueryClient();
   const [root, setRoot] = useState(mode === "external" ? rootPath : "");
   const [entry, setEntry] = useState(mode === "external" ? entryFile : "");
+  const { t } = useTranslation();
   const [load, setLoad] = useState<LoadState>({ kind: "idle" });
   const busy = load.kind === "loading";
   const trimmedRoot = root.trim();
@@ -101,18 +105,18 @@ export function InstructionsBundleSettings({
     <Collapsible defaultOpen={mode === "external"} className="flex flex-col gap-(--agent-detail-module-gap)">
       <CollapsibleTrigger className="group flex w-fit items-center gap-1.5 rounded-sm text-sm text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring data-[state=open]:text-foreground">
         <Settings2 className="size-4" aria-hidden />
-        Advanced management
+        {t("agentDetail.instructionsBundle.advancedManagement", { defaultValue: "Advanced management" })}
         <ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" aria-hidden />
       </CollapsibleTrigger>
       <CollapsibleContent data-agent-disclosure>
-        <AgentPanel className="gap-4 p-(--agent-identity-panel-gap)" aria-label="External management">
+        <AgentPanel className="gap-4 p-(--agent-identity-panel-gap)" aria-label={t("agentDetail.instructionsBundle.externalManagement", { defaultValue: "External management" })}>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-foreground">External management</p>
-            <p className="mt-0.5 text-xs text-muted-foreground">Point this agent at a directory on disk. Paperclip checks that the root file exists before it switches over.</p>
+            <p className="text-sm font-semibold text-foreground">{t("agentDetail.instructionsBundle.externalManagement", { defaultValue: "External management" })}</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">{t("agentDetail.instructionsBundle.externalHint", { defaultValue: "Point this agent at a directory on disk. Paperclip checks that the root file exists before it switches over." })}</p>
           </div>
           <div className="grid gap-(--agent-detail-module-gap) sm:grid-cols-2">
             <label className="flex min-w-0 flex-col gap-1.5">
-              <span className="text-xs text-muted-foreground">Root path</span>
+              <span className="text-xs text-muted-foreground">{t("agentDetail.instructionsBundle.rootPath", { defaultValue: "Root path" })}</span>
               <Input
                 value={root}
                 onChange={(event) => edit(setRoot)(event.target.value)}
@@ -123,7 +127,7 @@ export function InstructionsBundleSettings({
               />
             </label>
             <label className="flex min-w-0 flex-col gap-1.5">
-              <span className="text-xs text-muted-foreground">Root file</span>
+              <span className="text-xs text-muted-foreground">{t("agentDetail.instructionsBundle.rootFile", { defaultValue: "Root file" })}</span>
               <Input
                 value={entry}
                 onChange={(event) => edit(setEntry)(event.target.value)}
@@ -137,22 +141,24 @@ export function InstructionsBundleSettings({
           <div className="flex flex-wrap items-center justify-end gap-3">
             {mode === "external" ? (
               <Button variant="ghost" size="sm" className="mr-auto -ml-3" onClick={() => void switchToManaged()} disabled={busy || blocked}>
-                Use managed bundle
+                {t("agentDetail.instructionsBundle.useManagedBundle", { defaultValue: "Use managed bundle" })}
               </Button>
             ) : null}
             <p role="status" aria-live="polite" className="flex min-w-0 items-center gap-2 text-xs">
-              {blocked ? <span className="text-muted-foreground">Save or discard your file changes first.</span> : null}
+              {blocked ? <span className="text-muted-foreground">{t("agentDetail.instructionsBundle.saveOrDiscardFirst", { defaultValue: "Save or discard your file changes first." })}</span> : null}
               {!blocked && load.kind === "error" ? <span className="text-destructive">{load.message}</span> : null}
               {!blocked && load.kind === "loaded" ? (
                 <span className="flex items-center gap-2 text-muted-foreground">
                   <span className="size-1.5 shrink-0 rounded-full bg-(--agent-detail-dot-saved)" aria-hidden />
-                  Loaded {load.entry} from {load.root}
+                  {t("agentDetail.instructionsBundle.loadedFrom", { defaultValue: "Loaded {{entry}} from {{root}}", entry: load.entry, root: load.root })}
                 </span>
               ) : null}
             </p>
             <Button size="sm" onClick={() => void loadProfile()} disabled={!trimmedRoot || !trimmedEntry || busy || blocked || unchanged}>
               {busy ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : null}
-              {busy ? "Loading…" : "Load profile"}
+              {busy
+                ? t("common.loading", { defaultValue: "Loading…" })
+                : t("agentDetail.instructionsBundle.loadProfile", { defaultValue: "Load profile" })}
             </Button>
           </div>
         </AgentPanel>

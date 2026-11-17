@@ -1,0 +1,30 @@
+# Build override for hosts that cannot compile the Runner inside the image.
+#
+# The stock Dockerfile builds `paperclip-runnerd` from the Rust sources inside the
+# `runner-artifacts-*` stages, then derives a runner image identity that the
+# `build` stage verifies. That path needs a reachable crates.io (or a configured
+# mirror) and a working Rust toolchain in the image. On hosts where either is
+# unavailable, pair this file with `docker/Dockerfile.offline-runnerd`, which
+# skips those stages and stages a prebuilt `vendor-bin/paperclip-runnerd`
+# instead.
+#
+# Usage (compose autoloads `docker-compose.override.yml`, so every -f is explicit):
+#
+#   docker compose \
+#     -f docker/docker-compose.yml \
+#     -f docker/docker-compose.override.yml \
+#     -f docker/docker-compose.offline-runnerd.yml \
+#     build server
+#
+# See doc/DEPLOYING-OFFLINE-RUNNERD.md and scripts/deploy-offline-runnerd.sh.
+
+services:
+  server:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.offline-runnerd
+      # Build-time network: containers created by the default bridge inherit the
+      # host's first nameserver. When that is an IPv6 resolver and the build
+      # needs an IPv4-only CDN host, name resolution fails inside RUN steps.
+      # Host networking avoids that without touching the Docker daemon.
+      network: host

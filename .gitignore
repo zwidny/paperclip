@@ -105,3 +105,6 @@ test-results/
 # Content-addressed CI task results
 .turbo/
 scripts/scale-ramp/results/
+
+# Local ops notes (not part of the product docs)
+docs/deploy_207.md

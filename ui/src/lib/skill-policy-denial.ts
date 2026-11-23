@@ -17,6 +17,7 @@
  */
 
 import { ApiError } from "../api/client";
+import { brandName } from "../i18n";
 
 /** Machine-readable error codes the server attaches to skill mutation failures. */
 export const SKILL_POLICY_DENIAL_CODE = "skill_policy_denied";
@@ -78,8 +79,9 @@ const PLATFORM_TITLES: Record<string, string> = {
 const PLATFORM_REMEDIATIONS: Record<string, string> = {
   skill_authentication_required: "Sign in and try again.",
   skill_company_boundary_denied: "Open the skill from the organization that owns it.",
-  skill_workspace_boundary_denied:
-    "Import from a configured Paperclip workspace or the organization managed-skill directory.",
+  get skill_workspace_boundary_denied() {
+    return `Import from a configured ${brandName()} workspace or the organization managed-skill directory.`;
+  },
   skill_source_validation_failed: "Fix the flagged source and retry.",
   skill_unsafe_content_blocked:
     "Remove the fetch-and-execute or unsafe pattern before saving.",

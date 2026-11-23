@@ -1,4 +1,5 @@
 import { StrictMode, useEffect, useRef, useState } from "react";
+import { brandName } from "@/i18n";
 import { createRoot } from "react-dom/client";
 import { MotionConfig, motion } from "motion/react";
 import { isValidBrowserCode } from "@paperclipai/shared";
@@ -312,7 +313,7 @@ function ConnectFlowPreview({
             lede={
               done
                 ? "The step advances straight to Review — there is no success screen."
-                : "Paperclip works with your existing subscription or API keys."
+                : `${brandName()} works with your existing subscription or API keys.`
             }
           />
         </div>

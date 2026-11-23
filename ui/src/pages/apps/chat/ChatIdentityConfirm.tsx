@@ -10,7 +10,7 @@ import { queryKeys } from "@/lib/queryKeys";
 import { Navigate, useSearchParams } from "@/lib/router";
 import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 import { cn } from "@/lib/utils";
-import { useTranslation } from "../../../i18n";
+import { useBrandName, useTranslation } from "../../../i18n";
 
 const providerNames: Record<ChatProvider, string> = {
   speko: "Speko",
@@ -25,6 +25,7 @@ const providerNames: Record<ChatProvider, string> = {
 
 export function ChatIdentityConfirm() {
   const { t } = useTranslation();
+  const brand = useBrandName();
   const [params] = useSearchParams();
   const token = params.get("token") ?? "";
   const [confirmed, setConfirmed] = useState(false);
@@ -105,8 +106,8 @@ export function ChatIdentityConfirm() {
         <div>
           <h1 className="text-xl font-bold">{t("chatIdentityConfirm.linkedTitle", { defaultValue: "Identity linked" })}</h1>
           <p className={cn("mt-1 text-sm text-muted-foreground", ANALYTICS_MASK_CLASS)}>
-            Future messages from {identity.externalLabel} use your current
-            Paperclip permissions in {identity.companyName}.
+            Future messages from {identity.externalLabel} use your current{" "}
+            {brand} permissions in {identity.companyName}.
           </p>
         </div>
         {identity.provider === "slack" && <Button asChild><a href="https://app.slack.com/" target="_blank" rel="noopener noreferrer">{t("chatIdentityConfirm.returnToSlack", { defaultValue: "Return to Slack" })}</a></Button>}

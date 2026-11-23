@@ -29,7 +29,7 @@ import type { GitHubConnectionCompleteLocationState } from "./GitHubConnectionCo
 import { describeError } from "@/api/errors";
 import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 import { cn } from "@/lib/utils";
-import { useTranslation } from "../../../i18n";
+import { useBrandName, useTranslation } from "../../../i18n";
 
 /** Restrict native manifest submission to GitHub registration endpoints. */
 export function gitHubAppManifestAction(
@@ -81,6 +81,7 @@ function GitHubAppManifestForm({
 }
 export function GitHubChatSetup() {
   const { t } = useTranslation();
+  const brand = useBrandName();
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
   const { selectedCompanyId } = useCompany();
@@ -547,7 +548,7 @@ export function GitHubChatSetup() {
           <p className="text-sm">
             {t("githubChatSetup.cloudBody", { defaultValue: "Paperclip Cloud receives GitHub events and securely delivers them to this instance." })}
           </p>
-          {footer("Connect Paperclip Cloud", async () => {
+          {footer(`Connect ${brand} Cloud`, async () => {
             authorization.reserve();
             const result = await toolsApi.startCloudConnectorEnrollment(
               selectedCompanyId!,

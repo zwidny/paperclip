@@ -1,6 +1,7 @@
 import type { Agent } from "@paperclipai/shared";
 import type { CompanyUserProfile } from "./company-members";
 import { formatReviewPolicyValue } from "./review-policy";
+import { brandName } from "../i18n";
 
 type ActivityDetails = Record<string, unknown> | null | undefined;
 
@@ -183,7 +184,9 @@ const ISSUE_ACTIVITY_LABELS: Record<string, string> = {
   "issue.workspace_recovered": "Saved work recovered.",
   "issue.retry_continued_from_saved_work": "Retry continued from saved work.",
   "issue.workspace_recovery_requested": "Requested workspace recovery",
-  "issue.previous_run_files_waiting": "Still working to save the previous run's unsaved files. New runs start once they are saved. Paperclip keeps trying on its own.",
+  get "issue.previous_run_files_waiting"() {
+    return `Still working to save the previous run's unsaved files. New runs start once they are saved. ${brandName()} keeps trying on its own.`;
+  },
   "issue.previous_run_files_lost": "Could not save the previous run's unsaved files because they were already gone. This task continues from its last save.",
   "issue.recovery_action_resolved": "Resolved the recovery action",
   "issue.recovery_action_escalated": "Escalated the recovery action",

@@ -16,7 +16,7 @@ import { OpenCodeLogoIcon } from "@/components/OpenCodeLogoIcon";
 import { CompanyPatternIcon } from "@/components/CompanyPatternIcon";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useTranslation } from "../../i18n";
+import { brandName, useTranslation } from "../../i18n";
 import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 import { cn } from "@/lib/utils";
 
@@ -93,7 +93,7 @@ function CopyValue({ value, label }: { value: string; label: string }) {
 
 /** Setup copy that depends on the instance, not on the request: signed out, or no public URL configured. */
 function setupUnavailableCopy(errorKind: "auth" | "not_found"): string {
-  if (errorKind === "auth") return "Sign in to connect an assistant. This requires a Paperclip instance with authenticated user accounts.";
+  if (errorKind === "auth") return `Sign in to connect an assistant. This requires a ${brandName()} instance with authenticated user accounts.`;
   return "Assistant connections need an authenticated instance with a public HTTPS URL. Ask your instance administrator to configure the public URL, then try again.";
 }
 

@@ -126,22 +126,29 @@ describe("chat connector UI contract", () => {
       "does not reinstall the App or change repository access",
       "does not add or remove the bot from the server",
       "does not upload or reinstall the Teams app",
-      "automatically refreshes its Paperclip webhook and command menu",
     ]) {
       expect(detail).toContain(reconnectCopy);
       expect(setup).toContain(reconnectCopy);
     }
+    // The product name is configurable, so this sentence may interpolate the
+    // brand instead of spelling it out. The contract is the sentence.
+    const brandWebhookCopy = /automatically refreshes its (?:Paperclip|\$\{brand\}) webhook and command menu/;
+    expect(detail).toMatch(brandWebhookCopy);
+    expect(setup).toMatch(brandWebhookCopy);
     for (const removalCopy of [
       "It does not uninstall the Slack app",
       "It does not uninstall the GitHub App",
       "It does not uninstall the bot",
       "It does not uninstall the Teams app",
       "queues durable removal of its Telegram webhook and command menu",
-      "After Telegram confirms that cleanup, Paperclip retires the saved token",
       "BotFather bot and its chat memberships remain",
     ]) {
       expect(detail).toContain(removalCopy);
     }
+    // Same reason as above: the sentence is the contract, the name is configured.
+    expect(detail).toMatch(
+      /After Telegram confirms that cleanup, (?:Paperclip|\$\{brand\}) retires the saved token/,
+    );
   });
 
   it("uses only executable provider credential flows", () => {

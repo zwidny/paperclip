@@ -1,5 +1,5 @@
 import type { VoiceTranscriptEntry } from "@/lib/voice-transcript";
-import { useTranslation } from "@/i18n";
+import { useBrandName, useTranslation } from "@/i18n";
 import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +12,7 @@ export interface VoiceTranscriptProps {
 /** Announcements belong to the session controller, once per final segment. */
 export function VoiceTranscript({ entries, agentName, unavailable = false }: VoiceTranscriptProps) {
   const { t } = useTranslation();
+  const brand = useBrandName();
   if (unavailable) return <p className="text-sm text-muted-foreground">{t("voiceTranscript.unavailable", { defaultValue: "The transcript is unavailable. Your task history is still available." })}</p>;
   if (!entries.length) return <p className="text-sm text-muted-foreground">{t("voiceTranscript.empty", { defaultValue: "Your conversation will appear here." })}</p>;
   return (
@@ -19,7 +20,7 @@ export function VoiceTranscript({ entries, agentName, unavailable = false }: Voi
       {entries.map((entry) => (
         <li key={entry.id} className="flex min-w-0 flex-col gap-1">
           <span className="text-xs font-medium text-muted-foreground break-words">
-            {entry.source === "user" ? "You" : entry.source === "application" ? "Paperclip" : agentName}
+            {entry.source === "user" ? "You" : entry.source === "application" ? brand : agentName}
             {!entry.final && !entry.interrupted && <span>{t("voiceTranscript.speaking", { defaultValue: " · Speaking" })}</span>}
             {entry.interrupted && <span>{t("voiceTranscript.interrupted", { defaultValue: " · Interrupted" })}</span>}
           </span>

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { ChevronDown, ChevronRight, ScrollText } from "lucide-react";
+import { brandName } from "@/i18n";
 import { Link } from "@/lib/router";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -140,7 +141,7 @@ function plainReason(event: ToolGatewayActivityEvent): string {
     case "failed":
       return "The app was allowed to run it, but returned an error.";
     default:
-      return "Recorded by Paperclip.";
+      return `Recorded by ${brandName()}.`;
   }
 }
 

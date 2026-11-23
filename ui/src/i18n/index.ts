@@ -96,6 +96,20 @@ export async function changeLocale(locale: string): Promise<string> {
   return next;
 }
 
+/**
+ * Brand name for the active locale, as a hook so components re-render when the
+ * language changes. Use `brandName()` outside React.
+ */
+export function useBrandName(): string {
+  const { i18n: instance } = useReactI18nextTranslation();
+  return brandFor(instance.language || DEFAULT_LOCALE);
+}
+
+/** Brand name for the current language without subscribing to changes. */
+export function brandName(): string {
+  return brandFor(i18n.language || DEFAULT_LOCALE);
+}
+
 export function t(key: string, options: TOptions = {}) {
   return i18n.t(key, options);
 }

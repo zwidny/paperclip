@@ -281,7 +281,7 @@ import {
 import { SourceTrustBadge } from "./SourceTrustBadge";
 import { CommentAttributionChip } from "./CommentAttributionChip";
 import { resolveCommentAttribution } from "../lib/comment-attribution";
-import { useTranslation, i18n as i18nInstance } from "../i18n";
+import { useBrandName, useTranslation, i18n as i18nInstance } from "../i18n";
 
 interface IssueChatMessageContext {
   feedbackDataSharingPreference: FeedbackDataSharingPreference;
@@ -3672,6 +3672,7 @@ function SystemNoticeCommentContent({
   anchorId?: string;
 }) {
   const { t } = useTranslation();
+  const brand = useBrandName();
   const { onImageClick, agentMap, issueStatus, successfulRunHandoff } =
     useContext(IssueChatCtx);
   const toastActions = useOptionalToastActions();
@@ -3711,14 +3712,14 @@ function SystemNoticeCommentContent({
       ? (agentMap?.get(runAgentId)?.name ?? null)
       : null;
     if (authorType === "system") {
-      const label = runAgentName ?? "Paperclip";
+      const label = runAgentName ?? brand;
       if (runAgentId && runId)
         return { label, href: `/agents/${runAgentId}/runs/${runId}` };
       return { label };
     }
     if (runAgentId && runId) {
       return {
-        label: authorName ?? runAgentName ?? "Paperclip",
+        label: authorName ?? runAgentName ?? brand,
         href: `/agents/${runAgentId}/runs/${runId}`,
       };
     }

@@ -2,6 +2,7 @@ import type { AgentConfigurationDocument, AgentConfigurationInput, AgentConfigur
 import { agentsApi } from "../../api/agents";
 import { secretsApi } from "../../api/secrets";
 import { agentConfigurationPatch } from "../agent-configuration-yaml";
+import { brandName } from "../../i18n";
 import { equal, loadAgentConfiguration, ownedAdapterKeys, type AgentConfigurationSnapshot } from "./load";
 import { planToolChanges } from "./tools";
 import { planChannelChanges } from "./channels";
@@ -32,7 +33,7 @@ function planInstructions(snapshot: AgentConfigurationSnapshot, document: AgentC
   if (bundleChanged) {
     if (!equal(previous.files, next.files)) throw new Error("Save the instructions location or entry file first, then edit the files loaded from that location.");
     if (next.mode === "managed" && previous.mode === "managed" && next.rootPath !== previous.rootPath) {
-      throw new Error("The managed instructions root is assigned by Paperclip. Choose external mode to use another folder.");
+      throw new Error(`The managed instructions root is assigned by ${brandName()}. Choose external mode to use another folder.`);
     }
     add("Instructions location (load the destination files)", () => agentsApi.updateInstructionsBundle(snapshot.agent.id, {
       ...(next.mode ? { mode: next.mode } : {}), rootPath: next.rootPath, entryFile: next.entryFile,

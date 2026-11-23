@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useTranslation } from "../i18n";
+import { useBrandName, useTranslation } from "../i18n";
 import {
   BookOpen,
   Flag,
@@ -122,6 +122,7 @@ export function SidebarAccountMenu({
   onOpenChange,
 }: SidebarAccountMenuProps) {
   const { t } = useTranslation();
+  const brand = useBrandName();
   const cloud = useCloudInstance();
   const isCloud = Boolean(cloud);
   // Invites live on the Members page (or in Cloud's People settings). Hide the
@@ -242,7 +243,7 @@ export function SidebarAccountMenu({
               ) : null}
               <MenuAction
                 label={t("sidebarAccountMenu.documentation", { defaultValue: "Documentation" })}
-                description="Open Paperclip docs in a new tab."
+                description={`Open ${brand} docs in a new tab.`}
                 icon={BookOpen}
                 href={DOCS_URL}
                 external

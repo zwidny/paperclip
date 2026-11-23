@@ -9,6 +9,7 @@ import {
   type TrustAuthorizationPolicy,
   type TrustPreset,
 } from "@paperclipai/shared";
+import { brandName } from "../i18n";
 
 export type LowTrustBoundaryTarget =
   | { type: "project"; id: string }
@@ -22,8 +23,9 @@ export const TRUST_PRESET_LABELS: Record<TrustPreset, string> = {
 
 export const TRUST_PRESET_DESCRIPTIONS: Record<TrustPreset, string> = {
   standard: "Organization-visible collaboration. This is the default for normal work.",
-  low_trust_review:
-    "Contained for hostile or untrusted input. Narrow Paperclip API, quarantined output. Use for PR review and external-content triage.",
+  get low_trust_review() {
+    return `Contained for hostile or untrusted input. Narrow ${brandName()} API, quarantined output. Use for PR review and external-content triage.`;
+  },
 };
 
 export function getTrustPreset(permissions: Partial<AgentPermissions> | null | undefined): TrustPreset {

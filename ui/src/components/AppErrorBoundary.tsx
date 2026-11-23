@@ -2,7 +2,7 @@ import { describeError } from "@/api/errors";
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { onChunkLoadReloadAbandoned, reloadForChunkLoadError } from "@/lib/chunk-load-recovery";
 import { captureBrowserException } from "@/lib/sentry";
-import { i18n } from "../i18n";
+import { brandName, i18n } from "../i18n";
 
 type AppErrorBoundaryState = {
   error: Error | null;
@@ -59,7 +59,7 @@ export class AppErrorBoundary extends Component<{ children: ReactNode }, AppErro
     if (reloading) {
       return (
         <div role="status" className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">
-          Reloading Paperclip…
+          {`Reloading ${brandName()}…`}
         </div>
       );
     }

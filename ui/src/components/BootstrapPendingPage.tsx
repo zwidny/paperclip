@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { BOOTSTRAP_FALLBACK_COMMAND } from "@/bootstrapSetup";
 import type { AuthSession } from "@paperclipai/shared";
 import { Card } from "@/components/ui/card";
-import { useTranslation } from "@/i18n";
+import { useBrandName, useTranslation } from "@/i18n";
 
 type BootstrapPendingPageProps = {
   claimAvailable: boolean;
@@ -18,6 +18,7 @@ type BootstrapPendingPageProps = {
 
 function CliFallback({ hasActiveInvite = false }: { hasActiveInvite?: boolean }) {
   const { t } = useTranslation();
+  const brand = useBrandName();
   return (
     <div className="mt-6 border-t border-border pt-5">
       <div className="flex items-center gap-2 text-sm font-medium">
@@ -26,8 +27,8 @@ function CliFallback({ hasActiveInvite = false }: { hasActiveInvite?: boolean })
       </div>
       <p className="mt-2 text-sm text-muted-foreground">
         {hasActiveInvite
-          ? "A bootstrap invite is already active. Check your Paperclip startup logs for the first-admin URL, or run this command on the host to rotate it:"
-          : "Run this command on the host that runs Paperclip to print a one-time first-admin invite URL:"}
+          ? `A bootstrap invite is already active. Check your ${brand} startup logs for the first-admin URL, or run this command on the host to rotate it:`
+          : `Run this command on the host that runs ${brand} to print a one-time first-admin invite URL:`}
       </p>
       <pre className="mt-3 overflow-x-auto rounded-md border border-border bg-muted/30 p-3 font-mono text-xs">
 {BOOTSTRAP_FALLBACK_COMMAND}
@@ -76,6 +77,7 @@ export function BootstrapPendingPage({
   onClaim,
 }: BootstrapPendingPageProps) {
   const { t } = useTranslation();
+  const brand = useBrandName();
   if (!claimAvailable) {
     return (
       <StateChrome>
@@ -125,7 +127,7 @@ export function BootstrapPendingPage({
       <StateChrome>
         <h1 className="text-xl font-semibold">{t("bootstrapPending.finishTitle", { defaultValue: "Finish setting up this Paperclip" })}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          No admin has claimed this instance yet. Sign in or create your Paperclip account to become the first
+          No admin has claimed this instance yet. Sign in or create your {brand} account to become the first
           admin from this browser.
         </p>
         <div className="mt-5">

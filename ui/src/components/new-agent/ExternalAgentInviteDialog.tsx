@@ -12,6 +12,7 @@ import { describeError } from "@/api/errors";
 import { instanceSettingsApi } from "@/api/instanceSettings";
 import { useCompany } from "@/context/CompanyContext";
 import { queryKeys } from "@/lib/queryKeys";
+import { useBrandName } from "@/i18n";
 import { buildAgentOnboardingPrompt } from "@/lib/agent-onboarding-prompt";
 import { buildDotSetupPrompt } from "@/lib/dot-setup-prompt";
 import { GrokBotSetup } from "./GrokBotSetup";
@@ -28,6 +29,7 @@ export function ExternalAgentInviteDialog({ companyId, onClose, onBack, initialP
   onBack: () => void;
 }) {
   const cache = useQueryClient();
+  const brand = useBrandName();
   const { selectedCompany } = useCompany();
   const [preset, setPreset] = useState<ExternalAgentPreset | null>(initialPreset);
   const [invitation, setInvitation] = useState<DotInvitation | null>(null);
@@ -42,7 +44,7 @@ export function ExternalAgentInviteDialog({ companyId, onClose, onBack, initialP
       ? "Enable OpenAI Dot in experimental settings." : undefined;
   const grokDisabledReason = experimental.isPending ? "Loading available agents…" : experimental.error ? "Unable to load experimental settings."
     : !experimental.data?.enableGrokBot || !experimental.data.enableNativeRunner
-      ? "Enable Grok Bot and Paperclip Runner in experimental settings." : undefined;
+      ? `Enable Grok Bot and ${brand} Runner in experimental settings.` : undefined;
   const key = ["dot-binding", companyId, invitation?.agent.id];
   const state = useQuery({ queryKey: key,
     queryFn: ({ signal }) => dotInvitationsApi.connection(companyId, invitation!.agent.id, signal),
@@ -139,7 +141,7 @@ export function ExternalAgentInviteDialog({ companyId, onClose, onBack, initialP
       preset === "grok_bot" ? <GrokBotSetup companyId={companyId} companyName={selectedCompany?.name ?? "your organization"} onClose={onClose} onBack={() => setPreset(null)} /> :
       <ExternalAgentInviteContent preset={preset === "muse" ? null : preset} prompt={prompt} companyName={selectedCompany?.name ?? "your organization"}
         connection={connection} museEnabled={experimental.data?.enableMuse === true && experimental.data?.enableNativeRunner === true} dotDisabledReason={dotDisabledReason} grokDisabledReason={grokDisabledReason} busy={busy}
-        error={preset === "muse" ? experimental.isPending ? undefined : "Enable Muse and Paperclip Runner in experimental settings to connect your personal Muse." : (error ? describeError(error).body : undefined) ?? (unavailable ? state.data?.agentLifecycleState === "terminated" ? "This agent was terminated. Invite another agent to connect Dot." : "Resume this agent before connecting Dot." : undefined)}
+        error={preset === "muse" ? experimental.isPending ? undefined : `Enable Muse and ${brand} Runner in experimental settings to connect your personal Muse.` : (error ? describeError(error).body : undefined) ?? (unavailable ? state.data?.agentLifecycleState === "terminated" ? "This agent was terminated. Invite another agent to connect Dot." : "Resume this agent before connecting Dot." : undefined)}
         approvalHref={pendingApproval && invitation?.approvalId ? `/approvals/${invitation.approvalId}` : undefined}
         onSelect={kind => { setPreset(kind); if (kind !== "muse" && kind !== "grok_bot" && (kind === "dot" ? !invitation : !genericPrompt)) generate.mutate(kind); }}
         onBack={() => setPreset(null)} onClose={preset ? onClose : onBack} onCopied={() => { if (preset === "dot") void state.refetch(); }}
@@ -153,6 +155,7 @@ function MuseInvitationController({ companyId, companyName, onClose, onBack, ini
   companyId: string; companyName: string; initialName: string; onClose: () => void; onBack: () => void;
 }) {
   const cache = useQueryClient();
+  const brand = useBrandName();
   const identity = useAccountIdentity();
   const scopeKey = `${companyId}:${identity.userId}`;
   const loadDraft = () => { const value = readMuseInvitationDraft(companyId, identity.userId); return { ...value, name: value.name || initialName }; };
@@ -224,7 +227,7 @@ function MuseInvitationController({ companyId, companyName, onClose, onBack, ini
   const operatorRequired = error instanceof ApiError && (error.status === 401 || error.status === 403)
     && !invitation;
   const missingPublicOrigin = !!invitation && muse.state.isSuccess && !muse.state.data.publicOrigin;
-  const errorMessage = missingPublicOrigin ? "This instance has no public HTTPS URL for Muse. Ask your instance administrator to configure a stable public HTTPS address, then refresh setup. Muse cannot connect through a local-only address." : operatorRequired ? "Use an authenticated Paperclip instance with a public HTTPS URL and a company operator account. Local trusted access alone cannot connect Muse." : error?.message;
+  const errorMessage = missingPublicOrigin ? "This instance has no public HTTPS URL for Muse. Ask your instance administrator to configure a stable public HTTPS address, then refresh setup. Muse cannot connect through a local-only address." : operatorRequired ? `Use an authenticated ${brand} instance with a public HTTPS URL and a company operator account. Local trusted access alone cannot connect Muse.` : error?.message;
   return <ExternalAgentInviteContent preset="muse" companyName={companyName} prompt={muse.pairing?.setupInstruction ?? ""}
     connection={{ phase: "waiting" }} museConnection={invitation && !missingPublicOrigin && (muse.state.data || (muse.state.status === "error")) ? connection : undefined} busy={busy} error={identity.failed ? "Unable to confirm your account. Refresh to resume Muse setup." : errorMessage}
     approvalHref={pendingApproval && invitation?.approvalId ? `/approvals/${invitation.approvalId}` : undefined}

@@ -155,7 +155,7 @@ import {
 } from "./secrets/user-secret-presentation";
 import type { MyUserSecretEntry } from "../api/secrets";
 import { describeError } from "@/api/errors";
-import { i18n, useTranslation } from "../i18n";
+import { brandName, i18n, useBrandName, useTranslation } from "../i18n";
 import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 type CreateMode = "managed" | "external";
@@ -349,7 +349,7 @@ function providerLabel(providers: SecretProviderDescriptor[] | undefined, id: Se
 
 /** The provider as a person would name it: Paperclip's own storage is not "local encrypted". */
 function vaultKindLabel(providers: SecretProviderDescriptor[] | undefined, id: SecretProvider) {
-  return id === "local_encrypted" ? "Paperclip-encrypted" : providerLabel(providers, id);
+  return id === "local_encrypted" ? `${brandName()}-encrypted` : providerLabel(providers, id);
 }
 
 function normalizeSecretKeyForPreview(input: string) {
@@ -519,7 +519,7 @@ export function getCreateProviderBlockReason(
 ) {
   if (!provider) return i18n.t("secrets.block.selectProvider", { defaultValue: "Select a provider." });
   if (mode === "managed" && provider.supportsManagedValues === false) {
-    return `${provider.label} does not support Paperclip-managed secret values.`;
+    return `${provider.label} does not support ${brandName()}-managed secret values.`;
   }
   if (mode === "external" && provider.supportsExternalReferences === false) {
     return `${provider.label} does not support linked external references.`;
@@ -533,7 +533,7 @@ export function getCreateProviderBlockReason(
     if (selectedProviderConfigReady) return null;
     if (selectedProviderConfigBlockReason) return selectedProviderConfigBlockReason;
     const healthEntry = healthEntryForProvider(health, provider.id);
-    const deploymentMessage = `${provider.label} is not set up on this Paperclip server.`;
+    const deploymentMessage = `${provider.label} is not set up on this ${brandName()} server.`;
     const nextStep = " Choose a vault that is ready, or ask your administrator to set it up.";
     return healthEntry?.message
       ? `${deploymentMessage}${nextStep} ${healthEntry.message}`
@@ -662,7 +662,7 @@ export function buildCreateVaultOptions(input: {
         providerConfigId: "",
         label:
           provider.id === "local_encrypted"
-            ? `Paperclip${defaultLocalConfigId ? "" : " (default)"}`
+            ? `${brandName()}${defaultLocalConfigId ? "" : " (default)"}`
             : provider.label,
         blockReason: builtInBlockReason,
       });
@@ -760,6 +760,7 @@ export function getAwsManagedPathPreview(input: {
 
 export function Secrets() {
   const { t } = useTranslation();
+  const brand = useBrandName();
   const queryClient = useQueryClient();
   const { selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
@@ -1646,7 +1647,7 @@ export function Secrets() {
     onSuccess: (removed) => {
       pushToast({
         title: t("secrets.toast.vaultRemoved", { defaultValue: "Vault removed" }),
-        body: `${removed.displayName} was removed from Paperclip only.`,
+        body: `${removed.displayName} was removed from ${brand} only.`,
         tone: "info",
       });
       setRemoveVaultConfirm(null);
@@ -2298,7 +2299,7 @@ export function Secrets() {
       : null,
     providerFilter !== "all"
       ? {
-          label: providerFilter === "local_encrypted" ? "Paperclip" : providerLabel(providers, providerFilter),
+          label: providerFilter === "local_encrypted" ? brand : providerLabel(providers, providerFilter),
           clear: () => setProviderFilter("all"),
         }
       : null,
@@ -3986,6 +3987,7 @@ function SecretsFiltersPopover({
   onProvidedByChange: (value: ProvidedByFilter) => void;
 }) {
   const { t } = useTranslation();
+  const brand = useBrandName();
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -4013,7 +4015,7 @@ function SecretsFiltersPopover({
               { value: "all", label: t("secrets.filters.anyVault", { defaultValue: "Any vault" }) },
               ...providers.map((provider) => ({
                 value: provider.id,
-                label: provider.id === "local_encrypted" ? "Paperclip" : provider.label,
+                label: provider.id === "local_encrypted" ? brand : provider.label,
               })),
             ]}
           />
@@ -4127,6 +4129,7 @@ export function ProviderVaultsTab({
   pendingActionId: string | null;
 }) {
   const { t } = useTranslation();
+  const brand = useBrandName();
   const secretCounts = useMemo(() => {
     if (!secrets) return null;
     const counts = new Map<string, number>();
@@ -4204,7 +4207,7 @@ export function ProviderVaultsTab({
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium">Paperclip</span>
+              <span className="text-sm font-medium">{brand}</span>
               {effectiveLocalDefaultId ? null : <Badge variant="secondary">{t("secrets.vaults.default", { defaultValue: "Default" })}</Badge>}
             </div>
             <p className="text-xs text-muted-foreground">{t("secrets.vaults.builtInDescription", { defaultValue: "Encrypted and stored by Paperclip. Always available." })}</p>
@@ -5282,6 +5285,7 @@ function SecretDetailsTab({
   onManageVaults?: () => void;
 }) {
   const { t } = useTranslation();
+  const brand = useBrandName();
   const linked = secret.managedMode === "external_reference";
   const config = providerConfigs.find((candidate) => candidate.id === secret.providerConfigId) ?? null;
   const blockReason = getProviderConfigBlockReason(config);
@@ -5289,7 +5293,7 @@ function SecretDetailsTab({
   const vault = config
     ? `${config.displayName} · ${provider}`
     : secret.provider === "local_encrypted"
-      ? "Paperclip"
+      ? brand
       : provider;
   const canWriteExternalValue = Boolean(
     secret.externalRef && providers.find((candidate) => candidate.id === secret.provider)?.supportsExternalValueWrites,

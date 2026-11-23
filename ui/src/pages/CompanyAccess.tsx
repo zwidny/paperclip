@@ -35,7 +35,7 @@ import { useHiddenSettings } from "@/hooks/useHiddenSettings";
 import { useCloudInstance } from "@/hooks/useCloudInstance";
 import { InvitesSection } from "@/components/access/InvitesSection";
 import { describeError } from "@/api/errors";
-import { useTranslation } from "../i18n";
+import { useBrandName, useTranslation } from "../i18n";
 
 const reassignmentIssueStatuses = "backlog,todo,in_progress,in_review,blocked,failed,timed_out";
 type EditableMemberStatus = "pending" | "active" | "suspended";
@@ -606,6 +606,7 @@ export function CompanyAccess() {
 
 export function CompanyAccessLegacyRoute() {
   const { t } = useTranslation();
+  const brand = useBrandName();
   const { selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const { slots, isLoading, errorMessage } = usePluginSlots({
@@ -646,7 +647,7 @@ export function CompanyAccessLegacyRoute() {
         <div className="space-y-2">
           <h2 className="text-sm font-semibold">{t("access.advancedUnavailable", { defaultValue: "Advanced permissions unavailable" })}</h2>
           <p className="text-sm text-muted-foreground">
-            Core Paperclip keeps enforcing organization boundaries and any existing restrictive policy data, but editing advanced permissions requires an installed extension.
+            Core {brand} keeps enforcing organization boundaries and any existing restrictive policy data, but editing advanced permissions requires an installed extension.
           </p>
           {errorMessage ? (
             <p className="text-sm text-destructive">Plugin extensions unavailable: {errorMessage}</p>

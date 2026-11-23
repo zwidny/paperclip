@@ -12,7 +12,7 @@ import { AlertTriangle, ChevronDown, ChevronRight, Cloud, Download, FileCode2, F
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn, formatDateTime } from "@/lib/utils";
-import { i18n, useTranslation } from "@/i18n";
+import { i18n, useBrandName, useTranslation } from "@/i18n";
 import { fileResourcesApi } from "@/api/file-resources";
 import { ApiError } from "@/api/client";
 import { describeError } from "@/api/errors";
@@ -515,6 +515,7 @@ export function WorkspaceFileBrowser({
   className,
 }: WorkspaceFileBrowserProps) {
   const { t } = useTranslation();
+  const brand = useBrandName();
   const queryClient = useQueryClient();
   const { visible: pageVisible } = usePageVisibility();
   const source: BrowserSource =
@@ -1050,7 +1051,7 @@ export function WorkspaceFileBrowser({
         title={changedFilesTemporarilyUnavailable ? "Changed files temporarily unavailable" : "Couldn't load files"}
         body={
           changedFilesTemporarilyUnavailable
-            ? "Paperclip is limiting workspace scans to keep the server responsive. Try again in a moment."
+            ? `${brand} is limiting workspace scans to keep the server responsive. Try again in a moment.`
             : listErrorStatus === 404
             ? "Workspace browsing isn't available for this issue."
             : describeError(listQuery.error, { action: "load workspace files" }).body

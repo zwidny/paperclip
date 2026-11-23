@@ -1,5 +1,5 @@
 import { bindAccount } from "@/lib/account-scope";
-import { useTranslation } from "@/i18n";
+import { useBrandName, useTranslation } from "@/i18n";
 import { connectionIntentsApi } from "@/api/connection-intents";
 import { ConnectionInstructionsEditor } from "../ConnectionInstructions";
 import { useEffect, useRef, useState } from "react";
@@ -36,6 +36,7 @@ export function RemoteMcpProductionSetup({ providerId, connection, host = "page"
   upstreamServiceName, requestedAgentId, requiredAgentId, setupAccess, existingConnections = [], forceNewConnection, onUseExisting, onComplete, onCancel, onPhaseChange,
 }: ConnectionSetupFlowProps & { providerId: RemoteMcpProviderId; connection?: ToolConnection }) {
   const { t } = useTranslation();
+  const brand = useBrandName();
   const provider = remoteMcpProviders[providerId];
   const template = getConnectableAppDefinition(providerId)?.agentInstructions;
   const [instructions, setInstructions] = useState(() => connection
@@ -275,7 +276,7 @@ export function RemoteMcpProductionSetup({ providerId, connection, host = "page"
         } catch {
           // The connection and OAuth session already exist. Preserve them and
           // let the native sign-in link recover a blocked browser handoff.
-          edit({ notice: "Paperclip couldn’t open sign-in. Use the sign-in link below to continue." });
+          edit({ notice: `${brand} couldn’t open sign-in. Use the sign-in link below to continue.` });
           onPhaseChange?.("needs_retry");
         }
         return;

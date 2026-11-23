@@ -1,4 +1,5 @@
 import type { SVGProps } from "react";
+import { useBrandName } from "../i18n";
 
 interface PaperclipLockupProps extends Omit<SVGProps<SVGSVGElement>, "children"> {
   decorative?: boolean;
@@ -20,10 +21,12 @@ const PAPERCLIP_MARK_PATH =
  */
 export function PaperclipLockup({
   decorative = false,
-  title = "Paperclip",
+  title,
   className,
   ...rest
 }: PaperclipLockupProps) {
+  const brand = useBrandName();
+  const accessibleTitle = title ?? brand;
   return (
     <svg
       {...rest}
@@ -32,7 +35,7 @@ export function PaperclipLockup({
       fill="currentColor"
       role={decorative ? undefined : "img"}
       aria-hidden={decorative ? true : undefined}
-      aria-label={decorative ? undefined : title}
+      aria-label={decorative ? undefined : accessibleTitle}
       focusable="false"
     >
       <path d="M131.15 48.4902V31.9902H133.922V33.9775H134.094C134.237 33.6911 134.441 33.3831 134.706 33.0537C134.971 32.7171 135.329 32.4307 135.78 32.1943C136.239 31.958 136.822 31.8398 137.531 31.8398C138.455 31.8398 139.289 32.0762 140.034 32.5488C140.779 33.0215 141.37 33.7161 141.807 34.6328C142.251 35.5495 142.473 36.6774 142.473 38.0166C142.473 39.3343 142.258 40.4551 141.828 41.3789C141.398 42.3027 140.808 43.0081 140.056 43.4951C139.311 43.9749 138.466 44.2148 137.521 44.2148C136.84 44.2148 136.271 44.1003 135.812 43.8711C135.361 43.6348 134.996 43.3555 134.717 43.0332C134.445 42.7038 134.237 42.3923 134.094 42.0986H133.976V48.4902H131.15ZM136.747 41.8945C137.37 41.8945 137.889 41.7262 138.305 41.3896C138.727 41.0531 139.046 40.5911 139.261 40.0039C139.476 39.4167 139.583 38.7507 139.583 38.0059C139.583 37.2611 139.476 36.5986 139.261 36.0186C139.046 35.4385 138.731 34.9837 138.315 34.6543C137.9 34.3249 137.377 34.1602 136.747 34.1602C136.138 34.1602 135.623 34.3177 135.2 34.6328C134.785 34.9479 134.466 35.3955 134.244 35.9756C134.029 36.5485 133.922 37.2253 133.922 38.0059C133.922 38.7793 134.029 39.4596 134.244 40.0469C134.466 40.627 134.788 41.0817 135.211 41.4111C135.633 41.7334 136.146 41.8945 136.747 41.8945Z" />
@@ -52,10 +55,12 @@ export function PaperclipLockup({
 /** The mark alone, cropped square from the same geometry as the lockup. */
 export function PaperclipMark({
   decorative = false,
-  title = "Paperclip",
+  title,
   className,
   ...rest
 }: PaperclipLockupProps) {
+  const brand = useBrandName();
+  const accessibleTitle = title ?? brand;
   return (
     <svg
       {...rest}
@@ -64,7 +69,7 @@ export function PaperclipMark({
       fill="currentColor"
       role={decorative ? undefined : "img"}
       aria-hidden={decorative ? true : undefined}
-      aria-label={decorative ? undefined : title}
+      aria-label={decorative ? undefined : accessibleTitle}
       focusable="false"
     >
       <path d={PAPERCLIP_MARK_PATH} />

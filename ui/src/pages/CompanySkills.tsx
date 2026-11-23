@@ -181,7 +181,7 @@ import {
 import { GithubIcon } from "../components/icons/github-icon";
 import type { FolderListItem, FolderListResult } from "@paperclipai/shared";
 import { describeError } from "@/api/errors";
-import { i18n, useTranslation } from "../i18n";
+import { brandName, i18n, useTranslation } from "../i18n";
 import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 type SkillTreeNode = {
@@ -289,7 +289,7 @@ function sourceMeta(sourceBadge: CompanySkillSourceBadge, sourceLabel: string | 
     case "local":
       return { icon: Folder, label: sourceLabel ?? "Folder", managedLabel: i18n.t("companySkills.source.managed", { defaultValue: "{{name}} managed", name: "Folder" }) };
     case "paperclip":
-      return { icon: Paperclip, label: sourceLabel ?? "Paperclip", managedLabel: i18n.t("companySkills.source.managed", { defaultValue: "{{name}} managed", name: "Paperclip" }) };
+      return { icon: Paperclip, label: sourceLabel ?? brandName(), managedLabel: i18n.t("companySkills.source.managed", { defaultValue: "{{name}} managed", name: brandName() }) };
     default:
       return { icon: Boxes, label: sourceLabel ?? "Catalog", managedLabel: i18n.t("companySkills.source.managed", { defaultValue: "{{name}} managed", name: "Catalog" }) };
   }

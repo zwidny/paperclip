@@ -78,7 +78,7 @@ import {
   type ProviderConnection,
 } from "./AgentProviderConnection";
 import { adapterCuratesModelOrder } from "../../lib/model-utils";
-import { useTranslation } from "../../i18n";
+import { useBrandName, useTranslation } from "../../i18n";
 import { createUuid } from "../../lib/uuid";
 
 const controlClass = nativeSelectClassName;
@@ -138,6 +138,7 @@ function Setup({
   setupAgentId: string | null;
 }) {
   const { t } = useTranslation();
+  const brand = useBrandName();
   const navigate = useNavigate();
   const cache = useQueryClient();
   const { openNewIssue } = useDialogActions();
@@ -970,7 +971,7 @@ function Setup({
                   ·{" "}
                   {runnerProvider === "codex"
                     ? t("newAgent.nativeAppServerRunner", { defaultValue: "Native app server runner" })
-                    : "Paperclip Runner"}
+                    : `${brand} Runner`}
                 </span>
               )}
             </div>

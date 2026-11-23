@@ -5,7 +5,7 @@ import type { Agent, AgentLifecycleState } from "@paperclipai/shared";
 import { Loader2 } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import { useTranslation } from "../i18n";
+import { useBrandName, useTranslation } from "../i18n";
 
 const phases = {
   preparing: ["Preparing agent", "Required resources are being prepared. Work stays queued."],
@@ -49,6 +49,7 @@ export function AgentLifecycleStatus({ agent, onRetry, retryPending, refreshErro
   refreshError?: boolean;
 }) {
   const { t } = useTranslation();
+  const brand = useBrandName();
   const phase = pendingPhase(agent.lifecycleState);
   if (!phase && !refreshError) return null;
   return <div role="status" aria-live="polite" className="space-y-2 text-sm">
@@ -68,6 +69,6 @@ export function AgentLifecycleStatus({ agent, onRetry, retryPending, refreshErro
     </div>}
     {phase && agent.lifecycleError && <p className="text-muted-foreground">{agent.lifecycleState === "verifying" || agent.lifecycleState === "resuming"
       ? "Retry now checks the saved configuration again immediately."
-      : "Paperclip retries automatically; Retry now checks again immediately."}</p>}
+      : `${brand} retries automatically; Retry now checks again immediately.`}</p>}
   </div>;
 }

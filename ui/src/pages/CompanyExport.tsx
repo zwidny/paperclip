@@ -58,7 +58,7 @@ import {
   FileTree,
 } from "../components/FileTree";
 import { describeError } from "@/api/errors";
-import { useTranslation } from "../i18n";
+import { brandName, useTranslation } from "../i18n";
 import type { TFunction } from "i18next";
 import { companyProjectsQuery } from "@/lib/company-projects-query";
 import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
@@ -494,10 +494,10 @@ function generateReadmeFromSelection(
   lines.push("npx paperclipai company import this-github-url-or-folder");
   lines.push("```");
   lines.push("");
-  lines.push("See [Paperclip](https://paperclip.ing) for more information.");
+  lines.push(`See [${brandName()}](https://paperclip.ing) for more information.`);
   lines.push("");
   lines.push("---");
-  lines.push(`Exported from [Paperclip](https://paperclip.ing) on ${new Date().toISOString().split("T")[0]}`);
+  lines.push(`Exported from [${brandName()}](https://paperclip.ing) on ${new Date().toISOString().split("T")[0]}`);
   lines.push("");
 
   return lines.join("\n");

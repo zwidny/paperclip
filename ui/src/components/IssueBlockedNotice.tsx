@@ -33,7 +33,7 @@ import {
   readRecoveryRetryLineage,
 } from "../lib/recovery-lineage";
 import { StatusGlyph } from "./StatusGlyph";
-import { useTranslation } from "@/i18n";
+import { useBrandName, useTranslation } from "@/i18n";
 
 function BlockerRecoveryIndicator({
   action,
@@ -79,6 +79,7 @@ function SuccessfulRunRetryNowControl({
   issueId: string;
   scheduledRetry: IssueScheduledRetry;
 }) {
+  const brand = useBrandName();
   const retryNow = useRetryNowMutation(issueId);
   const dueAtIso = scheduledRetry.scheduledRetryAt
     ? new Date(scheduledRetry.scheduledRetryAt).toISOString()
@@ -98,7 +99,7 @@ function SuccessfulRunRetryNowControl({
         <div className="min-w-0 text-xs leading-5 text-amber-900 dark:text-amber-100">
           {retryNow.data?.outcome === "waiting" && retryNow.data.scheduledRetry?.runId === scheduledRetry.runId
             ? retryNow.data.message
-            : <>Paperclip will ask the assignee to choose the next step {scheduleLabel}. Retry now starts that follow-up immediately.</>}
+            : <>{brand} will ask the assignee to choose the next step {scheduleLabel}. Retry now starts that follow-up immediately.</>}
         </div>
         <Button
           type="button"

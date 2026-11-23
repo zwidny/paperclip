@@ -25,7 +25,7 @@ import {
   bindingSecretLabel,
   useProposalDecision,
 } from "./proposal-review";
-import { i18n, useTranslation } from "../../i18n";
+import { i18n, useBrandName, useTranslation } from "../../i18n";
 
 const DECIDED_STATUSES = ["approved", "rejected", "expired"] as const satisfies readonly SecretProposalStatus[];
 const DECIDED_LIMIT = 10;
@@ -117,6 +117,7 @@ function PendingProposal({
   const [description, setDescription] = useState(proposal.proposedDescription ?? "");
   const [editingDescription, setEditingDescription] = useState(Boolean(proposal.proposedDescription));
   // "" stores the secret in the default vault.
+  const brand = useBrandName();
   const [vaultId, setVaultId] = useState(defaultVaultId);
   // Access to a secret that is itself still waiting can only be approved together with it.
   const needsSecret = Boolean(proposal.secretProposalId);
@@ -208,7 +209,7 @@ function PendingProposal({
                   disabled={!canDecide || decision.isBusy}
                   className="font-normal"
                 >
-                  {defaultVaultId ? null : <option value="">Paperclip</option>}
+                  {defaultVaultId ? null : <option value="">{brand}</option>}
                   {vaults.map((vault) => (
                     <option key={vault.id} value={vault.id}>
                       {vault.displayName}

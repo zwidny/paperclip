@@ -5,7 +5,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { Link } from "@/lib/router";
 import { cn, formatDateTime } from "@/lib/utils";
 import { AppLogo } from "../AppLogo";
-import { useTranslation } from "@/i18n";
+import { useBrandName, useTranslation } from "@/i18n";
 import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 export function conversationDestination(
@@ -37,6 +37,7 @@ export function ChatConversationList({
   provider: ChatProvider;
 }) {
   const { t } = useTranslation();
+  const brand = useBrandName();
   if (!rows.length)
     return (
       <EmptyState
@@ -76,7 +77,7 @@ export function ChatConversationList({
                   className="break-words font-medium hover:underline"
                   to={`/issues/${row.issueId}`}
                 >
-                  {row.issueTitle ?? row.issueIdentifier ?? "Paperclip task"}
+                  {row.issueTitle ?? row.issueIdentifier ?? `${brand} task`}
                 </Link>
               ) : (
                 <span className="font-medium">

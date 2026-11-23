@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { CompanyPatternIcon } from "@/components/CompanyPatternIcon";
 import { useResilientFetch } from "@/hooks/useResilientFetch";
-import { useTranslation } from "../i18n";
+import { useBrandName, useTranslation } from "../i18n";
 import { api } from "../api/client";
 import { describeError } from "../api/errors";
 import { cn } from "@/lib/utils";
@@ -58,6 +58,7 @@ export function McpDevicePage({ initialCode }: { initialCode?: string } = {}) {
 
 function McpConnectRequest({ id, device = false, agentPairingOnly = false, onEditCode }: { id: string; device?: boolean; agentPairingOnly?: boolean; onEditCode?: () => void }) {
   const { t } = useTranslation();
+  const brand = useBrandName();
   const requestPrefix = agentPairingOnly ? "/dot-mcp/requests" : "/mcp/requests";
   const [companyId, setCompanyId] = useState("");
   const [pairingCode, setPairingCode] = useState("");
@@ -104,7 +105,7 @@ function McpConnectRequest({ id, device = false, agentPairingOnly = false, onEdi
   return <div className="mx-auto max-w-xl py-10">
     <Card className="block space-y-4 p-6">
       <div className="flex items-center gap-3">
-        <Paperclip className="size-8 shrink-0 text-foreground" role="img" aria-label="Paperclip" />
+        <Paperclip className="size-8 shrink-0 text-foreground" role="img" aria-label={brand} />
         <h1 className="min-w-0 break-words text-xl font-semibold">{t("mcpConnect.connectAssistantPrefix", { defaultValue: "Connect " })}<bdi>{assistantName}</bdi>{t("mcpConnect.connectAssistantSuffix", { defaultValue: " to Paperclip" })}</h1>
       </div>
       {clientOrigin && <ClientOrigin key={clientOrigin} origin={clientOrigin} />}

@@ -1,3 +1,5 @@
+import { brandName } from "../../i18n";
+
 export type WebhookInstructionSender = "custom" | "github";
 export type WebhookInstructionSigningMode = "app_webhook" | "bearer" | "fireflies_hmac" | "hmac_sha256" | "none";
 
@@ -18,7 +20,7 @@ export function webhookAgentInstructions(
   signingMode: WebhookInstructionSigningMode = "app_webhook",
 ) {
   const common = [
-    `Connect the sending app to the Paperclip routine ${JSON.stringify(routineTitle)}.`,
+    `Connect the sending app to the ${brandName()} routine ${JSON.stringify(routineTitle)}.`,
     `Webhook URL: ${webhookUrl}`,
     "Send an HTTP POST request with a JSON object as the body (not an array or string).",
     "Content-Type: application/json",
@@ -50,7 +52,7 @@ export function webhookAgentInstructions(
       : [
           `Secret key: ${webhookSecret}`,
           ...(signingMode === "bearer" ? [] : [
-            `If the app asks for a signing secret, paste the secret key above. Paperclip accepts HMAC-SHA256 over the exact request body in ${signingMode === "fireflies_hmac" ? "X-Hub-Signature" : "X-Hub-Signature or X-Hub-Signature-256"}, formatted sha256=<hex digest>.`,
+            `If the app asks for a signing secret, paste the secret key above. ${brandName()} accepts HMAC-SHA256 over the exact request body in ${signingMode === "fireflies_hmac" ? "X-Hub-Signature" : "X-Hub-Signature or X-Hub-Signature-256"}, formatted sha256=<hex digest>.`,
           ]),
           ...(signingMode === "fireflies_hmac" ? [] : [
             `For apps with custom headers, use Authorization: Bearer ${webhookSecret}`,
@@ -64,11 +66,11 @@ export function webhookAgentInstructions(
   return [
     ...common,
     ...auth,
-    "The webhook in Paperclip shows whether the event arrived and authentication passed.",
+    `The webhook in ${brandName()} shows whether the event arrived and authentication passed.`,
     ...(setupPending
       ? [
           "During setup, deliveries only test the connection. They do not start the routine or create a task.",
-          "Finish in Paperclip to enable this webhook for future events. Test events are not replayed.",
+          `Finish in ${brandName()} to enable this webhook for future events. Test events are not replayed.`,
         ]
       : [
           "This webhook is enabled. Deliveries can start the routine and create tasks.",

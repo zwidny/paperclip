@@ -1,4 +1,5 @@
 import { GOOGLE_WORKSPACE_SERVICE_GROUPS, type GoogleWorkspaceServiceSelection } from "@paperclipai/shared";
+import { brandName } from "../../i18n";
 
 export const GOOGLE_WORKSPACE_PRIVACY_POLICY_URL = "https://paperclip.ing/privacy";
 
@@ -7,7 +8,9 @@ type ServiceId = (typeof GOOGLE_WORKSPACE_SERVICE_GROUPS)[number]["id"];
 const ACCESS: Record<ServiceId, { read: string; write: string }> = {
   gmail: {
     read: "Gmail: agents can read and search your email.",
-    write: "Gmail: agents can read and search your email, and create drafts. Google's permission screen also mentions sending email; Paperclip does not send email.",
+    get write() {
+      return `Gmail: agents can read and search your email, and create drafts. Google's permission screen also mentions sending email; ${brandName()} does not send email.`;
+    },
   },
   drive: {
     read: "Drive: agents can read and search your files, Docs, Sheets and Slides.",

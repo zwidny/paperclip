@@ -13,6 +13,7 @@
  */
 
 import { CancelledError } from "@tanstack/react-query";
+import { brandName } from "../i18n";
 
 export type ErrorKind =
   | "transient"
@@ -62,16 +63,24 @@ const CONNECTIVITY_CODES = new Set(["tenant_app_unavailable", "tenant_app_starti
 // raw `body.error`/`body.code`) or an `ErrorKind` fallback. Never return a raw
 // code to the user: anything not in this table falls back to its kind's copy.
 
-const UNAVAILABLE_BODY = "Paperclip is temporarily unavailable. Please try again in a moment.";
+function unavailableBody(): string {
+  return `${brandName()} is temporarily unavailable. Please try again in a moment.`;
+}
 
 const CODE_COPY: Record<string, { title: string; body: string }> = {
-  tenant_app_unavailable: {
-    title: "Reconnecting to Paperclip",
-    body: "Paperclip is restarting or updating. Please try again in a moment.",
+  get tenant_app_unavailable() {
+    const brand = brandName();
+    return {
+      title: `Reconnecting to ${brand}`,
+      body: `${brand} is restarting or updating. Please try again in a moment.`,
+    };
   },
-  tenant_app_starting: {
-    title: "Paperclip is starting",
-    body: "Paperclip is starting up. Please try again in a few seconds.",
+  get tenant_app_starting() {
+    const brand = brandName();
+    return {
+      title: `${brand} is starting`,
+      body: `${brand} is starting up. Please try again in a few seconds.`,
+    };
   },
   WORKER_UNAVAILABLE: {
     title: "Plugin unavailable",
@@ -119,7 +128,7 @@ const CODE_COPY: Record<string, { title: string; body: string }> = {
 
 const KIND_COPY: Record<ErrorKind, { title: string; body: string }> = {
   // Moved from `ApiUnavailableError` (api/response.ts).
-  transient: { title: "Connection interrupted", body: UNAVAILABLE_BODY },
+  get transient() { return { title: "Connection interrupted", body: unavailableBody() }; },
   auth: { title: "Signed out", body: "Your session has ended. Sign in again to continue." },
   forbidden: { title: "Not allowed", body: "You don’t have permission to do that." },
   not_found: { title: "Not found", body: "This item doesn’t exist or was moved." },
@@ -194,7 +203,7 @@ function readableServerMessage(err: unknown): string | null {
     if (!candidate) continue;
     if (isRawErrorCode(candidate)) continue;
     if (/^Request failed: \d+$/.test(candidate)) continue;
-    if (candidate === UNAVAILABLE_BODY) continue;
+    if (candidate === unavailableBody()) continue;
     return candidate;
   }
   return null;

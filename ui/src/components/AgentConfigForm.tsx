@@ -1,4 +1,4 @@
-import { i18n, useTranslation } from "../i18n";
+import { i18n, useBrandName, useTranslation } from "../i18n";
 import { environmentSupportsLoginPty } from "@paperclipai/shared";
 import { matchesAdapterLoginTarget, useAdapterLoginCancellation } from "./useAdapterLoginCancellation";
 import { ACCOUNT_BOUND_MODEL_DISCOVERY_QUERY_OPTIONS, isAccountBoundAcpxAgent } from "@/lib/native-model-catalog";
@@ -362,6 +362,7 @@ function ConfigSections({ order, hidden, className, children }: {
 
 export function AgentConfigForm(props: AgentConfigFormProps) {
   const { t } = useTranslation();
+  const brand = useBrandName();
   const { mode, adapterModels: externalModels } = props;
   const isCreate = mode === "create";
   const panels = props.sectionLayout === "panels";
@@ -1044,7 +1045,7 @@ export function AgentConfigForm(props: AgentConfigFormProps) {
   const inheritedEnvironmentLabel = instanceDefaultEnvironment
     ? environmentDisplayLabel(instanceDefaultEnvironment)
     : managedSandboxOnly
-      ? "Paperclip Sandbox"
+      ? `${brand} Sandbox`
       : t("config.localEnvironment", { defaultValue: "Local" });
 
   const modelProvider = adapterType === "opencode_local" && aiConnectionBindingSchema.safeParse(

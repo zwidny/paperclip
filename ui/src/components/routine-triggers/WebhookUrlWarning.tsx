@@ -1,11 +1,11 @@
 import { InlineBanner } from "@/components/InlineBanner";
 import { webhookUrlWarningReason } from "@/lib/webhook-url-warning";
-import { useTranslation } from "../../i18n";
+import { useBrandName, useTranslation } from "../../i18n";
 
 const warnings = {
   loopback: {
     title: "Other apps can’t reach this localhost URL",
-    message: "This address points back to the machine sending the request. Services such as GitHub can’t use it to reach Paperclip on your computer.",
+    message: (brand: string) => `This address points back to the machine sending the request. Services such as GitHub can’t use it to reach ${brand} on your computer.`,
   },
   private: {
     title: "This webhook URL appears to be private",
@@ -27,12 +27,14 @@ const warnings = {
 
 export function WebhookUrlWarning({ url }: { url: string }) {
   const { t } = useTranslation();
+  const brand = useBrandName();
   const reason = webhookUrlWarningReason(url);
   if (!reason) return null;
   const warning = warnings[reason];
+  const message = typeof warning.message === "function" ? warning.message(brand) : warning.message;
   return <InlineBanner tone="warning" title={warning.title}>
     <div className="space-y-2">
-      <p>{warning.message}</p>
+      <p>{message}</p>
       <p>{t("routineTriggers.webhookWarning.continueHint", { defaultValue: "You can continue for local or private-network use. For public senders, use a publicly reachable HTTPS URL." })}</p>
       <a className="underline underline-offset-4" href="https://docs.paperclip.ing/reference/deploy/https/" target="_blank" rel="noopener noreferrer">{t("routineTriggers.webhookWarning.learnHttps", { defaultValue: "Learn how to set up HTTPS and public access" })}</a>
     </div>

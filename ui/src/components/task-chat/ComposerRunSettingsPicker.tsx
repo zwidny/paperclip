@@ -10,6 +10,7 @@ import { queryKeys } from "@/lib/queryKeys";
 import { ACCOUNT_BOUND_MODEL_DISCOVERY_QUERY_OPTIONS, nativeTaskModelCatalogOptions } from "@/lib/native-model-catalog";
 import { cn } from "@/lib/utils";
 import { useMobileEntityPickerViewportStyle } from "@/hooks/useMobileEntityPickerViewportStyle";
+import { brandName } from "@/i18n";
 import { getLastComposerEffort, rememberComposerEffort } from "@/lib/recent-composer-effort";
 import type { InlineEntityOption } from "@/components/InlineEntitySelector";
 import { Dialog, DialogClose, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -51,7 +52,8 @@ const HARNESS_LABELS: Record<string, string> = {
   claude_local: "Claude Code", codex_local: "Codex", opencode_local: "OpenCode",
   pi_local: "Pi", kimi_local: "Kimi Code", gemini_local: "Gemini CLI",
   cursor: "Cursor", cursor_cloud: "Cursor Cloud", grok_local: "Grok CLI",
-  hermes_local: "Hermes CLI", paperclip_runner: "Paperclip Runner",
+  hermes_local: "Hermes CLI",
+  get paperclip_runner() { return `${brandName()} Runner`; },
   process: "Process", http: "HTTP", openclaw_gateway: "OpenClaw Gateway",
   hermes_gateway: "Hermes Gateway",
 };

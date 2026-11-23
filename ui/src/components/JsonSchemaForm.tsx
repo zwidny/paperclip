@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SecretBindingPicker, type SecretBindingValue } from "./SecretBindingPicker";
-import { useTranslation } from "../i18n";
+import { useBrandName, useTranslation } from "../i18n";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -604,6 +604,7 @@ const SecretField = React.memo(({
   maxLength?: number;
 }) => {
   const { t } = useTranslation();
+  const brand = useBrandName();
   const [isVisible, setIsVisible] = useState(false);
   const isTextArea = maxLength != null && maxLength > TEXTAREA_THRESHOLD;
 
@@ -736,7 +737,7 @@ const SecretField = React.memo(({
       label={label}
       description={
         description ||
-        "Pick an existing organization secret, or paste a raw value (Paperclip will store it as a secret on save)."
+        `Pick an existing organization secret, or paste a raw value (${brand} will store it as a secret on save).`
       }
       required={isRequired}
       error={error}

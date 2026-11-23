@@ -27,7 +27,7 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import { QueryErrorState, useQueryView } from "../QueryView";
-import { useTranslation } from "../../i18n";
+import { useBrandName, useTranslation } from "../../i18n";
 import { createUuid } from "../../lib/uuid";
 
 export type AgentBasics = {
@@ -63,6 +63,7 @@ export function AgentBasicsDialog({
   onInvite?: () => void;
 }) {
   const { t } = useTranslation();
+  const brand = useBrandName();
   const id = useId();
   const { selectedCompanyId: companyId } = useCompany();
   const cache = useQueryClient();
@@ -119,8 +120,8 @@ export function AgentBasicsDialog({
   const experimentalRunnerAvailable = experimental.data?.enableNativeRunner === true
     && adapters?.some(adapter => adapter.type === "paperclip_runner" && adapter.loaded && !adapter.disabled && adapter.supportedRunners?.length !== 0);
   const advancedRunnerOptions = [
-    { value: "grok", label: "Grok Build (Paperclip Runner)" },
-    { value: "opencode", label: "OpenCode (Paperclip Runner)" },
+    { value: "grok", label: `Grok Build (${brand} Runner)` },
+    { value: "opencode", label: `OpenCode (${brand} Runner)` },
   ].filter(option => !cloud || harnessPolicy.isCloudRunnerProviderAllowed(option.value));
   const validAdapter = choices.some((adapter) => adapter.type === adapterType)
     || (experimentalRunnerAvailable && adapterType === "paperclip_runner" && (runnerProvider !== "antigravity" || antigravityQualified)

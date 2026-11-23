@@ -17,7 +17,7 @@ import { clearPendingInviteToken, rememberPendingInviteToken } from "../lib/invi
 import { queryKeys } from "../lib/queryKeys";
 import { cn, formatDate } from "../lib/utils";
 import { ANALYTICS_NO_CAPTURE_CLASS } from "@/lib/analytics/privacy";
-import { t as translate, useTranslation } from "../i18n";
+import { t as translate, useBrandName, useTranslation } from "../i18n";
 
 type AuthMode = "sign_in" | "sign_up";
 type AuthFeedback = { tone: "error" | "info"; message: string };
@@ -219,6 +219,7 @@ function AwaitingJoinApprovalPanel({
 export function InviteLandingPage() {
   const harnessPolicy = useCloudHarnessPolicy();
   const { t } = useTranslation();
+  const brand = useBrandName();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { setSelectedCompanyId } = useCompany();
@@ -306,7 +307,7 @@ export function InviteLandingPage() {
     Boolean(invite?.companyId) &&
     companyList.some((company) => company.id === invite?.companyId);
   const companyName = invite?.companyName?.trim() || null;
-  const companyDisplayName = companyName || "this Paperclip company";
+  const companyDisplayName = companyName || `this ${brand} company`;
   const companyLogoUrl = invite?.companyLogoUrl?.trim() || null;
   const invitedByUserName = invite?.invitedByUserName?.trim() || null;
   const inviteMessage = invite?.inviteMessage?.trim() || null;

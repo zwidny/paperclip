@@ -1,5 +1,7 @@
 import { AlertTriangle } from "lucide-react";
+import { useBrandName } from "../i18n";
 export function EmailSafetyNotice() {
+  const brand = useBrandName();
   return (
     <div
       role="note"
@@ -16,7 +18,7 @@ export function EmailSafetyNotice() {
             allowlist in AgentMail to limit who can contact this inbox.
           </p>
           <p className="text-xs text-muted-foreground">
-            Paperclip does not verify sender restrictions. AgentMail controls
+            {brand} does not verify sender restrictions. AgentMail controls
             new messages and replies separately; check both lists.
           </p>
         </div>

@@ -18,7 +18,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CloudSignIn } from "@/components/CloudSignIn";
 import { useSuppressConnectionBanner } from "@/components/ConnectionStatusBanner";
-import { useTranslation } from "@/i18n";
+import { useBrandName, useTranslation } from "@/i18n";
 import { clearCloudSignInAttempt } from "@/lib/cloud-sign-in";
 
 /** Poll while the server reports `starting`; outages are polled by `lib/connectivity`. */
@@ -34,12 +34,13 @@ export function CloudAccessError({
   onRetry: () => void;
 }) {
   useSuppressConnectionBanner(temporary);
+  const brand = useBrandName();
   return (
     <div className="mx-auto flex max-w-xl flex-col gap-4 px-4 py-16">
       <RefreshCw className="size-6 text-muted-foreground" aria-hidden="true" />
       <div className="flex flex-col gap-2" role="status">
         <h1 className="text-xl font-semibold">
-          {temporary ? "Reconnecting to Paperclip" : "Unable to load Paperclip"}
+          {temporary ? `Reconnecting to ${brand}` : `Unable to load ${brand}`}
         </h1>
         <p className="text-sm text-muted-foreground">
           {temporary
@@ -58,13 +59,14 @@ export function CloudAccessError({
 
 function NoBoardAccessPage() {
   const { t } = useTranslation();
+  const brand = useBrandName();
   return (
     <div className="mx-auto max-w-xl py-10">
       <Card className="block p-6">
         <h1 className="text-xl font-semibold">{t("cloudAccess.noOrgTitle", { defaultValue: "No organization access" })}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           This account is signed in, but it does not have an active organization membership or instance-admin access on
-          this Paperclip instance.
+          this {brand} instance.
         </p>
         <p className="mt-2 text-sm text-muted-foreground">
           Use an organization invite or sign in with an account that already belongs to this org.

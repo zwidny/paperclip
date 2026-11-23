@@ -5,7 +5,7 @@
  * thinking → tool → diff → responding while a run is in flight, rather than
  * only showing a response after the turn settles.
  */
-import { i18n } from "../../i18n";
+import { brandName, i18n } from "../../i18n";
 import { foldApprovedAutoReviews } from "./fold-auto-reviews";
 import { isFatalProviderError, isStatusNotice, isStatusNoticePayload, statusNoticeCategory } from "./status-notice-presentation";
 import type { TranscriptEntry } from "@/adapters";
@@ -1955,12 +1955,12 @@ function phaseSummary(
         case "paperclip_read":
           text =
             count === 1
-              ? "Read from Paperclip"
-              : `Read from Paperclip ${count} times`;
+              ? `Read from ${brandName()}`
+              : `Read from ${brandName()} ${count} times`;
           break;
         case "task_operation":
           text =
-            count === 1 ? "Used Paperclip" : `Used Paperclip ${count} times`;
+            count === 1 ? `Used ${brandName()}` : `Used ${brandName()} ${count} times`;
           break;
         default:
           text = count === 1 ? "Used a tool" : `Used ${count} tools`;

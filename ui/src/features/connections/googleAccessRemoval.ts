@@ -1,5 +1,6 @@
 import type { ManagedGoogleAccessRemoval } from "@paperclipai/shared";
 import type { ToastAction, ToastInput, ToastTone } from "../../context/ToastContext";
+import { brandName } from "../../i18n";
 
 export const GOOGLE_THIRD_PARTY_ACCESS_URL = "https://myaccount.google.com/connections";
 
@@ -18,25 +19,26 @@ export function googleAccessRemovalNotice(
   providerAccess: ManagedGoogleAccessRemoval | null | undefined,
 ): GoogleAccessRemovalNotice | null {
   if (providerAccess?.provider !== "google") return null;
+  const brand = brandName();
   if (providerAccess.result === "ended") {
-    return { tone: "success", body: "Paperclip's access to this Google account was also ended at Google." };
+    return { tone: "success", body: `${brand}'s access to this Google account was also ended at Google.` };
   }
   if (providerAccess.result === "ended_unconfirmed") {
     return {
       tone: "info",
-      body: "Paperclip's access was ended at Google. If more than one Google account was connected here, check your Google account's third-party connections to be sure.",
+      body: `${brand}'s access was ended at Google. If more than one Google account was connected here, check your Google account's third-party connections to be sure.`,
       action: openGoogleAccountConnections,
     };
   }
   if (providerAccess.result === "other_connections_remain") {
     return {
       tone: "success",
-      body: "Other Paperclip connections still use this Google account, so Google keeps Paperclip's access until you remove those too.",
+      body: `Other ${brand} connections still use this Google account, so Google keeps ${brand}'s access until you remove those too.`,
     };
   }
   return {
     tone: "warn",
-    body: "Paperclip removed the connection but couldn't end its access at Google. You can remove Paperclip from your Google account's third-party connections.",
+    body: `${brand} removed the connection but couldn't end its access at Google. You can remove ${brand} from your Google account's third-party connections.`,
     action: openGoogleAccountConnections,
   };
 }

@@ -5,7 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { useOptionalToastActions } from "../context/ToastContext";
 import { CHROMELESS_DISPLAY_MODES, isChromelessDisplayMode } from "../lib/pwa-display-mode";
 import { copyTextToClipboard } from "../lib/clipboard";
-import { useTranslation } from "../i18n";
+import { useBrandName, useTranslation } from "../i18n";
 
 function ControlButton({
   label,
@@ -37,6 +37,7 @@ function ControlButton({
 
 export function StandaloneBrowserControls({ mobile }: { mobile: boolean }) {
   const { t } = useTranslation();
+  const brand = useBrandName();
   const [chromeless, setChromeless] = useState(() =>
     typeof window !== "undefined" && mobile ? isChromelessDisplayMode() : false,
   );
@@ -71,7 +72,7 @@ export function StandaloneBrowserControls({ mobile }: { mobile: boolean }) {
     const url = window.location.href;
     try {
       if (navigator.share) {
-        await navigator.share({ title: document.title || "Paperclip", url });
+        await navigator.share({ title: document.title || brand, url });
         return;
       }
       await copyTextToClipboard(url);
@@ -84,7 +85,7 @@ export function StandaloneBrowserControls({ mobile }: { mobile: boolean }) {
         tone: "error",
       });
     }
-  }, [t, toastActions]);
+  }, [brand, t, toastActions]);
 
   const openInBrowser = useCallback(() => {
     window.open(window.location.href, "_blank", "noopener,noreferrer");

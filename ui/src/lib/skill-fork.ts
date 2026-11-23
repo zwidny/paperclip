@@ -4,6 +4,7 @@ import type {
   CompanySkillSourceType,
   CompanySkillUsageAgent,
 } from "@paperclipai/shared";
+import { brandName } from "@/i18n";
 
 /**
  * Pure logic for the Skill Studio "Edit a copy" fork flow (PAP-13112). Kept
@@ -27,7 +28,7 @@ export function shortSha(ref: string | null | undefined): string | null {
 function sourceTypeFallbackLabel(sourceType: CompanySkillSourceType): string {
   switch (sourceType) {
     case "managed":
-      return "Paperclip";
+      return brandName();
     case "github":
       return "GitHub";
     case "skills_sh":

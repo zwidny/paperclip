@@ -52,7 +52,7 @@ import {
   readRecoveryRetryLineage,
   type RecoveryRetryLineage,
 } from "@/lib/recovery-lineage";
-import { useTranslation, i18n as i18nInstance } from "../i18n";
+import { useBrandName, useTranslation, i18n as i18nInstance } from "../i18n";
 import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 export type RecoveryCardCardState = RecoveryDisplayState;
@@ -1091,6 +1091,7 @@ export function IssueRecoveryActionCard({
 }: IssueRecoveryActionCardProps) {
   const { visible: workspaceIsolationControlsVisible } = useWorkspaceIsolationControls();
   const { t } = useTranslation();
+  const brand = useBrandName();
   const liveness = useMemo(() => ({ scheduledRetry }), [scheduledRetry]);
   const cardState: RecoveryCardCardState = forcedState ?? deriveRecoveryCardState(action, liveness);
   const tone = STATE_TONE[cardState];
@@ -1273,7 +1274,7 @@ export function IssueRecoveryActionCard({
               >
                 {lineage.lane === "native_run" && (action.ownerType !== "board" || Boolean(lineage.liveRunId)) ? (
                   <>
-                    <span className="font-medium">Paperclip</span>
+                    <span className="font-medium">{brand}</span>
                     <span className="text-muted-foreground">{t("recoveryCard.recoversExistingRun", { defaultValue: "recovers the existing run" })}</span>
                   </>
                 ) : recoveryOwnerIsSourceOwner ? (

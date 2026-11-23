@@ -1,7 +1,7 @@
 import { connectionIntentsApi } from "@/api/connection-intents";
 import { useAwsRoleSetupStep } from "./useAwsRoleSetupStep";
 import { readOAuthWindowOutcome } from "@/lib/oauthWindowOutcome";
-import { i18n, useTranslation } from "@/i18n";
+import { i18n, useBrandName, useTranslation } from "@/i18n";
 import { bindAccount } from "@/lib/account-scope";
 import { StepHeader } from "./ConnectionSetupHeader";
 import { GoogleWorkspaceServicesDialog } from "./GoogleWorkspaceServices";
@@ -752,6 +752,7 @@ function StandardConnectionSetupFlow({
   renderCredentialStep,
 }: ConnectionSetupFlowProps = {}) {
   const { t } = useTranslation();
+  const brand = useBrandName();
   const workspaceSelectionRef = useRef<GoogleWorkspaceServiceSelection | null>(null);
   const [workspaceConsent, setWorkspaceConsent] = useState<(() => void) | null>(null);
   const [workspaceConnection, setWorkspaceConnection] = useState<ToolConnection | undefined>();
@@ -2807,7 +2808,7 @@ function StandardConnectionSetupFlow({
         <div className="mx-auto max-w-xl rounded-xl border border-border bg-card p-6">
           <h2 className="text-lg font-semibold text-foreground">{entry.name} sign-in is unavailable</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            This instance is connected to Paperclip, but {entry.name} sign-in is not currently available. Try again shortly or contact your instance administrator.
+            This instance is connected to {brand}, but {entry.name} sign-in is not currently available. Try again shortly or contact your instance administrator.
           </p>
           {customOAuthMethod ? (
             <Button type="button" variant="link" className="mt-4 h-auto p-0 text-xs" onClick={() => setConnectionMethodKey(customOAuthMethod.key)}>
@@ -4178,6 +4179,7 @@ function OAuthClientFields({
   required: boolean;
 }) {
   const { t } = useTranslation();
+  const brand = useBrandName();
   return (
     <div className="space-y-4 rounded-lg border border-border p-4">
       <div>
@@ -4191,8 +4193,8 @@ function OAuthClientFields({
         */}
         <p className="mt-1 text-xs text-muted-foreground">
           {method.oauthClientSecretRequired ? method.guidanceMd : required
-            ? `${entry.name} does not let Paperclip register itself automatically, so this connector needs an OAuth app you create. Add the callback URL below in ${entry.name}, then paste the client details back here.`
-            : `Register Paperclip's callback URI in ${entry.name}, then enter the customer-owned client details.`}
+            ? `${entry.name} does not let ${brand} register itself automatically, so this connector needs an OAuth app you create. Add the callback URL below in ${entry.name}, then paste the client details back here.`
+            : `Register ${brand}'s callback URI in ${entry.name}, then enter the customer-owned client details.`}
         </p>
         {method.consoleLinks?.register ? (
           <a

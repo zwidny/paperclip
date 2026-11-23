@@ -50,7 +50,7 @@ import type {
   AgentPermissions,
   EmailEndpointSummary,
 } from "@paperclipai/shared";
-import { useTranslation } from "../../../i18n";
+import { useBrandName, useTranslation } from "../../../i18n";
 import { createUuid } from "../../../lib/uuid";
 import { companyProjectsQuery } from "@/lib/company-projects-query";
 import { cn } from "@/lib/utils";
@@ -98,6 +98,7 @@ export function EmailEndpointSetup() {
 
 function EmailEndpointSetupForm({ companyId }: { companyId: string }) {
   const { t } = useTranslation();
+  const brand = useBrandName();
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const cache = useQueryClient();
@@ -487,7 +488,7 @@ function EmailEndpointSetupForm({ companyId }: { companyId: string }) {
               || projectsView.kind === "reconnecting" || boundaryIssuesView.kind === "reconnecting"}
           />
           <p className="text-xs text-muted-foreground">
-            Low trust limits Paperclip access; it does not sandbox the runtime.
+            Low trust limits {brand} access; it does not sandbox the runtime.
             Review filesystem, tool, and secret access separately.
           </p>
           {trust.error ? (

@@ -8,6 +8,7 @@ import { buildPinnedNavigationItems, CoordinatorSidebar } from "./CoordinatorSid
 import { TooltipProvider } from "./ui/tooltip";
 import { coordinatorAttentionQueryKey, coordinatorAttentionSummaryQueryKey, coordinatorAttentionTasksQueryKey } from "@/lib/coordinator-attention";
 import { queryKeys } from "@/lib/queryKeys";
+import { changeLocale } from "@/i18n";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 const fixture = vi.hoisted(() => ({ attention: vi.fn(), summary: vi.fn(), openNewIssue: vi.fn(), pathname: "/COO/issues", search: "", userId: "reviewer" as string | null, chats: [] as Array<{ id?: string; conversationAgentId?: string; updatedAt?: string; isUnreadForMe: boolean }>,
@@ -199,6 +200,21 @@ describe("Coordinator pinned pages", () => {
     expect(pinnedPage("/issues/TASK-1")?.textContent).toContain("Renamed release task");
     await click("Unpin Renamed release task");
     expect(pinnedLinks()).toEqual(["/chats/cto", "/projects/launch/issues"]);
+  });
+  it("renders a pinned shared destination in the current locale", async () => {
+    // Regression: pinned rows were built from the destination table's English
+    // label only, so /apps stayed "Connectors" after switching to zh-CN while the
+    // More menu translated correctly.
+    localStorage.setItem("paperclip.coordinator.pinned-nav.v1:reviewer", JSON.stringify(["/apps"]));
+    await changeLocale("zh-CN");
+    try {
+      await renderSidebar();
+      const pinned = container.querySelector('.group\\/coordinator-pin a[href="/apps"]');
+      expect(pinned?.textContent).toContain("连接器");
+      expect(pinned?.textContent).not.toContain("Connectors");
+    } finally {
+      await changeLocale("en");
+    }
   });
   it("matches pinned and recent agent avatar dimensions to task status icons", async () => {
     fixture.agents = [{ id: "cto", companyId: "company", name: "CTO", urlKey: "cto", role: "cto", status: "idle" } as Agent];

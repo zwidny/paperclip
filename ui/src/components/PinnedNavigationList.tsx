@@ -14,6 +14,9 @@ export interface PinnedNavigationItem {
   key: string;
   to: string;
   label: string;
+  /** Set for entries that come from the shared destination table so the pinned
+   *  row follows the locale; user data (agent, task, project) has no key. */
+  labelKey?: string;
   icon: ReactNode;
   task?: { id: string; identifier: string | null; isUnreadForMe?: boolean };
   project?: Pick<Project, "id" | "companyId" | "name">;
@@ -40,15 +43,16 @@ export function SortablePinnedRow({ id, label, disabled = false, className, hand
 
 function PinnedItem({ item, userId, onUnpin }: { item: PinnedNavigationItem; userId?: string | null; onUnpin: (key: string) => void }) {
   const { t } = useTranslation();
-  const link = { to: item.to, label: item.label, iconNode: item.icon, className: "design-sidebar-item design-sidebar-pinned-item group-hover/coordinator-pin:bg-sidebar-accent" };
+  const label = item.labelKey ? t(item.labelKey, { defaultValue: item.label }) : item.label;
+  const link = { to: item.to, label, iconNode: item.icon, className: "design-sidebar-item design-sidebar-pinned-item group-hover/coordinator-pin:bg-sidebar-accent" };
   const row = (handle: ReactNode) => <>
     {item.task ? <RecentTaskNavItem {...link} task={item.task} /> : <SidebarNavItem {...link} />}
-    <button type="button" aria-label={`${t("pinnedNavigation.unpinAria", { defaultValue: "Unpin" })} ${item.label}`} title={`${t("pinnedNavigation.unpinAria", { defaultValue: "Unpin" })} ${item.label}`}
+    <button type="button" aria-label={`${t("pinnedNavigation.unpinAria", { defaultValue: "Unpin" })} ${label}`} title={`${t("pinnedNavigation.unpinAria", { defaultValue: "Unpin" })} ${label}`}
       onMouseDown={event => event.stopPropagation()} onClick={() => onUnpin(item.key)}
       className="absolute right-10 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-opacity hover:bg-sidebar-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring group-hover/coordinator-pin:opacity-100 group-focus-within/coordinator-pin:opacity-100 pointer-coarse:opacity-100"><PinOff className="size-3.5" /></button>
     {handle}
   </>;
-  return <SortablePinnedRow id={item.key} label={item.label} className="group/coordinator-pin relative"
+  return <SortablePinnedRow id={item.key} label={label} className="group/coordinator-pin relative"
     handleClassName="right-3 size-7 group-hover/coordinator-pin:opacity-100 group-focus-within/coordinator-pin:opacity-100" handleIconClassName="size-3.5">
     {handle => item.project ? <SidebarProjectTasks project={item.project} userId={userId}>{row(handle)}</SidebarProjectTasks> : row(handle)}
   </SortablePinnedRow>;

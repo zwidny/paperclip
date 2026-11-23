@@ -54,13 +54,13 @@ const moreDestinations = [
 export function buildPinnedNavigationItems(
   pins: readonly string[],
   agents: readonly Agent[],
-  destinations: readonly { to: string; label: string; icon: LucideIcon }[],
+  destinations: readonly { to: string; label: string; labelKey?: string; icon: LucideIcon }[],
   tasks: readonly IssueSummary[] = [],
   projects: readonly Project[] = [],
 ): PinnedNavigationItem[] {
   if (!pins.length) return [];
   const keys = new Set(pins);
-  const items = new Map<string, PinnedNavigationItem>(destinations.map(item => [item.to, { key: item.to, to: item.to, label: item.label, icon: <item.icon className="size-4" /> }]));
+  const items = new Map<string, PinnedNavigationItem>(destinations.map(item => [item.to, { key: item.to, to: item.to, label: item.label, labelKey: item.labelKey, icon: <item.icon className="size-4" /> }]));
   for (const agent of agents) {
     const key = agentChatPinKey(agent.companyId, agent.id);
     if (keys.has(key)) items.set(key, { key, to: `/chats/${encodeURIComponent(agentRouteRef(agent))}`, label: agent.name, icon: <AgentAvatar agent={agent} size={16} /> });

@@ -365,7 +365,7 @@ export function Agents() {
               variant="outline"
               onClick={() => setConfigureState(builtInState)}
             >
-              Set up
+              {t("agentsPage.setUp", { defaultValue: "Set up" })}
             </Button>
           </span>
         )}
@@ -501,13 +501,13 @@ export function Agents() {
 
       {effectiveView === "org" && orgTree && orgTree.length > 0 && filteredOrg.length === 0 && (
         <p className="text-sm text-muted-foreground text-center py-8">
-          No agents match the selected filters.
+          {t("agentsPage.noFiltersMatch", { defaultValue: "No agents match the selected filters." })}
         </p>
       )}
 
       {effectiveView === "org" && orgTree && orgTree.length === 0 && (
         <p className="text-sm text-muted-foreground text-center py-8">
-          No organizational hierarchy defined.
+          {t("agentsPage.noHierarchy", { defaultValue: "No organizational hierarchy defined." })}
         </p>
       )}
       {configureState && selectedCompanyId && (
@@ -586,7 +586,7 @@ function OrgTreeNode({
                   }}
                 >
                   <Button size="xs" variant="outline" onClick={() => onConfigureBuiltIn(builtInState)}>
-                    Set up
+                    {t("agentsPage.setUp", { defaultValue: "Set up" })}
                   </Button>
                 </span>
               )}
@@ -711,6 +711,7 @@ function LiveRunIndicator({
   runId: string;
   liveCount: number;
 }) {
+  const { t } = useTranslation();
   return (
     <Link
       to={`/agents/${agentRef}/runs/${runId}`}
@@ -722,7 +723,9 @@ function LiveRunIndicator({
         <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
       </span>
       <span className="text-(length:--text-micro) font-medium text-blue-600 dark:text-blue-400">
-        Live{liveCount > 1 ? ` (${liveCount})` : ""}
+        {liveCount > 1
+          ? t("agentsPage.liveWithCount", { count: liveCount, defaultValue: "Live ({{count}})" })
+          : t("agentsPage.live", { defaultValue: "Live" })}
       </span>
     </Link>
   );

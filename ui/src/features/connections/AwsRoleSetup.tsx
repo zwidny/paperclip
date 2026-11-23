@@ -11,6 +11,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { copyTextToClipboard } from "@/lib/clipboard";
+import { i18n, useTranslation } from "@/i18n";
 
 /** The call this step makes. Stories and tests pass in-memory fakes. */
 export interface AwsRoleSetupClient {
@@ -21,13 +22,20 @@ export const awsRoleSetupApiClient: AwsRoleSetupClient = {
   setup: (connectionId, accessLevel) => toolsApi.getAwsSetup(connectionId, accessLevel),
 };
 
-const UNAVAILABLE_REASON: Record<Extract<AwsConnectionSetup, { available: false }>["reason"], string> = {
-  no_public_url: "This Paperclip instance has no public address, so AWS cannot reach it.",
-  not_https: "This Paperclip instance is not served over HTTPS, which AWS requires.",
-  has_port: "This Paperclip instance's address includes a port, which AWS does not allow.",
-  loopback: "This Paperclip instance runs on this computer only, so AWS cannot reach it.",
-  address_changed: "This Paperclip instance’s address changed after this connection was saved, so AWS would be set up for the old address.",
-};
+function unavailableReason(reason: Extract<AwsConnectionSetup, { available: false }>["reason"]): string {
+  switch (reason) {
+    case "no_public_url":
+      return i18n.t("awsRoleSetup.unavailable.noPublicUrl", { defaultValue: "This Paperclip instance has no public address, so AWS cannot reach it." });
+    case "not_https":
+      return i18n.t("awsRoleSetup.unavailable.notHttps", { defaultValue: "This Paperclip instance is not served over HTTPS, which AWS requires." });
+    case "has_port":
+      return i18n.t("awsRoleSetup.unavailable.hasPort", { defaultValue: "This Paperclip instance's address includes a port, which AWS does not allow." });
+    case "loopback":
+      return i18n.t("awsRoleSetup.unavailable.loopback", { defaultValue: "This Paperclip instance runs on this computer only, so AWS cannot reach it." });
+    case "address_changed":
+      return i18n.t("awsRoleSetup.unavailable.addressChanged", { defaultValue: "This Paperclip instance’s address changed after this connection was saved, so AWS would be set up for the old address." });
+  }
+}
 
 /**
  * A failed AWS test, in words that say what to fix. The server's AWS messages are
@@ -83,6 +91,7 @@ export function AwsRoleSetup({
   onTest,
   beforeFooter,
 }: AwsRoleSetupProps) {
+  const { t } = useTranslation();
   const [setup, setSetup] = useState<AwsConnectionSetup | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [roleArn, setRoleArn] = useState("");
@@ -109,27 +118,26 @@ export function AwsRoleSetup({
   return (
     <div className="space-y-5" data-testid="aws-role-setup">
       <p className="text-sm text-foreground">
-        Paperclip saved this connection. Now create a role in your AWS account that trusts this connection only.
-        Paperclip stores no AWS keys: it proves who it is each time it needs access.
+        {t("awsRoleSetup.intro", { defaultValue: "Paperclip saved this connection. Now create a role in your AWS account that trusts this connection only. Paperclip stores no AWS keys: it proves who it is each time it needs access." })}
       </p>
 
-      {error ? <InlineBanner tone="warning" title="AWS didn’t accept the connection yet">{error}</InlineBanner> : null}
-      {loadError ? <InlineBanner tone="danger" title="Couldn’t load the AWS setup">{loadError}</InlineBanner> : null}
+      {error ? <InlineBanner tone="warning" title={t("awsRoleSetup.notAccepted", { defaultValue: "AWS didn’t accept the connection yet" })}>{error}</InlineBanner> : null}
+      {loadError ? <InlineBanner tone="danger" title={t("awsRoleSetup.loadFailed", { defaultValue: "Couldn’t load the AWS setup" })}>{loadError}</InlineBanner> : null}
       {setup?.available === false ? (
         setup.reason === "address_changed" ? (
-          <InlineBanner tone="warning" title="Save the connection again">
-            {UNAVAILABLE_REASON[setup.reason]} Go back and click Connect to use the current address.
+          <InlineBanner tone="warning" title={t("awsRoleSetup.saveAgain", { defaultValue: "Save the connection again" })}>
+            {unavailableReason(setup.reason)} {t("awsRoleSetup.goBackConnect", { defaultValue: "Go back and click Connect to use the current address." })}
           </InlineBanner>
         ) : (
-          <InlineBanner tone="warning" title="Use an access key instead">
-            {UNAVAILABLE_REASON[setup.reason]} Go back and choose Access key.
+          <InlineBanner tone="warning" title={t("awsRoleSetup.useAccessKey", { defaultValue: "Use an access key instead" })}>
+            {unavailableReason(setup.reason)} {t("awsRoleSetup.goBackAccessKey", { defaultValue: "Go back and choose Access key." })}
           </InlineBanner>
         )
       ) : null}
 
       {!setup && !loadError ? (
         <p className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" /> Preparing the AWS setup…
+          <Loader2 className="h-4 w-4 animate-spin" /> {t("awsRoleSetup.preparing", { defaultValue: "Preparing the AWS setup…" })}
         </p>
       ) : null}
 
@@ -137,22 +145,22 @@ export function AwsRoleSetup({
         <>
           <ol className="list-decimal space-y-4 pl-5 text-sm text-muted-foreground">
             <li className="space-y-2">
-              <span className="text-foreground">Give this prompt to an agent on a computer signed in to your AWS account.</span>{" "}
+              <span className="text-foreground">{t("awsRoleSetup.givePrompt", { defaultValue: "Give this prompt to an agent on a computer signed in to your AWS account." })}</span>{" "}
               {ready.savedRoleArn
-                ? "It updates the existing role with the AWS CLI and tells you the role ARN."
-                : "It creates the role with the AWS CLI and tells you the role ARN."}
+                ? t("awsRoleSetup.updatesRole", { defaultValue: "It updates the existing role with the AWS CLI and tells you the role ARN." })
+                : t("awsRoleSetup.createsRole", { defaultValue: "It creates the role with the AWS CLI and tells you the role ARN." })}
               <div>
                 <AgentSetupPrompt
                   prompt={awsAgentSetupPrompt(ready)}
-                  label="Set it up with your agent"
-                  title="Set up AWS with your agent"
-                  description="Paste this into an agent such as Claude Code or Codex, on a computer signed in to the AWS account agents should use."
+                  label={t("awsRoleSetup.promptLabel", { defaultValue: "Set it up with your agent" })}
+                  title={t("awsRoleSetup.promptTitle", { defaultValue: "Set up AWS with your agent" })}
+                  description={t("awsRoleSetup.promptDescription", { defaultValue: "Paste this into an agent such as Claude Code or Codex, on a computer signed in to the AWS account agents should use." })}
                   side="bottom"
                 />
               </div>
             </li>
             <li className="space-y-2">
-              <label htmlFor="aws-role-arn" className="text-foreground">Paste the role ARN your agent reports.</label>
+              <label htmlFor="aws-role-arn" className="text-foreground">{t("awsRoleSetup.pasteArn", { defaultValue: "Paste the role ARN your agent reports." })}</label>
               <Input
                 id="aws-role-arn"
                 value={roleArn}
@@ -164,7 +172,7 @@ export function AwsRoleSetup({
                 spellCheck={false}
               />
               {arnInvalid ? (
-                <p className="text-xs text-destructive">Use the full role ARN, like arn:aws:iam::123456789012:role/{ready.roleName}.</p>
+                <p className="text-xs text-destructive">{t("awsRoleSetup.fullArn", { defaultValue: "Use the full role ARN, like arn:aws:iam::123456789012:role/{{role}}.", role: ready.roleName })}</p>
               ) : null}
             </li>
           </ol>
@@ -172,20 +180,20 @@ export function AwsRoleSetup({
           <Collapsible>
             <CollapsibleTrigger className="group flex items-center gap-1 text-sm font-medium text-foreground">
               <ChevronRight className="h-4 w-4 transition-transform group-data-[state=open]:rotate-90" />
-              Or do it by hand
+              {t("awsRoleSetup.byHand", { defaultValue: "Or do it by hand" })}
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-3 space-y-6">
               <section className="space-y-3" aria-labelledby="aws-role-cloudformation">
-                <h3 id="aws-role-cloudformation" className="text-sm font-medium text-foreground">With CloudFormation</h3>
+                <h3 id="aws-role-cloudformation" className="text-sm font-medium text-foreground">{t("awsRoleSetup.cloudFormationHeading", { defaultValue: "With CloudFormation" })}</h3>
                 <ol className="list-decimal space-y-2 pl-5 text-sm text-muted-foreground">
                   <li>
-                    <span className="text-foreground">Download the template.</span>{" "}
+                    <span className="text-foreground">{t("awsRoleSetup.downloadTemplateSentence", { defaultValue: "Download the template." })}</span>{" "}
                     {ready.accessLevel === "read_only"
-                      ? "It is made for this connection, so it needs no edits."
-                      : "It is made for this connection; it only needs the access policy you choose in step 3."}
+                      ? t("awsRoleSetup.templateNoEdits", { defaultValue: "It is made for this connection, so it needs no edits." })
+                      : t("awsRoleSetup.templateNeedsPolicy", { defaultValue: "It is made for this connection; it only needs the access policy you choose in step 3." })}
                     <div className="mt-2">
                       <Button type="button" variant="outline" size="sm" onClick={() => downloadTemplate(ready)}>
-                        <Download className="mr-2 h-4 w-4" /> Download template
+                        <Download className="mr-2 h-4 w-4" /> {t("awsRoleSetup.downloadTemplate", { defaultValue: "Download template" })}
                       </Button>
                     </div>
                   </li>
@@ -196,44 +204,39 @@ export function AwsRoleSetup({
                       rel="noreferrer"
                       className="inline-flex items-center gap-1 text-foreground underline underline-offset-4"
                     >
-                      Open CloudFormation <ArrowUpRight className="h-3.5 w-3.5" />
+                      {t("awsRoleSetup.openCloudFormation", { defaultValue: "Open CloudFormation" })} <ArrowUpRight className="h-3.5 w-3.5" />
                     </a>{" "}
-                    in the AWS account agents should use, create a stack, choose Upload a template file, and select the downloaded file.
+                    {t("awsRoleSetup.cloudFormationStep2", { defaultValue: "in the AWS account agents should use, create a stack, choose Upload a template file, and select the downloaded file." })}
                   </li>
                   <li>
                     {ready.accessLevel === "read_only"
-                      ? "Keep the defaults: AccessPolicyArn is ReadOnlyAccess, matching this read-only connection."
-                      : "Set AccessPolicyArn to the managed policy agents should have. This connection has full access, so there is no default."}{" "}
-                    If this AWS account already has an identity provider for this Paperclip address, set
-                    CreateIdentityProvider to false. On the last page, tick the box that acknowledges the stack creates IAM
-                    resources.
+                      ? t("awsRoleSetup.keepDefaults", { defaultValue: "Keep the defaults: AccessPolicyArn is ReadOnlyAccess, matching this read-only connection." })
+                      : t("awsRoleSetup.setAccessPolicy", { defaultValue: "Set AccessPolicyArn to the managed policy agents should have. This connection has full access, so there is no default." })}{" "}
+                    {t("awsRoleSetup.cloudFormationStep3", { defaultValue: "If this AWS account already has an identity provider for this Paperclip address, set CreateIdentityProvider to false. On the last page, tick the box that acknowledges the stack creates IAM resources." })}
                   </li>
                   <li>
-                    When the stack finishes, copy RoleArn from its Outputs tab into the field above. If this role came from
-                    this template before, update that stack (<span className="font-mono text-foreground">{ready.roleName}</span>)
-                    with the new template instead of creating another.
+                    {t("awsRoleSetup.cloudFormationStep4", { defaultValue: "When the stack finishes, copy RoleArn from its Outputs tab into the field above. If this role came from this template before, update that stack" })}(<span className="font-mono text-foreground">{ready.roleName}</span>){t("awsRoleSetup.cloudFormationStep4End", { defaultValue: ") with the new template instead of creating another." })}
                   </li>
                 </ol>
               </section>
 
               <section className="space-y-3" aria-labelledby="aws-role-manual">
-                <h3 id="aws-role-manual" className="text-sm font-medium text-foreground">In the IAM console or AWS CLI</h3>
+                <h3 id="aws-role-manual" className="text-sm font-medium text-foreground">{t("awsRoleSetup.manualHeading", { defaultValue: "In the IAM console or AWS CLI" })}</h3>
                 <ol className="list-decimal space-y-2 pl-5 text-sm text-muted-foreground">
-                  <li>Add an OpenID Connect identity provider with the provider URL and audience below, unless the account already has one for it.</li>
+                  <li>{t("awsRoleSetup.manualStep1", { defaultValue: "Add an OpenID Connect identity provider with the provider URL and audience below, unless the account already has one for it." })}</li>
                   <li>
-                    {ready.savedRoleArn ? "Update the role " : "Create the role "}
+                    {ready.savedRoleArn ? t("awsRoleSetup.updateTheRole", { defaultValue: "Update the role" }) : t("awsRoleSetup.createTheRole", { defaultValue: "Create the role" })}{" "}
                     <span className="font-mono text-foreground">{ready.savedRoleArn ?? ready.roleName}</span>{" "}
-                    {ready.savedRoleArn ? "so its trust policy is the one below" : "with the trust policy below"}, replacing
-                    ACCOUNT_ID with your AWS account ID. The CLI commands do either.
+                    {ready.savedRoleArn ? t("awsRoleSetup.trustPolicyExisting", { defaultValue: "so its trust policy is the one below" }) : t("awsRoleSetup.trustPolicyNew", { defaultValue: "with the trust policy below" })}, {t("awsRoleSetup.replacingAccountId", { defaultValue: "replacing" })}{" "}ACCOUNT_ID {t("awsRoleSetup.withAccountId", { defaultValue: "with your AWS account ID. The CLI commands do either." })}
                   </li>
-                  <li>Attach AWSMCPSignInOAuthAccessPolicy and the permissions agents should have, then paste the role ARN above.</li>
+                  <li>{t("awsRoleSetup.manualStep3", { defaultValue: "Attach AWSMCPSignInOAuthAccessPolicy and the permissions agents should have, then paste the role ARN above." })}</li>
                 </ol>
-                <CopyRow label="Provider URL" value={ready.issuer} />
-                <CopyRow label="Audience" value={ready.audience} />
-                <CopyRow label="Role name" value={ready.roleName} />
-                <CopyRow label="Connection subject" value={ready.subject} />
-                <CopyBlock label="Trust policy" value={JSON.stringify(ready.trustPolicy, null, 2)} />
-                <CopyBlock label="AWS CLI commands" value={awsCliCommands(ready)} />
+                <CopyRow label={t("awsRoleSetup.providerUrl", { defaultValue: "Provider URL" })} value={ready.issuer} />
+                <CopyRow label={t("awsRoleSetup.audience", { defaultValue: "Audience" })} value={ready.audience} />
+                <CopyRow label={t("awsRoleSetup.roleName", { defaultValue: "Role name" })} value={ready.roleName} />
+                <CopyRow label={t("awsRoleSetup.connectionSubject", { defaultValue: "Connection subject" })} value={ready.subject} />
+                <CopyBlock label={t("awsRoleSetup.trustPolicy", { defaultValue: "Trust policy" })} value={JSON.stringify(ready.trustPolicy, null, 2)} />
+                <CopyBlock label={t("awsRoleSetup.cliCommands", { defaultValue: "AWS CLI commands" })} value={awsCliCommands(ready)} />
               </section>
             </CollapsibleContent>
           </Collapsible>
@@ -243,10 +246,10 @@ export function AwsRoleSetup({
       {beforeFooter}
 
       <div className="flex items-center justify-between pt-3">
-        <Button variant="ghost" onClick={onBack} disabled={testing}>Back</Button>
+        <Button variant="ghost" onClick={onBack} disabled={testing}>{t("common.back", { defaultValue: "Back" })}</Button>
         <Button onClick={() => onTest(trimmedArn)} disabled={testing || !ready || !trimmedArn || arnInvalid}>
           {testing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {testing ? "Testing…" : "Test connection"}
+          {testing ? t("awsRoleSetup.testing", { defaultValue: "Testing…" }) : t("awsRoleSetup.testConnection", { defaultValue: "Test connection" })}
         </Button>
       </div>
     </div>
@@ -330,18 +333,19 @@ function downloadTemplate(setup: Extract<AwsConnectionSetup, { available: true }
 }
 
 function CopyButton({ value, label }: { value: string; label: string }) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   return (
     <Button
       type="button"
       variant="outline"
       size="sm"
-      aria-label={`Copy ${label}`}
+      aria-label={`${t("awsRoleSetup.copyAria", { defaultValue: "Copy" })} ${label}`}
       onClick={async () => {
         await copyTextToClipboard(value).then(() => setCopied(true), () => setCopied(false));
       }}
     >
-      {copied ? "Copied" : "Copy"}
+      {copied ? t("awsRoleSetup.copied", { defaultValue: "Copied" }) : t("awsRoleSetup.copy", { defaultValue: "Copy" })}
     </Button>
   );
 }

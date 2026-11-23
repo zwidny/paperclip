@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { ResponsibilityWithRollup } from "@paperclipai/shared";
 import { ChevronRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -64,7 +65,8 @@ function OutlineV2Area({
   onToggle: () => void;
   onAdd: () => void;
 }) {
-  const name = group.area?.title ?? "No area";
+  const { t } = useTranslation();
+  const name = group.area?.title ?? t("responsibilities.noArea", { defaultValue: "No area" });
   const listId = `outline-v2-area-${group.key}`;
   const canAdd = group.area?.status !== "archived";
   return (
@@ -92,7 +94,7 @@ function OutlineV2Area({
             size="icon-xs"
             variant="ghost"
             className="relative z-10 text-muted-foreground"
-            aria-label={`Add a responsibility to ${name}`}
+            aria-label={t("responsibilities.outline2.addToArea", { name, defaultValue: "Add a responsibility to {{name}}" })}
             onClick={onAdd}
           >
             <Plus aria-hidden="true" />
@@ -112,7 +114,7 @@ function OutlineV2Area({
             onClick={onAdd}
             className="block w-full border-t border-border py-3 pl-11 pr-5 text-left text-sm text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
           >
-            Add a responsibility
+            {t("responsibilities.outline2.addResponsibility", { defaultValue: "Add a responsibility" })}
           </button>
         ) : null}
       </div>
@@ -141,6 +143,7 @@ export function DashboardOutlineV2({
   onAddArea,
   onReviewProposals,
 }: DashboardViewProps & { search?: string }) {
+  const { t } = useTranslation();
   const active = useMemo(() => activeResponsibilities(overview.responsibilities), [overview.responsibilities]);
   const groups = useMemo(
     () => outlineV2Groups(overview.areas, overview.responsibilities, keepEmptyAreas),
@@ -182,10 +185,10 @@ export function DashboardOutlineV2({
         shown.map(renderArea)
       ) : query ? (
         <p className="text-sm text-muted-foreground" role="status" data-outline-v2-no-match="">
-          Nothing matches “{query}”.
+          {t("responsibilities.outline2.noMatch", { query, defaultValue: "Nothing matches “{{query}}”." })}
         </p>
       ) : (
-        <p className="text-sm text-muted-foreground">No areas yet.</p>
+        <p className="text-sm text-muted-foreground">{t("responsibilities.outline2.noAreas", { defaultValue: "No areas yet." })}</p>
       )}
       <DashboardEditModule
         companyId={companyId}

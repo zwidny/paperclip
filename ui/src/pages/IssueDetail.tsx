@@ -134,7 +134,7 @@ import {
   extractIssueWorkModeChanges,
 } from "../lib/issue-timeline-events";
 import { queryKeys } from "../lib/queryKeys";
-import { useTranslation } from "../i18n";
+import { i18n, useTranslation } from "../i18n";
 import { keepPreviousDataForSameQueryTail } from "../lib/query-placeholder-data";
 import { useIssueWorkProducts } from "../hooks/useIssueWorkProducts";
 import {
@@ -508,13 +508,13 @@ const JUMP_TO_LATEST_MAX_COMMENT_PAGES = 10;
 function treeControlPreviewErrorCopy(error: unknown): string {
   if (error instanceof ApiError) {
     if (error.status === 403)
-      return "Only board users can preview subtree controls.";
+      return i18n.t("issueDetail.previewForbidden", { defaultValue: "Only board users can preview subtree controls." });
     if (error.status === 409)
-      return "Preview is stale because subtree hold state changed. Retry to refresh.";
+      return i18n.t("issueDetail.previewStale", { defaultValue: "Preview is stale because subtree hold state changed. Retry to refresh." });
     if (error.status === 422)
-      return "This subtree action is currently invalid for the selected tasks.";
+      return i18n.t("issueDetail.previewInvalid", { defaultValue: "This subtree action is currently invalid for the selected tasks." });
   }
-  return error instanceof Error ? error.message : "Unable to load preview.";
+  return error instanceof Error ? error.message : i18n.t("issueDetail.previewUnavailable", { defaultValue: "Unable to load preview." });
 }
 
 // `canBoardManageRuntime` and `readRecoveryReconcileWorkspaceId` moved to `@/lib/recovery-reconcile`
@@ -4840,7 +4840,12 @@ export function TaskDetailSurface({ conversation, tasksTab }: { tasksTab?: TaskS
     onSuccess: (result) => {
       if (result.kind === "release" && result.hold.wakeFailures?.length) {
         setTreeControlWakeWarning(
-          `Pause released, but ${result.hold.wakeFailures.length} ${result.hold.wakeFailures.length === 1 ? "task" : "tasks"} could not start. ${result.hold.wakeFailures[0].message} Check the affected agents and try starting them again.`,
+          t("issueDetail.wakeWarning", {
+            count: result.hold.wakeFailures.length,
+            message: result.hold.wakeFailures[0].message,
+            defaultValue_one: "Pause released, but {{count}} task could not start. {{message}} Check the affected agents and try starting them again.",
+            defaultValue_other: "Pause released, but {{count}} tasks could not start. {{message}} Check the affected agents and try starting them again.",
+          }),
         );
       }
       setTreeControlOpen(false);
@@ -4957,7 +4962,7 @@ export function TaskDetailSurface({ conversation, tasksTab }: { tasksTab?: TaskS
       if (err instanceof TaskCancellationDismissedError) return;
       if (err instanceof SubtaskCancellationError) {
         invalidateIssueRunState();
-        pushToast({ title: "Some subtasks could not be canceled", body: err.message, tone: "error" });
+        pushToast({ title: t("issueDetail.subtasksNotCanceled", { defaultValue: "Some subtasks could not be canceled" }), body: err.message, tone: "error" });
         return;
       }
       const runWasStopped = didRunCancelBeforeStatusUpdateFail(err);

@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/select";
+import { useTranslation } from "@/i18n";
 import { queryKeys } from "@/lib/queryKeys";
 
 /** The task a routine would repeat, and what the form starts on. */
@@ -41,6 +42,13 @@ export interface RoutineTaskTarget {
   suggestedCadence?: RoutineSuggestionCadence | null;
   cadenceSource?: "offer" | "title" | "default";
 }
+
+const FREQUENCY_LABEL_KEY: Record<RoutineSuggestionFrequency, string> = {
+  daily: "makeRoutine.frequencyDaily",
+  weekdays: "makeRoutine.frequencyWeekdays",
+  weekly: "makeRoutine.frequencyWeekly",
+  monthly: "makeRoutine.frequencyMonthly",
+};
 
 const FREQUENCY_LABEL: Record<RoutineSuggestionFrequency, string> = {
   daily: "Every day",
@@ -145,6 +153,7 @@ export function MakeRoutineDialog({
   filedUnder: readonly string[];
   onCreated?: (result: RoutineFromTaskResult, task: RoutineTaskTarget) => void;
 }) {
+  const { t } = useTranslation();
   const fresh = !task && !!newFor;
   const queryClient = useQueryClient();
   const titleInput = useRef<HTMLInputElement>(null);
@@ -179,7 +188,7 @@ export function MakeRoutineDialog({
     setDayOfMonth(start.dayOfMonth ?? 1);
     setTime(start.time);
     setAgentId("");
-    setHint(source === "offer" ? "The agent suggested this." : source === "title" ? "Suggested from the title." : null);
+    setHint(source === "offer" ? "offer" : source === "title" ? "title" : null);
   }, [open, task]);
 
   const effectiveAgentId = agentId || defaultRoutineAgentId(available, task?.assigneeAgentId ?? newFor?.assigneeAgentId ?? null);
@@ -243,43 +252,53 @@ export function MakeRoutineDialog({
       >
         <form className="flex flex-col gap-5" onSubmit={submit} data-make-routine-dialog="">
           <DialogHeader>
-            <DialogTitle>{fresh ? "New routine" : "Make it a routine"}</DialogTitle>
+            <DialogTitle>
+              {fresh
+                ? t("routinesPage.newRoutine", { defaultValue: "New routine" })
+                : t("routineSuggestion.makeRoutine", { defaultValue: "Make it a routine" })}
+            </DialogTitle>
             <DialogDescription>
-              {fresh ? "An agent does this on a schedule." : "An agent repeats this on a schedule, so it no longer needs you to start it."}
+              {fresh
+                ? t("makeRoutine.freshDescription", { defaultValue: "An agent does this on a schedule." })
+                : t("makeRoutine.repeatDescription", {
+                    defaultValue: "An agent repeats this on a schedule, so it no longer needs you to start it.",
+                  })}
             </DialogDescription>
           </DialogHeader>
 
           <label className="flex flex-col gap-2 text-sm">
-            <span className="font-medium text-foreground">What repeats</span>
+            <span className="font-medium text-foreground">{t("makeRoutine.whatRepeats", { defaultValue: "What repeats" })}</span>
             <Input
               ref={titleInput}
               value={title}
               maxLength={200}
               onChange={(event) => setTitle(event.target.value)}
               required
-              aria-label="What repeats"
-              placeholder={fresh ? "e.g. Review the investor pipeline" : undefined}
+              aria-label={t("makeRoutine.whatRepeats", { defaultValue: "What repeats" })}
+              placeholder={fresh ? t("makeRoutine.titlePlaceholder", { defaultValue: "e.g. Review the investor pipeline" }) : undefined}
             />
           </label>
 
           <fieldset className="flex flex-col gap-2 text-sm">
-            <legend className="mb-2 font-medium text-foreground">How often</legend>
+            <legend className="mb-2 font-medium text-foreground">{t("makeRoutine.howOften", { defaultValue: "How often" })}</legend>
             <div className="flex flex-wrap items-center gap-2">
               <NativeSelect
-                aria-label="How often"
+                aria-label={t("makeRoutine.howOften", { defaultValue: "How often" })}
                 className="w-auto"
                 value={frequency}
                 onChange={(event) => setFrequency(event.target.value as RoutineSuggestionFrequency)}
               >
                 {ROUTINE_SUGGESTION_FREQUENCIES.map((value) => (
-                  <option key={value} value={value}>{FREQUENCY_LABEL[value]}</option>
+                  <option key={value} value={value}>
+                    {t(FREQUENCY_LABEL_KEY[value], { defaultValue: FREQUENCY_LABEL[value] })}
+                  </option>
                 ))}
               </NativeSelect>
               {frequency === "weekly" ? (
                 <>
-                  <span className="text-muted-foreground">on</span>
+                  <span className="text-muted-foreground">{t("makeRoutine.on", { defaultValue: "on" })}</span>
                   <NativeSelect
-                    aria-label="Day of the week"
+                    aria-label={t("makeRoutine.dayOfWeek", { defaultValue: "Day of the week" })}
                     className="w-auto"
                     value={dayOfWeek}
                     onChange={(event) => setDayOfWeek(event.target.value as RoutineSuggestionWeekday)}
@@ -292,9 +311,9 @@ export function MakeRoutineDialog({
               ) : null}
               {frequency === "monthly" ? (
                 <>
-                  <span className="text-muted-foreground">on day</span>
+                  <span className="text-muted-foreground">{t("makeRoutine.onDay", { defaultValue: "on day" })}</span>
                   <NativeSelect
-                    aria-label="Day of the month"
+                    aria-label={t("makeRoutine.dayOfMonth", { defaultValue: "Day of the month" })}
                     className="w-auto"
                     value={String(dayOfMonth)}
                     onChange={(event) => setDayOfMonth(Number(event.target.value))}
@@ -305,10 +324,10 @@ export function MakeRoutineDialog({
                   </NativeSelect>
                 </>
               ) : null}
-              <span className="text-muted-foreground">at</span>
+              <span className="text-muted-foreground">{t("makeRoutine.at", { defaultValue: "at" })}</span>
               <Input
                 type="time"
-                aria-label="Time"
+                aria-label={t("makeRoutine.time", { defaultValue: "Time" })}
                 className="w-auto"
                 value={time}
                 step={300}
@@ -316,51 +335,74 @@ export function MakeRoutineDialog({
               />
             </div>
             <p className="text-xs text-muted-foreground" data-cadence-preview="">
-              {cadenceLabel}, your time ({zone}).{hint ? ` ${hint}` : ""}
+              {cadenceLabel}
+              {t("makeRoutine.yourTime", { defaultValue: ", your time ({{zone}}).", zone })}
+              {hint === "offer"
+                ? ` ${t("makeRoutine.hintFromAgent", { defaultValue: "The agent suggested this." })}`
+                : hint === "title"
+                  ? ` ${t("makeRoutine.hintFromTitle", { defaultValue: "Suggested from the title." })}`
+                  : ""}
             </p>
           </fieldset>
 
           <label className="flex flex-col gap-2 text-sm">
-            <span className="font-medium text-foreground">Who runs it</span>
+            <span className="font-medium text-foreground">{t("makeRoutine.whoRunsIt", { defaultValue: "Who runs it" })}</span>
             <NativeSelect
-              aria-label="Who runs it"
+              aria-label={t("makeRoutine.whoRunsIt", { defaultValue: "Who runs it" })}
               value={effectiveAgentId}
               onChange={(event) => setAgentId(event.target.value)}
               disabled={available.length === 0}
             >
-              {available.length === 0 ? <option value="">No agents yet</option> : null}
+              {available.length === 0 ? (
+                <option value="">{t("makeRoutine.noAgentsYet", { defaultValue: "No agents yet" })}</option>
+              ) : null}
               {available.map((agent) => (
                 <option key={agent.id} value={agent.id}>{agent.name}</option>
               ))}
             </NativeSelect>
             {available.length === 0 ? (
-              <span className="text-xs text-muted-foreground">Add an agent first: a routine needs one to run it.</span>
+              <span className="text-xs text-muted-foreground">
+                {t("makeRoutine.addAgentFirst", { defaultValue: "Add an agent first: a routine needs one to run it." })}
+              </span>
             ) : null}
           </label>
 
           <p className="text-xs text-muted-foreground" data-routine-filing-note="">
-            {fresh ? `Filed under ${newFor!.responsibilityTitle}.` : (
+            {fresh ? (
+              t("makeRoutine.filedUnder", {
+                defaultValue: "Filed under {{title}}.",
+                title: newFor!.responsibilityTitle,
+              })
+            ) : (
               <>
-                The task itself stays as it is.{" "}
+                {t("makeRoutine.taskStays", { defaultValue: "The task itself stays as it is." })}{" "}
                 {filedUnder.length > 0
-                  ? `The routine is filed under ${joinTitles(filedUnder)}, like the task.`
-                  : "The routine is filed wherever the task is."}
+                  ? t("makeRoutine.filedUnderList", {
+                      defaultValue: "The routine is filed under {{areas}}, like the task.",
+                      areas: joinTitles(filedUnder),
+                    })
+                  : t("makeRoutine.filedWhereverTask", { defaultValue: "The routine is filed wherever the task is." })}
               </>
             )}
           </p>
 
           {create.error ? (
             <p role="alert" className="text-sm text-destructive">
-              Couldn’t make the routine. {describeError(create.error).body}
+              {t("makeRoutine.couldntMake", { defaultValue: "Couldn’t make the routine." })}{" "}
+              {describeError(create.error).body}
             </p>
           ) : null}
 
           <DialogFooter className="sm:justify-between">
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t("common.cancel", { defaultValue: "Cancel" })}
             </Button>
             <Button type="submit" disabled={!canSubmit}>
-              {create.isPending ? "Making the routine…" : fresh ? "Make the routine" : "Make it a routine"}
+              {create.isPending
+                ? t("makeRoutine.making", { defaultValue: "Making the routine…" })
+                : fresh
+                  ? t("makeRoutine.make", { defaultValue: "Make the routine" })
+                  : t("routineSuggestion.makeRoutine", { defaultValue: "Make it a routine" })}
             </Button>
           </DialogFooter>
         </form>

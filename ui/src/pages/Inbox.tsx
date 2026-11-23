@@ -205,7 +205,7 @@ import {
   type TaskDateGroup,
 } from "../lib/task-date-groups";
 import { taskStatusIconProps } from "@/lib/task-status-presentation";
-import { useTranslation } from "../i18n";
+import { i18n, useTranslation } from "../i18n";
 import { createUuid } from "../lib/uuid";
 
 const INBOX_HEARTBEAT_RUN_LIMIT = 200;
@@ -314,7 +314,7 @@ function firstNonEmptyLine(value: string | null | undefined): string | null {
 }
 
 function runFailureMessage(run: HeartbeatRun): string {
-  return firstNonEmptyLine(run.error) ?? firstNonEmptyLine(run.stderrExcerpt) ?? "Run exited with an error.";
+  return firstNonEmptyLine(run.error) ?? firstNonEmptyLine(run.stderrExcerpt) ?? i18n.t("legacyInbox.runExitedError", { defaultValue: "Run exited with an error." });
 }
 
 function approvalStatusLabel(status: Approval["status"]): string {
@@ -352,7 +352,9 @@ export function formatJoinRequestInboxLabel(
   },
 ) {
   if (joinRequest.requestType !== "human") {
-    return `Agent join request${joinRequest.agentName ? `: ${joinRequest.agentName}` : ""}`;
+    return joinRequest.agentName
+      ? i18n.t("legacyInbox.joinAgentRequestNamed", { defaultValue: "Agent join request: {{name}}", name: joinRequest.agentName })
+      : i18n.t("legacyInbox.joinAgentRequest", { defaultValue: "Agent join request" });
   }
 
   const requesterName = nonEmptyLabel(joinRequest.requesterUser?.name);
@@ -365,7 +367,7 @@ export function formatJoinRequestInboxLabel(
   if (requesterEmail) return requesterEmail;
   if (requesterName) return requesterName;
   if (requesterId) return requesterId;
-  return "Human join request";
+  return i18n.t("legacyInbox.humanJoinRequest", { defaultValue: "Human join request" });
 }
 
 
@@ -412,18 +414,18 @@ export function FailedRunInboxRow({
   const interruption = issue?.interruption;
   useSecondTick(interruption?.state === "retry_scheduled");
   const retrySeconds = Math.max(0, Math.ceil((Date.parse(interruption?.nextRetryAt ?? "") - Date.now()) / 1000));
-  const displayError = isRetrying ? "Thinking"
+  const displayError = isRetrying ? t("taskChat.thinking", { defaultValue: "Thinking" })
     : interruption?.retryWait ? interruption.retryWait.message
-    : interruption?.state === "working" ? "Thinking"
-    : interruption?.state === "retry_scheduled" ? `Trying again in ${retrySeconds}s…`
-      : interruption?.state === "failed" ? "Couldn’t finish this attempt. Your message is saved."
+    : interruption?.state === "working" ? t("taskChat.thinking", { defaultValue: "Thinking" })
+    : interruption?.state === "retry_scheduled" ? t("legacyInbox.tryingAgainIn", { defaultValue: "Trying again in {{seconds}}s…", seconds: retrySeconds })
+      : interruption?.state === "failed" ? t("executionBlocker.attemptFailed", { defaultValue: "Couldn’t finish this attempt. Your message is saved." })
         : interruption?.state === "waiting_for_user" ? ({
-          approval: "Approval required", question: "Respond to the pending question", reconnect: "Reconnect account", assign_agent: "Assign an agent", choose_model: "Choose a supported model",
-          resume: "Work is paused", budget: "Budget limit reached",
-          project_access: "Agent needs project access",
-          confirm_owner_stop: "Confirm the previous server stopped",
-          confirm_run_stopped: "Confirm the previous run stopped",
-          unblock: "The agent needs your help",
+          approval: t("taskChatThread.marker.approval_required", { defaultValue: "Approval required" }), question: t("legacyInbox.respondPendingQuestion", { defaultValue: "Respond to the pending question" }), reconnect: t("legacyInbox.reconnectAccount", { defaultValue: "Reconnect account" }), assign_agent: t("legacyInbox.assignAnAgent", { defaultValue: "Assign an agent" }), choose_model: t("legacyInbox.chooseSupportedModel", { defaultValue: "Choose a supported model" }),
+          resume: t("legacyInbox.workPaused", { defaultValue: "Work is paused" }), budget: t("legacyInbox.budgetLimitReached", { defaultValue: "Budget limit reached" }),
+          project_access: t("legacyInbox.agentNeedsProjectAccess", { defaultValue: "Agent needs project access" }),
+          confirm_owner_stop: t("legacyInbox.confirmOwnerStop", { defaultValue: "Confirm the previous server stopped" }),
+          confirm_run_stopped: t("legacyInbox.confirmRunStopped", { defaultValue: "Confirm the previous run stopped" }),
+          unblock: t("legacyInbox.agentNeedsHelp", { defaultValue: "The agent needs your help" }),
         }[interruption.userAction ?? "resume"]) : runFailureMessage(run);
   const retryAvailable = !interruption || (interruption.canRetry && interruption.retryAction !== "move_forward");
   const showUnreadSlot = unreadState !== null;
@@ -2093,7 +2095,7 @@ function StreamlinedInbox({
     onError: (error) => {
       pushToast({
         title: "Run retry failed",
-        body: error instanceof Error ? error.message : "Unable to retry run",
+        body: error instanceof Error ? error.message : t("legacyInbox.unableToRetryRun", { defaultValue: "Unable to retry run" }),
         tone: "error",
       });
     },
@@ -2207,7 +2209,7 @@ function StreamlinedInbox({
         pushToast({
           id: `archive:${context.companyId}:${id}`,
           dedupe: false,
-          title: "Task archived",
+          title: t("legacyInbox.taskArchived", { defaultValue: "Task archived" }),
           body: issueById.get(id)?.identifier ?? id,
           tone: "success",
           ttlMs: 8000,

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { Agent, ResponsibilityHealth, ResponsibilityOverview, ResponsibilityWithRollup } from "@paperclipai/shared";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -57,6 +58,7 @@ export function ResponsibilitiesHomeLayout({
   onNewTask,
   areaActions,
 }: ResponsibilitiesHomeLayoutProps) {
+  const { t } = useTranslation();
   const [healthFilter, setHealthFilter] = useState<ResponsibilityHealth | null>(null);
 
   const owned = overview.responsibilities;
@@ -116,25 +118,27 @@ export function ResponsibilitiesHomeLayout({
                 <h2 id="responsibilities-owned-heading" className="text-base font-semibold text-foreground">
                   What you own
                 </h2>
-                <p className="text-sm text-muted-foreground">Is each one meeting its bar?</p>
+                <p className="text-sm text-muted-foreground">{t("responsibilities.home.meetingBar", { defaultValue: "Is each one meeting its bar?" })}</p>
               </div>
               <Button size="sm" variant="ghost" onClick={onToggleLetGo} aria-pressed={includeLetGo}>
-                {includeLetGo ? "Hide let-go responsibilities" : "Show let-go responsibilities"}
+                {includeLetGo
+                  ? t("responsibilities.home.hideLetGo", { defaultValue: "Hide let-go responsibilities" })
+                  : t("responsibilities.home.showLetGo", { defaultValue: "Show let-go responsibilities" })}
               </Button>
             </div>
             <ResponsibilityStandingSummary counts={overview.totals.byHealth} selected={healthFilter} onSelect={setHealthFilter} />
             <NeedsYouSection companyId={companyId} responsibilities={active} agents={agents} onNewTask={onNewTask} />
             {healthFilter ? (
               <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                <span>Showing only {RESPONSIBILITY_HEALTH_LABEL[healthFilter].toLowerCase()}.</span>
-                <Button size="xs" variant="ghost" onClick={() => setHealthFilter(null)}>Show all</Button>
+                <span>{t("responsibilities.home.showingOnly", { health: RESPONSIBILITY_HEALTH_LABEL[healthFilter].toLowerCase(), defaultValue: "Showing only {{health}}." })}</span>
+                <Button size="xs" variant="ghost" onClick={() => setHealthFilter(null)}>{t("responsibilities.automation.showAll", { defaultValue: "Show all" })}</Button>
               </div>
             ) : null}
             {groups.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 {healthFilter
-                  ? `None of your responsibilities are ${RESPONSIBILITY_HEALTH_LABEL[healthFilter].toLowerCase()}.`
-                  : "Nothing to show."}
+                  ? t("responsibilities.home.noneWithHealth", { health: RESPONSIBILITY_HEALTH_LABEL[healthFilter].toLowerCase(), defaultValue: "None of your responsibilities are {{health}}." })
+                  : t("responsibilities.home.nothingToShow", { defaultValue: "Nothing to show." })}
               </p>
             ) : (
               groups.map((group) => (
@@ -149,11 +153,11 @@ export function ResponsibilitiesHomeLayout({
                       </ul>
                     ) : (
                       <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-4">
-                        <p className="text-sm text-muted-foreground">Nothing you own is filed here yet.</p>
+                        <p className="text-sm text-muted-foreground">{t("responsibilities.nothingFiledHere", { defaultValue: "Nothing you own is filed here yet." })}</p>
                         {group.area ? (
                           <Button size="sm" variant="ghost" onClick={() => onAddResponsibility(group.area!.id)}>
                             <Plus aria-hidden="true" />
-                            Add a responsibility here
+                            {t("responsibilities.addResponsibilityHere", { defaultValue: "Add a responsibility here" })}
                           </Button>
                         ) : null}
                       </div>
@@ -163,7 +167,7 @@ export function ResponsibilitiesHomeLayout({
               ))
             )}
             {includeLetGo && !hasLetGo ? (
-              <p className="text-xs text-muted-foreground">You have not let go of any responsibilities.</p>
+              <p className="text-xs text-muted-foreground">{t("responsibilities.home.noLetGo", { defaultValue: "You have not let go of any responsibilities." })}</p>
             ) : null}
             {healthFilter ? null : <OtherAreas areas={otherAreas} actions={areaActions} />}
           </section>

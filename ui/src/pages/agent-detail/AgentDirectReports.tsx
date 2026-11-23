@@ -4,6 +4,7 @@ import { AgentIdentityChipContent, agentIdentityChipClass } from "@/components/a
 import { Link } from "@/lib/router";
 import { agentRouteRef } from "@/lib/utils";
 import { agentDetailHref } from "../agent-detail-navigation";
+import { useTranslation } from "@/i18n";
 
 const MAX_LINES = 2;
 const toggleClass = "text-muted-foreground transition-colors hover:text-foreground";
@@ -31,6 +32,7 @@ export function fitReports(widths: number[], available: number, gap: number, mor
 }
 
 export function AgentDirectReports({ reports }: { reports: Agent[] }) {
+  const { t } = useTranslation();
   const listRef = useRef<HTMLDivElement>(null);
   const measureRef = useRef<HTMLDivElement>(null);
   const [shown, setShown] = useState(reports.length);
@@ -72,12 +74,12 @@ export function AgentDirectReports({ reports }: { reports: Agent[] }) {
         ))}
         {hidden > 0 ? (
           <button type="button" className={toggleClass} onClick={() => setExpanded(true)}>
-            +{hidden} more
+            {t("agentDirectReports.more", { defaultValue: "+{{count}} more", count: hidden })}
           </button>
         ) : null}
         {expanded && shown < reports.length ? (
           <button type="button" className={toggleClass} onClick={() => setExpanded(false)}>
-            Show less
+            {t("agentDirectReports.showLess", { defaultValue: "Show less" })}
           </button>
         ) : null}
       </div>
@@ -88,7 +90,7 @@ export function AgentDirectReports({ reports }: { reports: Agent[] }) {
               <AgentIdentityChipContent agent={report} />
             </span>
           ))}
-          <span>+{reports.length} more</span>
+          <span>{t("agentDirectReports.more", { defaultValue: "+{{count}} more", count: reports.length })}</span>
         </div>
       </div>
     </div>

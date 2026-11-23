@@ -324,7 +324,7 @@ function PluginSdkIssuesList({
   });
 
   if (!companyId) {
-    return createElement("div", { className: "text-sm text-muted-foreground" }, "Select an organization to view tasks.");
+    return createElement("div", { className: "text-sm text-muted-foreground" }, i18n.t("pluginSdk.selectOrganizationForTasks", { defaultValue: "Select an organization to view tasks." }));
   }
 
   return createElement(HostIssuesList, {
@@ -350,7 +350,7 @@ function PluginSdkAssigneePicker({
   placeholder = i18n.t("pluginSdk.responsible", { defaultValue: "Responsible" }),
   noneLabel = i18n.t("pluginSdk.noResponsible", { defaultValue: "No responsible" }),
   searchPlaceholder = i18n.t("pluginSdk.searchResponsible", { defaultValue: "Search responsible..." }),
-  emptyMessage = "No responsible found.",
+  emptyMessage = i18n.t("pluginSdk.noResponsibleFound", { defaultValue: "No responsible found." }),
   includeUsers = true,
   includeTerminatedAgents = false,
   className,
@@ -460,7 +460,7 @@ function PluginSdkProjectPicker({
   placeholder = i18n.t("pluginSdk.project", { defaultValue: "Project" }),
   noneLabel = i18n.t("pluginSdk.noProject", { defaultValue: "No project" }),
   searchPlaceholder = i18n.t("pluginSdk.searchProjects", { defaultValue: "Search projects..." }),
-  emptyMessage = "No projects found.",
+  emptyMessage = i18n.t("pluginSdk.noProjectsFound", { defaultValue: "No projects found." }),
   includeArchived = false,
   className,
   onConfirm,
@@ -578,8 +578,8 @@ type PluginDataTableProps = {
   emptyMessage?: string;
 };
 
-function PluginSdkDataTable({ columns, rows, loading, emptyMessage = "No rows." }: PluginDataTableProps) {
-  if (loading) return createElement("div", { className: "text-sm text-muted-foreground" }, "Loading...");
+function PluginSdkDataTable({ columns, rows, loading, emptyMessage = i18n.t("pluginSdk.noRows", { defaultValue: "No rows." }) }: PluginDataTableProps) {
+  if (loading) return createElement("div", { className: "text-sm text-muted-foreground" }, i18n.t("pluginSdk.loadingDots", { defaultValue: "Loading..." }));
   if (!rows.length) return createElement("div", { className: "text-sm text-muted-foreground" }, emptyMessage);
   const gridColumns = columns.map((column) => column.width ?? "minmax(0, 1fr)").join(" ");
   return createElement(
@@ -659,7 +659,7 @@ class PluginSdkErrorBoundary extends Component<{ children: ReactNode; fallback?:
 
   override render() {
     if (this.state.hasError) {
-      return this.props.fallback ?? createElement("div", { className: "rounded-md border border-destructive/30 p-3 text-sm text-destructive" }, "Plugin UI failed to render.");
+      return this.props.fallback ?? createElement("div", { className: "rounded-md border border-destructive/30 p-3 text-sm text-destructive" }, i18n.t("pluginSdk.renderFailed", { defaultValue: "Plugin UI failed to render." }));
     }
     return this.props.children;
   }

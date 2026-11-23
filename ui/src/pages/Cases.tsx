@@ -150,10 +150,10 @@ export function Cases() {
             data-page-search-target="true" onChange={event => setFilter("q", event.target.value)} className="h-8 pl-8" />
         </div>
         <p role="status" className="whitespace-nowrap text-xs text-muted-foreground">
-          {casesWaiting ? "Loading cases…" : casesQuery.isFetching ? "Updating cases…"
+          {casesWaiting ? t("casesPage.loadingCases", { defaultValue: "Loading cases…" }) : casesQuery.isFetching ? t("casesPage.updatingCases", { defaultValue: "Updating cases…" })
             : (casesQueryView.kind === "error") ? ""
-              : page > 1 && records.length > 0 ? `${offset + 1}–${offset + records.length} cases`
-                : `${records.length}${hasNext ? "+" : ""} ${records.length === 1 && !hasNext ? "case" : "cases"}`}
+              : page > 1 && records.length > 0 ? t("casesPage.range", { defaultValue: "{{start}}–{{end}} cases", start: offset + 1, end: offset + records.length })
+                : `${records.length}${hasNext ? "+" : ""} ${records.length === 1 && !hasNext ? t("casesPage.caseOne", { defaultValue: "case" }) : t("casesPage.caseOther", { defaultValue: "cases" })}`}
         </p>
       </div>} controls={<CaseListControls activeFilterCount={activeFilterCount} columns={view.columns}
         onColumnsChange={columns => setView({ columns: columns.join(",") === DEFAULT_CASE_COLUMNS.join(",") ? "" : columns.join(",") || "none" }, false)}

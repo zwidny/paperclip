@@ -43,6 +43,7 @@ import { ProposedResponsibilitiesReview } from "./ProposedResponsibilitiesReview
 import { ResponsibilityBarCard } from "./ResponsibilityBarCard";
 import { ResponsibilityArtifacts, ResponsibilitySkills } from "./ResponsibilitySkillsAndArtifacts";
 import { WorkSignalList } from "./WorkSignalList";
+import { useTranslation } from "@/i18n";
 
 type AreaRef = Pick<ResponsibilityArea, "id" | "title" | "status">;
 
@@ -109,12 +110,13 @@ function SectionHeading({
 }
 
 function RemoveLinkButton({ label, pending, onRemove }: { label: string; pending: boolean; onRemove: () => void }) {
+  const { t } = useTranslation();
   return (
     <Button
       size="icon-xs"
       variant="ghost"
-      aria-label={`Remove ${label} from this responsibility`}
-      title="Remove from this responsibility. It stays wherever else it is filed."
+      aria-label={t("responsibilities.page.removeLabelAria", { defaultValue: "Remove {{label}} from this responsibility", label })}
+      title={t("responsibilities.page.removeTitle", { defaultValue: "Remove from this responsibility. It stays wherever else it is filed." })}
       disabled={pending}
       onClick={onRemove}
     >
@@ -150,6 +152,7 @@ export function ResponsibilityPageLayout({
   actions,
   notices,
 }: ResponsibilityPageLayoutProps) {
+  const { t } = useTranslation();
   const [showDone, setShowDone] = useState(false);
   const projectNames = useMemo(() => new Map(responsibility.projects.map((project) => [project.id, project])), [responsibility.projects]);
   const tasks = useMemo(() => splitResponsibilityTasks(responsibility.tasks), [responsibility.tasks]);
@@ -186,10 +189,10 @@ export function ResponsibilityPageLayout({
         variant="ghost"
         className="shrink-0 text-muted-foreground"
         onClick={() => actions.newTask({ defaultTitle: signal.text })}
-        aria-label={`New task for an agent: ${signal.text}`}
+        aria-label={`${t("responsibilities.parts.newTask", { defaultValue: "New task for an agent" })}: ${signal.text}`}
       >
         <SquarePen aria-hidden="true" />
-        New task for an agent
+        {t("responsibilities.parts.newTask", { defaultValue: "New task for an agent" })}
       </Button>
     );
   };
@@ -212,11 +215,11 @@ export function ResponsibilityPageLayout({
           identifier={task.identifier ?? undefined}
           title={task.title}
           to={issueUrl(task)}
-          trailing={task.status === "blocked" ? <span className="text-xs text-(--status-task-icon-blocked)">Blocked</span> : null}
+          trailing={task.status === "blocked" ? <span className="text-xs text-(--status-task-icon-blocked)">{t("responsibilities.page.blocked", { defaultValue: "Blocked" })}</span> : null}
         />
         {viaProject ? (
           <p className="pb-2 pl-12 text-xs text-muted-foreground">
-            Here through{" "}
+            {t("responsibilities.page.hereThrough", { defaultValue: "Here through" })}{" "}
             <Link to={projectUrl(viaProject)} className="underline-offset-4 hover:underline">
               {viaProject.name}
             </Link>
@@ -233,8 +236,8 @@ export function ResponsibilityPageLayout({
           companyId={companyId}
           proposed={[responsibility]}
           areas={responsibility.area ? [responsibility.area] : []}
-          heading="Proposed for you"
-          description="Confirm it to start giving its work to agents, or adjust the bar and numbers first."
+          heading={t("responsibilities.proposedHeading", { defaultValue: "Proposed for you" })}
+          description={t("responsibilities.page.proposedDescription", { defaultValue: "Confirm it to start giving its work to agents, or adjust the bar and numbers first." })}
           onReviewed={actions.onProposalReviewed}
         />
       ) : null}
@@ -256,7 +259,7 @@ export function ResponsibilityPageLayout({
               onSave={(description) => actions.saveDescription(description.trim() || null)}
               as="p"
               className="text-sm text-muted-foreground"
-              placeholder="What this covers (optional)"
+              placeholder={t("responsibilities.page.descriptionPlaceholder", { defaultValue: "What this covers (optional)" })}
               multiline
               nullable
             />
@@ -265,24 +268,24 @@ export function ResponsibilityPageLayout({
             {isActive ? (
               <Button variant="outline" onClick={() => actions.newTask({ defaultTitle: "" })}>
                 <SquarePen aria-hidden="true" />
-                New task for an agent
+                {t("responsibilities.parts.newTask", { defaultValue: "New task for an agent" })}
               </Button>
             ) : null}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="icon" variant="ghost" aria-label="More actions for this responsibility">
+                <Button size="icon" variant="ghost" aria-label={t("responsibilities.parts.moreActionsAria", { defaultValue: "More actions for this responsibility" })}>
                   <MoreHorizontal aria-hidden="true" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 {isActive ? (
-                  <DropdownMenuItem onSelect={() => actions.setStatus("let_go")}>Let go</DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => actions.setStatus("let_go")}>{t("responsibilities.parts.letGo", { defaultValue: "Let go" })}</DropdownMenuItem>
                 ) : responsibility.status === "let_go" || responsibility.status === "dismissed" ? (
-                  <DropdownMenuItem onSelect={() => actions.setStatus("active")}>Take it back on</DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => actions.setStatus("active")}>{t("responsibilities.parts.takeItBack", { defaultValue: "Take it back on" })}</DropdownMenuItem>
                 ) : null}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem variant="destructive" onSelect={actions.requestDelete}>
-                  Delete…
+                  {t("responsibilities.parts.delete", { defaultValue: "Delete…" })}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -290,22 +293,22 @@ export function ResponsibilityPageLayout({
         </div>
         <dl className="flex flex-col gap-2 text-sm">
           <div className="flex flex-wrap items-center gap-1">
-            <dt className="text-xs text-muted-foreground">Area</dt>
+            <dt className="text-xs text-muted-foreground">{t("responsibilities.areaLabel", { defaultValue: "Area" })}</dt>
             <dd>
               <AreaControl responsibilityId={responsibility.id} area={responsibility.area} areas={areas} />
             </dd>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <dt className="text-xs text-muted-foreground">Agents on this</dt>
+            <dt className="text-xs text-muted-foreground">{t("responsibilities.page.agentsOnThis", { defaultValue: "Agents on this" })}</dt>
             <dd>
               <AgentsAtWorkList agents={working} agentsById={agentsById} />
             </dd>
           </div>
         </dl>
         {responsibility.status === "let_go" ? (
-          <p className="text-sm text-muted-foreground">You let go of this. Take it back on from the menu to own it again.</p>
+          <p className="text-sm text-muted-foreground">{t("responsibilities.page.letGoNotice", { defaultValue: "You let go of this. Take it back on from the menu to own it again." })}</p>
         ) : responsibility.status === "dismissed" ? (
-          <p className="text-sm text-muted-foreground">You dismissed this when it was proposed. Take it back on from the menu if you do own it.</p>
+          <p className="text-sm text-muted-foreground">{t("responsibilities.page.dismissedNotice", { defaultValue: "You dismissed this when it was proposed. Take it back on from the menu if you do own it." })}</p>
         ) : null}
       </header>
 
@@ -314,8 +317,8 @@ export function ResponsibilityPageLayout({
       <section aria-labelledby="responsibility-work-summary-heading" className="flex flex-col gap-3">
         <SectionHeading
           id="responsibility-work-summary-heading"
-          title="Across the work"
-          question="What its projects, tasks and routines need, and what they are getting done."
+          title={t("responsibilities.page.acrossTheWork", { defaultValue: "Across the work" })}
+          question={t("responsibilities.page.acrossTheWorkQuestion", { defaultValue: "What its projects, tasks and routines need, and what they are getting done." })}
         />
         {responsibility.rollup.workSummary.length > 0 ? (
           <WorkSignalList
@@ -325,7 +328,7 @@ export function ResponsibilityPageLayout({
           />
         ) : (
           <p className="text-sm text-muted-foreground">
-            Nothing to report yet. Once projects, tasks or routines are filed here, what they need shows up here.
+            {t("responsibilities.page.nothingToReport", { defaultValue: "Nothing to report yet. Once projects, tasks or routines are filed here, what they need shows up here." })}
           </p>
         )}
       </section>
@@ -335,9 +338,9 @@ export function ResponsibilityPageLayout({
       <section aria-labelledby="responsibility-routines-heading" className="flex flex-col gap-2">
         <SectionHeading
           id="responsibility-routines-heading"
-          title="Routines"
+          title={t("responsibilities.routines", { defaultValue: "Routines" })}
           count={responsibility.routines.length}
-          question="Tasks that repeat."
+          question={t("responsibilities.page.routinesQuestion", { defaultValue: "Tasks that repeat." })}
           action={editable ? picker("routine") : null}
         />
         {responsibility.routines.length > 0 ? (
@@ -364,7 +367,7 @@ export function ResponsibilityPageLayout({
           </ul>
         ) : (
           <p className="text-sm text-muted-foreground">
-            No routines yet. A routine is work that repeats, like a weekly review. Add one you already have.
+            {t("responsibilities.page.noRoutines", { defaultValue: "No routines yet. A routine is work that repeats, like a weekly review. Add one you already have." })}
           </p>
         )}
       </section>
@@ -379,9 +382,9 @@ export function ResponsibilityPageLayout({
       <section aria-labelledby="responsibility-projects-heading" className="flex flex-col gap-2">
         <SectionHeading
           id="responsibility-projects-heading"
-          title="Projects"
+          title={t("responsibilities.projects", { defaultValue: "Projects" })}
           count={responsibility.projects.length}
-          question="What groups of work move the number?"
+          question={t("responsibilities.page.projectsQuestion", { defaultValue: "What groups of work move the number?" })}
           action={editable ? picker("project") : null}
         />
         {responsibility.projects.length > 0 ? (
@@ -406,7 +409,9 @@ export function ResponsibilityPageLayout({
                     meta={
                       projectDue ? (
                         <span className={cn("text-xs tabular-nums", projectDue.late ? "text-(--status-task-icon-blocked)" : "text-muted-foreground")}>
-                          {projectDue.late ? `Late · ${projectDue.label}` : `Due ${projectDue.label}`}
+                          {projectDue.late
+                            ? t("responsibilities.page.lateDue", { defaultValue: "Late · {{due}}", due: projectDue.label })
+                            : t("responsibilities.page.due", { defaultValue: "Due {{due}}", due: projectDue.label })}
                         </span>
                       ) : null
                     }
@@ -418,7 +423,7 @@ export function ResponsibilityPageLayout({
           </ul>
         ) : (
           <p className="text-sm text-muted-foreground">
-            No projects yet. A project groups the tasks that move this number, with a due date if it has one.
+            {t("responsibilities.page.noProjects", { defaultValue: "No projects yet. A project groups the tasks that move this number, with a due date if it has one." })}
           </p>
         )}
       </section>
@@ -426,35 +431,39 @@ export function ResponsibilityPageLayout({
       <section aria-labelledby="responsibility-tasks-heading" className="flex flex-col gap-2">
         <SectionHeading
           id="responsibility-tasks-heading"
-          title="Tasks"
+          title={t("responsibilities.page.tasksHeading", { defaultValue: "Tasks" })}
           count={responsibility.rollup.openTasks}
-          question="Open work, done or not done."
+          question={t("responsibilities.page.tasksQuestion", { defaultValue: "Open work, done or not done." })}
           action={editable ? picker("task") : null}
         />
         {tasks.blocked > 0 ? (
           <p className="text-sm text-(--status-task-icon-blocked)">
-            {tasks.blocked === 1 ? "1 task is blocked." : `${tasks.blocked} tasks are blocked.`}
+            {t("responsibilities.page.tasksBlocked", { count: tasks.blocked, defaultValue_one: "{{count}} task is blocked.", defaultValue_other: "{{count}} tasks are blocked." })}
           </p>
         ) : null}
         {tasks.open.length > 0 ? (
           <ul className="flex flex-col">{tasks.open.map(renderTask)}</ul>
         ) : (
           <p className="text-sm text-muted-foreground">
-            No open tasks. {isActive ? "Create one for an agent, or add a task you already have." : "Add a task you already have."}
+            {isActive
+              ? t("responsibilities.page.noOpenTasksActive", { defaultValue: "No open tasks. Create one for an agent, or add a task you already have." })
+              : t("responsibilities.page.noOpenTasks", { defaultValue: "No open tasks. Add a task you already have." })}
           </p>
         )}
         {tasks.done.length > 0 ? (
           <div className="flex flex-col gap-1">
             <Button size="sm" variant="ghost" className="w-fit" aria-expanded={showDone} onClick={() => setShowDone((value) => !value)}>
               <ChevronDown aria-hidden="true" className={cn("transition-transform", !showDone && "-rotate-90")} />
-              {showDone ? "Hide" : "Show"} {tasks.done.length} done
+              {showDone
+                ? t("responsibilities.page.hideDone", { defaultValue: "Hide {{done}} done", done: tasks.done.length })
+                : t("responsibilities.page.showDone", { defaultValue: "Show {{done}} done", done: tasks.done.length })}
             </Button>
             {showDone ? <ul className="flex flex-col">{tasks.done.map(renderTask)}</ul> : null}
           </div>
         ) : null}
         {responsibility.tasksTruncated ? (
           <p className="text-xs text-muted-foreground">
-            Showing the first {RESPONSIBILITY_DETAIL_TASK_LIMIT} tasks. The counts include all of them.
+            {t("responsibilities.page.tasksTruncated", { defaultValue: "Showing the first {{limit}} tasks. The counts include all of them.", limit: RESPONSIBILITY_DETAIL_TASK_LIMIT })}
           </p>
         ) : null}
       </section>

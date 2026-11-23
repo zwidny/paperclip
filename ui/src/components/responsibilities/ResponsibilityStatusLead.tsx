@@ -15,6 +15,7 @@ import { queryKeys } from "@/lib/queryKeys";
 import { describeReadingAge } from "@/lib/responsibilities";
 import { cn } from "@/lib/utils";
 import { ResponsibilityHealthBadge, StaleFlag } from "./ResponsibilityHealthBadge";
+import { i18n, useTranslation } from "@/i18n";
 
 const REPORT_HEALTH: Record<ResponsibilityStatusReportStatus, ResponsibilityHealth> = {
   behind: "behind",
@@ -45,11 +46,15 @@ export function describeStatusAuthor(
   ownerUserId: string,
 ): string {
   const who = current.agentId
-    ? agentsById.get(current.agentId)?.name ?? "an agent"
+    ? agentsById.get(current.agentId)?.name ?? i18n.t("responsibilities.anAgentLower", { defaultValue: "an agent" })
     : current.userId
-      ? current.userId === ownerUserId ? "the owner" : "a teammate"
-      : "an agent no longer here";
-  return `Written by ${who} · ${describeReadingAge(current.writtenAt, now)}`;
+      ? current.userId === ownerUserId ? i18n.t("responsibilities.theOwner", { defaultValue: "the owner" }) : i18n.t("responsibilities.aTeammate", { defaultValue: "a teammate" })
+      : i18n.t("responsibilities.agentNoLongerHere", { defaultValue: "an agent no longer here" });
+  return i18n.t("responsibilities.writtenByWhen", {
+    defaultValue: "Written by {{who}} · {{when}}",
+    who,
+    when: describeReadingAge(current.writtenAt, now),
+  });
 }
 
 /**
@@ -74,6 +79,7 @@ export function ResponsibilityStatusBlock({
   className?: string;
 }) {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const report = useResponsibilityStatusReport(responsibility.id, responsibility.status === "active");
   const ask = useMutation({
     mutationFn: () => responsibilitiesApi.requestStatusUpdate(responsibility.id),
@@ -92,7 +98,7 @@ export function ResponsibilityStatusBlock({
   if (!current) return <div className={cn("flex flex-col gap-1.5", className)}>{derived}</div>;
 
   const reporterId = report.data?.reporterAgentId ?? current.agentId;
-  const reporterName = reporterId ? agentsById.get(reporterId)?.name ?? "the agent" : null;
+  const reporterName = reporterId ? agentsById.get(reporterId)?.name ?? t("responsibilities.theAgent", { defaultValue: "the agent" }) : null;
   const requested = report.data?.updateRequested ?? false;
   return (
     <div className={cn("flex flex-col gap-3", className)}>
@@ -103,7 +109,7 @@ export function ResponsibilityStatusBlock({
         <p className="text-sm text-foreground" data-agent-status-message="">{current.message}</p>
         <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
           <span>{describeStatusAuthor(current, agentsById, now, responsibility.ownerUserId)}</span>
-          {current.outOfDate ? <StaleFlag label="Out of date" /> : null}
+          {current.outOfDate ? <StaleFlag label={t("responsibilities.outOfDateLabel", { defaultValue: "Out of date" })} /> : null}
         </p>
         {editable && reporterName ? (
           <div className="flex flex-wrap items-center gap-2">
@@ -117,16 +123,16 @@ export function ResponsibilityStatusBlock({
               data-ask-for-update=""
             >
               {ask.isPending ? <Loader2 aria-hidden="true" className="animate-spin" /> : <MessageSquare aria-hidden="true" />}
-              {requested ? `Asked ${reporterName} for an update` : `Ask ${reporterName} for an update`}
+              {requested ? t("responsibilities.askedNameForUpdate", { defaultValue: "Asked {{name}} for an update", name: reporterName }) : t("responsibilities.askNameForUpdate", { defaultValue: "Ask {{name}} for an update", name: reporterName })}
             </Button>
             {ask.error ? (
-              <p role="alert" className="text-xs text-destructive">Couldn’t ask. {describeError(ask.error).body}</p>
+              <p role="alert" className="text-xs text-destructive">{t("responsibilities.askFailedShort", { defaultValue: "Couldn’t ask." })} {describeError(ask.error).body}</p>
             ) : null}
           </div>
         ) : null}
       </div>
       <div className="flex flex-col gap-1.5 border-t border-border pt-3" data-derived-status="">
-        <span className="text-xs text-muted-foreground">From the number</span>
+        <span className="text-xs text-muted-foreground">{t("responsibilities.fromTheNumber", { defaultValue: "From the number" })}</span>
         {derived}
       </div>
     </div>

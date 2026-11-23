@@ -58,6 +58,7 @@ import {
   unescapeAngleBracketEscapes,
 } from "../lib/angle-bracket-markdown";
 import { unescapeBlockquoteMarkers } from "../lib/blockquote-markdown";
+import { i18n } from "@/i18n";
 import { unescapeIntrawordUnderscores } from "../lib/underscore-markdown";
 import { unescapeEqualsSigns } from "../lib/equals-markdown";
 import { preserveTrailingMarkdownSpaces, restoreTrailingMarkdownSpaces } from "../lib/trailing-markdown-spaces";
@@ -1380,7 +1381,7 @@ export const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>
       >
         <div className="flex items-start justify-between gap-3 px-3 pt-2 text-xs text-muted-foreground">
           <p>
-            Rich editor unavailable for this markdown. Showing raw source instead.{" "}
+            {i18n.t("markdownEditor.richUnavailable", { defaultValue: "Rich editor unavailable for this markdown. Showing raw source instead." })}{" "}
             <span data-testid="markdown-editor-fallback-code" className="font-mono">
               {richEditorError.code}
             </span>
@@ -1396,7 +1397,7 @@ export const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>
               setRichEditorError(null);
             }}
           >
-            Retry rich editor
+            {i18n.t("markdownEditor.retryRichEditor", { defaultValue: "Retry rich editor" })}
           </button>
         </div>
         <textarea

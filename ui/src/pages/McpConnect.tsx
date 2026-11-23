@@ -129,7 +129,9 @@ function McpConnectRequest({ id, device = false, agentPairingOnly = false, onEdi
         </dl>}
         {previewEnabled && preview.view.kind === "error" && <QueryErrorState size="inline" error={preview.error} action="check this pairing code" onRetry={preview.view.retry} retrying={preview.view.isFetching} />}
         {pairDot.error && <p role="alert" className="text-sm text-destructive">{describeError(pairDot.error, { action: "connect Dot" }).body}</p>}
-        <div className="flex justify-end"><Button type="submit" disabled={!pairingPreview || !PAIRING_CODE_PATTERN.test(trimmedPairingCode) || pairDot.isPending}>{pairDot.isPending ? "Connecting…" : "Allow agent connection"}</Button></div>
+        <div className="flex justify-end"><Button type="submit" disabled={!pairingPreview || !PAIRING_CODE_PATTERN.test(trimmedPairingCode) || pairDot.isPending}>{pairDot.isPending
+              ? t("mcpConnect.connecting", { defaultValue: "Connecting…" })
+              : t("mcpConnect.allowAgentConnection", { defaultValue: "Allow agent connection" })}</Button></div>
       </form>}
       {data && <>
         {data.requiresSignIn ? <Button asChild><Link to={`/auth?next=${encodeURIComponent(returnPath)}`}>{t("mcp.signIn", { defaultValue: "Sign in / Create account" })}</Link></Button> : <>

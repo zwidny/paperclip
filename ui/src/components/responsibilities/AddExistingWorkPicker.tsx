@@ -14,13 +14,26 @@ import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from "@
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { companyProjectsQuery } from "@/lib/company-projects-query";
 import { queryKeys } from "@/lib/queryKeys";
+import { i18n, useTranslation } from "@/i18n";
 
 export type ResponsibilityWorkKind = "project" | "task" | "routine" | "skill";
 
 const TASK_SEARCH_LIMIT = 20;
 const TASK_SEARCH_DEBOUNCE_MS = 200;
 
-const NOUN: Record<ResponsibilityWorkKind, string> = { project: "project", task: "task", routine: "routine", skill: "skill" };
+const NOUN_DEFAULT: Record<ResponsibilityWorkKind, { one: string; other: string }> = {
+  project: { one: "project", other: "projects" },
+  task: { one: "task", other: "tasks" },
+  routine: { one: "routine", other: "routines" },
+  skill: { one: "skill", other: "skills" },
+};
+
+function kindNoun(kind: ResponsibilityWorkKind, plural = false): string {
+  const fallback = NOUN_DEFAULT[kind];
+  return i18n.t(`responsibilities.noun_${kind}_${plural ? "other" : "one"}`, {
+    defaultValue: plural ? fallback.other : fallback.one,
+  });
+}
 
 interface PickerOption {
   id: string;
@@ -34,7 +47,10 @@ interface PickerOption {
  */
 export function describeLinkError(error: unknown, kind: ResponsibilityWorkKind): string {
   if (error instanceof ApiError && error.status === 404) {
-    return `That ${NOUN[kind]} is no longer available to you. It may have been deleted or made private.`;
+    return i18n.t("responsibilities.linkGone", {
+      defaultValue: "That {{noun}} is no longer available to you. It may have been deleted or made private.",
+      noun: kindNoun(kind),
+    });
   }
   return describeError(error).body;
 }
@@ -85,6 +101,7 @@ export function AddExistingWorkPicker({
   /** What the picker opens under, in place of its own button. */
   anchor?: ReactNode;
 }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [ownOpen, setOwnOpen] = useState(false);
   const open = controlledOpen ?? ownOpen;
@@ -161,7 +178,7 @@ export function AddExistingWorkPicker({
         <PopoverTrigger asChild>
           <Button size="sm" variant="ghost">
             <Plus aria-hidden="true" />
-            Add existing {NOUN[kind]}
+            {t("responsibilities.addExisting", { defaultValue: "Add existing {{noun}}", noun: kindNoun(kind) })}
           </Button>
         </PopoverTrigger>
       )}
@@ -170,8 +187,8 @@ export function AddExistingWorkPicker({
           <CommandInput
             value={query}
             onValueChange={setQuery}
-            placeholder={`Search ${NOUN[kind]}s…`}
-            aria-label={`Search ${NOUN[kind]}s`}
+            placeholder={t("responsibilities.searchPlaceholder", { defaultValue: "Search {{nouns}}…", nouns: kindNoun(kind, true) })}
+            aria-label={t("responsibilities.searchAria", { defaultValue: "Search {{nouns}}", nouns: kindNoun(kind, true) })}
           />
           <CommandList>
             {sourceView.kind === "error" ? (
@@ -179,19 +196,19 @@ export function AddExistingWorkPicker({
                 <QueryErrorState
                   error={sourceView.error}
                   size="inline"
-                  action={`load ${NOUN[kind]}s`}
+                  action={t("responsibilities.loadNouns", { defaultValue: "load {{nouns}}", nouns: kindNoun(kind, true) })}
                   onRetry={sourceView.retry}
                   retrying={sourceView.isFetching}
                 />
               </div>
             ) : !sourceView.data ? (
-              <p className="px-3 py-4 text-sm text-muted-foreground" role="status">Loading…</p>
+              <p className="px-3 py-4 text-sm text-muted-foreground" role="status">{t("common.loading", { defaultValue: "Loading…" })}</p>
             ) : (
               <>
                 <CommandEmpty>
                   {options.length > 0 && available.length === 0
-                    ? `Every matching ${NOUN[kind]} is already here.`
-                    : `No ${NOUN[kind]}s found.`}
+                    ? t("responsibilities.allAlreadyHere", { defaultValue: "Every matching {{noun}} is already here.", noun: kindNoun(kind) })
+                    : t("responsibilities.noneFound", { defaultValue: "No {{nouns}} found.", nouns: kindNoun(kind, true) })}
                 </CommandEmpty>
                 {available.map((option) => (
                   <CommandItem

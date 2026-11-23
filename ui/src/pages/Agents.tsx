@@ -35,7 +35,7 @@ import { Tooltip as TooltipPrimitive } from "radix-ui";
 import { AlertTriangle, Bot, MessagesSquare } from "lucide-react";
 import { AGENT_ROLE_LABELS, type Agent, type Environment, type EnvironmentCapabilities } from "@paperclipai/shared";
 import { usePublishSharedQueryData, useSharedPollingQuery } from "../hooks/useSharedPolling";
-import { useTranslation } from "../i18n";
+import { i18n, useTranslation } from "../i18n";
 
 import { agentDisplayAdapterType, getAdapterLabel } from "../adapters/adapter-display-registry";
 
@@ -63,17 +63,22 @@ interface EnvironmentDescriptor {
   title: string;
 }
 
-const localEnvironmentDescriptor: EnvironmentDescriptor = {
-  label: "Local",
-  detail: "Paperclip host",
-  title: "Local - Paperclip host",
-};
+function localEnvironmentDescriptor(): EnvironmentDescriptor {
+  return {
+    label: i18n.t("agentsPage.environment.local", { defaultValue: "Local" }),
+    detail: i18n.t("agentsPage.environment.paperclipHost", { defaultValue: "Paperclip host" }),
+    title: i18n.t("agentsPage.environment.localTitle", { defaultValue: "Local - Paperclip host" }),
+  };
+}
 
-const loadingEnvironmentDescriptor: EnvironmentDescriptor = {
-  label: "—",
-  detail: "Loading environment",
-  title: "Loading environment",
-};
+function loadingEnvironmentDescriptor(): EnvironmentDescriptor {
+  const label = i18n.t("agentsPage.environment.loading", { defaultValue: "Loading environment" });
+  return {
+    label: "—",
+    detail: label,
+    title: label,
+  };
+}
 
 // Agents in these states never appear in the agents list — `terminated` is
 // hidden like an archived company, and `pending_approval` is a hiring gate that
@@ -124,7 +129,7 @@ function getSandboxProviderLabel(
   const provider = typeof environment.config.provider === "string"
     ? environment.config.provider.trim()
     : "";
-  if (!provider) return "Sandbox";
+  if (!provider) return i18n.t("agentsPage.environment.sandbox", { defaultValue: "Sandbox" });
   return capabilities?.sandboxProviders?.[provider]?.displayName ?? provider;
 }
 
@@ -133,25 +138,25 @@ function describeEnvironment(
   capabilities?: EnvironmentCapabilities | null,
 ): EnvironmentDescriptor {
   const detail = isPlatformManagedEnvironment(environment)
-    ? "Managed by Paperclip"
+    ? i18n.t("agentsPage.environment.managedByPaperclip", { defaultValue: "Managed by Paperclip" })
     : environment.driver === "sandbox"
-      ? `${getSandboxProviderLabel(environment, capabilities)} sandbox provider`
+      ? i18n.t("agentsPage.environment.sandboxProvider", { defaultValue: "{{provider}} sandbox provider", provider: getSandboxProviderLabel(environment, capabilities) })
       : environment.driver === "local"
-        ? "Paperclip host"
+        ? i18n.t("agentsPage.environment.paperclipHost", { defaultValue: "Paperclip host" })
         : formatEnvironmentDriver(environment.driver);
 
   return {
     label: environment.name,
     detail,
-    title: `${environment.name} - ${detail}`,
+    title: i18n.t("agentsPage.environment.titleFormat", { defaultValue: "{{label}} - {{detail}}", label: environment.name, detail }),
   };
 }
 
 function describeMissingEnvironment(environmentId: string): EnvironmentDescriptor {
   return {
-    label: "Unknown environment",
+    label: i18n.t("agentsPage.environment.unknown", { defaultValue: "Unknown environment" }),
     detail: environmentId.slice(0, 8),
-    title: `Unknown environment - ${environmentId}`,
+    title: i18n.t("agentsPage.environment.unknownTitle", { defaultValue: "Unknown environment - {{id}}", id: environmentId }),
   };
 }
 
@@ -162,7 +167,7 @@ function resolveAgentEnvironment(
   capabilities?: EnvironmentCapabilities | null,
 ): EnvironmentDescriptor {
   const environmentId = agent.defaultEnvironmentId ?? instanceDefaultEnvironmentId;
-  if (!environmentId) return localEnvironmentDescriptor;
+  if (!environmentId) return localEnvironmentDescriptor();
   const environment = environmentsById.get(environmentId);
   return environment
     ? describeEnvironment(environment, capabilities)
@@ -370,8 +375,8 @@ export function Agents({ initialView = "list" }: { initialView?: AgentsView } = 
   const showEnvironmentColumn = environmentsEnabled && (environments === undefined || environments.length > 1);
   const resolveRenderedEnvironment = (agentId: string) => (
     environmentDataLoading
-      ? loadingEnvironmentDescriptor
-      : environmentByAgentId.get(agentId) ?? localEnvironmentDescriptor
+      ? loadingEnvironmentDescriptor()
+      : environmentByAgentId.get(agentId) ?? localEnvironmentDescriptor()
   );
 
   const renderAgentRow = (agent: Agent) => {
@@ -616,8 +621,8 @@ function OrgTreeNode({
                   agent={agent}
                   environment={
                     environmentDataLoading
-                      ? loadingEnvironmentDescriptor
-                      : environmentByAgentId.get(agent.id) ?? localEnvironmentDescriptor
+                      ? loadingEnvironmentDescriptor()
+                      : environmentByAgentId.get(agent.id) ?? localEnvironmentDescriptor()
                   }
                   showEnvironment={showEnvironment}
                 />

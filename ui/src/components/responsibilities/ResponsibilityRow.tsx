@@ -11,6 +11,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTranslation } from "@/i18n";
 import { Link } from "@/lib/router";
 import { agentIdsFromSignals, responsibilityPath, topWorkSignals } from "@/lib/responsibilities";
 import { cn } from "@/lib/utils";
@@ -41,6 +42,7 @@ export const ResponsibilityRow = memo(function ResponsibilityRow({
   areas,
   now,
 }: ResponsibilityRowProps) {
+  const { t } = useTranslation();
   const { rollup } = responsibility;
   const letGo = responsibility.status === "let_go";
   const signals = topWorkSignals(rollup);
@@ -59,14 +61,21 @@ export const ResponsibilityRow = memo(function ResponsibilityRow({
             {responsibility.title}
           </Link>
           <ResponsibilityHealthBadge health={rollup.health} overridden={rollup.healthOverridden} />
-          {letGo ? <span className="text-xs text-muted-foreground">Let go</span> : null}
+          {letGo ? (
+            <span className="text-xs text-muted-foreground">
+              {t("responsibilities.parts.letGoAction", { defaultValue: "Let go" })}
+            </span>
+          ) : null}
         </div>
         <p className="text-sm text-muted-foreground">{rollup.statusSentence}</p>
         {signals.length > 0 ? (
           <WorkSignalList signals={signals} size="xs" responsibilityHref={responsibilityPath} className="pt-1" />
         ) : null}
         {move.error ? (
-          <p role="alert" className="text-xs text-destructive">Couldn’t move it. {describeError(move.error).body}</p>
+          <p role="alert" className="text-xs text-destructive">
+            {t("responsibilities.row.couldntMove", { defaultValue: "Couldn’t move it." })}{" "}
+            {describeError(move.error).body}
+          </p>
         ) : null}
       </div>
       <MetricGlance metric={rollup.metric} health={rollup.health} now={now} className="md:w-48 md:shrink-0" />
@@ -74,13 +83,15 @@ export const ResponsibilityRow = memo(function ResponsibilityRow({
         <AgentsWorkingLabel agentIds={agentIdsFromSignals(rollup)} agentsById={agentsById} />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button size="icon-xs" variant="ghost" aria-label={`More for ${responsibility.title}`}>
+            <Button size="icon-xs" variant="ghost" aria-label={t("responsibilities.row.moreFor", { defaultValue: "More for {{title}}", title: responsibility.title })}>
               <MoreHorizontal aria-hidden="true" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuSub>
-              <DropdownMenuSubTrigger disabled={move.isPending}>Move to area</DropdownMenuSubTrigger>
+              <DropdownMenuSubTrigger disabled={move.isPending}>
+                {t("responsibilities.row.moveToArea", { defaultValue: "Move to area" })}
+              </DropdownMenuSubTrigger>
               <DropdownMenuSubContent className="max-h-(--sz-50vh) overflow-y-auto">
                 <AreaRadioItems
                   areas={areas}

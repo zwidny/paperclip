@@ -652,10 +652,17 @@ export function InviteLandingPage() {
                     disabled={!selectedAdapterType}
                     onChange={(event) => setAdapterType(event.target.value as AgentAdapterType)}
                   >
-                    {!selectedAdapterType && <option value="" disabled>No available adapter</option>}
+                    {!selectedAdapterType && (
+                      <option value="" disabled>
+                        {t("invite.noAvailableAdapter", { defaultValue: "No available adapter" })}
+                      </option>
+                    )}
                     {availableJoinAdapterOptions.map((type) => (
                       <option key={type} value={type} disabled={!ENABLED_INVITE_ADAPTERS.has(type)}>
-                        {getAdapterLabel(type)}{!ENABLED_INVITE_ADAPTERS.has(type) ? " (Coming soon)" : ""}
+                        {getAdapterLabel(type)}
+                        {!ENABLED_INVITE_ADAPTERS.has(type)
+                          ? t("invite.comingSoonSuffix", { defaultValue: " (Coming soon)" })
+                          : ""}
                       </option>
                     ))}
                   </select>
@@ -842,12 +849,25 @@ export function InviteLandingPage() {
                   </h2>
                   <p className="mt-1 text-sm text-zinc-400">
                     {shouldAutoAcceptHumanInvite
-                      ? `Granting your access to ${companyDisplayName}.`
+                      ? t("invite.grantingAccess", {
+                          defaultValue: "Granting your access to {{company}}.",
+                          company: companyDisplayName,
+                        })
                       : isCurrentMember
-                      ? `This account already belongs to ${companyDisplayName}.`
-                      : `This will ${
-                          invite.inviteType === "bootstrap_ceo" ? "finish setting up Paperclip" : `grant or complete your access to ${companyDisplayName}`
-                        }.`}
+                        ? t("invite.alreadyBelongsTo", {
+                            defaultValue: "This account already belongs to {{company}}.",
+                            company: companyDisplayName,
+                          })
+                        : t("invite.thisWill", {
+                            defaultValue: "This will {{action}}.",
+                            action:
+                              invite.inviteType === "bootstrap_ceo"
+                                ? t("invite.finishSetupPaperclip", { defaultValue: "finish setting up Paperclip" })
+                                : t("invite.grantOrCompleteAccess", {
+                                    defaultValue: "grant or complete your access to {{company}}",
+                                    company: companyDisplayName,
+                                  }),
+                          })}
                   </p>
                 </div>
                 {error ? <p className="text-xs text-red-400">{error}</p> : null}

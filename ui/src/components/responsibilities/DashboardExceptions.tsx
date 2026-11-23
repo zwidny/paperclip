@@ -14,6 +14,7 @@ import { ResponsibilityHealthBadge } from "./ResponsibilityHealthBadge";
 import { HealthDot, ProposalsNotice } from "./ResponsibilityViewParts";
 import type { DashboardViewProps } from "./view-props";
 import { WorkSignalList } from "./WorkSignalList";
+import { useTranslation } from "@/i18n";
 
 function ExceptionRow({ entry, areaTitle }: { entry: ResponsibilityException; areaTitle: string | null }) {
   const { responsibility, signal } = entry;
@@ -42,6 +43,7 @@ function ExceptionRow({ entry, areaTitle }: { entry: ResponsibilityException; ar
  * signal. What is on track collapses to one line per area.
  */
 export function DashboardExceptions({ companyId, overview, onAddResponsibility, onReviewProposals }: DashboardViewProps) {
+  const { t } = useTranslation();
   const activeCount = useMemo(() => activeResponsibilities(overview.responsibilities).length, [overview.responsibilities]);
   const standing = useMemo(() => overallStanding(overview.totals.byHealth), [overview.totals.byHealth]);
   const { exceptions, onTrack } = useMemo(
@@ -69,7 +71,7 @@ export function DashboardExceptions({ companyId, overview, onAddResponsibility, 
       {exceptions.length > 0 ? (
         <section aria-labelledby="exceptions-needs-a-look-heading" className="flex flex-col gap-2">
           <h2 id="exceptions-needs-a-look-heading" className="text-sm font-semibold text-foreground">
-            Needs a look <span className="font-normal tabular-nums text-muted-foreground">{exceptions.length}</span>
+            {t("responsibilities.needsALook", { defaultValue: "Needs a look" })} <span className="font-normal tabular-nums text-muted-foreground">{exceptions.length}</span>
           </h2>
           <Card elevation="low" className="gap-0 py-0">
             <ul className="flex flex-col divide-y divide-border">
@@ -87,7 +89,7 @@ export function DashboardExceptions({ companyId, overview, onAddResponsibility, 
 
       {onTrack.length > 0 ? (
         <section aria-labelledby="exceptions-on-track-heading" className="flex flex-col gap-2">
-          <h2 id="exceptions-on-track-heading" className="sr-only">On track</h2>
+          <h2 id="exceptions-on-track-heading" className="sr-only">{t("responsibilities.onTrack", { defaultValue: "On track" })}</h2>
           <ul className="flex flex-col gap-1.5">
             {onTrack.map((line) => (
               <li key={line.areaId ?? "__no_area__"} className="flex items-start gap-2 text-sm" data-on-track-area={line.areaId ?? "none"}>

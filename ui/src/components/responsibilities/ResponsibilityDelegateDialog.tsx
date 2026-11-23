@@ -28,6 +28,7 @@ import {
   RESPONSIBILITY_DELEGATION_MODE_OPTIONS,
 } from "@/lib/responsibilities";
 import { issueUrl } from "@/lib/utils";
+import { useTranslation } from "@/i18n";
 
 export interface ResponsibilityDelegateTarget {
   id: string;
@@ -75,6 +76,7 @@ export function ResponsibilityDelegateDialog({
   onDelegated,
 }: ResponsibilityDelegateDialogProps) {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const primary = usePrimaryAgentPresentation(companyId);
   const primaryAgentId = primary?.primaryAgentId ?? null;
   const agentsQuery = useQuery({
@@ -98,10 +100,10 @@ export function ResponsibilityDelegateDialog({
     const primaryAgent = ordered[0]?.id === primaryAgentId ? ordered[0] : null;
     const others = primaryAgent ? ordered.slice(1) : ordered;
     return [
-      ...(primaryAgent ? [{ id: "primary", label: "Your primary agent", options: [toOption(primaryAgent)] }] : []),
-      ...(others.length > 0 ? [{ id: "others", label: primaryAgent ? "Other agents" : undefined, options: others.map(toOption) }] : []),
+      ...(primaryAgent ? [{ id: "primary", label: t("responsibilities.delegate.yourPrimaryAgent", { defaultValue: "Your primary agent" }), options: [toOption(primaryAgent)] }] : []),
+      ...(others.length > 0 ? [{ id: "others", label: primaryAgent ? t("responsibilities.delegate.otherAgents", { defaultValue: "Other agents" }) : undefined, options: others.map(toOption) }] : []),
     ];
-  }, [ordered, primaryAgentId]);
+  }, [ordered, primaryAgentId, t]);
 
   const [agentId, setAgentId] = useState("");
   const [mode, setMode] = useState<ResponsibilityDelegationMode>(DEFAULT_DELEGATION_MODE);
@@ -167,10 +169,13 @@ export function ResponsibilityDelegateDialog({
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <CircleCheck className="size-5 text-(--status-task-icon-done)" aria-hidden="true" />
-                Task created
+                {t("responsibilities.delegate.taskCreated", { defaultValue: "Task created" })}
               </DialogTitle>
               <DialogDescription>
-                {assignee ? `${assignee.name} has it.` : "The agent has it."} It is filed under {responsibility.title}.
+                {assignee
+                  ? t("responsibilities.delegate.assigneeHasIt", { defaultValue: "{{name}} has it.", name: assignee.name })
+                  : t("responsibilities.delegate.agentHasIt", { defaultValue: "The agent has it." })}{" "}
+                {t("responsibilities.delegate.filedUnder", { defaultValue: "It is filed under {{title}}.", title: responsibility.title })}
               </DialogDescription>
             </DialogHeader>
             <Link
@@ -185,36 +190,36 @@ export function ResponsibilityDelegateDialog({
             </Link>
             <DialogFooter className="sm:justify-between">
               <Button variant="ghost" onClick={() => setCreated(null)}>
-                Give another task
+                {t("responsibilities.delegate.giveAnotherTask", { defaultValue: "Give another task" })}
               </Button>
-              <Button onClick={() => onOpenChange(false)}>Done</Button>
+              <Button onClick={() => onOpenChange(false)}>{t("common.done", { defaultValue: "Done" })}</Button>
             </DialogFooter>
           </div>
         ) : (
           <form className="flex flex-col gap-5" onSubmit={submit}>
             <DialogHeader>
-              <DialogTitle>New task for an agent</DialogTitle>
-              <DialogDescription>Creates a task under {responsibility.title} and gives it to the agent.</DialogDescription>
+              <DialogTitle>{t("responsibilities.parts.newTask", { defaultValue: "New task for an agent" })}</DialogTitle>
+              <DialogDescription>{t("responsibilities.delegate.createsTaskUnder", { defaultValue: "Creates a task under {{title}} and gives it to the agent.", title: responsibility.title })}</DialogDescription>
             </DialogHeader>
 
             <div className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-foreground">Who</span>
+              <span className="text-sm font-medium text-foreground">{t("responsibilities.delegate.who", { defaultValue: "Who" })}</span>
               <SearchableSelect<string, AgentOption>
                 value={effectiveAgentId}
                 groups={groups}
                 onValueChange={(value) => setAgentId(value)}
-                placeholder={agentsQuery.isPending ? "Loading agents…" : "Choose an agent"}
-                searchPlaceholder="Search agents…"
-                emptyMessage="No agents can take this. Add an agent first."
+                placeholder={agentsQuery.isPending ? t("responsibilities.delegate.loadingAgents", { defaultValue: "Loading agents…" }) : t("responsibilities.delegate.chooseAgent", { defaultValue: "Choose an agent" })}
+                searchPlaceholder={t("responsibilities.delegate.searchAgents", { defaultValue: "Search agents…" })}
+                emptyMessage={t("responsibilities.delegate.noAgents", { defaultValue: "No agents can take this. Add an agent first." })}
                 loading={agentsQuery.isPending}
-                triggerAriaLabel="Agent"
+                triggerAriaLabel={t("responsibilities.delegate.agentAria", { defaultValue: "Agent" })}
                 disablePortal
               />
               {agentsView.kind === "error" ? (
                 <QueryErrorState
                   error={agentsView.error}
                   size="inline"
-                  action="load agents"
+                  action={t("responsibilities.delegate.loadAgentsAction", { defaultValue: "load agents" })}
                   onRetry={agentsView.retry}
                   retrying={agentsView.isFetching}
                 />
@@ -222,9 +227,9 @@ export function ResponsibilityDelegateDialog({
             </div>
 
             <div className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-foreground">How</span>
+              <span className="text-sm font-medium text-foreground">{t("responsibilities.delegate.how", { defaultValue: "How" })}</span>
               <RadioCardGroup
-                ariaLabel="How the agent works"
+                ariaLabel={t("responsibilities.delegate.howAria", { defaultValue: "How the agent works" })}
                 value={mode}
                 onValueChange={(value) => setMode(value as ResponsibilityDelegationMode)}
                 options={RESPONSIBILITY_DELEGATION_MODE_OPTIONS.map((option) => ({
@@ -237,40 +242,40 @@ export function ResponsibilityDelegateDialog({
             </div>
 
             <label className="flex flex-col gap-2 text-sm">
-              <span className="font-medium text-foreground">What to do</span>
+              <span className="font-medium text-foreground">{t("responsibilities.delegate.whatToDo", { defaultValue: "What to do" })}</span>
               <Input
                 ref={titleInput}
                 value={title}
                 maxLength={200}
-                placeholder="e.g. Draft the investor update"
+                placeholder={t("responsibilities.delegate.whatToDoPlaceholder", { defaultValue: "e.g. Draft the investor update" })}
                 onChange={(event) => setTitle(event.target.value)}
                 required
               />
             </label>
             <label className="flex flex-col gap-2 text-sm">
               <span className="font-medium text-foreground">
-                Anything else <span className="font-normal text-muted-foreground">(optional)</span>
+                {t("responsibilities.delegate.anythingElse", { defaultValue: "Anything else" })} <span className="font-normal text-muted-foreground">{t("responsibilities.optional", { defaultValue: "(optional)" })}</span>
               </span>
               <Textarea
                 rows={3}
                 value={instructions}
-                placeholder="Context, constraints, or what done looks like"
+                placeholder={t("responsibilities.delegate.anythingElsePlaceholder", { defaultValue: "Context, constraints, or what done looks like" })}
                 onChange={(event) => setInstructions(event.target.value)}
               />
             </label>
 
             {delegate.error ? (
               <p role="alert" className="text-sm text-destructive">
-                Couldn’t create the task. {describeError(delegate.error).body}
+                {t("responsibilities.delegate.createFailed", { defaultValue: "Couldn’t create the task." })} {describeError(delegate.error).body}
               </p>
             ) : null}
 
             <DialogFooter className="sm:justify-between">
               <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-                Cancel
+                {t("common.cancel", { defaultValue: "Cancel" })}
               </Button>
               <Button type="submit" disabled={!title.trim() || !effectiveAgentId || delegate.isPending}>
-                {delegate.isPending ? "Creating task…" : "Create task"}
+                {delegate.isPending ? t("responsibilities.delegate.creatingTask", { defaultValue: "Creating task…" }) : t("responsibilities.delegate.createTask", { defaultValue: "Create task" })}
               </Button>
             </DialogFooter>
           </form>

@@ -270,19 +270,19 @@ function sourceMeta(sourceBadge: CompanySkillSourceBadge, sourceLabel: string | 
 
   switch (sourceBadge) {
     case "skills_sh":
-      return { icon: VercelMark, label: sourceLabel ?? "skills.sh", managedLabel: "skills.sh managed" };
+      return { icon: VercelMark, label: sourceLabel ?? "skills.sh", managedLabel: i18n.t("companySkills.source.managed", { defaultValue: "{{name}} managed", name: "skills.sh" }) };
     case "github":
       return isSkillsShManaged
-        ? { icon: VercelMark, label: sourceLabel ?? "skills.sh", managedLabel: "skills.sh managed" }
-        : { icon: GithubIcon, label: sourceLabel ?? "GitHub", managedLabel: "GitHub managed" };
+        ? { icon: VercelMark, label: sourceLabel ?? "skills.sh", managedLabel: i18n.t("companySkills.source.managed", { defaultValue: "{{name}} managed", name: "skills.sh" }) }
+        : { icon: GithubIcon, label: sourceLabel ?? "GitHub", managedLabel: i18n.t("companySkills.source.managed", { defaultValue: "{{name}} managed", name: "GitHub" }) };
     case "url":
-      return { icon: Link2, label: sourceLabel ?? "URL", managedLabel: "URL managed" };
+      return { icon: Link2, label: sourceLabel ?? "URL", managedLabel: i18n.t("companySkills.source.managed", { defaultValue: "{{name}} managed", name: "URL" }) };
     case "local":
-      return { icon: Folder, label: sourceLabel ?? "Folder", managedLabel: "Folder managed" };
+      return { icon: Folder, label: sourceLabel ?? "Folder", managedLabel: i18n.t("companySkills.source.managed", { defaultValue: "{{name}} managed", name: "Folder" }) };
     case "paperclip":
-      return { icon: Paperclip, label: sourceLabel ?? "Paperclip", managedLabel: "Paperclip managed" };
+      return { icon: Paperclip, label: sourceLabel ?? "Paperclip", managedLabel: i18n.t("companySkills.source.managed", { defaultValue: "{{name}} managed", name: "Paperclip" }) };
     default:
-      return { icon: Boxes, label: sourceLabel ?? "Catalog", managedLabel: "Catalog managed" };
+      return { icon: Boxes, label: sourceLabel ?? "Catalog", managedLabel: i18n.t("companySkills.source.managed", { defaultValue: "{{name}} managed", name: "Catalog" }) };
   }
 }
 
@@ -2761,9 +2761,9 @@ function SkillList({
 type SkillDetailTab = "overview" | "files" | "versions" | "agents";
 
 const SKILL_DETAIL_TABS: Array<{ value: SkillDetailTab; label: string; icon: typeof FileText }> = [
-  { value: "overview", label: "Overview", icon: FileText },
+  { value: "overview", label: i18n.t("companySkills.tabs.overview", { defaultValue: "Overview" }), icon: FileText },
   { value: "files", label: i18n.t("companySkills.detail.files", { defaultValue: "Files" }), icon: FolderOpen },
-  { value: "versions", label: "Versions", icon: History },
+  { value: "versions", label: i18n.t("companySkills.tabs.versions", { defaultValue: "Versions" }), icon: History },
   { value: "agents", label: i18n.t("companySkills.tabs.agents", { defaultValue: "Agents" }), icon: Users },
 ];
 
@@ -4744,7 +4744,7 @@ export function CompanySkills() {
       pushToast({
         tone: "success",
         title: t("companySkills.toast.imported", { defaultValue: "Skills imported" }),
-        body: `${result.imported.length} skill${result.imported.length === 1 ? "" : "s"} added.`,
+        body: t("companySkills.toast.importedBody", { count: result.imported.length, defaultValue_one: "{{count}} skill added.", defaultValue_other: "{{count}} skills added." }),
       });
       if (result.warnings[0]) {
         pushToast({
@@ -4827,7 +4827,7 @@ export function CompanySkills() {
         title: skill.forkedFromSkillId
           ? t("companySkills.toast.forkCreated", { defaultValue: "Skill fork created" })
           : t("companySkills.toast.created", { defaultValue: "Skill created" }),
-        body: `${skill.name} is now editable in the Paperclip workspace.`,
+        body: t("companySkills.toast.createdBody", { defaultValue: "{{name}} is now editable in the Paperclip workspace.", name: skill.name }),
       });
     },
     onError: (error) => {
@@ -5115,14 +5115,14 @@ export function CompanySkills() {
         body: result.action === "created"
           ? enabledCount > 0
             ? `${result.skill.name} — enabled for ${enabledCount} agent${enabledCount === 1 ? "" : "s"}.`
-            : `${result.skill.name} is in the library but not enabled for any agent yet. Use "Add to agent" to enable it.`
+            : t("companySkills.toast.installedNotEnabled", { defaultValue: "{{name}} is in the library but not enabled for any agent yet. Use \"Add to agent\" to enable it.", name: result.skill.name })
           : result.skill.name,
       });
       if (enableFailures > 0) {
         pushToast({
           tone: "warn",
           title: t("companySkills.toast.enableFailed", { defaultValue: "Skill installed, but enabling failed" }),
-          body: `Could not enable ${result.skill.name} for ${enableFailures} agent${enableFailures === 1 ? "" : "s"}. Use "Add to agent" on the skill page.`,
+          body: t("companySkills.toast.enableFailedBody", { count: enableFailures, name: result.skill.name, defaultValue_one: "Could not enable {{name}} for {{count}} agent. Use \"Add to agent\" on the skill page.", defaultValue_other: "Could not enable {{name}} for {{count}} agents. Use \"Add to agent\" on the skill page." }),
         });
       }
       if (result.warnings[0]) {
@@ -5279,7 +5279,7 @@ export function CompanySkills() {
       pushToast({
         tone: "success",
         title: t("companySkills.toast.skillsMoved", { defaultValue: "Skills moved" }),
-        body: `${ids.length} skill${ids.length === 1 ? "" : "s"} filed.`,
+        body: t("companySkills.toast.skillsFiled", { count: ids.length, defaultValue_one: "{{count}} skill filed.", defaultValue_other: "{{count}} skills filed." }),
       });
     } catch (moveError) {
       pushToast({
@@ -5466,7 +5466,7 @@ export function CompanySkills() {
       pushToast({
         tone: "success",
         title: t("companySkills.toast.agentsUpdated", { defaultValue: "Agents updated" }),
-        body: `${nextAgentIds.length} agent(s) attached.`,
+        body: t("companySkills.toast.agentsUpdatedBody", { count: nextAgentIds.length, defaultValue_one: "{{count}} agent attached.", defaultValue_other: "{{count}} agent(s) attached." }),
       });
     } catch (error) {
       pushToast({
@@ -5524,7 +5524,7 @@ export function CompanySkills() {
       pushToast({
         tone: "success",
         title: t("companySkills.toast.removed", { defaultValue: "Skill removed" }),
-        body: `${skill.name} was removed from the company skill library.`,
+        body: t("companySkills.toast.removedBodyCompany", { defaultValue: "{{name}} was removed from the company skill library.", name: skill.name }),
       });
     },
     onError: (error) => {
@@ -5968,7 +5968,7 @@ export function CompanySkills() {
             if (!card.skillId) return;
             setMoveDialog({
               skillIds: [card.skillId],
-              title: `Move "${card.name}"`,
+              title: t("companySkills.page.moveDialogTitle", { defaultValue: "Move \"{{name}}\"", name: card.name }),
               subtitle: t("companySkills.page.chooseDestination", { defaultValue: "Choose a destination folder." }),
               currentFolderId: card.folderId ?? null,
             });
@@ -6071,8 +6071,8 @@ export function CompanySkills() {
           onUpdateSettings={(updates) => activeDetail && updateSkillSettings.mutate({ skillId: activeDetail.id, updates })}
           onMoveToFolder={activeDetail ? () => setMoveDialog({
             skillIds: [activeDetail.id],
-            title: `Move "${activeDetail.name}"`,
-            subtitle: "Choose a destination folder.",
+            title: t("companySkills.page.moveDialogTitle", { defaultValue: "Move \"{{name}}\"", name: activeDetail.name }),
+            subtitle: t("companySkills.page.chooseDestination", { defaultValue: "Choose a destination folder." }),
             currentFolderId: activeDetail.folderId ?? null,
           }) : undefined}
           updateSettingsPending={updateSkillSettings.isPending}

@@ -606,22 +606,36 @@ export function oauthFailureMessage(code: string | null): string {
   switch (code) {
     case "oauth_state_expired":
     case "oauth_state_missing":
-      return "The sign-in took too long or was already used. Try again and finish signing in within a few minutes.";
+      return i18n.t("connections.setupFlow.oauthSignInTookTooLong", {
+        defaultValue: "The sign-in took too long or was already used. Try again and finish signing in within a few minutes.",
+      });
     case "oauth_session_mismatch":
-      return "Sign-in finished in a different Paperclip session. Stay signed in to Paperclip in this browser and try again.";
+      return i18n.t("connections.setupFlow.oauthSessionMismatch", {
+        defaultValue: "Sign-in finished in a different Paperclip session. Stay signed in to Paperclip in this browser and try again.",
+      });
     case "oauth_redirect_origin_unsupported":
-      return "Sign-in returned to a different Paperclip address than the one you started from. Open Paperclip at its usual address and try again.";
+      return i18n.t("connections.setupFlow.oauthRedirectOriginUnsupported", {
+        defaultValue: "Sign-in returned to a different Paperclip address than the one you started from. Open Paperclip at its usual address and try again.",
+      });
     case "oauth_token_exchange_failed":
     case "oauth_token_endpoint_rejected":
     case "oauth_access_token_missing":
-      return "The provider accepted your sign-in but didn’t give Paperclip access. Try again; if it keeps happening, check that your account or organization allows this app.";
+      return i18n.t("connections.setupFlow.oauthProviderNoAccess", {
+        defaultValue: "The provider accepted your sign-in but didn’t give Paperclip access. Try again; if it keeps happening, check that your account or organization allows this app.",
+      });
     case "oauth_insufficient_scope":
     case "oauth_scope_grant_invalid":
-      return "The provider didn’t grant the access Paperclip asked for. Try again and approve every requested permission.";
+      return i18n.t("connections.setupFlow.oauthInsufficientScope", {
+        defaultValue: "The provider didn’t grant the access Paperclip asked for. Try again and approve every requested permission.",
+      });
     case "github_installation_required":
-      return "You signed in, but the Paperclip for GitHub app isn’t installed on any account you can use. Install it and choose at least one repository, then try again. An organization owner may need to approve the install.";
+      return i18n.t("connections.setupFlow.oauthGitHubInstallRequired", {
+        defaultValue: "You signed in, but the Paperclip for GitHub app isn’t installed on any account you can use. Install it and choose at least one repository, then try again. An organization owner may need to approve the install.",
+      });
     default:
-      return "Authorization did not complete. Try again when you’re ready.";
+      return i18n.t("connections.setupFlow.oauthNotCompleted", {
+        defaultValue: "Authorization did not complete. Try again when you’re ready.",
+      });
   }
 }
 
@@ -930,7 +944,9 @@ function StandardConnectionSetupFlow({
     const popup = oauthPopupRef.current;
     if (!popup || popup.closed) {
       setOAuthPhase("error");
-      setOAuthError("Paperclip couldn’t open the sign-in window. Open sign-in in a new tab to continue.");
+      setOAuthError(i18n.t("connections.setupFlow.signInWindowOpenFailed", {
+        defaultValue: "Paperclip couldn’t open the sign-in window. Open sign-in in a new tab to continue.",
+      }));
       onPhaseChange?.("needs_retry");
       return;
     }
@@ -953,7 +969,9 @@ function StandardConnectionSetupFlow({
     const timer = window.setInterval(() => {
       if (!oauthPopupRef.current?.closed) return;
       setOAuthPhase("error");
-      setOAuthError("The sign-in window closed. If authorization did not finish, try again.");
+      setOAuthError(i18n.t("connections.setupFlow.signInWindowClosedFinish", {
+        defaultValue: "The sign-in window closed. If authorization did not finish, try again.",
+      }));
       setAuthorizationFallbackUrl(null);
       onPhaseChange?.("needs_retry");
     }, 1_000);
@@ -972,7 +990,9 @@ function StandardConnectionSetupFlow({
       if (target.kind === "reauthentication") {
         const destination = oauthPopupRef.current;
         if (!destination || destination.closed || !start.handoff) {
-          throw new Error("Paperclip couldn’t preserve this sign-in while refreshing your account.");
+          throw new Error(i18n.t("connections.setupFlow.signInPreserveFailed", {
+            defaultValue: "Paperclip couldn’t preserve this sign-in while refreshing your account.",
+          }));
         }
         savePendingCloudHandoff(start.handoff.session, destination.sessionStorage);
         setOAuthPhase("starting");
@@ -1015,7 +1035,11 @@ function StandardConnectionSetupFlow({
           try {
             const verified = await connectionIntentsApi.setupOptions(connectionIntentId);
             if (disposed || !account.isCurrentScope()) return;
-            if (verified.interaction.status !== "accepted") throw new Error("Authorization has not been confirmed yet. Try again.");
+            if (verified.interaction.status !== "accepted") {
+              throw new Error(i18n.t("connections.setupFlow.authorizationNotConfirmed", {
+                defaultValue: "Authorization has not been confirmed yet. Try again.",
+              }));
+            }
             navigate(`/issues/${verified.interaction.issueId}`);
           } catch (error) {
             if (disposed || !account.isCurrentScope()) return;
@@ -1027,7 +1051,9 @@ function StandardConnectionSetupFlow({
       }
       if (outcome === "declined") {
         setOAuthPhase("error");
-        setOAuthError("Authorization was cancelled. You can try again.");
+        setOAuthError(i18n.t("connections.setupFlow.authorizationCancelledRetry", {
+          defaultValue: "Authorization was cancelled. You can try again.",
+        }));
         onPhaseChange?.("needs_retry");
         return;
       }
@@ -1055,7 +1081,9 @@ function StandardConnectionSetupFlow({
       if (popup.closed) {
         setDialogOAuthConnectionId(null);
         setOAuthPhase("error");
-        setOAuthError("The sign-in window closed. Try again to finish connecting.");
+        setOAuthError(i18n.t("connections.setupFlow.signInWindowClosedConnect", {
+          defaultValue: "The sign-in window closed. Try again to finish connecting.",
+        }));
         return;
       }
       const outcome = readOAuthWindowOutcome(popup, dialogOAuthConnectionId);
@@ -1063,7 +1091,9 @@ function StandardConnectionSetupFlow({
       if (outcome !== "connected") {
         setDialogOAuthConnectionId(null);
         setOAuthPhase("error");
-        setOAuthError("Authorization did not complete. Finish setup in the sign-in window or try again.");
+        setOAuthError(i18n.t("connections.setupFlow.authorizationIncompleteWindow", {
+          defaultValue: "Authorization did not complete. Finish setup in the sign-in window or try again.",
+        }));
         return;
       }
       checking = true;
@@ -1079,7 +1109,9 @@ function StandardConnectionSetupFlow({
         if (!cancelled) {
           setDialogOAuthConnectionId(null);
           setOAuthPhase("error");
-          setOAuthError("Could not confirm the connection. Try again.");
+          setOAuthError(i18n.t("connections.setupFlow.couldNotConfirmConnection", {
+            defaultValue: "Could not confirm the connection. Try again.",
+          }));
         }
       } finally { checking = false; }
     }, 1000);
@@ -1169,8 +1201,14 @@ function StandardConnectionSetupFlow({
   useEffect(() => {
     if (host !== "page") return;
     setBreadcrumbs([
-      { label: "Connectors", href: "/apps" },
-      { label: vercelConnectMode ? "Vercel Connect" : byoOnly ? "Connect your own tool" : "Connect an app" },
+      { label: i18n.t("connections.setupFlow.breadcrumbConnectors", { defaultValue: "Connectors" }), href: "/apps" },
+      {
+        label: vercelConnectMode
+          ? "Vercel Connect"
+          : byoOnly
+            ? i18n.t("connections.setupFlow.breadcrumbOwnTool", { defaultValue: "Connect your own tool" })
+            : i18n.t("connections.setupFlow.breadcrumbConnectApp", { defaultValue: "Connect an app" }),
+      },
     ]);
     return () => setBreadcrumbs([]);
   }, [byoOnly, host, setBreadcrumbs, vercelConnectMode]);
@@ -1273,7 +1311,9 @@ function StandardConnectionSetupFlow({
       popup.location.assign(target.url);
       popup.focus();
     } else {
-      setConnectorEnrollmentError("Open authorization in a new tab to continue.");
+      setConnectorEnrollmentError(i18n.t("connections.setupFlow.openAuthorizationNewTabPrompt", {
+        defaultValue: "Open authorization in a new tab to continue.",
+      }));
     }
   }, [host, closeEnrollmentPopup]);
   useEffect(() => {
@@ -1299,7 +1339,9 @@ function StandardConnectionSetupFlow({
     onSuccess: (status) => {
       if (!status.verificationUrl) {
         closeEnrollmentPopup();
-        setConnectorEnrollmentError("Paperclip Cloud did not return an enrollment link. Try again.");
+        setConnectorEnrollmentError(i18n.t("connections.setupFlow.cloudEnrollmentLinkMissing", {
+          defaultValue: "Paperclip Cloud did not return an enrollment link. Try again.",
+        }));
         return;
       }
       openConnectorEnrollment(status.verificationUrl);
@@ -1513,7 +1555,9 @@ function StandardConnectionSetupFlow({
       onPhaseChange?.("needs_retry");
       setOAuthError(
         details?.code === "invalid_grant"
-          ? "Your authorization expired or was revoked. Reconnect to continue."
+          ? i18n.t("connections.setupFlow.authorizationExpiredReconnect", {
+              defaultValue: "Your authorization expired or was revoked. Reconnect to continue.",
+            })
           : describeError(error).body,
       );
     },
@@ -1717,7 +1761,9 @@ function StandardConnectionSetupFlow({
         onPhaseChange?.("needs_retry");
         setOAuthError(
           details?.code === "invalid_grant"
-            ? "Your authorization expired or was revoked. Reconnect to continue."
+            ? i18n.t("connections.setupFlow.authorizationExpiredReconnect", {
+              defaultValue: "Your authorization expired or was revoked. Reconnect to continue.",
+            })
             : describeError(error).body,
         );
         return;
@@ -1739,7 +1785,7 @@ function StandardConnectionSetupFlow({
         return;
       }
       pushToast({
-        title: "Couldn’t connect",
+        title: i18n.t("connections.setupFlow.couldntConnectTitle", { defaultValue: "Couldn’t connect" }),
         body: describeError(error).body,
         tone: "error",
       });
@@ -1915,7 +1961,9 @@ function StandardConnectionSetupFlow({
     if (automaticOAuth && directOAuthRetryingRef.current) return;
     if (automaticOAuth && (applicationsView.kind === "error" || connectionsView.kind === "error")) {
       setOAuthPhase("error");
-      setOAuthError("Paperclip couldn’t check for an existing connection. Try again.");
+      setOAuthError(i18n.t("connections.setupFlow.existingConnectionCheckFailed", {
+        defaultValue: "Paperclip couldn’t check for an existing connection. Try again.",
+      }));
       setStep("key");
       return;
     }
@@ -2276,7 +2324,10 @@ function StandardConnectionSetupFlow({
         <ConnectionChoiceList
           choices={existingConnections.map((connection) => ({
             id: connection.id, name: connection.name,
-            description: connection.status === "active" && connection.enabled ? "Ready to use" : "Setup needs attention",
+            description:
+              connection.status === "active" && connection.enabled
+                ? i18n.t("connections.setupFlow.readyToUse", { defaultValue: "Ready to use" })
+                : i18n.t("connections.setupFlow.setupNeedsAttention", { defaultValue: "Setup needs attention" }),
           }))}
           pendingId={existingConnectionPendingId}
           onSelect={async (id) => {
@@ -2294,7 +2345,9 @@ function StandardConnectionSetupFlow({
         ) : null}
         <div className="mt-5 flex flex-wrap gap-2">
           <Button type="button" variant="outline" onClick={() => setShowConnectionChoice(false)}>
-            {configuredConnection ? "Review connection setup" : "Connect new"}
+            {configuredConnection
+              ? i18n.t("connections.setupFlow.reviewConnectionSetup", { defaultValue: "Review connection setup" })
+              : i18n.t("connections.setupFlow.connectNew", { defaultValue: "Connect new" })}
           </Button>
           {onCancel ? <Button type="button" variant="ghost" onClick={onCancel}>{t("connections.setupFlow.cancel", { defaultValue: "Cancel" })}</Button> : null}
         </div>
@@ -2346,14 +2399,26 @@ function StandardConnectionSetupFlow({
       notice={[
         galleryQuery.data?.capabilities?.canCreateOrganizationGrant === false
           ? galleryQuery.data.capabilities.organizationGrantReason
-            ?? "Only a connection manager can share this credential with the organization."
+            ?? i18n.t("connections.setupFlow.onlyConnectionManagerShare", {
+              defaultValue: "Only a connection manager can share this credential with the organization.",
+            })
           : null,
         galleryQuery.data?.capabilities?.canSetCompanyInstall === false
           ? galleryQuery.data.capabilities.companyInstallReason
-            ?? "Only someone who can configure this connection can give every agent access."
+            ?? i18n.t("connections.setupFlow.onlyConfigurerGiveAllAccess", {
+              defaultValue: "Only someone who can configure this connection can give every agent access.",
+            })
           : null,
-        requestedAgentId ? "This task grants access only to the agent that asked for it." : null,
-        requiredAgentId ? "Include the requesting agent when choosing specific agents." : null,
+        requestedAgentId
+          ? i18n.t("connections.setupFlow.taskGrantsOnlyRequestingAgent", {
+              defaultValue: "This task grants access only to the agent that asked for it.",
+            })
+          : null,
+        requiredAgentId
+          ? i18n.t("connections.setupFlow.includeRequestingAgent", {
+              defaultValue: "Include the requesting agent when choosing specific agents.",
+            })
+          : null,
       ].filter((reason): reason is string => Boolean(reason))}
       authKind={accessStepAuthKind}
       grantKinds={fixedGrantKind ? [fixedGrantKind] : accessStepMethod?.grantKinds}
@@ -2534,7 +2599,9 @@ function StandardConnectionSetupFlow({
             oauthPopupRef.current?.close();
             oauthPopupRef.current = null;
             setOAuthPhase("error");
-            setOAuthError("Paperclip couldn’t check for an existing connection. Try again.");
+            setOAuthError(i18n.t("connections.setupFlow.existingConnectionCheckFailed", {
+        defaultValue: "Paperclip couldn’t check for an existing connection. Try again.",
+      }));
           } finally {
             if (pendingOAuthLookupRef.current === lookup) {
               if (!isCurrentLookup()) {
@@ -2569,7 +2636,10 @@ function StandardConnectionSetupFlow({
     return (
       <OAuthConnectStateScreen
         identity={{
-          name: linkName.trim() || endpointHost(linkUrl) || "this server",
+          name:
+            linkName.trim() ||
+            endpointHost(linkUrl) ||
+            i18n.t("connections.setupFlow.thisServer", { defaultValue: "this server" }),
           unverifiedHost: endpointHost(linkUrl),
         }}
         // A pasted endpoint walks the generic three-step wizard, so keep that
@@ -2612,7 +2682,7 @@ function StandardConnectionSetupFlow({
   const appName =
     connectResult?.application.name ??
     entry?.name ??
-    (linkName.trim() || defaultGenericMcpName(linkUrl) || "this app");
+    (linkName.trim() || defaultGenericMcpName(linkUrl) || i18n.t("connections.setupFlow.thisApp", { defaultValue: "this app" }));
   const credentialSourceApps = vercelConnectMode
     ? visibleGalleryApps.filter(
         (app) => connectionMethodsForCredentialSource(app, credentialSource).length > 0,
@@ -2642,19 +2712,21 @@ function StandardConnectionSetupFlow({
   /></> : undefined) : undefined);
   // One screen per connector (PAP-659): a selected app has a single step, so
   // its stepper collapses to nothing rather than showing one lonely dot.
-  const stepLabels = reconnectConnection?.connectionPurpose === "ai" ? ["Reconnect account"] : credentialStep !== undefined
-    ? ["Connect account"]
-    : zapierSource
-    ? setupZapierStepLabels()
-    : entry && setupCredentialSourceMethods.length > 1
-      ? ["Choose connection"]
-    : entry && setupCredentialSourceMethods[0]?.auth === "oauth"
-      ? ["Sign in"]
-    : isGoogleSheetsRobotMethod(entry, connectionMethodKey)
-      ? ["Share sheet"]
-      : entry
-        ? ["Add your key"]
-      : setupStepLabels();
+  const stepLabels = reconnectConnection?.connectionPurpose === "ai"
+    ? [i18n.t("connections.setupFlow.stepReconnectAccount", { defaultValue: "Reconnect account" })]
+    : credentialStep !== undefined
+      ? [i18n.t("connections.setupFlow.stepConnectAccount", { defaultValue: "Connect account" })]
+      : zapierSource
+        ? setupZapierStepLabels()
+        : entry && setupCredentialSourceMethods.length > 1
+          ? [i18n.t("connections.setupFlow.stepChooseConnection", { defaultValue: "Choose connection" })]
+          : entry && setupCredentialSourceMethods[0]?.auth === "oauth"
+            ? [i18n.t("connections.setupFlow.stepSignIn", { defaultValue: "Sign in" })]
+            : isGoogleSheetsRobotMethod(entry, connectionMethodKey)
+              ? [i18n.t("connections.setupFlow.stepShareSheet", { defaultValue: "Share sheet" })]
+              : entry
+                ? [i18n.t("connections.setupFlow.stepAddYourKey", { defaultValue: "Add your key" })]
+                : setupStepLabels();
   const stepIndex = reconnectConnection?.connectionPurpose === "ai" ? 0 : (zapierSource || entry) && step !== "gallery" && step !== "success"
     ? SELECTED_APP_STEP_INDEX[step]
     : step === "success"
@@ -2669,11 +2741,19 @@ function StandardConnectionSetupFlow({
             subtitle={
               step === "gallery"
                 ? vercelConnectMode
-                  ? "Choose a reviewed app to connect through Vercel."
-                  : "Pick the app you want your agents to use."
+                  ? i18n.t("connections.setupFlow.vercelChooseApp", {
+                      defaultValue: "Choose a reviewed app to connect through Vercel.",
+                    })
+                  : i18n.t("connections.setupFlow.pickAppSubtitle", {
+                      defaultValue: "Pick the app you want your agents to use.",
+                    })
                 : stepLabels.length <= 1
                   ? undefined
-                  : `Step ${stepIndex + 1} of ${stepLabels.length}`
+                  : i18n.t("connections.setupFlow.stepOf", {
+                      defaultValue: "Step {{current}} of {{total}}",
+                      current: stepIndex + 1,
+                      total: stepLabels.length,
+                    })
             }
             step={step}
             activeIndex={stepIndex}
@@ -2767,7 +2847,10 @@ function StandardConnectionSetupFlow({
 
             {connectorEnrollmentView.kind === "error" || connectorEnrollmentError ? (
               <InlineBanner tone="danger" className="mt-4">
-                {connectorEnrollmentError ?? "Paperclip couldn’t check Cloud registration. Try again."}
+                {connectorEnrollmentError ??
+                  i18n.t("connections.setupFlow.cloudRegistrationCheckFailed", {
+                    defaultValue: "Paperclip couldn’t check Cloud registration. Try again.",
+                  })}
               </InlineBanner>
             ) : null}
 
@@ -2782,7 +2865,7 @@ function StandardConnectionSetupFlow({
             {connectionDefaults}
             <div className="mt-6 flex items-center justify-between gap-3">
               <Button type="button" variant="ghost" onClick={backToGallery}>
-                Back
+                {i18n.t("connections.setupFlow.back", { defaultValue: "Back" })}
               </Button>
               <Button
                 type="button"
@@ -2798,8 +2881,8 @@ function StandardConnectionSetupFlow({
               >
                 {startConnectorEnrollment.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 {connectorEnrollmentQuery.data?.status === "pending"
-                  ? "Continue"
-                  : "Connect with Paperclip"}
+                  ? i18n.t("connections.setupFlow.continueButton", { defaultValue: "Continue" })
+                  : i18n.t("connections.setupFlow.connectWithPaperclip", { defaultValue: "Connect with Paperclip" })}
               </Button>
             </div>
           </div>
@@ -2863,11 +2946,15 @@ function StandardConnectionSetupFlow({
             if (isGoogleSheetsRobotMethod(entry, connectionMethodKey)) {
               const parsed = parseGoogleSheetIds(googleSheetsLinks);
               if (parsed.invalidCount > 0) {
-                setGoogleSheetsError("That doesn't look like a Google Sheets link.");
+                setGoogleSheetsError(i18n.t("connections.setupFlow.invalidGoogleSheetsLink", {
+                  defaultValue: "That doesn't look like a Google Sheets link.",
+                }));
                 return;
               }
               if (parsed.ids.length === 0) {
-                setGoogleSheetsError("Paste at least one Google Sheets link.");
+                setGoogleSheetsError(i18n.t("connections.setupFlow.noGoogleSheetsLinks", {
+                  defaultValue: "Paste at least one Google Sheets link.",
+                }));
                 return;
               }
             }
@@ -3050,32 +3137,66 @@ export function OAuthConnectStateScreen({
   onCancel: () => void;
 }) {
   const { t } = useTranslation();
-  const serverName = entry?.name ?? identity?.name ?? "this server";
+  const serverName =
+    entry?.name ?? identity?.name ?? i18n.t("connections.setupFlow.thisServer", { defaultValue: "this server" });
   const unverifiedHost = entry ? null : identity?.unverifiedHost ?? null;
   const status = phase === "entry"
     ? {
         title: resuming
-          ? `Finish connecting ${serverName}`
-          : `Connect ${serverName} to Paperclip`,
+          ? i18n.t("connections.setupFlow.finishConnectingServer", {
+              defaultValue: "Finish connecting {{server}}",
+              server: serverName,
+            })
+          : i18n.t("connections.setupFlow.connectServerToPaperclip", {
+              defaultValue: "Connect {{server}} to Paperclip",
+              server: serverName,
+            }),
         body: resuming
-          ? `Your connection is saved. Continue in ${serverName} to approve access; its identity and agent access will stay the same.`
-          : `Paperclip will open ${serverName} so you can choose a workspace and approve access.`,
+          ? i18n.t("connections.setupFlow.resumingSavedBody", {
+              defaultValue:
+                "Your connection is saved. Continue in {{server}} to approve access; its identity and agent access will stay the same.",
+              server: serverName,
+            })
+          : i18n.t("connections.setupFlow.willOpenServerBody", {
+              defaultValue: "Paperclip will open {{server}} so you can choose a workspace and approve access.",
+              server: serverName,
+            }),
       }
     : phase === "starting"
       ? {
-          title: "Preparing secure sign-in",
-          body: `Paperclip is creating a secure ${serverName} connection.`,
+          title: i18n.t("connections.setupFlow.preparingSecureSignIn", { defaultValue: "Preparing secure sign-in" }),
+          body: i18n.t("connections.setupFlow.creatingSecureConnection", {
+            defaultValue: "Paperclip is creating a secure {{server}} connection.",
+            server: serverName,
+          }),
         }
       : phase === "redirecting"
         ? {
-            title: `Opening ${serverName}`,
+            title: i18n.t("connections.setupFlow.openingServerLabel", {
+              defaultValue: "Opening {{server}}",
+              server: serverName,
+            }),
             body: authorizationHost
-              ? `Continue at ${authorizationHost} to choose a workspace and approve access. Only approve access if you recognize that address.`
-              : `Continue in ${serverName} to choose a workspace and approve access.`,
+              ? i18n.t("connections.setupFlow.continueAtHostBody", {
+                  defaultValue:
+                    "Continue at {{host}} to choose a workspace and approve access. Only approve access if you recognize that address.",
+                  host: authorizationHost,
+                })
+              : i18n.t("connections.setupFlow.continueInServerBody", {
+                  defaultValue: "Continue in {{server}} to choose a workspace and approve access.",
+                  server: serverName,
+                }),
           }
         : {
-            title: `${serverName} couldn’t connect`,
-            body: error ?? "Paperclip couldn’t start secure sign-in. Try again.",
+            title: i18n.t("connections.setupFlow.serverCouldntConnect", {
+              defaultValue: "{{server}} couldn’t connect",
+              server: serverName,
+            }),
+            body:
+              error ??
+              i18n.t("connections.setupFlow.couldntStartSecureSignIn", {
+                defaultValue: "Paperclip couldn’t start secure sign-in. Try again.",
+              }),
           };
 
   return (
@@ -3271,7 +3392,7 @@ function GalleryStep({
   const continueWithLink = () => {
     const next = normalizeAppLink(linkInput);
     if (!next) {
-      setLinkError("Paste a full http or https link.");
+      setLinkError(i18n.t("connections.setupFlow.pasteFullLink", { defaultValue: "Paste a full http or https link." }));
       return;
     }
     setLinkError(null);
@@ -3310,7 +3431,10 @@ function GalleryStep({
           </div>
           {vercelConnectAvailability?.available === false ? (
             <InlineBanner tone="danger" compact className="mt-4">
-              {vercelConnectAvailability.reason ?? "Vercel Connect is unavailable on this instance."}
+              {vercelConnectAvailability.reason ??
+                i18n.t("connections.setupFlow.vercelConnectUnavailable", {
+                  defaultValue: "Vercel Connect is unavailable on this instance.",
+                })}
             </InlineBanner>
           ) : null}
         </div>
@@ -3361,7 +3485,11 @@ function GalleryStep({
                   <div className="mt-3 text-xs font-semibold text-foreground">
                     {unavailable ? (
                       <span className="text-muted-foreground">
-                        {app.availability?.reason ?? vercelConnectAvailability?.reason ?? "Unavailable on this instance."}
+                        {app.availability?.reason ??
+                          vercelConnectAvailability?.reason ??
+                          i18n.t("connections.setupFlow.unavailableThisInstance", {
+                            defaultValue: "Unavailable on this instance.",
+                          })}
                       </span>
                     ) : oauthBlocked ? (
                       <span className="text-muted-foreground">{t("connections.setupFlow.unavailable", { defaultValue: "Unavailable" })}</span>
@@ -3375,7 +3503,9 @@ function GalleryStep({
           </div>
 
           {filtered.length === 0 && (
-            <div className="py-10 text-center text-sm text-muted-foreground">No apps match “{search}”.</div>
+            <div className="py-10 text-center text-sm text-muted-foreground">
+              {i18n.t("connections.setupFlow.noAppsMatch", { defaultValue: "No apps match “{{query}}”.", query: search })}
+            </div>
           )}
         </>
       )}
@@ -3390,18 +3520,31 @@ function GalleryStep({
         <div>
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <Link2 className="h-4 w-4 text-muted-foreground" />
-            {zapierSource ? "Connect Zapier" : byo ? "Connect your own MCP server" : "Connect with a link"}
+            {zapierSource
+              ? i18n.t("connections.setupFlow.connectZapier", { defaultValue: "Connect Zapier" })
+              : byo
+                ? i18n.t("connections.setupFlow.connectOwnMcp", { defaultValue: "Connect your own MCP server" })
+                : i18n.t("connections.setupFlow.connectWithLink", { defaultValue: "Connect with a link" })}
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
             {zapierSource
-              ? "Paste the complete MCP URL Zapier gives you, including its token."
+              ? i18n.t("connections.setupFlow.zapierPasteDescription", {
+                  defaultValue: "Paste the complete MCP URL Zapier gives you, including its token.",
+                })
               : byo
-              ? "Paste your MCP server’s URL and every discovered tool will be available immediately."
-              : "Paste a setup link from an app that is not listed here."}
+                ? i18n.t("connections.setupFlow.mcpPasteDescription", {
+                    defaultValue:
+                      "Paste your MCP server’s URL and every discovered tool will be available immediately.",
+                  })
+                : i18n.t("connections.setupFlow.setupLinkDescription", {
+                    defaultValue: "Paste a setup link from an app that is not listed here.",
+                  })}
           </p>
           {!zapierSource && (
             <p className="mt-1 text-xs text-muted-foreground">
-              Any remote tool URL works here — including a local MCP server like{" "}
+              {i18n.t("connections.setupFlow.anyRemoteUrlHint", {
+                defaultValue: "Any remote tool URL works here — including a local MCP server like",
+              })}{" "}
               <code className="rounded bg-muted px-1 py-0.5 text-xs">http://127.0.0.1:8848/mcp</code>.
             </p>
           )}
@@ -3409,7 +3552,12 @@ function GalleryStep({
             <div className="mt-3 flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/40 px-3 py-2">
               <div className="flex min-w-0 items-center gap-2 text-sm">
                 <AppLogo name={matchedEntry.name} logoUrl={matchedEntry.branding.logoUrl} darkLogoUrl={matchedEntry.branding.darkLogoUrl} size={24} />
-                <span className="truncate">This looks like {matchedEntry.name}.</span>
+                <span className="truncate">
+                  {i18n.t("connections.setupFlow.looksLikeApp", {
+                    defaultValue: "This looks like {{app}}.",
+                    app: matchedEntry.name,
+                  })}
+                </span>
               </div>
               <Button
                 type="button"
@@ -3426,10 +3574,13 @@ function GalleryStep({
                 }}
               >
                 {matchedEntry.availability?.available === false
-                  ? "Not available"
+                  ? i18n.t("connections.setupFlow.notAvailable", { defaultValue: "Not available" })
                   : matchedEntry.slug === "zapier"
-                    ? "Continue"
-                    : `Use ${matchedEntry.name}`}
+                    ? i18n.t("connections.setupFlow.continueButton", { defaultValue: "Continue" })
+                    : i18n.t("connections.setupFlow.useApp", {
+                        defaultValue: "Use {{app}}",
+                        app: matchedEntry.name,
+                      })}
               </Button>
             </div>
           )}
@@ -3455,7 +3606,7 @@ function GalleryStep({
               className="h-10"
             />
             <Button type="button" variant="outline" onClick={continueWithLink}>
-              Continue
+              {i18n.t("connections.setupFlow.continueButton", { defaultValue: "Continue" })}
             </Button>
           </div>
           {linkError && <div className="text-xs text-destructive">{linkError}</div>}
@@ -3686,7 +3837,12 @@ function KeyStep({
       disabled={submitting}
       onClick={() => onMethodChange(usingCustomOAuth ? managedOAuthMethod : customerOAuthMethod)}
     >
-      {usingCustomOAuth ? "Use Paperclip instead" : `Use your own ${isGoogleWorkspaceConnectorProfileId(managedOAuthMethod.connectorProfile ?? "") ? "Google" : entry.name} OAuth app`}
+      {usingCustomOAuth
+        ? i18n.t("connections.setupFlow.usePaperclipInstead", { defaultValue: "Use Paperclip instead" })
+        : i18n.t("connections.setupFlow.useOwnOAuthApp", {
+            defaultValue: "Use your own {{app}} OAuth app",
+            app: isGoogleWorkspaceConnectorProfileId(managedOAuthMethod.connectorProfile ?? "") ? "Google" : entry.name,
+          })}
     </Button>
   ) : capabilityMethods.length > 1 ? (
     // PAP-659 C1: the ranked default is already selected. This stays as the
@@ -3695,7 +3851,10 @@ function KeyStep({
     <div>
       <label className="text-sm font-medium text-foreground">{t("connections.setupFlow.howToConnect", { defaultValue: "How do you want to connect?" })}</label>
       <RadioCardGroup
-        ariaLabel={`How to connect ${entry.name}`}
+        ariaLabel={i18n.t("connections.setupFlow.howToConnectAria", {
+          defaultValue: "How to connect {{app}}",
+          app: entry.name,
+        })}
         className="mt-2"
         value={methodKey}
         onValueChange={(nextKey) => {
@@ -3704,7 +3863,11 @@ function KeyStep({
         }}
         options={capabilityMethods.map((candidate) => ({
           value: candidate.key,
-          title: candidate.label ?? (candidate.auth === "oauth" ? `Sign in with ${entry.name}` : "Use an API key"),
+          title:
+            candidate.label ??
+            (candidate.auth === "oauth"
+              ? i18n.t("connections.setupFlow.signInWithApp", { defaultValue: "Sign in with {{app}}", app: entry.name })
+              : i18n.t("connections.setupFlow.useApiKey", { defaultValue: "Use an API key" })),
         }))}
       />
       {!method && <p className="mt-2 text-xs text-muted-foreground">{t("connections.setupFlow.chooseConnectionMethod", { defaultValue: "Choose a connection method to continue." })}</p>}
@@ -3762,7 +3925,10 @@ function KeyStep({
                 >
                   {robotEmail}
                 </div>
-                <CopyValueButton value={robotEmail} ariaLabel="Copy sharing email" />
+                <CopyValueButton
+                  value={robotEmail}
+                  ariaLabel={i18n.t("connections.setupFlow.copySharingEmail", { defaultValue: "Copy sharing email" })}
+                />
               </div>
               <p className="mt-2 text-xs text-muted-foreground">
                 {t("connections.setupFlow.sheetsShareInstructions", { defaultValue: "In Google Sheets, click Share and add this email as an Editor. Then paste the sheet links below." })}
@@ -3932,7 +4098,7 @@ function KeyStep({
                   rel="noreferrer"
                   className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-foreground underline underline-offset-2"
                 >
-                  Where do I find this?
+                  {i18n.t("connections.setupFlow.whereDoIFindThis", { defaultValue: "Where do I find this?" })}
                   <ArrowUpRight className="h-3 w-3" />
                 </a>
               )}
@@ -3946,17 +4112,21 @@ function KeyStep({
 
       <div className="mt-8 flex items-center justify-between">
         <Button variant="ghost" onClick={onBack} disabled={submitting}>
-          Back
+          {i18n.t("connections.setupFlow.back", { defaultValue: "Back" })}
         </Button>
         <Button onClick={onConnect} disabled={submitting || !settingsValid || !hasMethodSelection || !allFilled || !oauthClientFilled || !vercelConnectorFilled || !configFilled || !configRequirementMet}>
           {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {submitting
-            ? "Checking…"
+            ? i18n.t("connections.setupFlow.checkingEllipsis", { defaultValue: "Checking…" })
             : usingVercel
-              ? method?.auth === "oauth" ? "Validate and continue" : "Validate and connect"
+              ? method?.auth === "oauth"
+                ? i18n.t("connections.setupFlow.validateAndContinue", { defaultValue: "Validate and continue" })
+                : i18n.t("connections.setupFlow.validateAndConnect", { defaultValue: "Validate and connect" })
               : method?.auth === "oauth"
-                ? entry.slug === "github" ? "Continue to GitHub" : "Continue to sign in"
-                : "Connect"}
+                ? entry.slug === "github"
+                  ? i18n.t("connections.setupFlow.continueToGitHub", { defaultValue: "Continue to GitHub" })
+                  : i18n.t("connections.setupFlow.continueToSignIn", { defaultValue: "Continue to sign in" })
+                : i18n.t("connections.setupFlow.connect", { defaultValue: "Connect" })}
         </Button>
       </div>
     </div>
@@ -3979,7 +4149,11 @@ function CopyValueButton({ value, ariaLabel }: { value: string; ariaLabel: strin
       onClick={() => void copy(value)}
     >
       {copied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
-      {copied ? "Copied" : failed ? "Copy failed" : "Copy"}
+      {copied
+        ? i18n.t("connections.setupFlow.copied", { defaultValue: "Copied" })
+        : failed
+          ? i18n.t("connections.setupFlow.copyFailed", { defaultValue: "Copy failed" })
+          : i18n.t("connections.setupFlow.copy", { defaultValue: "Copy" })}
     </Button>
   );
 }
@@ -4051,20 +4225,24 @@ function OAuthClientFields({
       ) : null}
       <div>
         <label className="text-sm font-medium text-foreground" htmlFor="curated-oauth-client-id">
-          Client ID
+          {i18n.t("connections.setupFlow.clientIdLabel", { defaultValue: "Client ID" })}
         </label>
         <Input
           id="curated-oauth-client-id"
           value={clientId}
           onChange={(event) => onClientIdChange(event.target.value)}
           autoComplete="off"
-          placeholder={required ? "Required" : "Optional"}
+          placeholder={
+            required
+              ? i18n.t("connections.setupFlow.requiredPlaceholder", { defaultValue: "Required" })
+              : i18n.t("connections.setupFlow.optionalPlaceholder", { defaultValue: "Optional" })
+          }
           className="mt-2 h-11 font-mono"
         />
       </div>
       <div>
         <label className="text-sm font-medium text-foreground" htmlFor="curated-oauth-client-secret">
-          Client secret
+          {i18n.t("connections.setupFlow.clientSecretLabel", { defaultValue: "Client secret" })}
         </label>
         <Input
           id="curated-oauth-client-secret"
@@ -4072,7 +4250,11 @@ function OAuthClientFields({
           value={clientSecret}
           onChange={(event) => onClientSecretChange(event.target.value)}
           autoComplete="off"
-          placeholder={method.oauthClientSecretRequired ? "Required" : "Optional for public clients"}
+          placeholder={
+            method.oauthClientSecretRequired
+              ? i18n.t("connections.setupFlow.requiredPlaceholder", { defaultValue: "Required" })
+              : i18n.t("connections.setupFlow.optionalForPublicClients", { defaultValue: "Optional for public clients" })
+          }
           className="mt-2 h-11 font-mono"
         />
       </div>
@@ -4240,21 +4422,30 @@ export function AccessStepContent({
     ? canSetCompanyInstall
     : installAgentIds.size > 0);
   const lockedAgentName = lockedAgentId
-    ? allAgents.find((agent) => agent.id === lockedAgentId)?.name ?? "the requesting agent"
+    ? allAgents.find((agent) => agent.id === lockedAgentId)?.name ??
+      i18n.t("connections.setupFlow.requestingAgentFallback", { defaultValue: "the requesting agent" })
     : null;
   const identityHeading = githubIdentity
-    ? "Connect GitHub as"
+    ? i18n.t("connections.setupFlow.connectGitHubAs", { defaultValue: "Connect GitHub as" })
     : allowedGrantKinds.length === 1 && allowedGrantKinds[0] === "agent"
-      ? "Who this connection acts as"
-      : "Which humans can use this credential?";
+      ? i18n.t("connections.setupFlow.whoThisConnectionActsAs", { defaultValue: "Who this connection acts as" })
+      : i18n.t("connections.setupFlow.whichHumansCanUse", { defaultValue: "Which humans can use this credential?" });
   const agentAccessHeading = grantKind === "agent"
-    ? githubIdentity ? "Which agent owns this GitHub account?" : "Which agent uses this connection?"
+    ? githubIdentity
+      ? i18n.t("connections.setupFlow.whichAgentOwnsGitHub", { defaultValue: "Which agent owns this GitHub account?" })
+      : i18n.t("connections.setupFlow.whichAgentUsesConnection", { defaultValue: "Which agent uses this connection?" })
     : githubIdentity && grantKind === "user"
-      ? "Which agents may use your GitHub when you’re responsible?"
+      ? i18n.t("connections.setupFlow.whichAgentsUseYourGitHub", {
+          defaultValue: "Which agents may use your GitHub when you’re responsible?",
+        })
       : githubIdentity
-        ? "Which agents may use the shared GitHub account?"
-        : "Which agents can use this connection?";
-  const agentAccessLabel = githubIdentity ? agentAccessHeading : "Which agents can use this connection?";
+        ? i18n.t("connections.setupFlow.whichAgentsUseSharedGitHub", {
+            defaultValue: "Which agents may use the shared GitHub account?",
+          })
+        : i18n.t("connections.setupFlow.whichAgentsCanUse", { defaultValue: "Which agents can use this connection?" });
+  const agentAccessLabel = githubIdentity
+    ? agentAccessHeading
+    : i18n.t("connections.setupFlow.whichAgentsCanUse", { defaultValue: "Which agents can use this connection?" });
 
   return (
     <div className={bare ? "" : "mx-auto max-w-2xl"}>
@@ -4282,25 +4473,47 @@ export function AccessStepContent({
                 <div>
                   <div className="text-sm font-medium text-foreground">
                     {allowedGrantKinds[0] === "user"
-                      ? githubIdentity ? "My GitHub account" : "Just me"
+                      ? githubIdentity
+                        ? i18n.t("connections.setupFlow.myGitHubAccount", { defaultValue: "My GitHub account" })
+                        : i18n.t("connections.setupFlow.justMe", { defaultValue: "Just me" })
                       : allowedGrantKinds[0] === "agent"
-                        ? "A dedicated account for an agent"
-                        : githubIdentity ? "Shared organization GitHub account (advanced)" : "Any human in the organization"}
+                        ? i18n.t("connections.setupFlow.dedicatedAgentAccount", {
+                            defaultValue: "A dedicated account for an agent",
+                          })
+                        : githubIdentity
+                          ? i18n.t("connections.setupFlow.sharedOrgGitHub", {
+                              defaultValue: "Shared organization GitHub account (advanced)",
+                            })
+                          : i18n.t("connections.setupFlow.anyHumanInOrg", {
+                              defaultValue: "Any human in the organization",
+                            })}
                   </div>
                   {githubIdentity ? (
                     <p className="mt-1 text-xs text-muted-foreground">
                       {allowedGrantKinds[0] === "user"
-                        ? "Agents use it only for runs where you are the responsible person."
+                        ? i18n.t("connections.setupFlow.agentsUseOnlyWhenResponsible", {
+                            defaultValue: "Agents use it only for runs where you are the responsible person.",
+                          })
                         : allowedGrantKinds[0] === "agent"
-                          ? "That agent always uses this account, regardless of who starts the run."
-                          : "Eligible agents use one shared credential, regardless of who starts the run."}
+                          ? i18n.t("connections.setupFlow.thatAgentAlwaysUses", {
+                              defaultValue: "That agent always uses this account, regardless of who starts the run.",
+                            })
+                          : i18n.t("connections.setupFlow.eligibleAgentsShared", {
+                              defaultValue: "Eligible agents use one shared credential, regardless of who starts the run.",
+                            })}
                     </p>
                   ) : null}
                 </div>
               </div>
             ) : needsIdentityChoice ? (
               <RadioCardGroup
-                ariaLabel={githubIdentity ? identityHeading : "Which humans can use this credential?"}
+                ariaLabel={
+                  githubIdentity
+                    ? identityHeading
+                    : i18n.t("connections.setupFlow.whichHumansCanUse", {
+                        defaultValue: "Which humans can use this credential?",
+                      })
+                }
                 className="mt-4 sm:grid-cols-2"
                 value={grantKind}
                 onValueChange={(next) => {
@@ -4314,35 +4527,73 @@ export function AccessStepContent({
                 options={[
                   {
                     value: "user",
-                    title: githubIdentity ? "My GitHub account" : "Just me",
+                    title: githubIdentity
+                      ? i18n.t("connections.setupFlow.myGitHubAccount", { defaultValue: "My GitHub account" })
+                      : i18n.t("connections.setupFlow.justMe", { defaultValue: "Just me" }),
                     description: githubIdentity
-                      ? "Agents use it only for runs where you are the responsible person."
+                      ? i18n.t("connections.setupFlow.agentsUseOnlyWhenResponsible", {
+                          defaultValue: "Agents use it only for runs where you are the responsible person.",
+                        })
                       : undefined,
                     icon: <UserRound className="h-4 w-4" aria-hidden="true" />,
                   },
                   {
                     value: "agent",
-                    title: "A dedicated account for an agent",
+                    title: i18n.t("connections.setupFlow.dedicatedAgentAccount", {
+                      defaultValue: "A dedicated account for an agent",
+                    }),
                     description: githubIdentity
-                      ? "That agent always uses this account, regardless of who starts the run."
+                      ? i18n.t("connections.setupFlow.thatAgentAlwaysUses", {
+                          defaultValue: "That agent always uses this account, regardless of who starts the run.",
+                        })
                       : undefined,
                     icon: <Bot className="h-4 w-4" aria-hidden="true" />,
                   },
                   {
                     value: "organization",
-                    title: githubIdentity ? "Shared organization GitHub account (advanced)" : "Any human in the organization",
+                    title: githubIdentity
+                      ? i18n.t("connections.setupFlow.sharedOrgGitHub", {
+                          defaultValue: "Shared organization GitHub account (advanced)",
+                        })
+                      : i18n.t("connections.setupFlow.anyHumanInOrg", {
+                          defaultValue: "Any human in the organization",
+                        }),
                     description: githubIdentity
-                      ? "Eligible agents use one shared credential, regardless of who starts the run."
+                      ? i18n.t("connections.setupFlow.eligibleAgentsShared", {
+                          defaultValue: "Eligible agents share one credential, regardless of who starts the run.",
+                        })
                       : undefined,
                     icon: <UsersRound className="h-4 w-4" aria-hidden="true" />,
                     accessibleLabel: canCreateOrganizationGrant
-                      ? githubIdentity ? "Shared organization GitHub account (advanced)" : "Any human in the organization"
-                      : `${githubIdentity ? "Shared organization GitHub account (advanced)" : "Any human in the organization"}. Unavailable: ${capabilities?.organizationGrantReason ??
-                        "Only a connection manager can share this credential with the organization."}`,
+                      ? githubIdentity
+                        ? i18n.t("connections.setupFlow.sharedOrgGitHub", {
+                            defaultValue: "Shared organization GitHub account (advanced)",
+                          })
+                        : i18n.t("connections.setupFlow.anyHumanInOrg", {
+                            defaultValue: "Any human in the organization",
+                          })
+                      : i18n.t("connections.setupFlow.unavailableWithReason", {
+                          defaultValue: "{{title}}. Unavailable: {{reason}}",
+                          title: githubIdentity
+                            ? i18n.t("connections.setupFlow.sharedOrgGitHub", {
+                                defaultValue: "Shared organization GitHub account (advanced)",
+                              })
+                            : i18n.t("connections.setupFlow.anyHumanInOrg", {
+                                defaultValue: "Any human in the organization",
+                              }),
+                          reason:
+                            capabilities?.organizationGrantReason ??
+                            i18n.t("connections.setupFlow.onlyConnectionManagerShare", {
+                              defaultValue:
+                                "Only a connection manager can share this credential with the organization.",
+                            }),
+                        }),
                     tooltip: canCreateOrganizationGrant
                       ? undefined
                       : capabilities?.organizationGrantReason ??
-                        "Only a connection manager can share this credential with the organization.",
+                        i18n.t("connections.setupFlow.onlyConnectionManagerShare", {
+                          defaultValue: "Only a connection manager can share this credential with the organization.",
+                        }),
                     disabled: !canCreateOrganizationGrant,
                   },
                 ].filter((option) => allowedGrantKinds.includes(option.value as ConnectionGrantKind))}
@@ -4382,31 +4633,50 @@ export function AccessStepContent({
                 options={[
                   {
                     value: "specific",
-                    title: githubIdentity ? "Only agents I choose" : "Just agents I pick",
+                    title: githubIdentity
+                      ? i18n.t("connections.setupFlow.onlyAgentsIChoose", { defaultValue: "Only agents I choose" })
+                      : i18n.t("connections.setupFlow.justAgentsIPick", { defaultValue: "Just agents I pick" }),
                     description: githubIdentity
                       ? grantKind === "user"
-                        ? "Only selected agents may use your GitHub when you’re responsible."
-                        : "Only selected agents may use the shared account."
+                        ? i18n.t("connections.setupFlow.onlySelectedYourGitHub", {
+                            defaultValue: "Only selected agents may use your GitHub when you’re responsible.",
+                          })
+                        : i18n.t("connections.setupFlow.onlySelectedShared", {
+                            defaultValue: "Only selected agents may use the shared account.",
+                          })
                       : undefined,
                     icon: <Bot className="h-4 w-4" aria-hidden="true" />,
                   },
                   {
                     value: "all",
-                    title: "Any agent",
+                    title: i18n.t("connections.setupFlow.anyAgent", { defaultValue: "Any agent" }),
                     description: githubIdentity
                       ? grantKind === "user"
-                        ? "Every agent may use your GitHub when you’re responsible."
-                        : "Every agent may use the shared account."
+                        ? i18n.t("connections.setupFlow.everyAgentYourGitHub", {
+                            defaultValue: "Every agent may use your GitHub when you’re responsible.",
+                          })
+                        : i18n.t("connections.setupFlow.everyAgentShared", {
+                            defaultValue: "Every agent may use the shared account.",
+                          })
                       : undefined,
                     icon: <BotGroupIcon />,
                     accessibleLabel: canSetCompanyInstall
-                      ? "Any agent"
-                      : `Any agent. Unavailable: ${capabilities?.companyInstallReason ??
-                        "Only someone who can configure this connection can choose this."}`,
+                      ? i18n.t("connections.setupFlow.anyAgent", { defaultValue: "Any agent" })
+                      : i18n.t("connections.setupFlow.unavailableWithReason", {
+                          defaultValue: "{{title}}. Unavailable: {{reason}}",
+                          title: i18n.t("connections.setupFlow.anyAgent", { defaultValue: "Any agent" }),
+                          reason:
+                            capabilities?.companyInstallReason ??
+                            i18n.t("connections.setupFlow.onlyConfigurerChoose", {
+                              defaultValue: "Only someone who can configure this connection can choose this.",
+                            }),
+                        }),
                     tooltip: canSetCompanyInstall
                       ? undefined
                       : capabilities?.companyInstallReason ??
-                        "Only someone who can configure this connection can choose this.",
+                        i18n.t("connections.setupFlow.onlyConfigurerChoose", {
+                          defaultValue: "Only someone who can configure this connection can choose this.",
+                        }),
                     disabled: !canSetCompanyInstall,
                   },
                 ]}
@@ -4434,7 +4704,7 @@ export function AccessStepContent({
           reading order; desktop keeps Back on the left. */}
       {hideFooter ? null : <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
         <Button variant="ghost" className="w-full sm:w-auto" onClick={onBack} disabled={pending}>
-          Back
+          {i18n.t("connections.setupFlow.back", { defaultValue: "Back" })}
         </Button>
         <Button
           className="w-full sm:w-auto"
@@ -4466,25 +4736,47 @@ export function connectionDefaultSummarySentence(input: {
   lockedAgentId?: string | null;
   preserveAgentAccess?: boolean;
 }): string {
-  const identity = input.authKind === "none"
-    ? "No sign-in needed"
-    : input.grantKind === "user"
-      ? "Connects as you"
-      : input.grantKind === "agent"
-        ? "Connects as a dedicated agent account"
-        : "Connects for everyone in your organization";
+  const identity =
+    input.authKind === "none"
+      ? i18n.t("connections.setupFlow.noSignInNeeded", { defaultValue: "No sign-in needed" })
+      : input.grantKind === "user"
+        ? i18n.t("connections.setupFlow.connectsAsYou", { defaultValue: "Connects as you" })
+        : input.grantKind === "agent"
+          ? i18n.t("connections.setupFlow.connectsAsDedicatedAgent", {
+              defaultValue: "Connects as a dedicated agent account",
+            })
+          : i18n.t("connections.setupFlow.connectsForEveryone", {
+              defaultValue: "Connects for everyone in your organization",
+            });
   const reach = input.preserveAgentAccess
-    ? "agent access stays as it is"
+    ? i18n.t("connections.setupFlow.agentAccessStays", { defaultValue: "agent access stays as it is" })
     : input.lockedAgentId
-      ? "available to the agent that asked for it"
+      ? i18n.t("connections.setupFlow.availableToRequestingAgent", {
+          defaultValue: "available to the agent that asked for it",
+        })
       : input.grantKind === "agent"
-        ? input.installCount === 1 ? "available only to the chosen agent" : "choose the one agent that uses it"
-      : input.installChoice === "all"
-        ? "available to all agents"
-        : input.installCount === 0
-          ? "no agents selected yet"
-          : `available to ${input.installCount} selected ${input.installCount === 1 ? "agent" : "agents"}`;
-  return `${identity}, ${reach}.`;
+        ? input.installCount === 1
+          ? i18n.t("connections.setupFlow.availableOnlyChosenAgent", {
+              defaultValue: "available only to the chosen agent",
+            })
+          : i18n.t("connections.setupFlow.chooseTheOneAgent", { defaultValue: "choose the one agent that uses it" })
+        : input.installChoice === "all"
+          ? i18n.t("connections.setupFlow.availableToAllAgents", { defaultValue: "available to all agents" })
+          : input.installCount === 0
+            ? i18n.t("connections.setupFlow.noAgentsSelected", { defaultValue: "no agents selected yet" })
+            : i18n.t("connections.setupFlow.availableToSelected", {
+                defaultValue: "available to {{count}} selected {{agents}}",
+                count: input.installCount,
+                agents:
+                  input.installCount === 1
+                    ? i18n.t("connections.setupFlow.agentSingular", { defaultValue: "agent" })
+                    : i18n.t("connections.setupFlow.agentPlural", { defaultValue: "agents" }),
+              });
+  return i18n.t("connections.setupFlow.defaultSummary", {
+    defaultValue: "{{identity}}, {{reach}}.",
+    identity,
+    reach,
+  });
 }
 
 /**
@@ -4535,7 +4827,7 @@ export function ConnectionAccessDefaults({
           className="h-auto p-0 text-xs font-semibold underline underline-offset-2"
           disabled={disabled}
         >
-          Change
+          {i18n.t("connections.setupFlow.change", { defaultValue: "Change" })}
         </Button></CollapsibleTrigger>
       </div>
       {(notice ?? []).map((reason) => (
@@ -4573,22 +4865,38 @@ export function accessSummaryLines(input: {
   installCount: number;
   enabledCount: number;
 }): Array<{ label: string; value: string }> {
-  const identity = input.authKind === "none" && input.grantKind !== "agent"
-    ? "No identity required"
-    : input.grantKind === "user"
-      ? "Your identity"
-      : input.grantKind === "agent"
-        ? "Dedicated agent identity"
-      : "Organization identity";
-  const availableTo = input.installChoice === "all"
-    ? "Any agent"
-    : `${input.installCount} selected ${input.installCount === 1 ? "agent" : "agents"}`;
+  const identity =
+    input.authKind === "none" && input.grantKind !== "agent"
+      ? i18n.t("connections.setupFlow.noIdentityRequired", { defaultValue: "No identity required" })
+      : input.grantKind === "user"
+        ? i18n.t("connections.setupFlow.yourIdentity", { defaultValue: "Your identity" })
+        : input.grantKind === "agent"
+          ? i18n.t("connections.setupFlow.dedicatedAgentIdentity", { defaultValue: "Dedicated agent identity" })
+          : i18n.t("connections.setupFlow.organizationIdentity", { defaultValue: "Organization identity" });
+  const availableTo =
+    input.installChoice === "all"
+      ? i18n.t("connections.setupFlow.anyAgent", { defaultValue: "Any agent" })
+      : i18n.t("connections.setupFlow.selectedAgentsCount", {
+          defaultValue: "{{count}} selected {{agents}}",
+          count: input.installCount,
+          agents:
+            input.installCount === 1
+              ? i18n.t("connections.setupFlow.agentSingular", { defaultValue: "agent" })
+              : i18n.t("connections.setupFlow.agentPlural", { defaultValue: "agents" }),
+        });
   return [
-    { label: "Identity", value: identity },
-    { label: "Available to", value: availableTo },
+    { label: i18n.t("connections.setupFlow.identityLabel", { defaultValue: "Identity" }), value: identity },
+    { label: i18n.t("connections.setupFlow.availableToLabel", { defaultValue: "Available to" }), value: availableTo },
     {
-      label: "Actions",
-      value: `${input.enabledCount} ${input.enabledCount === 1 ? "action" : "actions"} on`,
+      label: i18n.t("connections.setupFlow.actionsLabel", { defaultValue: "Actions" }),
+      value: i18n.t("connections.setupFlow.actionsOnCount", {
+        defaultValue: "{{count}} {{actions}} on",
+        count: input.enabledCount,
+        actions:
+          input.enabledCount === 1
+            ? i18n.t("connections.setupFlow.actionSingular", { defaultValue: "action" })
+            : i18n.t("connections.setupFlow.actionPlural", { defaultValue: "actions" }),
+      }),
     },
   ];
 }
@@ -4633,7 +4941,9 @@ export function ConnectionSetupCompletionScreen({
       </div>
       <div className="mt-6 flex items-center justify-center gap-2">
         <AppLogo name={appName} logoUrl={logoUrl} darkLogoUrl={darkLogoUrl} size={28} />
-        <h2 className="text-2xl font-bold tracking-tight">{appName} is ready.</h2>
+        <h2 className="text-2xl font-bold tracking-tight">
+          {i18n.t("connections.setupFlow.appIsReady", { defaultValue: "{{app}} is ready.", app: appName })}
+        </h2>
       </div>
       {statedDefault ? <p className="mt-3 text-sm text-muted-foreground">{statedDefault}</p> : null}
       <dl className="mx-auto mt-6 max-w-xs space-y-1 text-left">
@@ -4646,7 +4956,7 @@ export function ConnectionSetupCompletionScreen({
       </dl>
       <div className="mt-8">
         <Button size="lg" className="px-10" onClick={onDone}>
-          View connection
+          {i18n.t("connections.setupFlow.viewConnection", { defaultValue: "View connection" })}
         </Button>
       </div>
     </div>

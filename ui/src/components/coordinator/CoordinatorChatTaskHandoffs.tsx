@@ -68,7 +68,7 @@ export function CoordinatorChatHandoffStatus({ query, scroll = false }: { scroll
     <span>{t("coordinator.chatHandoffs.loadFailed", { defaultValue: "Created tasks couldn’t load." })}</span><Button size="sm" variant="ghost" onClick={() => void query.refetch()}>{t("common.retry", { defaultValue: "Retry" })}</Button>
   </div>;
   if (!scroll && query.hasNextPage) return <Button size="sm" variant="ghost" disabled={query.isFetchingNextPage} onClick={() => void query.fetchNextPage()}>
-    {query.isFetchingNextPage ? "Loading earlier tasks…" : "Load earlier tasks"}
+    {query.isFetchingNextPage ? t("coordinator.chatHandoffs.loadingEarlier", { defaultValue: "Loading earlier tasks…" }) : t("coordinator.chatHandoffs.loadEarlier", { defaultValue: "Load earlier tasks" })}
   </Button>;
   return null;
 }

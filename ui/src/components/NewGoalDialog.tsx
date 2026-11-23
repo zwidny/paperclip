@@ -27,6 +27,13 @@ import { cn } from "../lib/utils";
 import { MarkdownEditor, type MarkdownEditorRef } from "./MarkdownEditor";
 import { StatusBadge } from "./StatusBadge";
 
+const levelLabelKeys: Record<string, string> = {
+  company: "newGoalDialog.level.company",
+  team: "newGoalDialog.level.team",
+  agent: "newGoalDialog.level.agent",
+  task: "newGoalDialog.level.task",
+};
+
 const levelLabels: Record<string, string> = {
   company: "Organization",
   team: "Team",
@@ -130,7 +137,11 @@ export function NewGoalDialog() {
               </span>
             )}
             <span className="text-muted-foreground/60">&rsaquo;</span>
-            <span>{newGoalDefaults.parentId ? "New sub-goal" : "New goal"}</span>
+            <span>
+              {newGoalDefaults.parentId
+                ? t("newGoalDialog.newSubGoal", { defaultValue: "New sub-goal" })
+                : t("newGoalDialog.newGoal", { defaultValue: "New goal" })}
+            </span>
           </div>
           <div className="flex items-center gap-1">
             <Button
@@ -215,7 +226,9 @@ export function NewGoalDialog() {
             <PopoverTrigger asChild>
               <button className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-xs hover:bg-accent/50 transition-colors">
                 <Layers className="h-3 w-3 text-muted-foreground" />
-                {levelLabels[level] ?? level}
+                {levelLabels[level]
+                  ? t(levelLabelKeys[level], { defaultValue: levelLabels[level] })
+                  : level}
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-40 p-1" align="start">
@@ -228,7 +241,7 @@ export function NewGoalDialog() {
                   )}
                   onClick={() => { setLevel(l); setLevelOpen(false); }}
                 >
-                  {levelLabels[l] ?? l}
+                  {levelLabels[l] ? t(levelLabelKeys[l], { defaultValue: levelLabels[l] }) : l}
                 </button>
               ))}
             </PopoverContent>
@@ -239,7 +252,7 @@ export function NewGoalDialog() {
             <PopoverTrigger asChild>
               <button className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-xs hover:bg-accent/50 transition-colors">
                 <Target className="h-3 w-3 text-muted-foreground" />
-                {currentParent ? currentParent.title : "Parent goal"}
+                {currentParent ? currentParent.title : t("newGoalDialog.parentGoal", { defaultValue: "Parent goal" })}
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-48 p-1" align="start">
@@ -275,7 +288,11 @@ export function NewGoalDialog() {
             disabled={!title.trim() || createGoal.isPending}
             onClick={handleSubmit}
           >
-            {createGoal.isPending ? "Creating…" : newGoalDefaults.parentId ? "Create sub-goal" : "Create goal"}
+            {createGoal.isPending
+              ? t("newGoalDialog.creating", { defaultValue: "Creating…" })
+              : newGoalDefaults.parentId
+                ? t("newGoalDialog.createSubGoal", { defaultValue: "Create sub-goal" })
+                : t("newGoalDialog.createGoal", { defaultValue: "Create goal" })}
           </Button>
         </div>
       </DialogContent>

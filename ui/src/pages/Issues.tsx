@@ -156,7 +156,7 @@ function StreamlinedTasks() {
     return (
       <Inbox
         tab={definition.inboxTab}
-        surfaceLabel="Tasks"
+        surfaceLabel={t("nav.tasks", { defaultValue: "Tasks" })}
         toolbarContext={(
           <div className="flex min-w-0 items-center gap-2">
             {viewsMenu}
@@ -178,6 +178,7 @@ function OrganizationIssues({
   initialStatuses,
   archiveView,
 }: { toolbarContext?: ReactNode; initialStatuses?: string[]; archiveView?: "archived" | "include" } = {}) {
+  const { t } = useTranslation();
   const { enabled: streamlinedUiEnabled } = useStreamlinedUiEnabled();
   const issuesPresentation = resolveIssuesPresentation(streamlinedUiEnabled);
   const { selectedCompanyId } = useCompany();
@@ -271,7 +272,7 @@ function OrganizationIssues({
   const issueLinkState = useMemo(
     () =>
       createIssueDetailLocationState(
-        "Tasks",
+        t("nav.tasks", { defaultValue: "Tasks" }),
         `${location.pathname}${location.search}${location.hash}`,
         "issues",
       ),
@@ -279,7 +280,7 @@ function OrganizationIssues({
   );
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Tasks" }]);
+    setBreadcrumbs([{ label: t("nav.tasks", { defaultValue: "Tasks" }) }]);
   }, [setBreadcrumbs]);
 
   const issuePageSize = workspaceIdFilter ? WORKSPACE_FILTER_ISSUE_LIMIT : ISSUES_PAGE_SIZE;
@@ -349,15 +350,15 @@ function OrganizationIssues({
       <EmptyState
         icon={CircleDot}
         message={streamlinedUiEnabled
-          ? "Select an organization to view tasks."
-          : "Select a company to view tasks."}
+          ? t("tasks.selectOrganization", { defaultValue: "Select an organization to view tasks." })
+          : t("tasks.selectCompany", { defaultValue: "Select a company to view tasks." })}
       />
     );
   }
 
   if (archiveView === "archived" && !userId) return identitySettled
-    ? <EmptyState icon={CircleDot} message="Sign in to view archived tasks." />
-    : <p role="status">Loading archived tasks…</p>;
+    ? <EmptyState icon={CircleDot} message={t("coordinatorTasks.signInArchived", { defaultValue: "Sign in to view archived tasks." })} />
+    : <p role="status">{t("tasks.loadingArchived", { defaultValue: "Loading archived tasks…" })}</p>;
 
   if (issuesView.kind === "error") return <QueryErrorState size="page" error={issuesView.error} action="load tasks" onRetry={issuesView.retry} retrying={issuesView.isFetching} />;
 

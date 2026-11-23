@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import type { Agent, CompanyArtifact, ResponsibilitySkillSummary } from "@paperclipai/shared";
 import { RESPONSIBILITY_ARTIFACT_COUNT_LIMIT } from "@paperclipai/shared";
 import { AgentAvatar } from "@/components/AgentAvatar";
@@ -8,6 +9,7 @@ import { SkillCardIcon } from "@/components/SkillCardIcon";
 import { Card } from "@/components/ui/card";
 import { useArtifactsV1Enabled } from "@/hooks/useArtifactsV1Enabled";
 import { skillRoute } from "@/lib/company-skill-routes";
+import { i18n } from "@/i18n";
 import { Link } from "@/lib/router";
 import { issueUrl } from "@/lib/utils";
 
@@ -27,10 +29,11 @@ function SectionHeading({ id, title, count, question, action }: { id: string; ti
 
 /** The agents that hold a skill, by avatar and name. */
 function Holders({ agentIds, agentsById }: { agentIds: readonly string[]; agentsById: ReadonlyMap<string, Agent> }) {
+  const { t } = useTranslation();
   if (agentIds.length === 0) return null;
-  const names = agentIds.map((id) => agentsById.get(id)?.name ?? "An agent");
+  const names = agentIds.map((id) => agentsById.get(id)?.name ?? t("responsibilities.agentsWorking.anAgent", { defaultValue: "An agent" }));
   return (
-    <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground" aria-label={`Held by ${names.join(", ")}`}>
+    <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground" aria-label={t("responsibilities.skills.heldBy", { names: names.join(", "), defaultValue: "Held by {{names}}" })}>
       <span className="flex shrink-0 -space-x-1" aria-hidden="true">
         {agentIds.slice(0, 3).map((id) => (
           <AgentAvatar key={id} agent={agentsById.get(id) ?? { id }} name={agentsById.get(id)?.name} size={16} />
@@ -59,13 +62,14 @@ export function ResponsibilitySkills({
   /** Removes a filed skill; null for one that is only held by an agent. */
   removeControl?: (skill: ResponsibilitySkillSummary) => ReactNode;
 }) {
+  const { t } = useTranslation();
   return (
     <section aria-labelledby="responsibility-skills-heading" className="flex flex-col gap-2">
       <SectionHeading
         id="responsibility-skills-heading"
-        title="Skills"
+        title={t("responsibilities.parts.skills", { defaultValue: "Skills" })}
         count={skills.length}
-        question="What does this need, and what can the agents working on it do?"
+        question={t("responsibilities.skills.question", { defaultValue: "What does this need, and what can the agents working on it do?" })}
         action={addControl}
       />
       {skills.length > 0 ? (
@@ -89,7 +93,7 @@ export function ResponsibilitySkills({
                   {skill.agentIds.length > 0 ? (
                     <Holders agentIds={skill.agentIds} agentsById={agentsById} />
                   ) : (
-                    <span className="text-xs text-muted-foreground">Filed here</span>
+                    <span className="text-xs text-muted-foreground">{t("responsibilities.skills.filedHere", { defaultValue: "Filed here" })}</span>
                   )}
                   {skill.linkId ? removeControl?.(skill) : null}
                 </div>
@@ -99,8 +103,7 @@ export function ResponsibilitySkills({
         </ul>
       ) : (
         <p className="text-sm text-muted-foreground">
-          No skills yet. Add one this needs, or they appear here from the agents doing the work: the ones
-          assigned its tasks and routines, and the leads of its projects.
+          {t("responsibilities.skills.noSkillsYet", { defaultValue: "No skills yet. Add one this needs, or they appear here from the agents doing the work: the ones assigned its tasks and routines, and the leads of its projects." })}
         </p>
       )}
     </section>
@@ -110,9 +113,9 @@ export function ResponsibilitySkills({
 /** "Showing the newest 50 of 312", or "of 1,000 or more" once the count stops. */
 export function artifactsTruncationNote(shown: number, total: number): string {
   const of = total >= RESPONSIBILITY_ARTIFACT_COUNT_LIMIT
-    ? `${RESPONSIBILITY_ARTIFACT_COUNT_LIMIT.toLocaleString("en-US")} or more`
+    ? i18n.t("responsibilities.skills.orMore", { count: RESPONSIBILITY_ARTIFACT_COUNT_LIMIT.toLocaleString("en-US"), defaultValue: "{{count}} or more" })
     : total.toLocaleString("en-US");
-  return `Showing the newest ${shown} of ${of}.`;
+  return i18n.t("responsibilities.skills.artifactsShown", { shown, of, defaultValue: "Showing the newest {{shown}} of {{of}}." });
 }
 
 /**
@@ -128,18 +131,19 @@ export function ResponsibilityArtifacts({
   total: number;
   truncated: boolean;
 }) {
+  const { t } = useTranslation();
   const { enabled: v1 } = useArtifactsV1Enabled();
   return (
     <section aria-labelledby="responsibility-artifacts-heading" className="flex flex-col gap-3">
       <SectionHeading
         id="responsibility-artifacts-heading"
-        title="Artifacts"
+        title={t("responsibilities.parts.artifacts", { defaultValue: "Artifacts" })}
         count={total}
-        question="What has the work produced? Newest first; each opens in the task that made it."
+        question={t("responsibilities.skills.artifactsQuestion", { defaultValue: "What has the work produced? Newest first; each opens in the task that made it." })}
       />
       {artifacts.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          Nothing produced yet. Documents, files and other output from the tasks under this responsibility collect here.
+          {t("responsibilities.skills.nothingProducedYet", { defaultValue: "Nothing produced yet. Documents, files and other output from the tasks under this responsibility collect here." })}
         </p>
       ) : v1 ? (
         <ArtifactTileGrid testId="responsibility-artifacts">

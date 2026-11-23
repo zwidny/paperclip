@@ -128,7 +128,11 @@ export function TaskList({ items, allItems = items, initialColumns = defaultTask
     const expanded = !collapsed.has(issue.id);
     const parent = issue.parentId ? byId.get(issue.parentId)?.issue : null;
     const branch = issue.currentExecutionWorkspace?.branchName;
-    const assigneeName = item.assignee ?? (issue.assigneeAgentId ? "Unknown agent" : issue.assigneeUserId ? "User" : "Unassigned");
+    const assigneeName = item.assignee ?? (issue.assigneeAgentId
+      ? t("routinesPage.unknownAgent", { defaultValue: "Unknown agent" })
+      : issue.assigneeUserId
+        ? t("issueDetail.userFallback", { defaultValue: "User" })
+        : t("routinesPage.unassigned", { defaultValue: "Unassigned" }));
     const assigneeUserAvatarUrl = paperclipHumanAvatarUrl(item.assigneeUserAvatarUrl);
     return (
       <Fragment key={issue.id}>
@@ -138,7 +142,9 @@ export function TaskList({ items, allItems = items, initialColumns = defaultTask
           unreadState={item.unread ? "visible" : "hidden"}
           treeGuides={depth} chevronInGuide={depth > 0 && children.length > 0}
           leadingControl={children.length ? (
-            <Button variant="ghost" size="icon-xs" className="task-row-disclosure" aria-label={`${expanded ? "Collapse" : "Expand"} ${issue.title}`} aria-expanded={expanded} onClick={() => {
+            <Button variant="ghost" size="icon-xs" className="task-row-disclosure" aria-label={expanded
+              ? t("taskList.collapseAria", { title: issue.title, defaultValue: "Collapse {{title}}" })
+              : t("taskList.expandAria", { title: issue.title, defaultValue: "Expand {{title}}" })} aria-expanded={expanded} onClick={() => {
               const next = new Set(collapsed);
               if (next.has(issue.id)) next.delete(issue.id); else next.add(issue.id);
               setCollapsed(next);
@@ -189,7 +195,7 @@ export function TaskList({ items, allItems = items, initialColumns = defaultTask
           {[...groups].map(([label, groupRoots]) => groupRoots.some(issue => renderedIds.has(issue.id)) ? (
             <Fragment key={label}>
               {label ? <IssueGroupHeader label={label} className="task-list-group-heading" trailing={<span className="text-xs text-muted-foreground">{groupRoots.length}</span>} /> : null}
-              {groupRoots.filter(issue => renderedIds.has(issue.id)).map(issue => <TaskRowGroup key={issue.id} role="rowgroup" aria-label={`${issue.title} task group`}
+              {groupRoots.filter(issue => renderedIds.has(issue.id)).map(issue => <TaskRowGroup key={issue.id} role="rowgroup" aria-label={t("taskList.groupAria", { title: issue.title, defaultValue: "{{title}} task group" })}
                 data-density={density} className={childMap.get(issue.id)?.length ? undefined : "task-row-deferred"}>{renderBranch(issue, 0)}</TaskRowGroup>)}
             </Fragment>
           ) : null)}

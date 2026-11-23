@@ -150,7 +150,7 @@ export function QueryErrorState({ error, size = "panel", action, onRetry, retryi
       disabled={retrying}
     >
       <RefreshCcw aria-hidden="true" className={cn(retrying && "animate-spin")} />
-      {retrying ? "Retrying…" : "Retry"}
+      {retrying ? i18n.t("queryView.retrying", { defaultValue: "Retrying…" }) : i18n.t("common.retry", { defaultValue: "Retry" })}
     </Button>
   ) : null;
 

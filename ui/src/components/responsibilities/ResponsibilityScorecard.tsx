@@ -1,6 +1,7 @@
 import { Fragment, useMemo, type ReactNode } from "react";
 import type { ResponsibilityDetail } from "@paperclipai/shared";
 import { RESPONSIBILITY_ARTIFACT_COUNT_LIMIT } from "@paperclipai/shared";
+import { useTranslation } from "@/i18n";
 import { Card } from "@/components/ui/card";
 import { skillRoute } from "@/lib/company-skill-routes";
 import { describeMetricReading, describeStale } from "@/lib/responsibilities";
@@ -15,6 +16,7 @@ import type { ResponsibilityViewProps } from "./view-props";
 /** The number against its target, large, with the status and its sentence. */
 export function ScoreHero({ responsibility, now, className }: { responsibility: ResponsibilityDetail; now: Date; className?: string }) {
   const { rollup } = responsibility;
+  const { t } = useTranslation();
   const metric = rollup.metric;
   const reading = metric ? describeMetricReading(metric) : null;
   return (
@@ -30,15 +32,15 @@ export function ScoreHero({ responsibility, now, className }: { responsibility: 
               </>
             ) : (
               <>
-                <span className="text-2xl font-semibold text-muted-foreground">No reading yet</span>
+                <span className="text-2xl font-semibold text-muted-foreground">{t("responsibilities.metric.noReading", { defaultValue: "No reading yet" })}</span>
                 <span className="text-lg text-muted-foreground">{reading.targetLabel}</span>
               </>
             )}
           </p>
-          <MetricMeter reading={reading} health={rollup.health} label={`${metric.name}, toward its bar`} className="h-2" />
+          <MetricMeter reading={reading} health={rollup.health} label={t("responsibilities.metric.towardBar", { defaultValue: "{{name}}, toward its bar", name: metric.name })} className="h-2" />
         </div>
       ) : (
-        <p className="text-2xl font-semibold text-muted-foreground">No number to track yet</p>
+        <p className="text-2xl font-semibold text-muted-foreground">{t("responsibilities.metric.noNumber", { defaultValue: "No number to track yet" })}</p>
       )}
       <div className="flex flex-col gap-1.5">
         <div className="flex flex-wrap items-center gap-2">
@@ -51,9 +53,9 @@ export function ScoreHero({ responsibility, now, className }: { responsibility: 
   );
 }
 
-function CountCell({ label, count }: { label: string; count: WorkCount }) {
+function CountCell({ id, label, count }: { id: string; label: string; count: WorkCount }) {
   return (
-    <div className="flex min-w-0 flex-col gap-1 px-5 py-4" data-count={label.toLowerCase()}>
+    <div className="flex min-w-0 flex-col gap-1 px-5 py-4" data-count={id}>
       <dt className="text-sm text-muted-foreground">{label}</dt>
       <dd className="text-2xl font-semibold tabular-nums text-foreground">{count.value}</dd>
       <dd className={cn("text-sm", count.alert ? "text-(--status-task-icon-blocked)" : "text-muted-foreground")}>{count.line}</dd>
@@ -61,9 +63,9 @@ function CountCell({ label, count }: { label: string; count: WorkCount }) {
   );
 }
 
-function CompactCount({ label, value, children }: { label: string; value: string; children: ReactNode }) {
+function CompactCount({ id, label, value, children }: { id: string; label: string; value: string; children: ReactNode }) {
   return (
-    <Card elevation="low" className="min-w-0 gap-0.5 px-4 py-3" data-count={label.toLowerCase()}>
+    <Card elevation="low" className="min-w-0 gap-0.5 px-4 py-3" data-count={id}>
       <dt className="flex items-baseline gap-2 text-sm text-muted-foreground">
         {label} <span className="font-semibold tabular-nums text-foreground">{value}</span>
       </dt>
@@ -78,6 +80,7 @@ function CompactCount({ label, value, children }: { label: string; value: string
  * exception each; skills and artifacts as two compact counts.
  */
 export function ResponsibilityScorecard({ responsibility, now, notices, onReviewProposal }: ResponsibilityViewProps) {
+  const { t } = useTranslation();
   const counts = useMemo(() => responsibilityWorkCounts(responsibility), [responsibility]);
   const { skills, artifacts, artifactsTotal } = responsibility;
   const newest = artifacts[0] ?? null;
@@ -90,36 +93,37 @@ export function ResponsibilityScorecard({ responsibility, now, notices, onReview
         <ScoreHero responsibility={responsibility} now={now} />
 
         <Card elevation="low" className="gap-0 py-0">
-          <dl className="grid grid-cols-1 divide-y divide-border sm:grid-cols-3 sm:divide-x sm:divide-y-0" aria-label="The work">
-            <CountCell label="Routines" count={counts.routines} />
-            <CountCell label="Projects" count={counts.projects} />
-            <CountCell label="Tasks" count={counts.tasks} />
+          <dl className="grid grid-cols-1 divide-y divide-border sm:grid-cols-3 sm:divide-x sm:divide-y-0" aria-label={t("responsibilities.scorecard.theWork", { defaultValue: "The work" })}>
+            <CountCell id="routines" label={t("responsibilities.scorecard.routines", { defaultValue: "Routines" })} count={counts.routines} />
+            <CountCell id="projects" label={t("responsibilities.scorecard.projects", { defaultValue: "Projects" })} count={counts.projects} />
+            <CountCell id="tasks" label={t("responsibilities.scorecard.tasks", { defaultValue: "Tasks" })} count={counts.tasks} />
           </dl>
         </Card>
 
         <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <CompactCount label="Skills" value={String(skills.length)}>
+          <CompactCount id="skills" label={t("responsibilities.scorecard.skills", { defaultValue: "Skills" })} value={String(skills.length)}>
             {skills.length === 0
-              ? "None yet"
+              ? t("responsibilities.scorecard.noneYet", { defaultValue: "None yet" })
               : skills.slice(0, 3).map((skill, index) => (
                   <Fragment key={skill.id}>
                     {index > 0 ? ", " : null}
                     <Link to={skillRoute(skill)} className="underline-offset-4 hover:text-foreground hover:underline">{skill.name}</Link>
                   </Fragment>
                 ))}
-            {skills.length > 3 ? ` and ${skills.length - 3} more` : null}
+            {skills.length > 3 ? t("responsibilities.scorecard.andMore", { defaultValue: " and {{count}} more", count: skills.length - 3 }) : null}
           </CompactCount>
           <CompactCount
-            label="Artifacts"
+            id="artifacts"
+            label={t("responsibilities.scorecard.artifacts", { defaultValue: "Artifacts" })}
             value={artifactsTotal >= RESPONSIBILITY_ARTIFACT_COUNT_LIMIT ? `${RESPONSIBILITY_ARTIFACT_COUNT_LIMIT.toLocaleString("en-US")}+` : artifactsTotal.toLocaleString("en-US")}
           >
             {newest ? (
               <>
-                Newest:{" "}
+                {t("responsibilities.scorecard.newest", { defaultValue: "Newest:" })}{" "}
                 <Link to={newest.href} className="underline-offset-4 hover:text-foreground hover:underline">{newest.title}</Link>
               </>
             ) : (
-              "None yet"
+              t("responsibilities.scorecard.noneYet", { defaultValue: "None yet" })
             )}
           </CompactCount>
         </dl>

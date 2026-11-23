@@ -42,10 +42,10 @@ export function AiConnectionAccountControls({
         )}>
           <div className="flex items-center gap-3">
             {account.isDefault && <AiDefaultCrown account={account} />}
-            <h3 role={account.isDefault ? "status" : undefined} className={cn("text-sm font-semibold", account.isDefault && !available && "text-destructive")}>{account.isDefault ? available ? `Default for ${providerName}` : "Default unavailable" : `Your ${providerName} default`}</h3>
+            <h3 role={account.isDefault ? "status" : undefined} className={cn("text-sm font-semibold", account.isDefault && !available && "text-destructive")}>{account.isDefault ? available ? t("aiConnections.account.defaultFor", { defaultValue: "Default for {{provider}}", provider: providerName }) : t("aiConnections.account.defaultUnavailable", { defaultValue: "Default unavailable" }) : t("aiConnections.account.yourDefault", { defaultValue: "Your {{provider}} default", provider: providerName })}</h3>
           </div>
           {!account.isDefault && (!readOnly && account.canSetDefault ? (
-            <Button variant="outline" size="sm" disabled={!available || Boolean(account.unavailableReason) || defaultPending} onClick={onMakeDefault}>Set as default for {providerName}</Button>
+            <Button variant="outline" size="sm" disabled={!available || Boolean(account.unavailableReason) || defaultPending} onClick={onMakeDefault}>{t("aiConnections.account.setAsDefault", { defaultValue: "Set as default for {{provider}}", provider: providerName })}</Button>
           ) : <span className="text-xs text-muted-foreground">{t("aiConnections.account.notDefault", { defaultValue: "Not default" })}</span>)}
         </div>
       )}

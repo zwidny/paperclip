@@ -162,7 +162,7 @@ export const EnvironmentVariablesEditor = forwardRef<EnvironmentVariablesEditorH
   onDirtyChange,
   hideDraftActions = false,
   startWithEmptyRow = false,
-  addLabel = "Add variable",
+  addLabel,
 }: EnvironmentVariablesEditorProps, ref) {
   const { t } = useTranslation();
   const toast = useOptionalToastActions();
@@ -506,7 +506,7 @@ export const EnvironmentVariablesEditor = forwardRef<EnvironmentVariablesEditorH
           className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
         >
           <Plus className="size-3.5" />
-          {addLabel}
+          {addLabel ?? t("envVarEditor.addVariable", { defaultValue: "Add variable" })}
         </button>
 
         {quickBind.length > 0 && !disabled ? (

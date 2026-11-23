@@ -15,6 +15,7 @@ import { Identity } from "./Identity";
 import type { CompanyUserProfile } from "@/lib/company-members";
 import { routineColumnGrid, type RoutineColumn } from "./RoutineTable";
 import { ToggleSwitch } from "@/components/ui/toggle-switch";
+import { i18n } from "@/i18n";
 
 export type RoutineListProjectSummary = {
   name: string;
@@ -42,7 +43,7 @@ export type RoutineListRowItem = {
 };
 
 export function formatLastRunTimestamp(value: Date | string | null | undefined) {
-  if (!value) return "Never";
+  if (!value) return i18n.t("workspaceDetail.never", { defaultValue: "Never" });
   return new Date(value).toLocaleString();
 }
 
@@ -96,7 +97,7 @@ function routineRowParts<TRoutine extends RoutineListRowItem>({
   runningRoutineId,
   statusMutationRoutineId,
   href,
-  configureLabel = "Edit",
+  configureLabel = i18n.t("routineList.edit", { defaultValue: "Edit" }),
   managedByLabel,
   secondaryDetails,
   runNowButton = false,
@@ -119,11 +120,17 @@ function routineRowParts<TRoutine extends RoutineListRowItem>({
   const runDisabled = runningRoutineId === routine.id || isArchived || disableRunNow;
 
   const user = routine.responsibleUserId ? userById?.get(routine.responsibleUserId) : null;
-  const projectCell = <span className="flex min-w-0 items-center gap-2"><span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: project?.color ?? "var(--project-none)" }} /><span className="truncate">{routine.projectId ? project?.name ?? "Unknown project" : "No project"}</span></span>;
-  const agentCell = <span className="flex min-w-0 items-center gap-2">{routine.assigneeAgentId ? <AgentAvatar agent={{ ...agent, id: routine.assigneeAgentId }} size={16} className="h-3.5 w-3.5 shrink-0" /> : null}<span className="truncate">{routine.assigneeAgentId ? agent?.name ?? "Unknown agent" : "No default agent"}</span></span>;
-  const userCell = user ? <Identity name={user.label} avatarUrl={user.image} size="sm" /> : <span>{routine.responsibleUserId ? "Unavailable user" : "No responsible user"}</span>;
+  const projectCell = <span className="flex min-w-0 items-center gap-2"><span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: project?.color ?? "var(--project-none)" }} /><span className="truncate">{routine.projectId ? project?.name ?? i18n.t("routinesPage.unknownProject", { defaultValue: "Unknown project" }) : i18n.t("routinesPage.noProject", { defaultValue: "No project" })}</span></span>;
+  const agentCell = <span className="flex min-w-0 items-center gap-2">{routine.assigneeAgentId ? <AgentAvatar agent={{ ...agent, id: routine.assigneeAgentId }} size={16} className="h-3.5 w-3.5 shrink-0" /> : null}<span className="truncate">{routine.assigneeAgentId ? agent?.name ?? i18n.t("routinesPage.unknownAgent", { defaultValue: "Unknown agent" }) : i18n.t("routineEditDialog.noDefaultAgent", { defaultValue: "No default agent" })}</span></span>;
+  const userCell = user ? <Identity name={user.label} avatarUrl={user.image} size="sm" /> : <span>{routine.responsibleUserId ? i18n.t("routineList.unavailableUser", { defaultValue: "Unavailable user" }) : i18n.t("routineList.noResponsibleUser", { defaultValue: "No responsible user" })}</span>;
   const lastRunCell = <span>{formatLastRunTimestamp(routine.lastRun?.triggeredAt)}{routine.lastRun ? ` · ${formatRoutineRunStatus(routine.lastRun.status)}` : ""}</span>;
-  const enabledCell = <div className="flex items-center gap-2" onClick={event => { event.preventDefault(); event.stopPropagation(); }}><ToggleSwitch size="lg" checked={enabled} onCheckedChange={() => onToggleEnabled(routine, enabled)} disabled={isStatusPending || isArchived || disableToggle} aria-label={enabled ? `Disable ${routine.title}` : `Enable ${routine.title}`} /><span className="text-xs text-muted-foreground">{isArchived ? "Archived" : isDraft ? "Draft" : enabled ? "On" : "Off"}</span></div>;
+  const enabledCell = <div className="flex items-center gap-2" onClick={event => { event.preventDefault(); event.stopPropagation(); }}><ToggleSwitch size="lg" checked={enabled} onCheckedChange={() => onToggleEnabled(routine, enabled)} disabled={isStatusPending || isArchived || disableToggle} aria-label={enabled ? i18n.t("routineList.disableAria", { title: routine.title, defaultValue: "Disable {{title}}" }) : i18n.t("routineList.enableAria", { title: routine.title, defaultValue: "Enable {{title}}" })} /><span className="text-xs text-muted-foreground">{isArchived
+                ? i18n.t("routineDetail.automationArchived", { defaultValue: "Archived" })
+                : isDraft
+                  ? i18n.t("routineDetail.automationDraft", { defaultValue: "Draft" })
+                  : enabled
+                    ? i18n.t("routineList.on", { defaultValue: "On" })
+                    : i18n.t("routineList.off", { defaultValue: "Off" })}</span></div>;
   const cellByColumn = { project: projectCell, assignee: agentCell, responsibleUser: userCell, lastRun: lastRunCell, enabled: enabledCell };
   const title = (
       <div className="min-w-0 flex-1 space-y-1.5">
@@ -131,7 +138,11 @@ function routineRowParts<TRoutine extends RoutineListRowItem>({
           <Link data-routine-link to={href} className="truncate text-sm font-medium no-underline text-inherit">{routine.title}</Link>
           {(isArchived || routine.status === "paused" || isDraft) ? (
             <span className="text-xs text-muted-foreground">
-              {isArchived ? "archived" : isDraft ? "draft" : "paused"}
+              {isArchived
+                ? i18n.t("routineList.badgeArchived", { defaultValue: "archived" })
+                : isDraft
+                  ? i18n.t("routineList.badgeDraft", { defaultValue: "draft" })
+                  : i18n.t("routineList.badgePaused", { defaultValue: "paused" })}
             </span>
           ) : null}
           {managedByLabel ? (
@@ -154,7 +165,7 @@ function routineRowParts<TRoutine extends RoutineListRowItem>({
             type="checkbox"
             className="h-4 w-4 rounded border-border"
             checked={selected}
-            aria-label={`Select ${routine.title}`}
+            aria-label={i18n.t("routineList.selectAria", { title: routine.title, defaultValue: "Select {{title}}" })}
             onChange={(event) => onSelectChange?.(routine, event.target.checked)}
           />
         </div>
@@ -165,8 +176,12 @@ function routineRowParts<TRoutine extends RoutineListRowItem>({
           <Button
             variant="outline"
             size="icon-sm"
-            aria-label={runningRoutineId === routine.id ? `Running ${routine.title}` : `Run now: ${routine.title}`}
-            title={runningRoutineId === routine.id ? "Running…" : "Run now"}
+            aria-label={runningRoutineId === routine.id
+              ? i18n.t("routineList.runningAria", { title: routine.title, defaultValue: "Running {{title}}" })
+              : i18n.t("routineList.runNowAria", { title: routine.title, defaultValue: "Run now: {{title}}" })}
+            title={runningRoutineId === routine.id
+              ? i18n.t("statusCards.running", { defaultValue: "Running…" })
+              : i18n.t("statusCards.runNow", { defaultValue: "Run now" })}
             disabled={runDisabled}
             onClick={() => onRunNow(routine)}
           >
@@ -178,7 +193,7 @@ function routineRowParts<TRoutine extends RoutineListRowItem>({
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon-sm" aria-label={`More actions for ${routine.title}`}>
+            <Button variant="ghost" size="icon-sm" aria-label={i18n.t("routineList.moreActionsAria", { title: routine.title, defaultValue: "More actions for {{title}}" })}>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -190,7 +205,9 @@ function routineRowParts<TRoutine extends RoutineListRowItem>({
               disabled={runDisabled}
               onClick={() => onRunNow(routine)}
             >
-              {runningRoutineId === routine.id ? "Running..." : "Run now"}
+              {runningRoutineId === routine.id
+                ? i18n.t("routineRunDialog.running", { defaultValue: "Running..." })
+                : i18n.t("statusCards.runNow", { defaultValue: "Run now" })}
             </DropdownMenuItem>
             {extraMenuItems ? (
               <>
@@ -203,14 +220,18 @@ function routineRowParts<TRoutine extends RoutineListRowItem>({
               onClick={() => onToggleEnabled(routine, enabled)}
               disabled={isStatusPending || isArchived || disableToggle}
             >
-              {enabled ? "Pause" : "Enable"}
+              {enabled
+                ? i18n.t("agentActionButtons.pause", { defaultValue: "Pause" })
+                : i18n.t("routineList.enable", { defaultValue: "Enable" })}
             </DropdownMenuItem>
             {!hideArchiveAction && onToggleArchived ? (
               <DropdownMenuItem
                 onClick={() => onToggleArchived(routine)}
                 disabled={isStatusPending}
               >
-                {routine.status === "archived" ? "Restore" : "Archive"}
+                {routine.status === "archived"
+                  ? i18n.t("routineList.restore", { defaultValue: "Restore" })
+                  : i18n.t("routineList.archive", { defaultValue: "Archive" })}
               </DropdownMenuItem>
             ) : null}
           </DropdownMenuContent>

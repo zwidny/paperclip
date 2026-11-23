@@ -75,12 +75,16 @@ export function StandaloneBrowserControls({ mobile }: { mobile: boolean }) {
         return;
       }
       await copyTextToClipboard(url);
-      toastActions?.pushToast({ title: "Link copied", tone: "success" });
+      toastActions?.pushToast({ title: t("standaloneBrowserControls.linkCopied", { defaultValue: "Link copied" }), tone: "success" });
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
-      toastActions?.pushToast({ title: "Share failed", body: "Try opening the page in your browser.", tone: "error" });
+      toastActions?.pushToast({
+        title: t("standaloneBrowserControls.shareFailed", { defaultValue: "Share failed" }),
+        body: t("standaloneBrowserControls.shareFailedBody", { defaultValue: "Try opening the page in your browser." }),
+        tone: "error",
+      });
     }
-  }, [toastActions]);
+  }, [t, toastActions]);
 
   const openInBrowser = useCallback(() => {
     window.open(window.location.href, "_blank", "noopener,noreferrer");

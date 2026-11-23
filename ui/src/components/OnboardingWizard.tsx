@@ -71,7 +71,7 @@ import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { useLocation, useNavigate, useParams } from "@/lib/router";
 import { useDialog } from "../context/DialogContext";
-import { useTranslation } from "../i18n";
+import { i18n, useTranslation } from "../i18n";
 import { useCompany } from "../context/CompanyContext";
 import { ApiError } from "../api/client";
 import { companiesApi } from "../api/companies";
@@ -292,8 +292,9 @@ function ModelSourceMark({
 
 export { ONBOARDING_STORAGE_KEY } from "../lib/onboarding-state";
 
-const INCOMPLETE_ONBOARDING_STATE_MESSAGE =
-  "Onboarding state is incomplete. Please restart onboarding and try again.";
+function incompleteOnboardingMessage(): string {
+  return i18n.t("onboarding.errors.incompleteState", { defaultValue: "Onboarding state is incomplete. Please restart onboarding and try again." });
+}
 
 /**
  * Thin gate in front of {@link OnboardingWizardInner}. The inner component's
@@ -1006,7 +1007,7 @@ function OnboardingWizardInner({
         visibleEnvironmentIds: loginEnvironmentList.map((environment) => environment.id),
       }), error: null };
     } catch (error) {
-      return { environmentId: null, error: error instanceof Error ? error.message : "Could not resolve the execution environment." };
+      return { environmentId: null, error: error instanceof Error ? error.message : t("onboarding.errors.resolveEnvironment", { defaultValue: "Could not resolve the execution environment." }) };
     }
   }, [
     restoredSetup, createdCompanyId,
@@ -1046,11 +1047,11 @@ function OnboardingWizardInner({
     || (loginEnvironmentSettingsReady
       && runnerDiscovery.isSuccess && !runnerDiscovery.isFetching && resolvedRunner !== undefined);
   const runnerDiscoveryError = needsRunnerDiscovery && (loginEnvironmentsFailed || loginSettingsFailed || loginPolicyFailed)
-    ? "Could not load execution environment settings. Retry setup."
+    ? t("onboarding.errors.loadExecutionSettings", { defaultValue: "Could not load execution environment settings. Retry setup." })
     : needsRunnerDiscovery && (runnerDiscoveryView.kind === "error")
-      ? "Could not load runner availability. Retry setup."
+      ? t("onboarding.errors.loadRunnerAvailability", { defaultValue: "Could not load runner availability. Retry setup." })
     : needsRunnerDiscovery && runnerDiscovery.isSuccess && resolvedRunner === undefined
-      ? "Runner availability is missing for this harness. Retry setup."
+      ? t("onboarding.errors.runnerAvailabilityMissing", { defaultValue: "Runner availability is missing for this harness. Retry setup." })
       : null;
   async function retryRunnerAvailability() {
     if (!loginEnvironmentSettingsReady) {
@@ -1414,7 +1415,7 @@ function OnboardingWizardInner({
     }).catch(cause => {
       if (!stillTheSameCompany(companyId)) return;
       setSetupError(true);
-      setError(cause instanceof Error ? cause.message : "Could not create agent setup.");
+      setError(cause instanceof Error ? cause.message : t("onboarding.errors.createAgentSetup", { defaultValue: "Could not create agent setup." }));
     }).finally(() => {
       preparingSetup.current.delete(companyId);
       setSetupAttempt(attempt => attempt + 1);
@@ -1470,7 +1471,13 @@ function OnboardingWizardInner({
   const connectCollapsed =
     connectPhase !== "idle" && connectPhase !== "unwindRow" &&
     (sourceSelected || (openAiCompatible && sourcePicked));
-  const connectProgress = sourceSelected && !setupPrepared && !createdAgentId && !setupError ? "Creating your agent…" : adapterEnvLoading ? "Testing connection…" : loading ? "Connecting…" : null;
+  const connectProgress = sourceSelected && !setupPrepared && !createdAgentId && !setupError
+    ? t("onboarding.footer.creatingAgent", { defaultValue: "Creating your agent…" })
+    : adapterEnvLoading
+      ? t("onboarding.footer.testingConnection", { defaultValue: "Testing connection…" })
+      : loading
+        ? t("onboarding.footer.connectingNow", { defaultValue: "Connecting…" })
+        : null;
   const hasSavedSubscription = Boolean(savedSubscription || savedKeys.storedLogin.data ||
     (credentialMode !== "api" && managedBindingForStep()));
   const connectHasCard = credentialMode === "api" || connectStepNeedsLogin || connectStepHasNoSandbox || Boolean(connectProgress);
@@ -1617,18 +1624,18 @@ function OnboardingWizardInner({
    * easing width so those changes read as one control rather than four.
    */
   const connectSourceLabel = openAiCompatible
-    ? "OpenAI compatible"
+    ? t("onboarding.connect.sources.compatible", { defaultValue: "OpenAI compatible" })
     : CONNECT_SOURCE_NAMES[adapterType] ?? adapterType;
   const connectCta: { label: string; icon: FooterPrimaryIcon; disabled: boolean } =
-    setupError ? { label: "Retry", icon: "arrow", disabled: false }
-      : retryLogin ? { label: "Retry sign-in", icon: "arrow", disabled: false } : connectProgress
-      ? { label: adapterEnvLoading ? "Testing…" : connectProgress, icon: "spinner", disabled: true }
+    setupError ? { label: t("onboarding.footer.retry", { defaultValue: "Retry" }), icon: "arrow", disabled: false }
+      : retryLogin ? { label: t("adapterLogin.retrySignIn", { defaultValue: "Retry sign-in" }), icon: "arrow", disabled: false } : connectProgress
+      ? { label: adapterEnvLoading ? t("onboarding.footer.testing", { defaultValue: "Testing…" }) : connectProgress, icon: "spinner", disabled: true }
       : (connectPhase === "ready" || connectPhase === "waiting") && submitLoginCode
-      ? { label: "Submit code", icon: "arrow", disabled: false }
+      ? { label: t("adapterLogin.submitCode", { defaultValue: "Submit code" }), icon: "arrow", disabled: false }
       : connectPhase === "waiting"
-      ? { label: adapterType === "codex_local" ? "Waiting for auth…" : "Waiting for code…", icon: "spinner", disabled: true }
+      ? { label: adapterType === "codex_local" ? t("onboarding.footer.waitingForAuth", { defaultValue: "Waiting for auth…" }) : t("onboarding.connect.waitingForCodeEllipsis", { defaultValue: "Waiting for code…" }), icon: "spinner", disabled: true }
       : connectPhase === "connecting"
-        ? { label: "Connecting", icon: "spinner", disabled: true }
+        ? { label: t("onboarding.footer.connecting", { defaultValue: "Connecting" }), icon: "spinner", disabled: true }
         : connectPhase === "ready"
           ? connectStepNeedsLogin
             ? {
@@ -1992,7 +1999,7 @@ function OnboardingWizardInner({
 
   async function handleLaunchToChat() {
     if (!createdCompanyId || !createdAgentId) {
-      setError(INCOMPLETE_ONBOARDING_STATE_MESSAGE);
+      setError(incompleteOnboardingMessage());
       return;
     }
     setLoading(true);
@@ -2253,7 +2260,7 @@ function OnboardingWizardInner({
       await agentsApi.update(id, JSON.parse(setupSnapshot), companyId);
     });
     void setupSave.current.catch(cause => {
-      if (stillTheSameCompany(companyId)) setError(cause instanceof Error ? cause.message : "Could not save agent setup.");
+      if (stillTheSameCompany(companyId)) setError(cause instanceof Error ? cause.message : t("onboarding.errors.saveAgentSetup", { defaultValue: "Could not save agent setup." }));
     });
   }, [setupSnapshot, setupAgentId, createdCompanyId]);
 
@@ -2267,7 +2274,7 @@ function OnboardingWizardInner({
     if (!runnerDiscoveryReady) return null;
     if (!createdCompanyId) {
       setAdapterEnvError(
-        "Create or select an organization before testing adapter environment."
+        t("onboarding.errors.selectOrganizationFirst", { defaultValue: "Create or select an organization before testing adapter environment." })
       );
       return null;
     }
@@ -2352,7 +2359,7 @@ function OnboardingWizardInner({
               || typeof probe.details.leaseId !== "string" || !probe.details.leaseId) {
               throw new Error(typeof probe.details?.platformQualificationDiagnostic === "string"
                 ? probe.details.platformQualificationDiagnostic
-                : probe.summary || "The environment's platform qualification could not be confirmed. Retry the connection probe.");
+                : probe.summary || t("onboarding.errors.platformQualification", { defaultValue: "The environment's platform qualification could not be confirmed. Retry the connection probe." }));
             }
             const refreshed = await queryClient.fetchQuery({ queryKey: availabilityKey, staleTime: 0,
               queryFn: () => adaptersApi.list({ companyId: createdCompanyId, environmentId }, { signal }) });
@@ -2403,7 +2410,7 @@ function OnboardingWizardInner({
       if (!selectionIsCurrent()) return null;
       adapterEnvErrorSelectionRef.current = selection || null;
       setAdapterEnvError(
-        err instanceof Error ? err.message : "Adapter environment test failed"
+        err instanceof Error ? err.message : t("onboarding.errors.adapterEnvTestFailed", { defaultValue: "Adapter environment test failed" })
       );
       return null;
     } finally {
@@ -2460,7 +2467,7 @@ function OnboardingWizardInner({
     if (!createdCompanyId) return;
     if (!setupPrepared && !createdAgentId) return;
     if (!connectionModelReady) {
-      setError("Choose a model for this gateway connection before connecting your agent.");
+      setError(t("onboarding.errors.chooseGatewayModel", { defaultValue: "Choose a model for this gateway connection before connecting your agent." }));
       return;
     }
     const defaultSelection = defaultSelectionsRef.current.get(JSON.stringify([createdCompanyId, managedProvider]));
@@ -2506,7 +2513,7 @@ function OnboardingWizardInner({
           }
           if (adapterModelsLoading || adapterModelsFetching) {
             setError(
-              "OpenCode models are still loading. Please wait and try again."
+              t("onboarding.errors.opencodeModelsLoading", { defaultValue: "OpenCode models are still loading. Please wait and try again." })
             );
             return;
           }
@@ -2514,8 +2521,8 @@ function OnboardingWizardInner({
           if (!discoveredModels.some((entry) => entry.id === selectedModelId)) {
             setError(
               discoveredModels.length === 0
-                ? "No OpenCode models discovered. Run `opencode models` and authenticate providers."
-                : `Configured OpenCode model is unavailable: ${selectedModelId}`
+                ? t("onboarding.errors.noOpencodeModels", { defaultValue: "No OpenCode models discovered. Run `opencode models` and authenticate providers." })
+                : t("onboarding.errors.opencodeModelUnavailable", { defaultValue: "Configured OpenCode model is unavailable: {{model}}", model: selectedModelId })
             );
             return;
           }
@@ -2620,9 +2627,9 @@ function OnboardingWizardInner({
           setError(
             nativeCodexError || (result.status === "fail"
               ? cloudInstance
-                ? "Paperclip couldn't finish connecting this agent. Try connecting again."
-                : "The environment test failed. Fix the reported checks before you hire this agent."
-              : "No working authentication was found. Fix the reported checks before you hire this agent."),
+                ? t("onboarding.errors.connectFailed", { defaultValue: "Paperclip couldn't finish connecting this agent. Try connecting again." })
+                : t("onboarding.errors.envTestFailed", { defaultValue: "The environment test failed. Fix the reported checks before you hire this agent." })
+              : t("onboarding.errors.noWorkingAuth", { defaultValue: "No working authentication was found. Fix the reported checks before you hire this agent." })),
           );
           return;
         }
@@ -2782,7 +2789,7 @@ function OnboardingWizardInner({
       const result = await runAdapterEnvironmentTest(configWithUnset);
       if (result?.status === "fail") {
         setError(
-          "Retried with ANTHROPIC_API_KEY unset in adapter config, but the environment test is still failing."
+          t("onboarding.errors.retryWithoutAnthropicKey", { defaultValue: "Retried with ANTHROPIC_API_KEY unset in adapter config, but the environment test is still failing." })
         );
       }
     } catch (err) {
@@ -2874,7 +2881,7 @@ function OnboardingWizardInner({
   const stepHandoff = beatDelay(1) > 0;
   const heroRoomTarget = step === 1 || !arrived ? heroRoomMotion.closed : arrival && lastStep.current === entryStep ? heroRoomArrival : heroRoomMotion.open;
   const capsuleTarget = step === 1 || !arrived ? capsuleRoomExit : step === 3 && stepHandoff && lastStep.current === 1 ? capsuleRoomEnter : capsuleHeroMotion.animate;
-  const visibleError = error ?? (launchStateIncomplete ? INCOMPLETE_ONBOARDING_STATE_MESSAGE : null);
+  const visibleError = error ?? (launchStateIncomplete ? incompleteOnboardingMessage() : null);
 
   return (
     <Dialog
@@ -3664,8 +3671,8 @@ function OnboardingWizardInner({
                     <div>
                       <label className="text-xs text-muted-foreground mb-1 block">
                         {adapterType === "openclaw_gateway"
-                          ? "Gateway URL"
-                          : "Webhook URL"}
+                          ? t("onboarding.gatewayUrl", { defaultValue: "Gateway URL" })
+                          : t("onboarding.webhookUrl", { defaultValue: "Webhook URL" })}
                       </label>
                       <input
                         className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm font-mono outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50"
@@ -3717,12 +3724,12 @@ function OnboardingWizardInner({
                   // prototype's own local flow draws with "Next".
                   primaryLabel={
                     step === 1
-                      ? "Continue"
+                      ? t("onboarding.footer.continue", { defaultValue: "Continue" })
                       : step === 5
-                        ? "Get started"
+                        ? t("onboarding.footer.getStarted", { defaultValue: "Get started" })
                         : step === 4
                           ? connectCta.label
-                          : "Next"
+                          : t("onboarding.footer.next", { defaultValue: "Next" })
                   }
                   primaryIcon={step === 4 ? connectCta.icon : undefined}
                   loadingLabel={

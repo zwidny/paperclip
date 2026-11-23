@@ -1,5 +1,5 @@
 import { useWorkspaceIsolationControls } from "@/hooks/useWorkspaceIsolationControls";
-import { useTranslation } from "@/i18n";
+import { i18n, useTranslation } from "@/i18n";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@/lib/router";
 import type { Issue, ExecutionWorkspace } from "@paperclipai/shared";
@@ -29,9 +29,9 @@ import { Badge } from "@/components/ui/badge";
 /* -------------------------------------------------------------------------- */
 
 const EXECUTION_WORKSPACE_OPTIONS = [
-  { value: "shared_workspace", label: "Project default" },
-  { value: "isolated_workspace", label: "New isolated workspace" },
-  { value: "reuse_existing", label: "Reuse existing workspace" },
+  { value: "shared_workspace", labelKey: "issueWorkspaceCard.optionShared", label: "Project default" },
+  { value: "isolated_workspace", labelKey: "issueWorkspaceCard.optionIsolated", label: "New isolated workspace" },
+  { value: "reuse_existing", labelKey: "issueWorkspaceCard.optionReuse", label: "Reuse existing workspace" },
 ] as const;
 
 /* -------------------------------------------------------------------------- */
@@ -49,6 +49,7 @@ function BreakablePath({ text }: { text: string }) {
 }
 
 function CopyableInline({ value, label, mono }: { value: string; label?: string; mono?: boolean }) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -73,8 +74,17 @@ function CopyableInline({ value, label, mono }: { value: string; label?: string;
         type="button"
         className="shrink-0 p-0.5 rounded hover:bg-accent/50 transition-colors text-muted-foreground hover:text-foreground opacity-0 group-hover/copy:opacity-100 focus:opacity-100"
         onClick={handleCopy}
-        title={copied ? "Copied!" : "Copy"}
-        aria-label={copied ? "Copied to clipboard" : `Copy ${label ?? "value"}`}
+        title={copied
+          ? t("issueWorkspaceCard.copied", { defaultValue: "Copied!" })
+          : t("issueWorkspaceCard.copy", { defaultValue: "Copy" })}
+        aria-label={
+          copied
+            ? t("issueWorkspaceCard.copiedToClipboard", { defaultValue: "Copied to clipboard" })
+            : t("issueWorkspaceCard.copyValue", {
+                defaultValue: "Copy {{label}}",
+                label: label ?? t("issueWorkspaceCard.value", { defaultValue: "value" }),
+              })
+        }
       >
         {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
       </button>
@@ -84,11 +94,16 @@ function CopyableInline({ value, label, mono }: { value: string; label?: string;
 
 function workspaceModeLabel(mode: string | null | undefined) {
   switch (mode) {
-    case "isolated_workspace": return "Isolated workspace";
-    case "operator_branch": return "Operator branch";
-    case "cloud_sandbox": return "Cloud environment";
-    case "adapter_managed": return "Adapter managed";
-    default: return "Workspace";
+    case "isolated_workspace":
+      return i18n.t("issueWorkspaceCard.modeIsolated", { defaultValue: "Isolated workspace" });
+    case "operator_branch":
+      return i18n.t("issueWorkspaceCard.modeOperatorBranch", { defaultValue: "Operator branch" });
+    case "cloud_sandbox":
+      return i18n.t("issueWorkspaceCard.modeCloud", { defaultValue: "Cloud environment" });
+    case "adapter_managed":
+      return i18n.t("issueWorkspaceCard.modeAdapterManaged", { defaultValue: "Adapter managed" });
+    default:
+      return i18n.t("issueWorkspaceCard.modeWorkspace", { defaultValue: "Workspace" });
   }
 }
 
@@ -98,13 +113,13 @@ function configuredWorkspaceLabel(
 ) {
   switch (selection) {
     case "isolated_workspace":
-      return "New isolated workspace";
+      return i18n.t("issueWorkspaceCard.optionIsolated", { defaultValue: "New isolated workspace" });
     case "reuse_existing":
       return reusableWorkspace?.mode === "isolated_workspace"
-        ? "Existing isolated workspace"
-        : "Reuse existing workspace";
+        ? i18n.t("issueWorkspaceCard.optionExistingIsolated", { defaultValue: "Existing isolated workspace" })
+        : i18n.t("issueWorkspaceCard.optionReuse", { defaultValue: "Reuse existing workspace" });
     default:
-      return "Project default";
+      return i18n.t("issueWorkspaceCard.optionShared", { defaultValue: "Project default" });
   }
 }
 
@@ -467,8 +482,8 @@ export function IssueWorkspaceCard({
             {EXECUTION_WORKSPACE_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.value === "reuse_existing" && configuredReusableWorkspace?.mode === "isolated_workspace"
-                  ? "Existing isolated workspace"
-                  : option.label}
+                  ? t("issueWorkspaceCard.optionExistingIsolated", { defaultValue: "Existing isolated workspace" })
+                  : t(option.labelKey, { defaultValue: option.label })}
               </option>
             ))}
           </select>

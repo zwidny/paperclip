@@ -606,10 +606,10 @@ export function IssueProperties({
     (workspace) => workspace.id === issue.executionWorkspaceId,
   ) ?? issue.currentExecutionWorkspace ?? null;
   const workspaceTriggerLabel = activeWorkspacePickerMode === "isolated"
-    ? "New isolated workspace"
+    ? t("issueProperties.newIsolatedWorkspace", { defaultValue: "New isolated workspace" })
     : activeWorkspacePickerMode === "reuse"
-      ? boundWorkspace?.name ?? "Reuse existing workspace"
-      : "Default";
+      ? boundWorkspace?.name ?? t("issueProperties.reuseExistingWorkspace", { defaultValue: "Reuse existing workspace" })
+      : t("issueProperties.defaultWorkspace", { defaultValue: "Default" });
   const workspaceTriggerTitle = activeWorkspacePickerMode === "reuse"
     ? boundWorkspace?.branchName ?? undefined
     : undefined;
@@ -668,17 +668,19 @@ export function IssueProperties({
       setRuntimeActionErrorMessage(null);
       setRuntimeActionMessage(
         request.action === "run"
-          ? "Workspace job completed."
+          ? t("issueProperties.workspaceJobCompleted", { defaultValue: "Workspace job completed." })
           : request.action === "stop"
-            ? "Workspace service stopped."
+            ? t("issueProperties.workspaceServiceStopped", { defaultValue: "Workspace service stopped." })
             : request.action === "restart"
-              ? "Workspace service restarted."
-              : "Workspace service started.",
+              ? t("issueProperties.workspaceServiceRestarted", { defaultValue: "Workspace service restarted." })
+              : t("issueProperties.workspaceServiceStarted", { defaultValue: "Workspace service started." }),
       );
     },
     onError: (error) => {
       setRuntimeActionMessage(null);
-      setRuntimeActionErrorMessage(error instanceof Error ? error.message : "Failed to control workspace commands.");
+      setRuntimeActionErrorMessage(
+        error instanceof Error ? error.message : t("issueProperties.workspaceControlFailed", { defaultValue: "Failed to control workspace commands." }),
+      );
     },
   });
   const pendingWorkspaceRuntimeAction = controlWorkspaceRuntime.isPending ? controlWorkspaceRuntime.variables ?? null : null;
@@ -2851,7 +2853,7 @@ export function IssueProperties({
           </PropertyRow>
         ) : showScheduledRetryRow && scheduledRetry?.scheduledRetryReason === "environment_provider_wait" ? (
           <PropertyRow label="Sandbox">
-            <span className="text-sm text-muted-foreground">Waiting for the provider</span>
+            <span className="text-sm text-muted-foreground">{t("issueProperties.waitingForProvider", { defaultValue: "Waiting for the provider" })}</span>
           </PropertyRow>
         ) : showScheduledRetryRow && scheduledRetryContent ? (
           <PropertyPicker

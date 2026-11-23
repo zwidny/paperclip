@@ -281,14 +281,15 @@ function CompactVariableRows({
   variables: RoutineVariable[];
   onPatch: (name: string, mutate: (variable: RoutineVariable) => RoutineVariable) => void;
 }) {
+  const { t } = useTranslation();
   return (
-    <div className="flex flex-col gap-2" role="group" aria-label="Variables">
-      <Label>Variables</Label>
+    <div className="flex flex-col gap-2" role="group" aria-label={t("routineVariables.title", { defaultValue: "Variables" })}>
+      <Label>{t("routineVariables.title", { defaultValue: "Variables" })}</Label>
       <div className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex" aria-hidden="true">
-        <span className={compactColumns.name}>Name</span>
-        <span className={compactColumns.type}>Type</span>
-        <span className={compactColumns.defaultValue}>Default</span>
-        <span className={compactColumns.required}>Required</span>
+        <span className={compactColumns.name}>{t("routineVariables.nameLabel", { defaultValue: "Name" })}</span>
+        <span className={compactColumns.type}>{t("routineVariables.typeLabel", { defaultValue: "Type" })}</span>
+        <span className={compactColumns.defaultValue}>{t("routineVariables.defaultColumn", { defaultValue: "Default" })}</span>
+        <span className={compactColumns.required}>{t("routineVariables.required", { defaultValue: "Required" })}</span>
       </div>
       {variables.map((variable) => {
         const patch = (change: Partial<RoutineVariable>) => onPatch(variable.name, (current) => ({ ...current, ...change }));
@@ -307,7 +308,7 @@ function CompactVariableRows({
                   options: type === "select" ? current.options : [],
                 }))}
               >
-                <SelectTrigger className={compactColumns.type} aria-label={`Type of ${variable.name}`}>
+                <SelectTrigger className={compactColumns.type} aria-label={t("routineVariables.typeOf", { defaultValue: "Type of {{name}}", name: variable.name })}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -322,13 +323,13 @@ function CompactVariableRows({
                     value={variable.defaultValue === true ? "true" : variable.defaultValue === false ? "false" : "__unset__"}
                     onValueChange={(next) => patch({ defaultValue: next === "__unset__" ? null : next === "true" })}
                   >
-                    <SelectTrigger className="w-full" aria-label={`Default for ${variable.name}`}>
+                    <SelectTrigger className="w-full" aria-label={t("routineVariables.defaultFor", { defaultValue: "Default for {{name}}", name: variable.name })}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="__unset__">No default</SelectItem>
-                      <SelectItem value="true">True</SelectItem>
-                      <SelectItem value="false">False</SelectItem>
+                      <SelectItem value="__unset__">{t("routineVariables.noDefault", { defaultValue: "No default" })}</SelectItem>
+                      <SelectItem value="true">{t("routineVariables.trueLabel", { defaultValue: "True" })}</SelectItem>
+                      <SelectItem value="false">{t("routineVariables.falseLabel", { defaultValue: "False" })}</SelectItem>
                     </SelectContent>
                   </Select>
                 ) : variable.type === "select" ? (
@@ -336,11 +337,11 @@ function CompactVariableRows({
                     value={typeof variable.defaultValue === "string" ? variable.defaultValue : "__unset__"}
                     onValueChange={(next) => patch({ defaultValue: next === "__unset__" ? null : next })}
                   >
-                    <SelectTrigger className="w-full" aria-label={`Default for ${variable.name}`}>
-                      <SelectValue placeholder="No default" />
+                    <SelectTrigger className="w-full" aria-label={t("routineVariables.defaultFor", { defaultValue: "Default for {{name}}", name: variable.name })}>
+                      <SelectValue placeholder={t("routineVariables.noDefault", { defaultValue: "No default" })} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="__unset__">No default</SelectItem>
+                      <SelectItem value="__unset__">{t("routineVariables.noDefault", { defaultValue: "No default" })}</SelectItem>
                       {variable.options.map((option) => (
                         <SelectItem key={option} value={option}>{option}</SelectItem>
                       ))}
@@ -349,17 +350,17 @@ function CompactVariableRows({
                 ) : variable.type === "textarea" ? (
                   <Textarea
                     rows={1}
-                    aria-label={`Default for ${variable.name}`}
+                    aria-label={t("routineVariables.defaultFor", { defaultValue: "Default for {{name}}", name: variable.name })}
                     value={variable.defaultValue == null ? "" : String(variable.defaultValue)}
-                    placeholder="No default"
+                    placeholder={t("routineVariables.noDefault", { defaultValue: "No default" })}
                     onChange={(event) => patch({ defaultValue: event.target.value || null })}
                   />
                 ) : (
                   <Input
                     type={variable.type === "number" ? "number" : variable.type === "date" ? "date" : "text"}
-                    aria-label={`Default for ${variable.name}`}
+                    aria-label={t("routineVariables.defaultFor", { defaultValue: "Default for {{name}}", name: variable.name })}
                     value={variable.defaultValue == null ? "" : String(variable.defaultValue)}
-                    placeholder="No default"
+                    placeholder={t("routineVariables.noDefault", { defaultValue: "No default" })}
                     onChange={(event) => patch({ defaultValue: event.target.value || null })}
                   />
                 )}
@@ -379,9 +380,9 @@ function CompactVariableRows({
               <span className={`${compactColumns.name} hidden sm:block`} aria-hidden="true" />
               <Input
                 className="min-w-0 flex-1"
-                aria-label={`Options for ${variable.name}`}
+                aria-label={t("routineVariables.optionsFor", { defaultValue: "Options for {{name}}", name: variable.name })}
                 value={variable.options.join(", ")}
-                placeholder="Options, separated by commas: high, medium, low"
+                placeholder={t("routineVariables.optionsPlaceholderFull", { defaultValue: "Options, separated by commas: high, medium, low" })}
                 onChange={(event) => {
                   const options = parseSelectOptions(event.target.value);
                   onPatch(variable.name, (current) => ({

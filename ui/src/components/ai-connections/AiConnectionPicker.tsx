@@ -103,7 +103,7 @@ export function AiConnectionPicker({
           </p>
           {onRetry && (
             <Button type="button" variant="outline" onClick={onRetry}>
-              Retry connections
+              {t("aiConnectionPicker.retryConnections", { defaultValue: "Retry connections" })}
             </Button>
           )}
         </div>
@@ -113,14 +113,14 @@ export function AiConnectionPicker({
             disabled={readOnly}
             selectedId={value?.mode === "responsible_user" ? "responsible_user" : value?.connectionId}
             choices={[
-              { id: "responsible_user", name: "Responsible user’s connection", description: <>
-                <span className="block">For you: <span className={ANALYTICS_MASK_CLASS}>{personalDefault?.name ?? "Not connected"}</span></span>
-                <span className="block">Other users’ tasks use their own {AI_PROVIDERS[requirement.provider].name} connection.</span>
+              { id: "responsible_user", name: t("aiConnectionPicker.responsibleUserConnection", { defaultValue: "Responsible user’s connection" }), description: <>
+                <span className="block">{t("aiConnectionPicker.forYou", { defaultValue: "For you:" })} <span className={ANALYTICS_MASK_CLASS}>{personalDefault?.name ?? t("aiConnectionPicker.notConnected", { defaultValue: "Not connected" })}</span></span>
+                <span className="block">{t("aiConnectionPicker.otherUsersUseOwn", { defaultValue: "Other users’ tasks use their own {{provider}} connection.", provider: AI_PROVIDERS[requirement.provider].name })}</span>
               </> },
               ...compatible.filter((connection) => connection.ownership === "shared").map((connection) => ({
                 id: connection.id, name: connection.name,
                 disabled: Boolean(aiConnectionProblem(connection)),
-                description: <>Company shared · {aiMethodLabel(connection.provider, connection.method)}{connection.accountLabel ? <span className={ANALYTICS_MASK_CLASS}>{` · ${connection.accountLabel}`}</span> : ""}{aiConnectionProblem(connection) ? ` · ${aiConnectionProblem(connection)}` : ""}</>,
+                description: <>{t("aiConnectionPicker.companyShared", { defaultValue: "Company shared ·" })} {aiMethodLabel(connection.provider, connection.method)}{connection.accountLabel ? <span className={ANALYTICS_MASK_CLASS}>{` · ${connection.accountLabel}`}</span> : ""}{aiConnectionProblem(connection) ? ` · ${aiConnectionProblem(connection)}` : ""}</>,
               })),
             ]}
             onSelect={(id) => {
@@ -141,7 +141,7 @@ export function AiConnectionPicker({
                 variant="outline"
                 onClick={onConnect}
               >
-                Connect another account
+                {t("aiConnectionPicker.connectAnotherAccount", { defaultValue: "Connect another account" })}
               </Button>
             </div>
           )}

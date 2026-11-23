@@ -1,4 +1,5 @@
 import type { ResponsibilityHealth, ResponsibilityMetricSummary } from "@paperclipai/shared";
+import { useTranslation } from "@/i18n";
 import { describeMetricReading, describeStale, type MetricReading } from "@/lib/responsibilities";
 import { cn } from "@/lib/utils";
 import { healthStatusStyle, StaleFlag } from "./ResponsibilityHealthBadge";
@@ -93,8 +94,9 @@ export function MetricGlance({
   size?: "row" | "hero";
   className?: string;
 }) {
+  const { t } = useTranslation();
   if (!metric) {
-    return <p className={cn("text-sm text-muted-foreground", className)}>No number to track yet</p>;
+    return <p className={cn("text-sm text-muted-foreground", className)}>{t("responsibilities.metric.noNumber", { defaultValue: "No number to track yet" })}</p>;
   }
   const reading = describeMetricReading(metric);
   const hero = size === "hero";
@@ -102,11 +104,11 @@ export function MetricGlance({
     <div className={cn("flex min-w-0 flex-col", hero ? "gap-2" : "gap-1", className)}>
       <p className="flex flex-wrap items-baseline gap-x-1.5 tabular-nums" aria-label={reading.summary}>
         <span className={cn("font-semibold text-foreground", hero ? "text-2xl" : "text-sm")}>
-          {reading.current ?? "No reading yet"}
+          {reading.current ?? t("responsibilities.metric.noReading", { defaultValue: "No reading yet" })}
         </span>
         <span className={cn("text-muted-foreground", hero ? "text-sm" : "text-xs")}>{reading.targetLabel}</span>
       </p>
-      <MetricMeter reading={reading} health={health} label={`${metric.name}, toward its bar`} />
+      <MetricMeter reading={reading} health={health} label={t("responsibilities.metric.towardBar", { defaultValue: "{{name}}, toward its bar", name: metric.name })} />
       <p className={cn("flex min-w-0 flex-wrap items-center gap-x-2 text-muted-foreground", hero ? "text-sm" : "text-xs")}>
         <span className={cn(!hero && "truncate")}>{metric.name}</span>
         {metric.stale && metric.updatedAt ? <StaleFlag label={describeStale(metric.updatedAt, now)} /> : null}

@@ -163,9 +163,13 @@ export function PasteConfigTab({ companyId }: { companyId: string }) {
       if (outcome !== "connected") {
         closeAuthorization();
         setOAuthPhase("error");
-        setOAuthError(outcome === "closed" ? "The sign-in window closed. Try again to finish connecting."
-          : outcome === "denied" ? "Sign-in was cancelled. Try again when you’re ready."
-            : "Sign-in failed. Try again to finish connecting.");
+        setOAuthError(
+          outcome === "closed"
+            ? t("toolsPaste.signInWindowClosed", { defaultValue: "The sign-in window closed. Try again to finish connecting." })
+            : outcome === "denied"
+              ? t("toolsPaste.signInCancelled", { defaultValue: "Sign-in was cancelled. Try again when you’re ready." })
+              : t("toolsPaste.signInFailed", { defaultValue: "Sign-in failed. Try again to finish connecting." }),
+        );
         return;
       }
       checking = true;

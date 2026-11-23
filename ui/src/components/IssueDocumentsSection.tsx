@@ -12,7 +12,7 @@ import type {
 } from "@paperclipai/shared";
 import { isArtifactReviewDocumentKey, isSystemIssueDocumentKey } from "@paperclipai/shared";
 import { useLocation } from "@/lib/router";
-import { useTranslation } from "../i18n";
+import { i18n, useTranslation } from "../i18n";
 import { ApiError } from "../api/client";
 import { issuesApi } from "../api/issues";
 import { useDurableAutosave } from "../hooks/useDurableAutosave";
@@ -138,9 +138,9 @@ function isPlanKey(key: string) {
 
 function generalDocumentKeyError(key: string): string | null {
   if (isGeneralTaskDocumentKey(key)) return null;
-  if (isPlanKey(key)) return "Create and revise Plans in the task conversation.";
-  if (isArtifactReviewDocumentKey(key)) return "Review this document through its work product.";
-  return "This document key is reserved for task state.";
+  if (isPlanKey(key)) return i18n.t("issueDocuments.generalKeyPlan", { defaultValue: "Create and revise Plans in the task conversation." });
+  if (isArtifactReviewDocumentKey(key)) return i18n.t("issueDocuments.generalKeyArtifactReview", { defaultValue: "Review this document through its work product." });
+  return i18n.t("issueDocuments.generalKeyReserved", { defaultValue: "This document key is reserved for task state." });
 }
 
 function titlesMatchKey(title: string | null | undefined, key: string) {
@@ -558,7 +558,7 @@ function AccountIssueDocumentsSection({
   const newGeneralDocumentKeyError = draft?.isNew && generalDocumentsOnly ? generalDocumentKeyError(draft.key) : null;
   const newDocumentKeyError = newGeneralDocumentKeyError
     ?? (draft?.isNew && draft.key.trim().length > 0 && !DOCUMENT_KEY_PATTERN.test(draft.key.trim())
-      ? "Use lowercase letters, numbers, -, or _, and start with a letter or number."
+      ? i18n.t("issueDocuments.keyInvalidHint", { defaultValue: "Use lowercase letters, numbers, -, or _, and start with a letter or number." })
       : null);
 
   const resetAutosaveState = useCallback(() => {
@@ -748,7 +748,7 @@ function AccountIssueDocumentsSection({
 
     const handleSaveFailure = async (err: unknown): Promise<false> => {
       if (isLockedDocumentError(err)) {
-        setError("Document is locked. Unlock it before editing.");
+        setError(i18n.t("issueDocuments.lockedError", { defaultValue: "Document is locked. Unlock it before editing." }));
         resetAutosaveState();
         invalidateIssueDocuments();
         return false;
@@ -773,7 +773,7 @@ function AccountIssueDocumentsSection({
           resetAutosaveState();
           return false;
         } catch {
-          setError("Document changed remotely and the latest version could not be loaded");
+          setError(i18n.t("issueDocuments.conflictLoadFailed", { defaultValue: "Document changed remotely and the latest version could not be loaded" }));
           return false;
         }
       }
@@ -851,7 +851,7 @@ function AccountIssueDocumentsSection({
         setCopiedDocumentKey((current) => current === key ? null : current);
       }, 1400);
     } catch {
-      setError("Could not copy document");
+      setError(i18n.t("issueDocuments.copyFailed", { defaultValue: "Could not copy document" }));
     }
   }, []);
 
@@ -872,7 +872,7 @@ function AccountIssueDocumentsSection({
     const selectedRevision = revisionState.revisions.find((revision) => revision.id === revisionId);
     if (!selectedRevision) return false;
     if (documentConflict?.key === doc.key || documentHasUnsavedChanges(doc, draft)) {
-      setError("Save or cancel your local changes before viewing an older revision.");
+      setError(i18n.t("issueDocuments.saveBeforeViewingRevision", { defaultValue: "Save or cancel your local changes before viewing an older revision." }));
       return false;
     }
     if (selectedRevision.id === revisionState.currentRevision.id) {
@@ -891,7 +891,7 @@ function AccountIssueDocumentsSection({
   const toggleDocumentLock = useCallback((doc: IssueDocument, locked: boolean) => {
     if (!canManageDocumentLocks || setDocumentLock.isPending) return;
     if (locked && (documentConflict?.key === doc.key || documentHasUnsavedChanges(doc, draft))) {
-      setError("Save or cancel local changes before changing the document lock.");
+      setError(i18n.t("issueDocuments.saveBeforeLock", { defaultValue: "Save or cancel local changes before changing the document lock." }));
       return;
     }
     setDocumentLock.mutate({ key: doc.key, locked });
@@ -978,13 +978,13 @@ function AccountIssueDocumentsSection({
     if (!doc) return;
     if (handledRevisionHash?.target === revisionTarget && handledRevisionHash.latestRevisionId === doc.latestRevisionId) return;
     if (revisionsQueryFailed) {
-      setError("Could not load the reviewed revision. Try opening the link again.");
+      setError(i18n.t("issueDocuments.reviewedRevisionLoadFailed", { defaultValue: "Could not load the reviewed revision. Try opening the link again." }));
       return;
     }
     if (!getDocumentRevisions(doc.key).some((revision) => revision.id === documentHashTarget.revisionId)
       && doc.latestRevisionId !== documentHashTarget.revisionId) {
       if (!isFetchingDocumentRevisions && activeDocumentRevisions !== undefined) {
-        setError("The reviewed revision is unavailable.");
+        setError(i18n.t("issueDocuments.reviewedRevisionUnavailable", { defaultValue: "The reviewed revision is unavailable." }));
       }
       return;
     }

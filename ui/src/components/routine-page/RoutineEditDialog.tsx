@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { deriveInitials } from "@/components/Identity";
+import { useTranslation } from "@/i18n";
 import { cn } from "@/lib/utils";
 import type { RoutinePageAgent, RoutinePageProject, RoutinePerson } from "./RoutinePage";
 import { WEBHOOK_HEALTH_LABELS, webhookHealth, webhookTitle } from "./routine-summary";
@@ -119,6 +120,7 @@ export function RoutineEditDialog({
   onRestoreWebhook,
   children,
 }: RoutineEditDialogProps) {
+  const { t } = useTranslation();
   const [draft, setDraft] = useState(initial);
   const [secretsOpen, setSecretsOpen] = useState(() => Object.keys(initial.env ?? {}).length > 0);
   const [scheduleValid, setScheduleValid] = useState(true);
@@ -185,9 +187,19 @@ export function RoutineEditDialog({
     <Dialog open={open} onOpenChange={(next) => (next ? onOpenChange(true) : requestClose())}>
       <DialogContent className="flex max-h-(--sz-calc-18) flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl">
         <DialogHeader className="px-6 pb-4 pt-6">
-          <DialogTitle>{mode === "create" ? "New routine" : "Edit routine"}</DialogTitle>
+          <DialogTitle>
+            {mode === "create"
+              ? t("routinesPage.newRoutine", { defaultValue: "New routine" })
+              : t("routineDetail.editRoutine", { defaultValue: "Edit routine" })}
+          </DialogTitle>
           <DialogDescription className="sr-only">
-            {mode === "create" ? "Describe the work, then choose who does it and when." : "Change what this routine does, who does it, and when."}
+            {mode === "create"
+              ? t("routineEditDialog.createDescription", {
+                  defaultValue: "Describe the work, then choose who does it and when.",
+                })
+              : t("routineEditDialog.editDescription", {
+                  defaultValue: "Change what this routine does, who does it, and when.",
+                })}
           </DialogDescription>
         </DialogHeader>
 
@@ -200,18 +212,18 @@ export function RoutineEditDialog({
           }}
         >
           <div className="flex flex-col gap-2">
-            <Label htmlFor={titleId}>Title</Label>
+            <Label htmlFor={titleId}>{t("routineEditDialog.title", { defaultValue: "Title" })}</Label>
             <Input
               id={titleId}
               value={draft.title}
               autoFocus={mode === "create"}
-              placeholder="Send the weekly digest"
+              placeholder={t("routineEditDialog.titlePlaceholder", { defaultValue: "Send the weekly digest" })}
               onChange={(event) => patch({ title: event.target.value })}
             />
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label>Instructions</Label>
+            <Label>{t("routineEditDialog.instructions", { defaultValue: "Instructions" })}</Label>
             {/* The frame owns the border and the drag handle; the editor scrolls inside it. */}
             <div
               className="h-48 min-h-32 resize-y overflow-y-auto rounded-md border border-border px-3 py-2 focus-within:border-ring"
@@ -222,7 +234,7 @@ export function RoutineEditDialog({
             <MarkdownEditor
               ref={editorRef}
               bordered={false}
-              ariaLabel="Instructions"
+              ariaLabel={t("routineEditDialog.instructions", { defaultValue: "Instructions" })}
               value={draft.description}
               onChange={(description) => patch({ description })}
               placeholder="What should the agent do each time? Type / for skills and routines, @ to mention, {{name}} to ask for a value."
@@ -243,7 +255,7 @@ export function RoutineEditDialog({
           />
 
           <div className="flex flex-col gap-2">
-            <Label>Repeats</Label>
+            <Label>{t("routineEditDialog.repeats", { defaultValue: "Repeats" })}</Label>
             {draft.schedule ? (
               <div className="flex flex-col gap-3">
                 <ScheduleEditor
@@ -260,7 +272,7 @@ export function RoutineEditDialog({
                         setDraft((current) => (current.schedule ? { ...current, schedule: { ...current.schedule, timezone } } : current))
                       }
                     >
-                      <SelectTrigger className="w-48" aria-label="Time zone">
+                      <SelectTrigger className="w-48" aria-label={t("triggerWizard.timeZone", { defaultValue: "Time zone" })}>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -281,7 +293,7 @@ export function RoutineEditDialog({
                     patch({ schedule: null });
                   }}
                 >
-                  Remove schedule
+                  {t("routineEditDialog.removeSchedule", { defaultValue: "Remove schedule" })}
                 </Button>
               </div>
             ) : (
@@ -293,18 +305,23 @@ export function RoutineEditDialog({
                 onClick={() => patch({ schedule: { cronExpression: "0 9 * * 1-5", timezone: localTimezone() } })}
               >
                 <Plus className="h-3.5 w-3.5" />
-                Add schedule
+                {t("triggerWizard.addSchedule", { defaultValue: "Add schedule" })}
               </Button>
             )}
           </div>
 
           {onOpenWebhook ? (
             <div className="flex flex-col gap-2">
-              <Label>Webhooks</Label>
+              <Label>{t("routineEditDialog.webhooks", { defaultValue: "Webhooks" })}</Label>
               {removedWebhooks.map((trigger) => (
                 <p key={trigger.id} role="status" className="flex max-w-md items-center gap-2 text-sm text-muted-foreground">
-                  <span className="min-w-0 flex-1 truncate">{webhookTitle(trigger)} removed.</span>
-                  <Button type="button" variant="ghost" size="xs" onClick={() => onRestoreWebhook?.(trigger)}>Undo</Button>
+                  <span className="min-w-0 flex-1 truncate">
+                    {t("routineEditDialog.webhookRemoved", {
+                      defaultValue: "{{name}} removed.",
+                      name: webhookTitle(trigger),
+                    })}
+                  </span>
+                  <Button type="button" variant="ghost" size="xs" onClick={() => onRestoreWebhook?.(trigger)}>{t("routinesPage.undo", { defaultValue: "Undo" })}</Button>
                 </p>
               ))}
               {webhooks.length > 0 ? (
@@ -316,7 +333,7 @@ export function RoutineEditDialog({
                       <li key={trigger.id} className="group/webhook -mx-2 flex items-center rounded-md hover:bg-accent/50 focus-within:bg-accent/50">
                         <button
                           type="button"
-                          aria-label={`Configure ${webhookTitle(trigger)}`}
+                          aria-label={t("routineEditDialog.configureWebhook", { defaultValue: "Configure {{name}}", name: webhookTitle(trigger) })}
                           className="flex min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                           onClick={() => onOpenWebhook(trigger)}
                         >
@@ -331,7 +348,7 @@ export function RoutineEditDialog({
                             type="button"
                             variant="ghost"
                             size="icon-xs"
-                            aria-label={`Remove ${webhookTitle(trigger)}`}
+                            aria-label={t("routineEditDialog.removeWebhook", { defaultValue: "Remove {{name}}", name: webhookTitle(trigger) })}
                             className="mr-1 text-muted-foreground opacity-0 hover:text-destructive focus-visible:opacity-100 group-hover/webhook:opacity-100 group-focus-within/webhook:opacity-100"
                             onClick={() => onRemoveWebhook(trigger)}
                           >
@@ -345,21 +362,21 @@ export function RoutineEditDialog({
               ) : null}
               <Button type="button" variant="outline" size="sm" className="w-fit" onClick={() => onOpenWebhook(null)}>
                 <Plus className="h-3.5 w-3.5" />
-                Add webhook
+                {t("routineEditDialog.addWebhook", { defaultValue: "Add webhook" })}
               </Button>
             </div>
           ) : null}
 
           <div className="flex max-w-xs flex-col gap-6">
             <div className="flex min-w-0 flex-col gap-2">
-              <Label>Default agent</Label>
+              <Label>{t("routineEditDialog.defaultAgent", { defaultValue: "Default agent" })}</Label>
               <InlineEntitySelector
                 value={draft.assigneeAgentId}
                 options={agents.map((agent) => ({ id: agent.id, label: agent.name }))}
-                placeholder="Choose an agent"
-                noneLabel="No default agent"
-                searchPlaceholder="Search agents…"
-                emptyMessage="No agents found."
+                placeholder={t("routineEditDialog.chooseAgent", { defaultValue: "Choose an agent" })}
+                noneLabel={t("routineEditDialog.noDefaultAgent", { defaultValue: "No default agent" })}
+                searchPlaceholder={t("routineEditDialog.searchAgents", { defaultValue: "Search agents…" })}
+                emptyMessage={t("routineEditDialog.noAgentsFound", { defaultValue: "No agents found." })}
                 disablePortal
                 className="h-9 w-full justify-start"
                 onChange={(assigneeAgentId) => patch({ assigneeAgentId })}
@@ -371,7 +388,7 @@ export function RoutineEditDialog({
                       <span className="truncate">{agent.name}</span>
                     </>
                   ) : (
-                    <span className="text-muted-foreground">Choose an agent</span>
+                    <span className="text-muted-foreground">{t("routineEditDialog.chooseAgent", { defaultValue: "Choose an agent" })}</span>
                   );
                 }}
                 renderOption={(option) => {
@@ -387,14 +404,14 @@ export function RoutineEditDialog({
             </div>
 
             <div className="flex min-w-0 flex-col gap-2">
-              <Label>Project</Label>
+              <Label>{t("routineEditDialog.project", { defaultValue: "Project" })}</Label>
               <InlineEntitySelector
                 value={draft.projectId}
                 options={projects.map((project) => ({ id: project.id, label: project.name }))}
-                placeholder="No project"
-                noneLabel="No project"
-                searchPlaceholder="Search projects…"
-                emptyMessage="No projects found."
+                placeholder={t("routineEditDialog.noProject", { defaultValue: "No project" })}
+                noneLabel={t("routineEditDialog.noProject", { defaultValue: "No project" })}
+                searchPlaceholder={t("routineEditDialog.searchProjects", { defaultValue: "Search projects…" })}
+                emptyMessage={t("routineEditDialog.noProjectsFound", { defaultValue: "No projects found." })}
                 disablePortal
                 className="h-9 w-full justify-start"
                 onChange={(projectId) => patch({ projectId })}
@@ -406,7 +423,7 @@ export function RoutineEditDialog({
                       <span className="truncate">{project.name}</span>
                     </>
                   ) : (
-                    <span className="text-muted-foreground">No project</span>
+                    <span className="text-muted-foreground">{t("routineEditDialog.noProject", { defaultValue: "No project" })}</span>
                   );
                 }}
                 renderOption={(option) => {
@@ -425,7 +442,7 @@ export function RoutineEditDialog({
 
             {responsibilities ? (
               <div className="flex min-w-0 flex-col gap-2">
-                <Label>Responsibility</Label>
+                <Label>{t("routineEditDialog.responsibility", { defaultValue: "Responsibility" })}</Label>
                 <InlineEntitySelector
                   value={draft.responsibilityId}
                   options={responsibilities.map((responsibility) => ({
@@ -433,15 +450,15 @@ export function RoutineEditDialog({
                     label: responsibility.title,
                     searchText: responsibility.areaTitle ?? "",
                   }))}
-                  placeholder="No responsibility"
-                  noneLabel="No responsibility"
-                  searchPlaceholder="Search responsibilities…"
-                  emptyMessage="No responsibilities found."
+                  placeholder={t("routineEditDialog.noResponsibility", { defaultValue: "No responsibility" })}
+                  noneLabel={t("routineEditDialog.noResponsibility", { defaultValue: "No responsibility" })}
+                  searchPlaceholder={t("routineEditDialog.searchResponsibilities", { defaultValue: "Search responsibilities…" })}
+                  emptyMessage={t("routineEditDialog.noResponsibilitiesFound", { defaultValue: "No responsibilities found." })}
                   disablePortal
                   className="h-9 w-full justify-start"
                   onChange={(responsibilityId) => patch({ responsibilityId })}
                   renderTriggerValue={(option) =>
-                    option?.id ? <span className="truncate">{option.label}</span> : <span className="text-muted-foreground">No responsibility</span>
+                    option?.id ? <span className="truncate">{option.label}</span> : <span className="text-muted-foreground">{t("routineEditDialog.noResponsibility", { defaultValue: "No responsibility" })}</span>
                   }
                   renderOption={(option) => {
                     const areaTitle = responsibilityById.get(option.id)?.areaTitle;
@@ -455,29 +472,35 @@ export function RoutineEditDialog({
                 />
                 {throughProject ? (
                   <p className="text-xs text-muted-foreground">
-                    Already under {throughProject.title} through {projectById.get(draft.projectId)?.name ?? "its project"}.
+                    {t("routineEditDialog.alreadyUnder", {
+                      defaultValue: "Already under {{title}} through {{project}}.",
+                      title: throughProject.title,
+                      project:
+                        projectById.get(draft.projectId)?.name ??
+                        t("routineEditDialog.itsProject", { defaultValue: "its project" }),
+                    })}
                   </p>
                 ) : null}
               </div>
             ) : null}
 
             <div className="flex min-w-0 flex-col gap-2">
-              <Label>Default responsible user</Label>
+              <Label>{t("routineEditDialog.defaultResponsibleUser", { defaultValue: "Default responsible user" })}</Label>
               <InlineEntitySelector
                 value={draft.responsibleUserId}
                 options={people.map((person) => ({ id: person.id, label: person.name }))}
-                placeholder="Choose a person"
-                noneLabel="No one"
+                placeholder={t("routineEditDialog.choosePerson", { defaultValue: "Choose a person" })}
+                noneLabel={t("routineEditDialog.noOne", { defaultValue: "No one" })}
                 // A responsible user can be changed but not cleared; "No one" only shows while there is none.
                 hideNone={Boolean(initial.responsibleUserId)}
-                searchPlaceholder="Find a person…"
-                emptyMessage="No people found."
+                searchPlaceholder={t("routineEditDialog.findPerson", { defaultValue: "Find a person…" })}
+                emptyMessage={t("routineEditDialog.noPeopleFound", { defaultValue: "No people found." })}
                 disablePortal
                 disabled={!canChangeResponsibleUser}
                 className="h-9 w-full justify-start"
                 onChange={(responsibleUserId) => patch({ responsibleUserId })}
                 renderTriggerValue={(option) =>
-                  (option && personOption(option.id)) || <span className="text-muted-foreground">Choose a person</span>
+                  (option && personOption(option.id)) || <span className="text-muted-foreground">{t("routineEditDialog.choosePerson", { defaultValue: "Choose a person" })}</span>
                 }
                 renderOption={(option) => personOption(option.id) ?? <span className="truncate">{option.label}</span>}
               />
@@ -485,7 +508,7 @@ export function RoutineEditDialog({
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label>Secrets</Label>
+            <Label>{t("routineEditDialog.secrets", { defaultValue: "Secrets" })}</Label>
             {secretsOpen ? (
               <EnvironmentVariablesEditor
                 ref={secretsRef}
@@ -497,12 +520,12 @@ export function RoutineEditDialog({
                 footerHint={null}
                 hideDraftActions
                 startWithEmptyRow
-                addLabel="Add secret"
+                addLabel={t("routineEditDialog.addSecret", { defaultValue: "Add secret" })}
               />
             ) : (
               <Button type="button" variant="outline" size="sm" className="w-fit" onClick={() => setSecretsOpen(true)}>
                 <Plus className="h-3.5 w-3.5" />
-                Add secret
+                {t("routineEditDialog.addSecret", { defaultValue: "Add secret" })}
               </Button>
             )}
           </div>
@@ -511,26 +534,32 @@ export function RoutineEditDialog({
         <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-6 py-4">
           {confirmingDiscard ? (
             <>
-              <p className="text-sm" role="alert">Discard your changes?</p>
+              <p className="text-sm" role="alert">{t("routineEditDialog.discardChanges", { defaultValue: "Discard your changes?" })}</p>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" onClick={() => setConfirmingDiscard(false)}>Keep editing</Button>
-                <Button variant="destructive" onClick={() => onOpenChange(false)}>Discard</Button>
+                <Button variant="ghost" onClick={() => setConfirmingDiscard(false)}>{t("routineSaveBar.keepEditing", { defaultValue: "Keep editing" })}</Button>
+                <Button variant="destructive" onClick={() => onOpenChange(false)}>{t("routineSaveBar.discard", { defaultValue: "Discard" })}</Button>
               </div>
             </>
           ) : saveConflict ? (
             <>
               <p className="min-w-0 flex-1 text-sm" role="alert">
-                This routine changed while you were editing. Reload to see the latest version.
+                {t("routineEditDialog.saveConflict", {
+                  defaultValue: "This routine changed while you were editing. Reload to see the latest version.",
+                })}
               </p>
-              <Button variant="outline" onClick={onReloadLatest}>Reload latest</Button>
+              <Button variant="outline" onClick={onReloadLatest}>{t("routineSaveBar.reloadLatest", { defaultValue: "Reload latest" })}</Button>
             </>
           ) : (
             <>
-              <Button variant="ghost" onClick={requestClose} disabled={saving}>Cancel</Button>
+              <Button variant="ghost" onClick={requestClose} disabled={saving}>{t("common.cancel", { defaultValue: "Cancel" })}</Button>
               <div className="flex min-w-0 items-center gap-3">
                 {error ? <p className="min-w-0 text-sm text-destructive" role="alert">{error}</p> : null}
                 <Button type="submit" form={`${titleId}-form`} disabled={!canSave}>
-                  {saving ? "Saving…" : mode === "create" ? "Create routine" : "Save changes"}
+                  {saving
+                    ? t("common.saving", { defaultValue: "Saving…" })
+                    : mode === "create"
+                      ? t("routinesPage.createRoutine", { defaultValue: "Create routine" })
+                      : t("common.saveChanges", { defaultValue: "Save changes" })}
                 </Button>
               </div>
             </>

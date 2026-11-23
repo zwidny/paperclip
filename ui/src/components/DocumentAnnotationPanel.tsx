@@ -12,7 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "../i18n";
+import { i18n, useTranslation } from "../i18n";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -526,7 +526,12 @@ function resolveAuthor(
       imageUrl: profile?.image ?? null,
     };
   }
-  return { name: comment.authorType === "agent" ? "Agent" : "Board", role: comment.authorType === "agent" ? "agent" : "board" };
+  return {
+    name: comment.authorType === "agent"
+      ? i18n.t("documentAnnotations.authorAgent", { defaultValue: "Agent" })
+      : i18n.t("documentAnnotations.authorBoard", { defaultValue: "Board" }),
+    role: comment.authorType === "agent" ? "agent" : "board",
+  };
 }
 
 export function truncate(value: string, limit: number) {

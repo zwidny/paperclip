@@ -51,7 +51,7 @@ export function AgentConversationSidebar({ agents, compact = false, existingChat
   const unreadIds = useMemo(() => new Set(unreadAgentIds), [unreadAgentIds]);
   const pinnedIds = useMemo(() => new Set(pinnedAgentIds), [pinnedAgentIds]);
   const picker = <AgentChatPicker agents={compact ? agents : availableAgents} open={pickerOpen} onOpenChange={setPickerOpen}
-    trigger={compact ? <Button variant="ghost" size="icon-sm" className="text-muted-foreground" aria-label="Browse chats" title="Browse chats">
+    trigger={compact ? <Button variant="ghost" size="icon-sm" className="text-muted-foreground" aria-label={t("agentConversationSidebar.browseChats", { defaultValue: "Browse chats" })} title={t("agentConversationSidebar.browseChats", { defaultValue: "Browse chats" })}>
       <PanelLeftOpen className="size-4" aria-hidden />
     </Button> : undefined}
     unreadMessageCounts={unreadMessageCounts}
@@ -89,7 +89,7 @@ export function AgentConversationSidebar({ agents, compact = false, existingChat
       </div>
     </div>
     <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-3 pb-3 scrollbar-auto-hide">
-      <span role="status" className="sr-only">{loading ? "Loading agents" : `${visible.length} ${visible.length === 1 ? "agent" : "agents"}`}</span>
+      <span role="status" className="sr-only">{loading ? t("agentConversationSidebar.loadingAgents", { defaultValue: "Loading agents" }) : t("agentConversationSidebar.agentCount", { count: visible.length, defaultValue_one: "{{count}} agent", defaultValue_other: "{{count}} agents" })}</span>
       {historyLoading && <p role="status" className="px-2 text-xs text-muted-foreground">{t("agentConversationSidebar.loadingHistory", { defaultValue: "Loading chat history…" })}</p>}
       {historyError && <div role="alert" className="flex flex-col items-start gap-2 px-2 py-3">
         <p className="text-xs text-muted-foreground">{t("agentConversationSidebar.historyError", { defaultValue: "Some chat history couldn’t load." })}</p>

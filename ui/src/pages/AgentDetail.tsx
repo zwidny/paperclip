@@ -592,14 +592,14 @@ export function AgentDetail() {
   const saveHeaderField = async (patch: { name?: string; title?: string | null }) => {
     if (!agent) return;
     if (configDirty || configSaving) {
-      setActionError(`Save or discard your unsaved changes before you change the ${patch.name === undefined ? "title" : "name"}.`);
+      setActionError(t("agentDetail.config.saveBeforeChange", { defaultValue: "Save or discard your unsaved changes before you change the {{field}}.", field: patch.name === undefined ? t("agentDetail.config.fieldTitle", { defaultValue: "title" }) : t("agentDetail.config.fieldName", { defaultValue: "name" }) }));
       return;
     }
     setActionError(null);
     try {
       await headerUpdate.mutateAsync({ target: agent, patch });
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "Could not save that change");
+      setActionError(err instanceof Error ? err.message : t("agentDetail.config.saveChangeFailed", { defaultValue: "Could not save that change" }));
     }
   };
   const directReports = (allAgents ?? []).filter((a) => a.reportsTo === agent?.id && a.status !== "terminated");
@@ -2372,7 +2372,7 @@ export function PromptsTab({
         }
         onSaved?.();
       };
-      void save().catch((error) => setFileNameError(error instanceof Error ? error.message : "Could not save the file. Your unsaved edits are retained.")).finally(() => { fileSaveLock.current = false; setFileSaveInProgress(false); });
+      void save().catch((error) => setFileNameError(error instanceof Error ? error.message : t("agentDetail.config.fileSaveFailed", { defaultValue: "Could not save the file. Your unsaved edits are retained." }))).finally(() => { fileSaveLock.current = false; setFileSaveInProgress(false); });
     } : null);
   }, [
     bundle,
@@ -2649,7 +2649,7 @@ export function PromptsTab({
                       {displayedFilePath}
                     </button>
                   )}
-                  <AgentChip>{currentMode === "external" ? "Managed externally" : "Managed by you"}</AgentChip>
+                  <AgentChip>{currentMode === "external" ? t("agentDetail.config.managedExternally", { defaultValue: "Managed externally" }) : t("agentDetail.config.managedByYou", { defaultValue: "Managed by you" })}</AgentChip>
                 </div>
                 <p className="text-xs text-muted-foreground">
                   {selectedFileExists
@@ -2671,8 +2671,8 @@ export function PromptsTab({
                 size="icon-xs"
                 className={cn("size-8", instructionMode === "edit" && "bg-(--agent-detail-tile-chip) text-foreground")}
                 aria-pressed={instructionMode === "edit"}
-                aria-label={instructionMode === "edit" ? `Stop editing ${selectedOrEntryFile}` : `Edit ${selectedOrEntryFile}`}
-                title={instructionMode === "edit" ? "Stop editing" : "Edit"}
+                aria-label={instructionMode === "edit" ? `${t("agentDetail.config.stopEditingFile", { defaultValue: "Stop editing" })} ${selectedOrEntryFile}` : `${t("agentDetail.config.editFile", { defaultValue: "Edit" })} ${selectedOrEntryFile}`}
+                title={instructionMode === "edit" ? t("agentDetail.config.stopEditing", { defaultValue: "Stop editing" }) : t("agentDetail.config.edit", { defaultValue: "Edit" })}
                 disabled={Boolean(selectedFileDetail?.binary)}
                 onClick={() => setInstructionMode(instructionMode === "edit" ? "raw" : "edit")}
               >
@@ -3429,7 +3429,7 @@ function RunDetail({ run: initialRun, agentRouteId, adapterType, adapterConfig }
             )}
             {cancelRun.error && (
               <div className="text-xs text-destructive" role="alert">
-                {cancelRun.error instanceof Error ? cancelRun.error.message : "Failed to stop run"}
+                {cancelRun.error instanceof Error ? cancelRun.error.message : t("agentDetail.config.stopRunFailed", { defaultValue: "Failed to stop run" })}
               </div>
             )}
             {resumeRun.isError && ( // query-error-ok: mutation result, not a query

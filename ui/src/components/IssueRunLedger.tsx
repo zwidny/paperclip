@@ -9,7 +9,7 @@ import {
 } from "@paperclipai/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@/lib/router";
-import { useTranslation } from "@/i18n";
+import { i18n, useTranslation } from "@/i18n";
 import { accessApi, type CurrentBoardAccess } from "../api/access";
 import {
   activityApi,
@@ -99,59 +99,59 @@ type LivenessCopy = {
 
 const LIVENESS_COPY: Record<RunLivenessState, LivenessCopy> = {
   completed: {
-    label: "Completed",
+    label: i18n.t("runLedger.liveness.completedLabel", { defaultValue: "Completed" }),
     tone: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-    description: "Task reached a terminal state.",
+    description: i18n.t("runLedger.liveness.completedDescription", { defaultValue: "Task reached a terminal state." }),
   },
   advanced: {
-    label: "Advanced",
+    label: i18n.t("runLedger.liveness.advancedLabel", { defaultValue: "Advanced" }),
     tone: "border-cyan-500/30 bg-cyan-500/10 text-cyan-700 dark:text-cyan-300",
-    description: "Run produced concrete evidence of progress.",
+    description: i18n.t("runLedger.liveness.advancedDescription", { defaultValue: "Run produced concrete evidence of progress." }),
   },
   plan_only: {
-    label: "Plan only",
+    label: i18n.t("runLedger.liveness.planOnlyLabel", { defaultValue: "Plan only" }),
     tone: "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300",
-    description: "Run described future work without concrete action evidence.",
+    description: i18n.t("runLedger.liveness.planOnlyDescription", { defaultValue: "Run described future work without concrete action evidence." }),
   },
   empty_response: {
-    label: "Empty response",
+    label: i18n.t("runLedger.liveness.emptyResponseLabel", { defaultValue: "Empty response" }),
     tone: "border-orange-500/30 bg-orange-500/10 text-orange-700 dark:text-orange-300",
-    description: "Run finished without useful output.",
+    description: i18n.t("runLedger.liveness.emptyResponseDescription", { defaultValue: "Run finished without useful output." }),
   },
   blocked: {
-    label: "Blocked",
+    label: i18n.t("runLedger.liveness.blockedLabel", { defaultValue: "Blocked" }),
     tone: "border-yellow-500/30 bg-yellow-500/10 text-yellow-700 dark:text-yellow-300",
-    description: "Run or task declared a blocker.",
+    description: i18n.t("runLedger.liveness.blockedDescription", { defaultValue: "Run or task declared a blocker." }),
   },
   failed: {
-    label: "Failed",
+    label: i18n.t("runLedger.liveness.failedLabel", { defaultValue: "Failed" }),
     tone: "border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300",
-    description: "Run ended unsuccessfully.",
+    description: i18n.t("runLedger.liveness.failedDescription", { defaultValue: "Run ended unsuccessfully." }),
   },
   needs_followup: {
     label: "Needs follow-up",
     tone: "border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300",
     description:
-      "Run produced useful output but did not prove concrete progress.",
+      i18n.t("runLedger.liveness.needsFollowupDescription", { defaultValue: "Run produced useful output but did not prove concrete progress." }),
   },
 };
 
 const PENDING_LIVENESS_COPY: LivenessCopy = {
-  label: "Checks after finish",
+  label: i18n.t("runLedger.liveness.pendingLabel", { defaultValue: "Checks after finish" }),
   tone: "border-border bg-background text-muted-foreground",
-  description: "Liveness is evaluated after the run finishes.",
+  description: i18n.t("runLedger.liveness.pendingDescription", { defaultValue: "Liveness is evaluated after the run finishes." }),
 };
 
 const RETRY_PENDING_LIVENESS_COPY: LivenessCopy = {
-  label: "Retry pending",
+  label: i18n.t("runLedger.liveness.retryPendingLabel", { defaultValue: "Retry pending" }),
   tone: "border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300",
-  description: "Paperclip queued an automatic retry that has not started yet.",
+  description: i18n.t("runLedger.liveness.retryPendingDescription", { defaultValue: "Paperclip queued an automatic retry that has not started yet." }),
 };
 
 const MISSING_LIVENESS_COPY: LivenessCopy = {
-  label: "No liveness data",
+  label: i18n.t("runLedger.liveness.missingLabel", { defaultValue: "No liveness data" }),
   tone: "border-border bg-background text-muted-foreground",
-  description: "This run has no persisted liveness classification.",
+  description: i18n.t("runLedger.liveness.missingDescription", { defaultValue: "This run has no persisted liveness classification." }),
 };
 
 const TERMINAL_CHILD_STATUSES = new Set<Issue["status"]>(["done", "cancelled"]);
@@ -433,11 +433,11 @@ function canBoardRecordWatchdogDecision(
 
 function watchdogDecisionErrorMessage(error: unknown) {
   if (error instanceof ApiError && error.status === 403) {
-    return "Only the board or the assigned recovery owner can record watchdog decisions";
+    return i18n.t("runLedger.watchdog.forbidden", { defaultValue: "Only the board or the assigned recovery owner can record watchdog decisions" });
   }
   return error instanceof Error && error.message.trim().length > 0
     ? error.message
-    : "Paperclip could not record the watchdog decision.";
+    : i18n.t("runLedger.watchdog.recordFailed", { defaultValue: "Paperclip could not record the watchdog decision." });
 }
 
 export function IssueRunLedger({
@@ -560,11 +560,11 @@ export function IssueRunLedger({
     },
     onError: (error) =>
       pushToast({
-        title: "Trace re-run not started",
+        title: i18n.t("runLedger.traceRerun.title", { defaultValue: "Trace re-run not started" }),
         body:
           error instanceof Error
             ? error.message
-            : "Paperclip could not start the trace re-run.",
+            : i18n.t("runLedger.traceRerun.failed", { defaultValue: "Paperclip could not start the trace re-run." }),
         tone: "error",
         dedupeKey: `provider-trace-rerun:${issueId}`,
       }),
@@ -678,14 +678,14 @@ export function IssueRunLedgerContent({
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0">
           <h3 className="text-sm font-medium text-muted-foreground">
-            Run ledger
+            {t("runLedger.title", { defaultValue: "Run ledger" })}
           </h3>
           <p className="text-xs text-muted-foreground">
             {latestRun
               ? runSummary(latestRun, agentMap)
               : issueStatus === "in_progress"
-                ? "Waiting for the first run record."
-                : "No runs linked yet."}
+                ? t("runLedger.waitingFirstRun", { defaultValue: "Waiting for the first run record." })
+                : t("runLedger.noRunsLinked", { defaultValue: "No runs linked yet." })}
           </p>
         </div>
         {latestRun ? (
@@ -693,7 +693,7 @@ export function IssueRunLedgerContent({
             to={`/agents/${latestRun.agentId}/runs/${latestRun.runId}`}
             className="shrink-0 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
           >
-            Latest run
+            {t("runLedger.latestRun", { defaultValue: "Latest run" })}
           </Link>
         ) : null}
       </div>
@@ -746,32 +746,29 @@ export function IssueRunLedgerContent({
         >
           <p className="font-medium">
             {latestSilentRun.outputSilence.level === "critical"
-              ? "Critical output silence"
-              : "Output silence watchdog warning"}
+              ? t("runLedger.criticalOutputSilence", { defaultValue: "Critical output silence" })
+              : t("runLedger.outputSilenceWarning", { defaultValue: "Output silence watchdog warning" })}
           </p>
           <p className="mt-1">
-            Latest active run has been silent for{" "}
-            {formatSilenceAge(latestSilentRun.outputSilence.silenceAgeMs) ??
-              "an extended period"}
-            .
+            {t("runLedger.silentFor", { defaultValue: "Latest active run has been silent for", age: formatSilenceAge(latestSilentRun.outputSilence.silenceAgeMs) ?? t("runLedger.extendedPeriod", { defaultValue: "an extended period" }) })}.
             {latestSilentRun.outputSilence.evaluationIssueIdentifier ? (
               <>
                 {" "}
-                Review{" "}
+                {t("runLedger.review", { defaultValue: "Review" })}{" "}
                 <Link
                   to={`/issues/${latestSilentRun.outputSilence.evaluationIssueIdentifier}`}
                   className="font-medium underline underline-offset-2"
                 >
                   {latestSilentRun.outputSilence.evaluationIssueIdentifier}
                 </Link>{" "}
-                for recovery context.
+                {t("runLedger.forRecoveryContext", { defaultValue: "for recovery context." })}
               </>
             ) : null}
           </p>
           <p className="mt-1">
             {latestSilentRun.outputSilence.evaluationIssueIdentifier
-              ? "This signal is informational. Paperclip did not create new delegated recovery work."
-              : "This signal is informational. Paperclip did not create or assign a recovery task."}
+              ? t("runLedger.signalInformational", { defaultValue: "This signal is informational. Paperclip did not create new delegated recovery work." })
+              : t("runLedger.signalInformationalAssigned", { defaultValue: "This signal is informational. Paperclip did not create or assign a recovery task." })}
           </p>
           {onWatchdogDecision && canRecordWatchdogDecisions ? (
             <div className="mt-2 flex flex-wrap gap-1.5">
@@ -788,7 +785,7 @@ export function IssueRunLedgerContent({
                 }
                 disabled={pendingWatchdogDecision != null}
               >
-                Continue monitoring
+                {t("runLedger.continueMonitoring", { defaultValue: "Continue monitoring" })}
               </button>
               <button
                 type="button"
@@ -807,7 +804,7 @@ export function IssueRunLedgerContent({
                 }
                 disabled={pendingWatchdogDecision != null}
               >
-                Snooze 1h
+                {t("runLedger.snoozeHour", { defaultValue: "Snooze 1h" })}
               </button>
               <button
                 type="button"
@@ -823,7 +820,7 @@ export function IssueRunLedgerContent({
                 }
                 disabled={pendingWatchdogDecision != null}
               >
-                Mark false positive
+                {t("runLedger.markFalsePositive", { defaultValue: "Mark false positive" })}
               </button>
             </div>
           ) : null}
@@ -838,7 +835,7 @@ export function IssueRunLedgerContent({
       {feedItems.length === 0 ? (
         <div className="rounded-md border border-dashed border-border px-3 py-3 text-sm text-muted-foreground">
           {renderActivityEvent
-            ? "Runs and activity will appear here once this task has history."
+            ? t("runLedger.emptyHistory", { defaultValue: "Runs and activity will appear here once this task has history." })
             : "Historical runs without liveness metadata will appear here once linked to this task."}
         </div>
       ) : (
@@ -888,7 +885,7 @@ export function IssueRunLedgerContent({
                     <span
                       data-testid="run-on-behalf-of"
                       className="min-w-0 max-w-full truncate text-muted-foreground"
-                      title={`Acting on behalf of ${onBehalfOfLabel}`}
+                      title={t("runLedger.actingOnBehalfOf", { defaultValue: "Acting on behalf of {{name}}", name: onBehalfOfLabel })}
                     >
                       on behalf of{" "}
                       <span className="text-foreground">{onBehalfOfLabel}</span>
@@ -957,7 +954,7 @@ export function IssueRunLedgerContent({
                     className="rounded-md border border-border px-1.5 py-0.5 text-(length:--text-micro) text-foreground hover:bg-accent/40"
                     onClick={() => setInspectedRun(run)}
                   >
-                    Inspect run
+                    {t("runLedger.inspectRun", { defaultValue: "Inspect run" })}
                   </button>
                 </div>
 

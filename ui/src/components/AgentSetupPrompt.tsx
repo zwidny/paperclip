@@ -268,15 +268,15 @@ export function AgentSetupPrompt({
               onClick={() => { if (prompt.trim()) void copyPrompt(); }}
             >
               {status === "copied" ? <Check className="agent-setup-check size-4" /> : <Copy className="size-4" />}
-              {status === "copied" ? "Copied to clipboard" : status === "copying" ? "Copying…" : status === "failed" ? "Try copying again" : "Copy prompt"}
+              {status === "copied" ? t("agentSetupPrompt.copiedToClipboard", { defaultValue: "Copied to clipboard" }) : status === "copying" ? t("agentSetupPrompt.copying", { defaultValue: "Copying…" }) : status === "failed" ? t("agentSetupPrompt.tryAgain", { defaultValue: "Try copying again" }) : t("agentSetupPrompt.copyPrompt", { defaultValue: "Copy prompt" })}
             </Button>
             <p className="text-center text-xs text-muted-foreground">
-              {status === "copied" ? `Ready to paste into ${recipient}.` : agent ? `Give this prompt to ${recipient}.` : "Works with Codex, ChatGPT, Claude, and more."}
+              {status === "copied" ? t("agentSetupPrompt.readyToPaste", { defaultValue: "Ready to paste into {{recipient}}.", recipient }) : agent ? t("agentSetupPrompt.giveTo", { defaultValue: "Give this prompt to {{recipient}}.", recipient }) : t("agentSetupPrompt.worksWith", { defaultValue: "Works with Codex, ChatGPT, Claude, and more." })}
             </p>
           </div>
         </PopoverContent>
       </Popover>
-      <span role="status" className="sr-only">{status === "copied" ? `Setup prompt copied. Ready to paste into ${recipient}.` : ""}</span>
+      <span role="status" className="sr-only">{status === "copied" ? t("agentSetupPrompt.copiedStatus", { defaultValue: "Setup prompt copied. Ready to paste into {{recipient}}.", recipient }) : ""}</span>
       {flight && createPortal(
         <span ref={flyingLogos} className="agent-setup-flight-layer" aria-hidden="true">
           {agents.map((agent, index) => (

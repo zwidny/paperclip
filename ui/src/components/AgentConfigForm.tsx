@@ -3147,11 +3147,6 @@ const CLAUDE_LOGIN_FAILURE_STATUSES = new Set<AdapterAuthSessionStatus>([
   "cancelled",
 ]);
 
-// The fixed, non-secret message for a failed Claude login. The panel shows this
-// text and returns to its start state. It never shows a provider message that
-// could carry a secret.
-const CLAUDE_LOGIN_FAILED_MESSAGE = "The login did not finish. Start the login again.";
-
 // The client wall-clock cap for one active login. The panel polls the status
 // route and the prompt route every two seconds. The server can leave a session
 // short of a terminal status, and the prompt route returns 404 until the URL is
@@ -3164,10 +3159,6 @@ const CLAUDE_LOGIN_FAILED_MESSAGE = "The login did not finish. Start the login a
 // value is far longer than the server budget, so it never cuts a normal login
 // short (the earlier fixed 60-second cutoff did, which drove this fix).
 const CLAUDE_LOGIN_FAILSAFE_TIMEOUT_MS = 15 * 60_000;
-
-// The fixed, non-secret message for a timed-out Claude login. The panel shows
-// this text, stops both polls, and returns to its start state.
-const CLAUDE_LOGIN_TIMED_OUT_MESSAGE = "The login timed out. Start the login again.";
 
 // The submitted-browser-code login panel for the Claude adapter. It starts a
 // setup-token login, polls the status route, and reads the authorization URL
@@ -3986,14 +3977,14 @@ function SubmittedBrowserCodeLoginPanel({
         {isFailure && (
           <div className="flex items-start gap-2 text-(length:--text-micro) text-destructive">
             <TriangleAlert className="size-3 shrink-0" />
-            <span>{CLAUDE_LOGIN_FAILED_MESSAGE}</span>
+            <span>{t("config.login.claudeFailed", { defaultValue: "The login did not finish. Start the login again." })}</span>
           </div>
         )}
 
         {timedOut && !isFailure && !isStored && (
           <div className="flex items-start gap-2 text-(length:--text-micro) text-destructive">
             <TriangleAlert className="size-3 shrink-0" />
-            <span>{CLAUDE_LOGIN_TIMED_OUT_MESSAGE}</span>
+            <span>{t("config.login.claudeTimedOut", { defaultValue: "The login timed out. Start the login again." })}</span>
           </div>
         )}
       </div>

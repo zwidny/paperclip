@@ -47,7 +47,7 @@ import { SearchFilterSheet, SearchFilterSheetTrigger } from "../components/searc
 import { SearchSortMenu } from "../components/search/SearchSortMenu";
 import { ZeroResultsRecovery } from "../components/search/ZeroResultsRecovery";
 import { useSidebar } from "../context/SidebarContext";
-import { useTranslation } from "@/i18n";
+import { i18n, useTranslation } from "@/i18n";
 import {
   SORT_LABELS,
   countActiveFilters,
@@ -60,7 +60,7 @@ import type { Agent, IssueLabel, Project } from "@paperclipai/shared";
 const SEARCH_DEBOUNCE_MS = 250;
 const IDENTIFIER_PATTERN = /^[A-Z]+-\d+$/;
 
-const SCOPE_LABELS: Record<CompanySearchScope, string> = {
+const SCOPE_LABEL_DEFAULTS: Record<CompanySearchScope, string> = {
   all: "All",
   issues: "Tasks",
   comments: "Comments",
@@ -70,13 +70,17 @@ const SCOPE_LABELS: Record<CompanySearchScope, string> = {
   projects: "Projects",
 };
 
+function scopeLabel(scope: CompanySearchScope): string {
+  return i18n.t(`searchPage.scope.${scope}`, { defaultValue: SCOPE_LABEL_DEFAULTS[scope] });
+}
+
 function isCompanySearchScope(value: string | null): value is CompanySearchScope {
   return Boolean(value) && (COMPANY_SEARCH_SCOPES as readonly string[]).includes(value as string);
 }
 
 function describeScope(scope: CompanySearchScope) {
-  if (scope === "all") return "All scopes";
-  return SCOPE_LABELS[scope];
+  if (scope === "all") return i18n.t("searchPage.allScopes", { defaultValue: "All scopes" });
+  return scopeLabel(scope);
 }
 
 function totalMatchCount(counts: Partial<Record<CompanySearchCountType, number>>): number {
@@ -125,7 +129,7 @@ export function buildSearchUrl(
 }
 
 function shapeError(error: unknown): { message: string; status?: number } {
-  if (!error) return { message: "Unknown error" };
+  if (!error) return { message: i18n.t("searchPage.unknownError", { defaultValue: "Unknown error" }) };
   const status = (error as { status?: number } | null)?.status;
   return {
     message: describeError(error, { action: "run that search" }).body,
@@ -485,7 +489,7 @@ export function Search() {
         value,
         label: (
           <span className="flex items-center">
-            {SCOPE_LABELS[value as CompanySearchScope]}
+            {scopeLabel(value as CompanySearchScope)}
             {dashOut ? (
               <span className="ml-1.5 text-(length:--text-nano) text-muted-foreground">—</span>
             ) : count !== null ? (

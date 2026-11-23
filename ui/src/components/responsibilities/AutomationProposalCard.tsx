@@ -13,6 +13,7 @@ import { queryKeys } from "@/lib/queryKeys";
 import { responsibilityPath, routinePath } from "@/lib/responsibilities";
 import { Link } from "@/lib/router";
 import { issueUrl } from "@/lib/utils";
+import { useTranslation } from "@/i18n";
 import { AutomationStartIcon, WebhookDetails } from "./AutomationParts";
 import { localTimeZone } from "./MakeRoutineDialog";
 
@@ -35,7 +36,8 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
 
 /** "Pricing", "Pricing and Market", "Pricing, Market and Ops", as links. */
 function FiledUnder({ items }: { items: ReadonlyArray<{ id: string; title: string }> }) {
-  if (items.length === 0) return <span className="text-muted-foreground">No responsibility: the task is not filed under one.</span>;
+  const { t } = useTranslation();
+  if (items.length === 0) return <span className="text-muted-foreground">{t("automationProposal.noResponsibility", { defaultValue: "No responsibility: the task is not filed under one." })}</span>;
   return (
     <span>
       {items.map((item, index) => (
@@ -50,22 +52,23 @@ function FiledUnder({ items }: { items: ReadonlyArray<{ id: string; title: strin
 
 /** How it starts, in plain words, with what the agent said about it. */
 function HowItStarts({ payload }: { payload: ProposeAutomationInteraction["payload"] }) {
+  const { t } = useTranslation();
   const { trigger } = payload;
   return (
     <span className="flex min-w-0 flex-col gap-0.5">
       <span className="flex min-w-0 items-center gap-1.5">
         <AutomationStartIcon kind={START_KIND[trigger.kind]} />
         <span>
-          {trigger.kind === "schedule" ? `On a schedule: ${payload.startLabel}`
-            : trigger.kind === "webhook" ? "From a webhook, when another system calls it"
-              : `A standing check: ${payload.startLabel.charAt(0).toLowerCase()}${payload.startLabel.slice(1)}`}
+          {trigger.kind === "schedule" ? <>{t("automationProposal.onSchedule", { defaultValue: "On a schedule:" })} {payload.startLabel}</>
+            : trigger.kind === "webhook" ? t("automationProposal.fromWebhook", { defaultValue: "From a webhook, when another system calls it" })
+              : <>{t("automationProposal.standingCheck", { defaultValue: "A standing check:" })} {payload.startLabel.charAt(0).toLowerCase()}{payload.startLabel.slice(1)}</>}
         </span>
       </span>
-      {trigger.kind === "webhook" ? <span className="text-muted-foreground">Called by: {trigger.caller}</span> : null}
+      {trigger.kind === "webhook" ? <span className="text-muted-foreground">{t("automationProposal.calledBy", { defaultValue: "Called by:" })} {trigger.caller}</span> : null}
       {trigger.kind === "standing_check" ? (
         <>
-          <span className="text-muted-foreground">Looks for: {trigger.lookFor}</span>
-          <span className="text-muted-foreground">When it finds it: {trigger.whenFound}</span>
+          <span className="text-muted-foreground">{t("automationProposal.looksFor", { defaultValue: "Looks for:" })} {trigger.lookFor}</span>
+          <span className="text-muted-foreground">{t("automationProposal.whenFound", { defaultValue: "When it finds it:" })} {trigger.whenFound}</span>
         </>
       ) : null}
     </span>
@@ -82,6 +85,7 @@ function HowItStarts({ payload }: { payload: ProposeAutomationInteraction["paylo
  * and, right then only, the secret.
  */
 export function AutomationProposalCard({ interaction }: { interaction: ProposeAutomationInteraction }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const reasonId = useId();
   const { payload, result } = interaction;
@@ -150,14 +154,14 @@ export function AutomationProposalCard({ interaction }: { interaction: ProposeAu
           <Check aria-hidden className="mt-0.5 h-4 w-4 shrink-0" />
           {routineId ? (
             <span className="min-w-0">
-              Automation set up:{" "}
+              {t("automationProposal.accepted", { defaultValue: "Automation set up:" })}{" "}
               <Link to={routinePath(routineId)} className="font-medium text-foreground underline-offset-4 hover:underline">
                 {result?.routineTitle ?? payload.title}
               </Link>
               {" "}· {payload.startLabel}
             </span>
           ) : (
-            <span>Setting up the automation…</span>
+            <span>{t("automationProposal.settingUp", { defaultValue: "Setting up the automation…" })}</span>
           )}
         </div>
         {payload.trigger.kind === "webhook" && webhookUrl ? (
@@ -174,7 +178,7 @@ export function AutomationProposalCard({ interaction }: { interaction: ProposeAu
   if (interaction.status === "rejected" || result?.outcome === "replaced") {
     return (
       <p id={`interaction-${interaction.id}`} data-testid="automation-proposal-closed" className="text-sm text-muted-foreground">
-        {result?.outcome === "replaced" ? "Proposed automation, replaced by a newer one: " : "Not this automation: "}
+        {result?.outcome === "replaced" ? t("automationProposal.replaced", { defaultValue: "Proposed automation, replaced by a newer one:" }) : t("automationProposal.notThis", { defaultValue: "Not this automation:" })}{" "}
         {payload.title} ({payload.startLabel})
       </p>
     );
@@ -191,14 +195,14 @@ export function AutomationProposalCard({ interaction }: { interaction: ProposeAu
   };
   return (
     <article id={`interaction-${interaction.id}`} data-testid="automation-proposal" data-trigger={payload.trigger.kind}
-      aria-label={`Proposed automation for ${payload.sourceTitle}`}
+      aria-label={`${t("automationProposal.ariaLabel", { defaultValue: "Proposed automation for" })} ${payload.sourceTitle}`}
       className="rounded-md border border-border bg-card/60 px-3 py-3">
       <div className="flex items-start gap-3">
         <AgentAvatar agent={agentQuery.data ?? undefined} name={agentName} size={24} />
         <div className="flex min-w-0 flex-1 flex-col gap-3">
           <div className="flex min-w-0 flex-col gap-1">
             <p className="text-sm font-medium text-foreground">
-              {agentName} proposed an automation for {sourceLink}
+              {t("automationProposal.proposedFor", { defaultValue: "{{name}} proposed an automation for", name: agentName })}{" "}{sourceLink}
             </p>
             {payload.message ? <p className="text-sm text-foreground">{payload.message}</p> : null}
           </div>
@@ -207,48 +211,48 @@ export function AutomationProposalCard({ interaction }: { interaction: ProposeAu
             <p className="text-base text-foreground">{payload.title}</p>
           </div>
           <dl className="flex flex-col gap-2">
-            <Row label="Each time">
+            <Row label={t("automationProposal.eachTime", { defaultValue: "Each time" })}>
               <span className="line-clamp-4 whitespace-pre-line" title={payload.instructions}>{payload.instructions}</span>
             </Row>
-            <Row label="How it starts"><HowItStarts payload={payload} /></Row>
-            <Row label="Who runs it">{agentName}</Row>
-            <Row label="Filed under"><FiledUnder items={payload.filedUnder} /></Row>
+            <Row label={t("automationProposal.howItStarts", { defaultValue: "How it starts" })}><HowItStarts payload={payload} /></Row>
+            <Row label={t("automationProposal.whoRunsIt", { defaultValue: "Who runs it" })}>{agentName}</Row>
+            <Row label={t("automationProposal.filedUnder", { defaultValue: "Filed under" })}><FiledUnder items={payload.filedUnder} /></Row>
           </dl>
           {payload.trigger.kind === "webhook" ? (
-            <p className="text-xs text-muted-foreground">Once it is set up, you get the address to call and its secret to give that system.</p>
+            <p className="text-xs text-muted-foreground">{t("automationProposal.webhookNote", { defaultValue: "Once it is set up, you get the address to call and its secret to give that system." })}</p>
           ) : null}
           {error ? (
             <p className="text-sm text-destructive" role="alert">{describeError(error).body}</p>
           ) : null}
           {notRight ? (
             <form className="flex flex-col gap-2" onSubmit={submitNotRight}>
-              <label htmlFor={reasonId} className="text-xs text-muted-foreground">What should change? (optional)</label>
+              <label htmlFor={reasonId} className="text-xs text-muted-foreground">{t("automationProposal.whatShouldChange", { defaultValue: "What should change? (optional)" })}</label>
               <Textarea
                 id={reasonId}
                 rows={2}
                 value={reason}
                 autoFocus
-                placeholder="e.g. Run it on Mondays instead, and only for paying customers"
+                placeholder={t("automationProposal.changePlaceholder", { defaultValue: "e.g. Run it on Mondays instead, and only for paying customers" })}
                 onChange={(event) => setReason(event.target.value)}
               />
               <div className="flex flex-wrap items-center justify-end gap-2">
                 <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => setNotRight(false)}>
-                  Back
+                  {t("common.back", { defaultValue: "Back" })}
                 </Button>
                 <Button type="submit" size="sm" variant="outline" disabled={busy}>
                   {decline.isPending ? <Loader2 aria-hidden className="h-4 w-4 animate-spin" /> : null}
-                  Send
+                  {t("automationProposal.send", { defaultValue: "Send" })}
                 </Button>
               </div>
             </form>
           ) : (
             <div className="flex flex-wrap items-center justify-end gap-2">
               <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => setNotRight(true)}>
-                Not right
+                {t("automationProposal.notRight", { defaultValue: "Not right" })}
               </Button>
               <Button type="button" size="sm" disabled={busy} onClick={() => accept.mutate()}>
                 {accept.isPending ? <Loader2 aria-hidden className="h-4 w-4 animate-spin" /> : <Check aria-hidden className="h-4 w-4" />}
-                Set it up
+                {t("automationProposal.setItUp", { defaultValue: "Set it up" })}
               </Button>
             </div>
           )}

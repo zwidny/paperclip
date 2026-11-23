@@ -1,3 +1,4 @@
+import { i18n } from "@/i18n";
 import type { HeartbeatRunEvent } from "@paperclipai/shared";
 import type { TranscriptEntry } from "@/adapters";
 
@@ -299,7 +300,7 @@ function runtimeRequestEntry(input: {
     status,
     prompt: text(request.prompt)
       ?? input.previous?.prompt
-      ?? "Runtime approval requested",
+      ?? i18n.t("nativeRunEvents.runtimeApprovalRequested", { defaultValue: "Runtime approval requested" }),
     choices: choices.length > 0 ? choices : input.previous?.choices ?? [],
     fields: fields.length > 0 ? fields : input.previous?.fields ?? [],
     questionSet: canonicalQuestionSet(request.input)
@@ -328,7 +329,7 @@ function runResultEntry(
     kind: "run_result",
     ts,
     disposition,
-    summary: text(payload.summary) ?? "Run completed",
+    summary: text(payload.summary) ?? i18n.t("nativeRunEvents.runCompleted", { defaultValue: "Run completed" }),
     objectiveSatisfied: typeof completion.objectiveSatisfied === "boolean"
       ? completion.objectiveSatisfied
       : null,
@@ -671,7 +672,7 @@ function verificationActivityEntry(
     family: "verification",
     eventType: "verification.recorded",
     status: status === "passed" ? "completed" : status === "failed" ? "failed" : "informational",
-    title: "Verification",
+    title: i18n.t("nativeRunEvents.verification", { defaultValue: "Verification" }),
     summary: commandOrCheck,
     payload: {
       verificationId: itemId ?? `${commandOrCheck}:${ts}`,
@@ -731,7 +732,7 @@ function serializedNativeToolResult(item: NativeToolItemDetails): string {
   try {
     return JSON.stringify(item.result) ?? "";
   } catch {
-    return "Tool result could not be serialized";
+    return i18n.t("nativeRunEvents.resultUnserializable", { defaultValue: "Tool result could not be serialized" });
   }
 }
 
@@ -809,7 +810,7 @@ function fileChangeDiffEntries(
       entries.push({ kind: "diff", ts, changeType: kind, text: value, toolUseId });
     }
     if (change.diffTruncated === true) {
-      entries.push({ kind: "diff", ts, changeType: "truncation", text: "Diff shortened for display.", toolUseId });
+      entries.push({ kind: "diff", ts, changeType: "truncation", text: i18n.t("nativeRunEvents.diffShortened", { defaultValue: "Diff shortened for display." }), toolUseId });
     }
   }
   return entries;
@@ -1034,8 +1035,8 @@ export function nativeRunEventsToTranscript(events: readonly HeartbeatRunEvent[]
         family: "context",
         eventType: event.eventType,
         status: "completed",
-        title: "Context compacted",
-        summary: "Context compacted",
+        title: i18n.t("nativeRunEvents.contextCompacted", { defaultValue: "Context compacted" }),
+        summary: i18n.t("nativeRunEvents.contextCompacted", { defaultValue: "Context compacted" }),
         payload: compaction,
       });
       continue;
@@ -1151,8 +1152,8 @@ export function nativeRunEventsToTranscript(events: readonly HeartbeatRunEvent[]
         family: "provider_notice",
         eventType: event.eventType,
         status: payload.severity === "error" ? "failed" : "informational",
-        title: "Provider notice",
-        summary: text(payload.summary)?.trim() || text(payload.message)?.trim() || "Provider notice",
+        title: i18n.t("nativeRunEvents.providerNotice", { defaultValue: "Provider notice" }),
+        summary: text(payload.summary)?.trim() || text(payload.message)?.trim() || i18n.t("nativeRunEvents.providerNotice", { defaultValue: "Provider notice" }),
         payload,
       });
       continue;
@@ -1525,7 +1526,7 @@ export function nativeRunEventsToTranscript(events: readonly HeartbeatRunEvent[]
     entries.push({
       kind: "result",
       ...cumulativeUsageSummary,
-      text: "Provider-reported session-cumulative usage; a per-run delta was unavailable.",
+      text: i18n.t("nativeRunEvents.sessionCumulativeUsage", { defaultValue: "Provider-reported session-cumulative usage; a per-run delta was unavailable." }),
       subtype: "paperclip_runner_session_usage",
       isError: false,
       errors: [],

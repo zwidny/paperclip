@@ -289,12 +289,12 @@ export const ChatComposer = forwardRef<ChatComposerHandle, ChatComposerProps>(fu
             const sizeLabel = formatAttachmentSize(attachment.size);
             const statusLabel =
               attachment.status === "uploading"
-                ? "Uploading…"
+                ? i18n.t("chatComposer.uploading", { defaultValue: "Uploading…" })
                 : attachment.status === "error"
-                  ? attachment.error ?? "Upload failed"
+                  ? attachment.error ?? i18n.t("chatComposer.uploadFailed", { defaultValue: "Upload failed" })
                   : attachment.inline
-                    ? "Inserted inline"
-                    : "Attached";
+                    ? i18n.t("chatComposer.insertedInline", { defaultValue: "Inserted inline" })
+                    : i18n.t("chatComposer.attached", { defaultValue: "Attached" });
             return (
               <div
                 key={attachment.id}

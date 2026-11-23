@@ -23,6 +23,7 @@ import {
   type BarDraft,
   type BarField,
 } from "@/lib/responsibilities";
+import { useTranslation } from "@/i18n";
 import { ResponsibilityBarFields } from "./ResponsibilityBarFields";
 
 const NO_AREA = "";
@@ -50,6 +51,7 @@ export function AddResponsibilityDialog({
   defaultAreaId?: string | null;
   onCreated?: (created: ResponsibilityWithRollup) => void;
 }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
   const [areaChoice, setAreaChoice] = useState<string>(NO_AREA);
@@ -113,60 +115,60 @@ export function AddResponsibilityDialog({
       <DialogContent className="sm:max-w-xl">
         <form className="flex flex-col gap-5" onSubmit={submit} noValidate>
           <DialogHeader>
-            <DialogTitle>Add a responsibility</DialogTitle>
+            <DialogTitle>{t("responsibilities.createTitle", { defaultValue: "Add a responsibility" })}</DialogTitle>
             <DialogDescription>
-              Something you own, with a bar for success and a number that shows whether you are meeting it.
+              {t("responsibilities.createDescription", { defaultValue: "Something you own, with a bar for success and a number that shows whether you are meeting it." })}
             </DialogDescription>
           </DialogHeader>
           <label className="flex flex-col gap-1.5 text-sm">
-            <span className="font-medium text-foreground">What do you own?</span>
+            <span className="font-medium text-foreground">{t("responsibilities.ownLabel", { defaultValue: "What do you own?" })}</span>
             <Input
               autoFocus
               value={title}
               maxLength={200}
-              placeholder="e.g. Investor pipeline"
+              placeholder={t("responsibilities.ownPlaceholder", { defaultValue: "e.g. Investor pipeline" })}
               aria-invalid={titleMissing || undefined}
               onChange={(event) => setTitle(event.target.value)}
             />
-            {titleMissing ? <span className="text-xs text-destructive">Name what you own</span> : null}
+            {titleMissing ? <span className="text-xs text-destructive">{t("responsibilities.ownRequired", { defaultValue: "Name what you own" })}</span> : null}
           </label>
           <div className="flex flex-col gap-1.5 text-sm">
             <label className="flex flex-col gap-1.5">
-              <span className="font-medium text-foreground">Area</span>
+              <span className="font-medium text-foreground">{t("responsibilities.areaLabel", { defaultValue: "Area" })}</span>
               <NativeSelect value={areaChoice} onChange={(event) => setAreaChoice(event.target.value)}>
-                <option value={NO_AREA}>No area</option>
+                <option value={NO_AREA}>{t("responsibilities.noArea", { defaultValue: "No area" })}</option>
                 {areas.map((area) => (
                   <option key={area.id} value={area.id}>{area.title}</option>
                 ))}
-                <option value={NEW_AREA}>New area…</option>
+                <option value={NEW_AREA}>{t("responsibilities.newArea", { defaultValue: "New area…" })}</option>
               </NativeSelect>
             </label>
             {areaChoice === NEW_AREA ? (
               <>
                 <Input
-                  aria-label="New area name"
+                  aria-label={t("responsibilities.newAreaName", { defaultValue: "New area name" })}
                   value={newAreaTitle}
                   maxLength={200}
-                  placeholder="e.g. Fundraising"
+                  placeholder={t("responsibilities.newAreaPlaceholder", { defaultValue: "e.g. Fundraising" })}
                   aria-invalid={newAreaMissing || undefined}
                   onChange={(event) => setNewAreaTitle(event.target.value)}
                 />
-                {newAreaMissing ? <span className="text-xs text-destructive">Name the new area</span> : null}
+                {newAreaMissing ? <span className="text-xs text-destructive">{t("responsibilities.newAreaRequired", { defaultValue: "Name the new area" })}</span> : null}
               </>
             ) : null}
           </div>
           <ResponsibilityBarFields draft={draft} onChange={setDraft} missing={missing} invalid={invalid} problems={problems} showCurrent />
           {create.error ? (
             <p role="alert" className="text-sm text-destructive">
-              Couldn’t add the responsibility. {describeError(create.error).body}
+              {t("responsibilities.createFailed", { defaultValue: "Couldn’t add the responsibility." })} {describeError(create.error).body}
             </p>
           ) : null}
           <DialogFooter className="items-center sm:justify-between">
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t("common.cancel", { defaultValue: "Cancel" })}
             </Button>
             <Button type="submit" disabled={create.isPending}>
-              {create.isPending ? "Adding…" : "Add responsibility"}
+              {create.isPending ? t("responsibilities.adding", { defaultValue: "Adding…" }) : t("responsibilities.add", { defaultValue: "Add responsibility" })}
             </Button>
           </DialogFooter>
         </form>

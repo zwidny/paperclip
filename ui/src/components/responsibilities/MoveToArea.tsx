@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { queryKeys } from "@/lib/queryKeys";
+import { useTranslation } from "@/i18n";
 
 type AreaRef = Pick<ResponsibilityArea, "id" | "title" | "status">;
 
@@ -40,17 +41,18 @@ export function AreaRadioItems({
   value: string | null;
   onChange: (areaId: string | null) => void;
 }) {
+  const { t } = useTranslation();
   const choices = areas.filter((area) => area.status !== "archived" || area.id === value);
   return (
     <DropdownMenuRadioGroup value={value ?? ""} onValueChange={(next) => onChange(next ? next : null)}>
       {choices.map((area) => (
         <DropdownMenuRadioItem key={area.id} value={area.id} disabled={area.status === "archived"}>
           {area.title}
-          {area.status === "archived" ? " (archived)" : ""}
+          {area.status === "archived" ? t("responsibilities.archivedSuffix", { defaultValue: " (archived)" }) : ""}
         </DropdownMenuRadioItem>
       ))}
       {choices.length > 0 ? <DropdownMenuSeparator /> : null}
-      <DropdownMenuRadioItem value="">No area</DropdownMenuRadioItem>
+      <DropdownMenuRadioItem value="">{t("responsibilities.noArea", { defaultValue: "No area" })}</DropdownMenuRadioItem>
     </DropdownMenuRadioGroup>
   );
 }
@@ -66,6 +68,7 @@ export function AreaControl({
   areas: readonly AreaRef[];
 }) {
   const move = useMoveToArea(responsibilityId);
+  const { t } = useTranslation();
   return (
     <span className="inline-flex flex-col gap-1">
       <DropdownMenu>
@@ -74,15 +77,15 @@ export function AreaControl({
             size="sm"
             variant="ghost"
             disabled={move.isPending}
-            aria-label={area ? `Area: ${area.title}. Move to another area` : "No area. Choose one"}
+            aria-label={area ? `${t("responsibilities.areaLabelPrefix", { defaultValue: "Area:" })} ${area.title}. ${t("responsibilities.moveToAnotherArea", { defaultValue: "Move to another area" })}` : t("responsibilities.noAreaChooseOne", { defaultValue: "No area. Choose one" })}
           >
-            {area ? area.title : <span className="text-muted-foreground">No area</span>}
-            {area?.status === "archived" ? <span className="text-muted-foreground">(archived)</span> : null}
+            {area ? area.title : <span className="text-muted-foreground">{t("responsibilities.noArea", { defaultValue: "No area" })}</span>}
+            {area?.status === "archived" ? <span className="text-muted-foreground">{t("responsibilities.archivedParen", { defaultValue: "(archived)" })}</span> : null}
             <ChevronDown aria-hidden="true" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="max-h-(--sz-50vh) overflow-y-auto">
-          <DropdownMenuLabel>Move to area</DropdownMenuLabel>
+          <DropdownMenuLabel>{t("responsibilities.moveToAreaLabel", { defaultValue: "Move to area" })}</DropdownMenuLabel>
           <AreaRadioItems
             areas={area && !areas.some((candidate) => candidate.id === area.id) ? [area, ...areas] : areas}
             value={area?.id ?? null}
@@ -94,7 +97,7 @@ export function AreaControl({
       </DropdownMenu>
       {move.error ? (
         <span role="alert" className="text-xs text-destructive">
-          Couldn’t move it. {describeError(move.error).body}
+          {t("responsibilities.moveFailed", { defaultValue: "Couldn’t move it." })} {describeError(move.error).body}
         </span>
       ) : null}
     </span>

@@ -95,9 +95,18 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
     ...(showBackupRetention ? [t("settings.general.topics.backupRetention", { defaultValue: "backup retention" })] : []),
     ...(showFeedbackDataSharing ? [t("settings.general.topics.dataSharing", { defaultValue: "data sharing" })] : []),
   ];
-  const topicSummary = visibleTopics.length > 2
-    ? `${visibleTopics.slice(0, -1).join(", ")}, and ${visibleTopics[visibleTopics.length - 1]}`
-    : visibleTopics.join(" and ");
+  const topicSeparator = t("settings.general.topicSeparator", { defaultValue: ", " });
+  const topicSummary = visibleTopics.length === 0
+    ? ""
+    : visibleTopics.length === 1
+      ? visibleTopics[0]
+      : visibleTopics.length === 2
+        ? t("settings.general.topicPair", { first: visibleTopics[0], second: visibleTopics[1], defaultValue: "{{first}} and {{second}}" })
+        : t("settings.general.topicMore", {
+            list: visibleTopics.slice(0, -1).join(topicSeparator),
+            last: visibleTopics[visibleTopics.length - 1],
+            defaultValue: "{{list}}, and {{last}}",
+          });
   const visibleActionError = signOutMutation.error
     ? describeError(signOutMutation.error).body
     : actionError;
@@ -215,7 +224,11 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
                       })
                     }
                   >
-                    <div className="text-sm font-medium">{t("settings.general.backupRetention.days", { count: days, defaultValue: "{{count}} day" })}</div>
+                    <div className="text-sm font-medium">{t("settings.general.backupRetention.days", {
+                      count: days,
+                      defaultValue_one: "{{count}} day",
+                      defaultValue_other: "{{count}} days",
+                    })}</div>
                   </button>
                 );
               })}
@@ -227,7 +240,11 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
             <div className="flex flex-wrap gap-2">
               {WEEKLY_RETENTION_PRESETS.map((weeks) => {
                 const active = backupRetention.weeklyWeeks === weeks;
-                const label = t("settings.general.backupRetention.weeks", { count: weeks, defaultValue: "{{count}} week" });
+                const label = t("settings.general.backupRetention.weeks", {
+                  count: weeks,
+                  defaultValue_one: "{{count}} week",
+                  defaultValue_other: "{{count}} weeks",
+                });
                 return (
                   <button
                     key={weeks}
@@ -257,7 +274,11 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
             <div className="flex flex-wrap gap-2">
               {MONTHLY_RETENTION_PRESETS.map((months) => {
                 const active = backupRetention.monthlyMonths === months;
-                const label = t("settings.general.backupRetention.months", { count: months, defaultValue: "{{count}} month" });
+                const label = t("settings.general.backupRetention.months", {
+                  count: months,
+                  defaultValue_one: "{{count}} month",
+                  defaultValue_other: "{{count}} months",
+                });
                 return (
                   <button
                     key={months}

@@ -10,6 +10,7 @@ import { useStartAgentChat } from "@/hooks/useAgentChatNavigation";
 import { agentIdFromChatValue, chatAgentOptions, defaultChatAgent } from "@/lib/dashboard-chat";
 import { queryKeys } from "@/lib/queryKeys";
 import { getRecentAssigneeIds, trackRecentAssignee } from "@/lib/recent-assignees";
+import { useTranslation } from "@/i18n";
 import { Link } from "@/lib/router";
 
 /** Below the app's mobile breakpoint the composer uses its mobile sizing (16px text, so iOS does not zoom). */
@@ -49,6 +50,7 @@ export function DashboardChatComposer({
   /** False until the company's agents have loaded: nothing shows before then. */
   loaded: boolean;
 }) {
+  const { t } = useTranslation();
   const session = useQuery({ queryKey: queryKeys.auth.session, queryFn: () => authApi.getSession() });
   const userId = session.data?.user?.id ?? session.data?.session?.userId ?? null;
   const startChat = useStartAgentChat(companyId, userId);
@@ -71,7 +73,7 @@ export function DashboardChatComposer({
     async (text: string, _mode: unknown, settings: ComposerRunSettings | null) => {
       const agent = agents.find((candidate) => candidate.id === agentIdFromChatValue(value));
       if (!agent) {
-        setError("Choose an agent to talk to.");
+        setError(t("responsibilities.composer.chooseAgent", { defaultValue: "Choose an agent to talk to." }));
         return;
       }
       const key = `${agent.id}\n${text}\n${files.map((staged) => staged.id).join(",")}`;
@@ -83,17 +85,25 @@ export function DashboardChatComposer({
         setBody("");
         setFiles([]);
       } catch (failure) {
-        setError(`Couldn’t start the chat with ${agent.name}. ${describeError(failure).body}`);
+        setError(
+          `${t("responsibilities.composer.couldntStart", {
+            defaultValue: "Couldn’t start the chat with {{agent}}.",
+            agent: agent.name,
+          })} ${describeError(failure).body}`,
+        );
       }
     },
-    [agents, files, startChat, value],
+    [agents, files, startChat, t, value],
   );
 
   if (!loaded) return null;
   if (options.length === 0) {
     return (
       <p className="mx-auto w-full max-w-(--tc-shell-max-w) text-sm text-muted-foreground" data-dashboard-chat="no-agents">
-        <Link to="/agents/new" className="underline underline-offset-4 hover:text-foreground">Add an agent</Link> to start a chat from here.
+        <Link to="/agents/new" className="underline underline-offset-4 hover:text-foreground">
+          {t("responsibilities.composer.addAnAgent", { defaultValue: "Add an agent" })}
+        </Link>{" "}
+        {t("responsibilities.composer.addAgentToStart", { defaultValue: "to start a chat from here." })}
       </p>
     );
   }
@@ -128,7 +138,7 @@ export function DashboardChatComposer({
             if (error) setError(null);
           },
           onSubmit: submit,
-          submitLabel: "Send",
+          submitLabel: t("composer.send", { defaultValue: "Send" }),
           onSelectFiles: (picked) => setFiles((current) => [...current, ...picked.map((file) => ({ id: crypto.randomUUID(), file }))]),
           images: images.map((staged) => ({ id: staged.id, name: staged.file.name, file: staged.file })),
           onRemoveImage: removeFile,

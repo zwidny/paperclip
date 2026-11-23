@@ -111,11 +111,11 @@ export function AppsConnect({ byoOnly = false, credentialSource = "paperclip_vau
   // A plugin-provided connector is known only from the host gallery, which
   // also registers it for the setup flow's catalog lookups.
   if (pluginApp) {
-    if (gallery.isPending || galleryView.kind === "reconnecting") return <p role="status">Loading connector…</p>;
+    if (gallery.isPending || galleryView.kind === "reconnecting") return <p role="status">{t("appsConnect.loadingConnector", { defaultValue: "Loading connector…" })}</p>;
     if (galleryView.kind === "error") return <QueryErrorState error={gallery.error} action="load the connector" onRetry={galleryView.retry} retrying={galleryView.isFetching} />;
     if (!gallery.data?.apps.some(app => app.slug === source)) return <div className="space-y-3">
-      <p role="alert">This connector is unavailable. Ask an instance admin to enable its plugin.</p>
-      <Button variant="ghost" onClick={() => navigate("/apps")}>Back to Connectors</Button>
+      <p role="alert">{t("appsConnect.pluginConnectorUnavailable", { defaultValue: "This connector is unavailable. Ask an instance admin to enable its plugin." })}</p>
+      <Button variant="ghost" onClick={() => navigate("/apps")}>{t("appsConnect.backToConnectors", { defaultValue: "Back to Connectors" })}</Button>
     </div>;
   }
   return <ConnectionSetupFlow byoOnly={byoOnly} credentialSource={credentialSource} host="page"

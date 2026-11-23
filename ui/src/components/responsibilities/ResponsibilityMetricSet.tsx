@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { i18n, useTranslation } from "@/i18n";
 import { describeMetricTarget, formatMetricViewValue } from "@/lib/metric-charts";
 import { queryKeys } from "@/lib/queryKeys";
 import { describeMetricReading, describeReadingAge, describeStale } from "@/lib/responsibilities";
@@ -43,21 +44,31 @@ export function useResponsibilityMetrics(responsibilityId: string, enabled = tru
 
 /** When the newest reading was taken, in words. */
 export function describeMetricReadLine(metric: Pick<ResponsibilityMetricView, "starter" | "latest" | "period">, now: Date): string {
-  if (metric.starter === "tasks_finished") return "Counted from the work, week by week";
-  if (metric.starter && metric.starter !== "bar_metric") return "Counted from the work just now";
-  if (!metric.latest) return "No readings yet";
-  return `Read ${describeReadingAge(metric.latest.recordedAt, now)}`;
+  if (metric.starter === "tasks_finished") {
+    return i18n.t("responsibilities.metricSet.readWeekByWeek", {
+      defaultValue: "Counted from the work, week by week",
+    });
+  }
+  if (metric.starter && metric.starter !== "bar_metric") {
+    return i18n.t("responsibilities.metricSet.readJustNow", { defaultValue: "Counted from the work just now" });
+  }
+  if (!metric.latest) return i18n.t("responsibilities.metricSet.noReadings", { defaultValue: "No readings yet" });
+  return i18n.t("responsibilities.metricSet.readAt", {
+    defaultValue: "Read {{age}}",
+    age: describeReadingAge(metric.latest.recordedAt, now),
+  });
 }
 
 /** The big value and what it aims for. The primary reads through the bar's own words ("9 of 20"). */
 function Headline({ metric, primary }: { metric: ResponsibilityMetricView; primary: ResponsibilityMetricSummary | null }) {
+  const { t } = useTranslation();
   const reading = metric.role === "primary" && primary ? describeMetricReading(primary) : null;
   const value = reading ? reading.current : metric.latest ? formatMetricViewValue(metric, metric.latest.value) : null;
   const target = reading ? reading.targetLabel : describeMetricTarget(metric);
   return (
     <p className="flex min-w-0 flex-wrap items-baseline gap-x-1.5 tabular-nums" data-metric-value="">
       <span className={cn("font-semibold text-foreground", value ? "text-2xl" : "text-sm text-muted-foreground")}>
-        {value ?? "No reading yet"}
+        {value ?? t("responsibilities.metricSet.noReadingYet", { defaultValue: "No reading yet" })}
       </span>
       {target ? <span className="text-sm text-muted-foreground">{target}</span> : null}
       {metric.note ? <span className="text-xs text-muted-foreground">· {metric.note}</span> : null}
@@ -67,6 +78,7 @@ function Headline({ metric, primary }: { metric: ResponsibilityMetricView; prima
 
 /** The metric drawn in its form. */
 function MetricForm({ metric, primary }: { metric: ResponsibilityMetricView; primary: ResponsibilityMetricSummary | null }) {
+  const { t } = useTranslation();
   switch (metric.display) {
     case "line":
       return <MetricLineChart metric={metric} />;
@@ -77,7 +89,7 @@ function MetricForm({ metric, primary }: { metric: ResponsibilityMetricView; pri
       // A number shows the bar's own meter toward its target; a percent shows its ring beside the value.
       if (metric.role !== "primary" || !primary || metric.display === "percent") return null;
       const reading = describeMetricReading(primary);
-      return <MetricMeter reading={reading} health={metric.health ?? "not_measured"} label={`${metric.title}, toward its bar`} />;
+      return <MetricMeter reading={reading} health={metric.health ?? "not_measured"} label={t("responsibilities.metricSet.towardItsBar", { defaultValue: "{{title}}, toward its bar", title: metric.title })} />;
     }
   }
 }
@@ -134,6 +146,7 @@ export function MetricTile({
   menu?: ReactNode;
   className?: string;
 }) {
+  const { t } = useTranslation();
   const titleId = useId();
   const descriptionId = useId();
   const [explained, setExplained] = useState(false);
@@ -188,8 +201,11 @@ export function MetricTile({
               className="text-muted-foreground"
               aria-expanded={explained}
               aria-controls={descriptionId}
-              aria-label={`How “${metric.title}” is measured`}
-              title="How it is measured"
+              aria-label={t("responsibilities.metricSet.howMeasuredAria", {
+                defaultValue: "How “{{title}}” is measured",
+                title: metric.title,
+              })}
+              title={t("responsibilities.metricSet.howMeasured", { defaultValue: "How it is measured" })}
               onClick={() => setExplained((value) => !value)}
             >
               <Info aria-hidden="true" />
@@ -201,8 +217,11 @@ export function MetricTile({
               size="icon-xs"
               variant="ghost"
               className="text-muted-foreground"
-              aria-label={`Remove “${metric.title}”`}
-              title="Remove this metric"
+              aria-label={t("responsibilities.metricSet.removeAria", {
+                defaultValue: "Remove “{{title}}”",
+                title: metric.title,
+              })}
+              title={t("responsibilities.metricSet.removeThisMetric", { defaultValue: "Remove this metric" })}
               onClick={onRemove}
             >
               <X aria-hidden="true" />
@@ -227,8 +246,15 @@ export function MetricTile({
 /** "Chosen with Ada" or "Set by hand": who picked a chosen set. */
 function chosenByLine(set: MetricSet, agentsById: ReadonlyMap<string, Agent>): string | null {
   if (set.source !== "chosen" || !set.chosenBy) return null;
-  if (set.chosenBy.agentId) return `Chosen with ${agentsById.get(set.chosenBy.agentId)?.name ?? "an agent"}`;
-  if (set.chosenBy.userId) return "Set by hand";
+  if (set.chosenBy.agentId) {
+    return i18n.t("responsibilities.metricSet.chosenWith", {
+      defaultValue: "Chosen with {{agent}}",
+      agent:
+        agentsById.get(set.chosenBy.agentId)?.name ??
+        i18n.t("responsibilities.bar.anAgent", { defaultValue: "an agent" }),
+    });
+  }
+  if (set.chosenBy.userId) return i18n.t("responsibilities.metricSet.setByHand", { defaultValue: "Set by hand" });
   return null;
 }
 
@@ -257,12 +283,22 @@ export function ResponsibilityMetricSetView({
   onRemove?: (metric: ResponsibilityMetricView) => void;
   footer?: ReactNode;
 }) {
-  const label = set.source === "starter" ? STARTER_METRICS_LABEL : chosenByLine(set, agentsById);
+  const { t } = useTranslation();
+  const label =
+    set.source === "starter"
+      ? t("responsibilities.metricSet.starterLabel", { defaultValue: STARTER_METRICS_LABEL })
+      : chosenByLine(set, agentsById);
   return (
-    <section aria-label="Metrics" className="flex flex-col gap-3" data-metric-set={set.source}>
+    <section
+      aria-label={t("responsibilities.metricSet.metricsAria", { defaultValue: "Metrics" })}
+      className="flex flex-col gap-3"
+      data-metric-set={set.source}
+    >
       {label ? <p className="text-xs text-muted-foreground" data-metric-set-label="">{label}</p> : null}
       {set.metrics.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No metrics yet.</p>
+        <p className="text-sm text-muted-foreground">
+          {t("responsibilities.metricSet.noMetrics", { defaultValue: "No metrics yet." })}
+        </p>
       ) : (
         <div
           className={cn(
@@ -312,6 +348,7 @@ export function ResponsibilityMetrics({
   editable: boolean;
   fallback: ReactNode;
 }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const query = useResponsibilityMetrics(responsibilityId);
   const [removing, setRemoving] = useState<ResponsibilityMetricView | null>(null);
@@ -340,19 +377,28 @@ export function ResponsibilityMetrics({
       <AlertDialog open={removing !== null} onOpenChange={(open) => { if (!open) setRemoving(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove “{removing?.title}”?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("responsibilities.metricSet.removeTitle", { defaultValue: "Remove “{{title}}”?", title: removing?.title })}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              It stops showing on this responsibility, and agents stop recording it. Its readings are kept. To choose other
-              metrics, talk the bar through with an agent.
+              {t("responsibilities.metricSet.removeDescription", {
+                defaultValue:
+                  "It stops showing on this responsibility, and agents stop recording it. Its readings are kept. To choose other metrics, talk the bar through with an agent.",
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           {remove.error ? (
-            <p role="alert" className="text-sm text-destructive">Couldn’t remove it. {describeError(remove.error).body}</p>
+            <p role="alert" className="text-sm text-destructive">
+              {t("responsibilities.bar.couldntRemove", { defaultValue: "Couldn’t remove it." })}{" "}
+              {describeError(remove.error).body}
+            </p>
           ) : null}
           <AlertDialogFooter className="items-center sm:justify-between">
-            <AlertDialogCancel>Keep it</AlertDialogCancel>
+            <AlertDialogCancel>{t("responsibilities.bar.keepIt", { defaultValue: "Keep it" })}</AlertDialogCancel>
             <Button variant="destructive" disabled={remove.isPending || !removing} onClick={() => removing && remove.mutate(removing)}>
-              {remove.isPending ? "Removing…" : "Remove metric"}
+              {remove.isPending
+                ? t("responsibilities.bar.removing", { defaultValue: "Removing…" })
+                : t("responsibilities.metricSet.removeMetric", { defaultValue: "Remove metric" })}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

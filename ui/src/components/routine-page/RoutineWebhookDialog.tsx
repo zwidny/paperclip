@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { RoutineTrigger } from "@paperclipai/shared";
 import { AlertCircle, Check, CheckCircle2, GitBranch, Globe, PauseCircle, Radio } from "lucide-react";
 import { webhookAgentInstructions, webhookInstructionSigningMode } from "@/components/routine-triggers/webhook-instructions";
@@ -35,8 +36,8 @@ export type RoutineWebhookDialogProps = {
 };
 
 const SENDERS = [
-  { sender: "custom", label: "Another app or script", Icon: Globe },
-  { sender: "github", label: "GitHub", Icon: GitBranch },
+  { sender: "custom", label: "Another app or script", labelKey: "routineWebhook.anotherAppOption", Icon: Globe },
+  { sender: "github", label: "GitHub", labelKey: null, Icon: GitBranch },
 ] as const;
 
 const STATUS_LOOK: Record<WebhookStatusKey, { icon: typeof Radio; tone: string }> = {
@@ -69,6 +70,7 @@ export function RoutineWebhookDialog({
   onStartTest,
   onFinishTest,
 }: RoutineWebhookDialogProps) {
+  const { t } = useTranslation();
   const [sender, setSender] = useState<WebhookSender>("custom");
   useEffect(() => {
     if (open && !trigger) setSender("custom");
@@ -89,18 +91,22 @@ export function RoutineWebhookDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex max-h-(--sz-calc-18) flex-col gap-0 overflow-hidden p-0 sm:max-w-lg">
         <DialogHeader className="px-6 pb-4 pt-6">
-          <DialogTitle>{trigger ? webhookTitle(trigger) : "Add webhook"}</DialogTitle>
+          <DialogTitle>{trigger ? webhookTitle(trigger) : t("routineEditDialog.addWebhook", { defaultValue: "Add webhook" })}</DialogTitle>
           <DialogDescription>
             {trigger
-              ? `Starts “${routineTitle}” when ${github ? "GitHub" : "another app"} sends an event.`
-              : "Start this routine when something happens in another app."}
+              ? t("routineWebhook.description", {
+                  title: routineTitle,
+                  sender: github ? "GitHub" : t("routineWebhook.anotherApp", { defaultValue: "another app" }),
+                  defaultValue: "Starts “{{title}}” when {{sender}} sends an event.",
+                })
+              : t("routineWebhook.addDescription", { defaultValue: "Start this routine when something happens in another app." })}
           </DialogDescription>
         </DialogHeader>
 
         <fieldset disabled={busy} className="flex min-h-0 min-w-0 flex-1 flex-col gap-5 overflow-y-auto px-6 pb-6">
           {!trigger ? (
-            <div role="radiogroup" aria-label="What’s sending the webhook?" className="flex flex-col gap-2">
-              {SENDERS.map(({ sender: value, label, Icon }) => (
+            <div role="radiogroup" aria-label={t("triggerWizard.senderLegend", { defaultValue: "What’s sending the webhook?" })} className="flex flex-col gap-2">
+              {SENDERS.map(({ sender: value, label, labelKey, Icon }) => (
                 <label
                   key={value}
                   className={cn(
@@ -116,7 +122,7 @@ export function RoutineWebhookDialog({
                     onChange={() => setSender(value)}
                   />
                   <Icon className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-                  <span className="flex-1">{label}</span>
+                  <span className="flex-1">{labelKey ? t(labelKey, { defaultValue: label }) : label}</span>
                   {sender === value ? <Check className="h-4 w-4" aria-hidden="true" /> : null}
                 </label>
               ))}
@@ -131,30 +137,35 @@ export function RoutineWebhookDialog({
                     <p className="text-xs text-muted-foreground">{statusDetail}</p>
                   </div>
                   {canTest ? (
-                    <Button variant="outline" size="sm" className="shrink-0" onClick={onStartTest}>Test webhook</Button>
+                    <Button variant="outline" size="sm" className="shrink-0" onClick={onStartTest}>{t("routineWebhook.testWebhook", { defaultValue: "Test webhook" })}</Button>
                   ) : null}
                 </div>
               ) : null}
               <WebhookUrlWarning url={url} />
-              <CopyField label={github ? "Payload URL" : "Webhook URL"} value={url} />
+              <CopyField label={github
+                ? t("triggerWizard.payloadUrl", { defaultValue: "Payload URL" })
+                : t("routineTriggers.webhookUrl", { defaultValue: "Webhook URL" })} value={url} />
               {trigger.signingMode === "hmac_sha256" ? (
                 <p className="text-sm text-muted-foreground">
-                  Sign the timestamp, a period, and the exact JSON body with HMAC-SHA256. Send X-Paperclip-Timestamp and
-                  X-Paperclip-Signature: sha256=&lt;signature&gt;.
+                  {t("routineTriggers.hmacInstructions", { defaultValue: "Sign the timestamp, a period, and the exact JSON body with HMAC-SHA256. Send X-Paperclip-Timestamp and X-Paperclip-Signature: sha256=<signature>." })}
                 </p>
               ) : null}
               {trigger.signingMode === "none" ? (
-                <p className="text-sm text-muted-foreground">This webhook has no key. Its URL is the shared secret, so keep it private.</p>
+                <p className="text-sm text-muted-foreground">{t("routineWebhook.noKeyUrl", { defaultValue: "This webhook has no key. Its URL is the shared secret, so keep it private." })}</p>
               ) : secret ? (
                 <CopyField
-                  label={github ? "Secret" : bearer ? "Authorization header value" : "Secret key"}
+                  label={github
+                    ? t("triggerWizard.secretLabel", { defaultValue: "Secret" })
+                    : bearer
+                      ? t("routineTriggers.authorizationHeaderValue", { defaultValue: "Authorization header value" })
+                      : t("routineTriggers.secretKey", { defaultValue: "Secret key" })}
                   value={!github && bearer ? `Bearer ${secret}` : secret}
-                  help="Copy it now. It’s hidden after you close this."
+                  help={t("routineWebhook.copyNow", { defaultValue: "Copy it now. It’s hidden after you close this." })}
                 />
               ) : (
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm text-muted-foreground">The secret key is hidden.</p>
-                  <Button variant="outline" size="sm" onClick={onReplaceKey}>Replace key</Button>
+                  <p className="text-sm text-muted-foreground">{t("routineTriggers.secretHidden", { defaultValue: "The secret key is hidden." })}</p>
+                  <Button variant="outline" size="sm" onClick={onReplaceKey}>{t("routineTriggers.replaceKey", { defaultValue: "Replace key" })}</Button>
                 </div>
               )}
               {/* Instructions follow the signing mode; with no known mode (a restored webhook before its refresh) none are shown. */}
@@ -178,26 +189,32 @@ export function RoutineWebhookDialog({
         <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-6 py-4">
           {!trigger ? (
             <>
-              <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <Button disabled={busy} onClick={() => onCreate(sender)}>{busy ? "Creating…" : "Create webhook"}</Button>
+              <Button variant="ghost" onClick={() => onOpenChange(false)}>{t("common.cancel", { defaultValue: "Cancel" })}</Button>
+              <Button disabled={busy} onClick={() => onCreate(sender)}>{busy
+                  ? t("properties.creatingLabel", { defaultValue: "Creating…" })
+                  : t("routineWebhook.createWebhook", { defaultValue: "Create webhook" })}</Button>
             </>
           ) : inTest ? (
             <>
-              <p className="text-sm text-muted-foreground">Testing. No tasks are created.</p>
-              <Button disabled={busy} onClick={onFinishTest}>Finish testing</Button>
+              <p className="text-sm text-muted-foreground">{t("routineWebhook.testingNoTasks", { defaultValue: "Testing. No tasks are created." })}</p>
+              <Button disabled={busy} onClick={onFinishTest}>{t("routineWebhook.finishTesting", { defaultValue: "Finish testing" })}</Button>
             </>
           ) : (
             <>
               <div className="flex items-center gap-1">
-                <Button variant="ghost" className="text-muted-foreground" disabled={busy} onClick={onRemove}>Remove</Button>
+                <Button variant="ghost" className="text-muted-foreground" disabled={busy} onClick={onRemove}>{t("properties.remove", { defaultValue: "Remove" })}</Button>
                 {trigger.setupPending ? null : (
                   <Button variant="ghost" className="text-muted-foreground" disabled={busy} onClick={() => onSetPaused(trigger.enabled)}>
-                    {trigger.enabled ? "Pause" : "Resume"}
+                    {trigger.enabled
+                      ? t("agentActionButtons.pause", { defaultValue: "Pause" })
+                      : t("agentActionButtons.resume", { defaultValue: "Resume" })}
                   </Button>
                 )}
               </div>
               <Button onClick={() => onOpenChange(false)}>
-                {trigger.setupPending && !testReceived ? "Finish without testing" : "Done"}
+                {trigger.setupPending && !testReceived
+                  ? t("routineWebhook.finishWithoutTesting", { defaultValue: "Finish without testing" })
+                  : t("common.done", { defaultValue: "Done" })}
               </Button>
             </>
           )}

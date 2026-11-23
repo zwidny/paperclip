@@ -31,6 +31,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { i18n, useTranslation } from "@/i18n";
 import { skillRoute } from "@/lib/company-skill-routes";
 import { RESPONSIBILITY_HEALTH_LABEL } from "@/lib/responsibilities";
 import { WORK_ITEM_KIND_LABEL, type WorkItem } from "@/lib/responsibility-views";
@@ -88,13 +89,14 @@ export function ProposalsNotice({
   subject?: "list" | "this";
   className?: string;
 }) {
+  const { t } = useTranslation();
   if (count <= 0) return null;
   const message =
     subject === "this"
-      ? "This responsibility was proposed for you and is waiting for your review."
+      ? t("responsibilities.parts.proposalsThis", { defaultValue: "This responsibility was proposed for you and is waiting for your review." })
       : count === 1
-        ? "1 proposed responsibility is waiting for your review."
-        : `${count} proposed responsibilities are waiting for your review.`;
+        ? t("responsibilities.parts.proposalsOne", { defaultValue: "1 proposed responsibility is waiting for your review." })
+        : t("responsibilities.parts.proposalsMany", { defaultValue: "{{count}} proposed responsibilities are waiting for your review.", count });
   return (
     <div
       role="status"
@@ -106,7 +108,9 @@ export function ProposalsNotice({
         {message}
       </p>
       <Button size="xs" variant="outline" onClick={onReview}>
-        {subject === "this" || count === 1 ? "Review it" : "Review them"}
+        {subject === "this" || count === 1
+          ? t("responsibilities.parts.reviewIt", { defaultValue: "Review it" })
+          : t("responsibilities.parts.reviewThem", { defaultValue: "Review them" })}
       </Button>
     </div>
   );
@@ -124,6 +128,7 @@ export function ResponsibilityViewHeader({
   /** Notices from the page, below the name. */
   children?: ReactNode;
 }) {
+  const { t } = useTranslation();
   return (
     <header className="flex flex-col gap-1">
       {responsibility.area ? (
@@ -134,9 +139,9 @@ export function ResponsibilityViewHeader({
         {actions}
       </div>
       {responsibility.status === "let_go" ? (
-        <p className="text-sm text-muted-foreground">You let go of this.</p>
+        <p className="text-sm text-muted-foreground">{t("responsibilities.parts.letGo", { defaultValue: "You let go of this." })}</p>
       ) : responsibility.status === "dismissed" ? (
-        <p className="text-sm text-muted-foreground">You dismissed this when it was proposed.</p>
+        <p className="text-sm text-muted-foreground">{t("responsibilities.parts.dismissed", { defaultValue: "You dismissed this when it was proposed." })}</p>
       ) : null}
       {children}
     </header>
@@ -155,30 +160,31 @@ export function ResponsibilityHeaderActions({
   status: ResponsibilityDetail["status"];
   actions: Pick<ResponsibilityPageActions, "newTask" | "setStatus" | "requestDelete">;
 }) {
+  const { t } = useTranslation();
   const isActive = status === "active";
   return (
     <div className="flex shrink-0 items-center gap-2" data-responsibility-header-actions="">
       {isActive ? (
         <Button variant="outline" onClick={() => actions.newTask({ defaultTitle: "" })}>
           <SquarePen aria-hidden="true" />
-          New task for an agent
+          {t("responsibilities.parts.newTask", { defaultValue: "New task for an agent" })}
         </Button>
       ) : null}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button size="icon" variant="ghost" aria-label="More actions for this responsibility">
+          <Button size="icon" variant="ghost" aria-label={t("responsibilities.parts.moreActionsAria", { defaultValue: "More actions for this responsibility" })}>
             <MoreHorizontal aria-hidden="true" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           {isActive ? (
-            <DropdownMenuItem onSelect={() => actions.setStatus("let_go")}>Let go</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => actions.setStatus("let_go")}>{t("responsibilities.parts.letGoAction", { defaultValue: "Let go" })}</DropdownMenuItem>
           ) : status === "let_go" || status === "dismissed" ? (
-            <DropdownMenuItem onSelect={() => actions.setStatus("active")}>Take it back on</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => actions.setStatus("active")}>{t("responsibilities.parts.takeItBack", { defaultValue: "Take it back on" })}</DropdownMenuItem>
           ) : null}
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" onSelect={actions.requestDelete}>
-            Delete…
+            {t("responsibilities.parts.delete", { defaultValue: "Delete…" })}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -243,12 +249,14 @@ export function stripSlots(skills: number, artifacts: number, slots = 4): { skil
 
 function moreLine(moreSkills: number, moreArtifacts: number, artifactsCapped: boolean): string | null {
   const parts: string[] = [];
-  if (moreSkills > 0) parts.push(`${moreSkills} more ${moreSkills === 1 ? "skill" : "skills"}`);
+  if (moreSkills > 0) parts.push(i18n.t("responsibilities.parts.moreSkills", { count: moreSkills, defaultValue_one: "{{count}} more skill", defaultValue_other: "{{count}} more skills" }));
   if (moreArtifacts > 0) {
-    parts.push(artifactsCapped ? "many more artifacts" : `${moreArtifacts.toLocaleString("en-US")} more ${moreArtifacts === 1 ? "artifact" : "artifacts"}`);
+    parts.push(artifactsCapped
+      ? i18n.t("responsibilities.parts.manyMoreArtifacts", { defaultValue: "many more artifacts" })
+      : i18n.t("responsibilities.parts.moreArtifacts", { count: moreArtifacts, defaultValue_one: "{{count}} more artifact", defaultValue_other: "{{count}} more artifacts" }));
   }
   if (parts.length === 0) return null;
-  return `And ${parts.join(" and ")}.`;
+  return i18n.t("responsibilities.parts.andList", { defaultValue: "And {{list}}.", list: parts.join(i18n.t("responsibilities.parts.andJoin", { defaultValue: " and " })) });
 }
 
 function StripCard({ to, icon, title, kind }: { to: string; icon: ReactNode; title: string; kind: string }) {
@@ -271,10 +279,16 @@ function StripCard({ to, icon, title, kind }: { to: string; icon: ReactNode; tit
 }
 
 /** "1 more skill", "61 more artifacts", "many more artifacts". */
-function moreOf(count: number, one: string, many: string, capped = false): string | null {
+function moreOf(count: number, kind: "skill" | "artifact", capped = false): string | null {
   if (count <= 0) return null;
-  if (capped) return `and many more ${many}`;
-  return `and ${count.toLocaleString("en-US")} more ${count === 1 ? one : many}`;
+  if (capped) {
+    return i18n.t("responsibilities.parts.andManyMoreArtifacts", { defaultValue: "and many more artifacts" });
+  }
+  return i18n.t(`responsibilities.parts.andMore.${kind}`, {
+    count,
+    defaultValue_one: `and {{count}} more ${kind}`,
+    defaultValue_other: `and {{count}} more ${kind}s`,
+  });
 }
 
 function CardsSection({
@@ -316,7 +330,11 @@ function skillCards(skills: readonly ResponsibilitySkillSummary[], agentsById: R
         to={skillRoute(skill)}
         icon={<SkillCardIcon card={skill} size={24} />}
         title={skill.name}
-        kind={holder ? `${holder}${skill.agentIds.length > 1 ? ` and ${skill.agentIds.length - 1} more` : ""}` : "Skill"}
+        kind={holder
+          ? `${holder}${skill.agentIds.length > 1
+            ? i18n.t("responsibilities.parts.andMorePeople", { count: skill.agentIds.length - 1, defaultValue: " and {{count}} more" })
+            : ""}`
+          : i18n.t("responsibilities.parts.skill", { defaultValue: "Skill" })}
       />
     );
   });
@@ -330,7 +348,9 @@ function artifactCards(artifacts: readonly CompanyArtifact[]) {
       to={artifact.href}
       icon={<FileText aria-hidden="true" className="size-5 shrink-0 text-muted-foreground" />}
       title={artifact.title}
-      kind={artifact.issue.identifier ? `From ${artifact.issue.identifier}` : "Artifact"}
+      kind={artifact.issue.identifier
+        ? i18n.t("responsibilities.parts.fromIdentifier", { defaultValue: "From {{identifier}}", identifier: artifact.issue.identifier })
+        : i18n.t("responsibilities.parts.artifact", { defaultValue: "Artifact" })}
     />
   ));
 }
@@ -370,10 +390,10 @@ export function SkillCards({
   return (
     <CardsSection
       kind="skill"
-      title="Skills"
+      title={i18n.t("responsibilities.parts.skills", { defaultValue: "Skills" })}
       count={skills.length}
-      empty="No skills yet. They come from the agents doing the work."
-      more={moreOf(skills.length - shown.length, "skill", "skills")}
+      empty={i18n.t("responsibilities.parts.noSkills", { defaultValue: "No skills yet. They come from the agents doing the work." })}
+      more={moreOf(skills.length - shown.length, "skill")}
     >
       {skillCards(shown, agentsById)}
     </CardsSection>
@@ -394,10 +414,10 @@ export function ArtifactCards({
   return (
     <CardsSection
       kind="artifact"
-      title="Artifacts"
+      title={i18n.t("responsibilities.parts.artifacts", { defaultValue: "Artifacts" })}
       count={total}
-      empty="Nothing produced yet."
-      more={moreOf(Math.max(0, total - shown.length), "artifact", "artifacts", total >= RESPONSIBILITY_ARTIFACT_COUNT_LIMIT)}
+      empty={i18n.t("responsibilities.parts.nothingProduced", { defaultValue: "Nothing produced yet." })}
+      more={moreOf(Math.max(0, total - shown.length), "artifact", total >= RESPONSIBILITY_ARTIFACT_COUNT_LIMIT)}
     >
       {artifactCards(shown)}
     </CardsSection>
@@ -433,10 +453,10 @@ export function SkillArtifactStrip({
   return (
     <section aria-labelledby="responsibility-strip-heading" className="flex flex-col gap-2">
       <h2 id="responsibility-strip-heading" className="text-sm font-semibold text-foreground">
-        Skills and artifacts
+        {i18n.t("responsibilities.parts.skillsAndArtifacts", { defaultValue: "Skills and artifacts" })}
       </h2>
       {shownSkills.length + shownArtifacts.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No skills or artifacts yet.</p>
+        <p className="text-sm text-muted-foreground">{i18n.t("responsibilities.parts.noSkillsOrArtifacts", { defaultValue: "No skills or artifacts yet." })}</p>
       ) : (
         <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4" data-testid="responsibility-strip">
           {shownSkills.map((skill) => {
@@ -447,7 +467,14 @@ export function SkillArtifactStrip({
                 to={skillRoute(skill)}
                 icon={<SkillCardIcon card={skill} size={24} />}
                 title={skill.name}
-                kind={holder ? `Skill · ${holder}${skill.agentIds.length > 1 ? ` and ${skill.agentIds.length - 1} more` : ""}` : "Skill"}
+                kind={holder
+                  ? i18n.t("responsibilities.parts.skillWithHolder", {
+                    defaultValue: "Skill · {{holder}}",
+                    holder: `${holder}${skill.agentIds.length > 1
+                      ? i18n.t("responsibilities.parts.andMorePeople", { count: skill.agentIds.length - 1, defaultValue: " and {{count}} more" })
+                      : ""}`,
+                  })
+                  : i18n.t("responsibilities.parts.skill", { defaultValue: "Skill" })}
               />
             );
           })}
@@ -457,7 +484,9 @@ export function SkillArtifactStrip({
               to={artifact.href}
               icon={<FileText aria-hidden="true" className="size-5 shrink-0 text-muted-foreground" />}
               title={artifact.title}
-              kind={artifact.issue.identifier ? `Artifact · ${artifact.issue.identifier}` : "Artifact"}
+              kind={artifact.issue.identifier
+                ? i18n.t("responsibilities.parts.artifactWithIdentifier", { defaultValue: "Artifact · {{identifier}}", identifier: artifact.issue.identifier })
+                : i18n.t("responsibilities.parts.artifact", { defaultValue: "Artifact" })}
             />
           ))}
         </ul>

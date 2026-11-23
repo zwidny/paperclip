@@ -1,8 +1,10 @@
 import { useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Agent, CompanyArtifact, ResponsibilityProjectSummary, ResponsibilityRoutineSummary, ResponsibilitySkillSummary } from "@paperclipai/shared";
 import { FileText, MoreHorizontal, Plus } from "lucide-react";
 import { describeError } from "@/api/errors";
+import { i18n } from "@/i18n";
 import { QueryErrorState, useQueryView } from "@/components/QueryView";
 import { responsibilitiesApi } from "@/api/responsibilities";
 import { routinesApi } from "@/api/routines";
@@ -58,14 +60,16 @@ import type { ResponsibilityViewProps } from "./view-props";
 /** The sections under the bar, in order. Each is one table whose header bar is just the word. */
 export const ONE_SCREEN_V2_SECTIONS = ["routines", "skills", "projects", "tasks", "runs", "artifacts"] as const;
 type SectionKey = (typeof ONE_SCREEN_V2_SECTIONS)[number];
-const SECTION_TITLE: Record<SectionKey, string> = {
-  routines: "Routines",
-  skills: "Skills",
-  projects: "Projects",
-  tasks: "Tasks",
-  runs: "Recent runs",
-  artifacts: "Artifacts",
-};
+function sectionTitle(section: SectionKey): string {
+  switch (section) {
+    case "routines": return i18n.t("responsibilities.scorecard.routines", { defaultValue: "Routines" });
+    case "skills": return i18n.t("responsibilities.scorecard.skills", { defaultValue: "Skills" });
+    case "projects": return i18n.t("responsibilities.scorecard.projects", { defaultValue: "Projects" });
+    case "tasks": return i18n.t("responsibilities.scorecard.tasks", { defaultValue: "Tasks" });
+    case "runs": return i18n.t("responsibilities.oneScreen.recentRuns", { defaultValue: "Recent runs" });
+    case "artifacts": return i18n.t("responsibilities.parts.artifacts", { defaultValue: "Artifacts" });
+  }
+}
 const TASK_CAP = 8;
 /** A skill row shows up to this many holders; past it, the rest as "+N". */
 const SKILL_HOLDER_CAP = 4;
@@ -115,6 +119,7 @@ function AddMenu({
   existing?: boolean;
   onExisting?: () => void;
 }) {
+  const { t } = useTranslation();
   // The picker opens once the menu has closed, so the menu's focus return does not dismiss it.
   const pickExisting = useRef(false);
   if (!onNew && !existing) return null;
@@ -136,7 +141,7 @@ function AddMenu({
       >
         {onNew ? <DropdownMenuItem onSelect={onNew}>{newLabel}</DropdownMenuItem> : null}
         {existing && onExisting ? (
-          <DropdownMenuItem onSelect={() => { pickExisting.current = true; }}>Add existing</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => { pickExisting.current = true; }}>{t("responsibilities.oneScreen.addExisting", { defaultValue: "Add existing" })}</DropdownMenuItem>
         ) : null}
       </DropdownMenuContent>
     </DropdownMenu>
@@ -164,11 +169,12 @@ function SkillsMenu({
   agents: readonly Agent[];
 }) {
   // The picker opens once the menu has closed, so the menu's focus return does not dismiss it.
+  const { t } = useTranslation();
   const pickExisting = useRef(false);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button type="button" size="icon-xs" variant="ghost" className="text-muted-foreground" aria-label="Add or remove a skill" data-section-add="">
+        <Button type="button" size="icon-xs" variant="ghost" className="text-muted-foreground" aria-label={t("responsibilities.oneScreen.addOrRemoveSkill", { defaultValue: "Add or remove a skill" })} data-section-add="">
           <Plus aria-hidden="true" />
         </Button>
       </DropdownMenuTrigger>
@@ -181,16 +187,16 @@ function SkillsMenu({
           onExisting();
         }}
       >
-        <DropdownMenuItem onSelect={() => { pickExisting.current = true; }}>Add existing skill</DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => { pickExisting.current = true; }}>{t("responsibilities.oneScreen.addExistingSkill", { defaultValue: "Add existing skill" })}</DropdownMenuItem>
         {filed.length > 0 ? (
           <>
             <DropdownMenuSeparator />
-            <DropdownMenuLabel>Remove from this responsibility</DropdownMenuLabel>
+            <DropdownMenuLabel>{t("responsibilities.oneScreen.removeFromResponsibility", { defaultValue: "Remove from this responsibility" })}</DropdownMenuLabel>
             {filed.map((skill) => (
               <DropdownMenuItem
                 key={skill.id}
                 disabled={removingLinkId === skill.linkId}
-                aria-label={`Remove ${skill.name} from this responsibility`}
+                aria-label={t("responsibilities.oneScreen.removeSkillAria", { name: skill.name, defaultValue: "Remove {{name}} from this responsibility" })}
                 onSelect={() => onRemove(skill)}
               >
                 {skill.name}
@@ -201,7 +207,7 @@ function SkillsMenu({
         {agents.length > 0 ? (
           <>
             <DropdownMenuSeparator />
-            <DropdownMenuLabel>Give a skill to</DropdownMenuLabel>
+            <DropdownMenuLabel>{t("responsibilities.oneScreen.giveSkillTo", { defaultValue: "Give a skill to" })}</DropdownMenuLabel>
             {agents.map((agent) => (
               <DropdownMenuItem key={agent.id} asChild>
                 <Link to={agentDetailHref(agentRouteRef(agent), "skills")}>{agent.name}</Link>
@@ -216,9 +222,10 @@ function SkillsMenu({
 
 /** A "+" that cannot do anything yet, with why, on hover and for screen readers. */
 function DisabledAdd({ label, reason }: { label: string; reason: string }) {
+  const { t } = useTranslation();
   return (
     <span title={reason} className="inline-flex" data-section-add-disabled="">
-      <Button type="button" size="icon-xs" variant="ghost" className="text-muted-foreground" aria-label={`${label}: ${reason}`} disabled>
+      <Button type="button" size="icon-xs" variant="ghost" className="text-muted-foreground" aria-label={t("responsibilities.oneScreen.disabledAddAria", { label, reason, defaultValue: "{{label}}: {{reason}}" })} disabled>
         <Plus aria-hidden="true" />
       </Button>
     </span>
@@ -226,6 +233,7 @@ function DisabledAdd({ label, reason }: { label: string; reason: string }) {
 }
 
 function RenameDialog({ open, onOpenChange, title, onSave }: { open: boolean; onOpenChange: (open: boolean) => void; title: string; onSave: (title: string) => Promise<unknown> | void }) {
+  const { t } = useTranslation();
   const [value, setValue] = useState(title);
   const [error, setError] = useState<unknown>(null);
   const [saving, setSaving] = useState(false);
@@ -253,14 +261,14 @@ function RenameDialog({ open, onOpenChange, title, onSave }: { open: boolean; on
       <DialogContent className="sm:max-w-md">
         <form className="flex flex-col gap-4" onSubmit={submit}>
           <DialogHeader>
-            <DialogTitle>Rename</DialogTitle>
-            <DialogDescription className="sr-only">The short name this responsibility goes by.</DialogDescription>
+            <DialogTitle>{t("responsibilities.oneScreen.rename", { defaultValue: "Rename" })}</DialogTitle>
+            <DialogDescription className="sr-only">{t("responsibilities.oneScreen.renameDescription", { defaultValue: "The short name this responsibility goes by." })}</DialogDescription>
           </DialogHeader>
-          <Input aria-label="Name" value={value} maxLength={200} autoFocus onChange={(event) => setValue(event.target.value)} />
-          {error ? <p role="alert" className="text-sm text-destructive">Couldn’t rename it. {describeError(error).body}</p> : null}
+          <Input aria-label={t("responsibilities.areas.name", { defaultValue: "Name" })} value={value} maxLength={200} autoFocus onChange={(event) => setValue(event.target.value)} />
+          {error ? <p role="alert" className="text-sm text-destructive">{t("responsibilities.oneScreen.renameFailed", { defaultValue: "Couldn’t rename it." })} {describeError(error).body}</p> : null}
           <DialogFooter className="sm:justify-between">
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button type="submit" disabled={!value.trim() || saving}>{saving ? "Saving…" : "Save"}</Button>
+            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>{t("common.cancel", { defaultValue: "Cancel" })}</Button>
+            <Button type="submit" disabled={!value.trim() || saving}>{saving ? t("common.saving", { defaultValue: "Saving…" }) : t("common.save", { defaultValue: "Save" })}</Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -287,6 +295,7 @@ export function ResponsibilityOneScreenV2({
   actions,
   onReviewProposal,
 }: ResponsibilityViewProps) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const isActive = responsibility.status === "active";
   const editable = responsibility.status !== "dismissed";
@@ -351,16 +360,16 @@ export function ResponsibilityOneScreenV2({
   const whoFor = (agentId: string | null) => (agentId ? <WhoAvatar agentId={agentId} agentsById={agentsById} /> : null);
   const runnable = routines.filter((routine) => routine.status === "active");
   const runsAdd = !isActive ? null : runnable.length === 0 ? (
-    <DisabledAdd label="Run a routine now" reason={routines.length === 0 ? "No routines to run yet" : "No active routine to run"} />
+    <DisabledAdd label={t("responsibilities.oneScreen.runRoutineNow", { defaultValue: "Run a routine now" })} reason={routines.length === 0 ? t("responsibilities.oneScreen.noRoutinesToRun", { defaultValue: "No routines to run yet" }) : t("responsibilities.oneScreen.noActiveRoutine", { defaultValue: "No active routine to run" })} />
   ) : (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button type="button" size="icon-xs" variant="ghost" className="text-muted-foreground" aria-label="Run a routine now" disabled={runNow.isPending} data-section-add="">
+        <Button type="button" size="icon-xs" variant="ghost" className="text-muted-foreground" aria-label={t("responsibilities.oneScreen.runRoutineNow", { defaultValue: "Run a routine now" })} disabled={runNow.isPending} data-section-add="">
           <Plus aria-hidden="true" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Run now</DropdownMenuLabel>
+        <DropdownMenuLabel>{t("statusCards.runNow", { defaultValue: "Run now" })}</DropdownMenuLabel>
         {runnable.map((routine) => (
           <DropdownMenuItem key={routine.id} onSelect={() => runNow.mutate(routine)}>{routine.title}</DropdownMenuItem>
         ))}
@@ -397,14 +406,14 @@ export function ResponsibilityOneScreenV2({
           <h1 className="min-w-0 flex-1 text-xl font-semibold text-foreground">{heading}</h1>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="icon-sm" variant="ghost" className="shrink-0 text-muted-foreground" aria-label="More actions for this responsibility">
+              <Button size="icon-sm" variant="ghost" className="shrink-0 text-muted-foreground" aria-label={t("responsibilities.parts.moreActionsAria", { defaultValue: "More actions for this responsibility" })}>
                 <MoreHorizontal aria-hidden="true" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onSelect={() => setRenaming(true)}>Rename…</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setRenaming(true)}>{t("responsibilities.oneScreen.renameAction", { defaultValue: "Rename…" })}</DropdownMenuItem>
               <DropdownMenuSub>
-                <DropdownMenuSubTrigger>Move to area</DropdownMenuSubTrigger>
+                <DropdownMenuSubTrigger>{t("responsibilities.moveToAreaLabel", { defaultValue: "Move to area" })}</DropdownMenuSubTrigger>
                 <DropdownMenuSubContent className="max-h-(--sz-50vh) overflow-y-auto">
                   <AreaRadioItems
                     areas={responsibility.area && !areas.some((candidate) => candidate.id === responsibility.area!.id) ? [responsibility.area, ...areas] : areas}
@@ -416,21 +425,21 @@ export function ResponsibilityOneScreenV2({
                 </DropdownMenuSubContent>
               </DropdownMenuSub>
               {isActive ? (
-                <DropdownMenuItem onSelect={() => actions.setStatus("let_go")}>Let go</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => actions.setStatus("let_go")}>{t("responsibilities.parts.letGoAction", { defaultValue: "Let go" })}</DropdownMenuItem>
               ) : responsibility.status === "let_go" || responsibility.status === "dismissed" ? (
-                <DropdownMenuItem onSelect={() => actions.setStatus("active")}>Take it back on</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => actions.setStatus("active")}>{t("responsibilities.parts.takeItBack", { defaultValue: "Take it back on" })}</DropdownMenuItem>
               ) : null}
               <DropdownMenuSeparator />
-              <DropdownMenuItem variant="destructive" onSelect={actions.requestDelete}>Delete…</DropdownMenuItem>
+              <DropdownMenuItem variant="destructive" onSelect={actions.requestDelete}>{t("responsibilities.parts.delete", { defaultValue: "Delete…" })}</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
         {responsibility.status === "let_go" ? (
-          <p className="text-sm text-muted-foreground">You let go of this.</p>
+          <p className="text-sm text-muted-foreground">{t("responsibilities.parts.letGo", { defaultValue: "You let go of this." })}</p>
         ) : responsibility.status === "dismissed" ? (
-          <p className="text-sm text-muted-foreground">You dismissed this.</p>
+          <p className="text-sm text-muted-foreground">{t("responsibilities.oneScreen.dismissed", { defaultValue: "You dismissed this." })}</p>
         ) : null}
-        {move.error ? <p role="alert" className="text-sm text-destructive">Couldn’t move it. {describeError(move.error).body}</p> : null}
+        {move.error ? <p role="alert" className="text-sm text-destructive">{t("responsibilities.row.couldntMove", { defaultValue: "Couldn’t move it." })} {describeError(move.error).body}</p> : null}
         {notices}
       </header>
 
@@ -441,17 +450,17 @@ export function ResponsibilityOneScreenV2({
       <div className="flex flex-col gap-6" data-section-order="">
         <SectionTable
           section="routines"
-          title={SECTION_TITLE.routines}
+          title={sectionTitle("routines")}
           add={editable ? picker("routine", (
             <AddMenu
-              label="Add a routine"
-              newLabel="New routine"
+              label={t("responsibilities.oneScreen.addRoutine", { defaultValue: "Add a routine" })}
+              newLabel={t("routinesPage.newRoutine", { defaultValue: "New routine" })}
               onNew={isActive ? () => setNewRoutine(true) : undefined}
               existing
               onExisting={() => setPicking("routine")}
             />
           )) : null}
-          empty={routines.length === 0 ? "None yet." : null}
+          empty={routines.length === 0 ? t("responsibilities.oneScreen.noneYet", { defaultValue: "None yet." }) : null}
         >
           {routines.map((routine) => (
             <SectionTableRow
@@ -467,9 +476,9 @@ export function ResponsibilityOneScreenV2({
 
         <SectionTable
           section="skills"
-          title={SECTION_TITLE.skills}
+          title={sectionTitle("skills")}
           add={skillsAdd}
-          empty={responsibility.skills.length === 0 ? "None yet." : null}
+          empty={responsibility.skills.length === 0 ? t("responsibilities.oneScreen.noneYet", { defaultValue: "None yet." }) : null}
         >
           {responsibility.skills.map((skill) => (
             <SectionTableRow
@@ -477,7 +486,7 @@ export function ResponsibilityOneScreenV2({
               rowData={{ "data-work-id": skill.id }}
               to={skillRoute(skill)}
               title={skill.name}
-              stat={skill.linkId ? "Filed here" : undefined}
+              stat={skill.linkId ? t("responsibilities.skills.filedHere", { defaultValue: "Filed here" }) : undefined}
               who={skill.agentIds.length > 0 ? <SkillHolders agentIds={skill.agentIds} agentsById={agentsById} /> : null}
             />
           ))}
@@ -485,19 +494,19 @@ export function ResponsibilityOneScreenV2({
 
         <SectionTable
           section="projects"
-          title={SECTION_TITLE.projects}
+          title={sectionTitle("projects")}
           add={editable ? picker("project", (
             <AddMenu
-              label="Add a project"
-              newLabel="New project"
+              label={t("responsibilities.oneScreen.addProject", { defaultValue: "Add a project" })}
+              newLabel={t("sidebarProjects.newProject", { defaultValue: "New project" })}
               onNew={isActive ? () => setNewProject(true) : undefined}
               existing
               onExisting={() => setPicking("project")}
             />
           )) : null}
-          empty={projects.length === 0 ? (responsibility.projects.length > 0 ? "None open." : "None yet.") : null}
+          empty={projects.length === 0 ? (responsibility.projects.length > 0 ? t("responsibilities.oneScreen.noneOpen", { defaultValue: "None open." }) : t("responsibilities.oneScreen.noneYet", { defaultValue: "None yet." })) : null}
           footer={filingError ? (
-            <SectionTableNote alert>The project was made but couldn’t be filed here. {describeError(filingError).body}</SectionTableNote>
+            <SectionTableNote alert>{t("responsibilities.oneScreen.projectFilingFailed", { defaultValue: "The project was made but couldn’t be filed here." })} {describeError(filingError).body}</SectionTableNote>
           ) : null}
         >
           {projects.map((project) => (
@@ -515,25 +524,27 @@ export function ResponsibilityOneScreenV2({
 
         <SectionTable
           section="tasks"
-          title={SECTION_TITLE.tasks}
+          title={sectionTitle("tasks")}
           add={editable ? picker("task", (
             <AddMenu
-              label="Add a task"
-              newLabel="New task"
+              label={t("responsibilities.oneScreen.addTask", { defaultValue: "Add a task" })}
+              newLabel={t("newTask.newTask", { defaultValue: "New task" })}
               onNew={isActive ? () => actions.newTask({ defaultTitle: "" }) : undefined}
               existing
               onExisting={() => setPicking("task")}
             />
           )) : null}
-          empty={shownTasks.length === 0 ? (responsibility.tasks.length > 0 ? "None open." : "None yet.") : null}
+          empty={shownTasks.length === 0 ? (responsibility.tasks.length > 0 ? t("responsibilities.oneScreen.noneOpen", { defaultValue: "None open." }) : t("responsibilities.oneScreen.noneYet", { defaultValue: "None yet." })) : null}
           footer={(
             <>
               {!showAllTasks && openTasks.length > TASK_CAP ? (
-                <SectionTableFooterButton onClick={() => setShowAllTasks(true)}>Show {openTasks.length - TASK_CAP} more</SectionTableFooterButton>
+                <SectionTableFooterButton onClick={() => setShowAllTasks(true)}>{t("responsibilities.oneScreen.showMore", { count: openTasks.length - TASK_CAP, defaultValue: "Show {{count}} more" })}</SectionTableFooterButton>
               ) : null}
               {doneTasks.length > 0 ? (
                 <SectionTableFooterButton onClick={() => setShowDoneTasks((shown) => !shown)}>
-                  {showDoneTasks ? "Hide done" : `Show ${doneTasks.length} done`}
+                  {showDoneTasks
+                    ? t("responsibilities.oneScreen.hideDone", { defaultValue: "Hide done" })
+                    : t("responsibilities.oneScreen.showDone", { count: doneTasks.length, defaultValue: "Show {{count}} done" })}
                 </SectionTableFooterButton>
               ) : null}
             </>
@@ -554,15 +565,15 @@ export function ResponsibilityOneScreenV2({
 
         <SectionTable
           section="runs"
-          title={SECTION_TITLE.runs}
+          title={sectionTitle("runs")}
           add={runsAdd}
           empty={runsView.kind === "error" ? (
             <QueryErrorState error={runsView.error} size="inline" action="load the runs" onRetry={runsView.retry} retrying={runsView.isFetching} />
           ) : !runs.data ? (
-            <span role="status">Loading…</span>
-          ) : runs.data.runs.length === 0 ? "None yet." : null}
+            <span role="status">{t("common.loading", { defaultValue: "Loading…" })}</span>
+          ) : runs.data.runs.length === 0 ? t("responsibilities.oneScreen.noneYet", { defaultValue: "None yet." }) : null}
           footer={runNow.error ? (
-            <SectionTableNote alert>Couldn’t start the run. {describeError(runNow.error).body}</SectionTableNote>
+            <SectionTableNote alert>{t("responsibilities.oneScreen.runStartFailed", { defaultValue: "Couldn’t start the run." })} {describeError(runNow.error).body}</SectionTableNote>
           ) : null}
         >
           {(runsView.kind === "error" ? [] : runs.data?.runs ?? []).map((run) => {
@@ -572,7 +583,7 @@ export function ResponsibilityOneScreenV2({
                 key={run.id}
                 rowData={{ "data-run-id": run.id, "data-run-status": run.status }}
                 to={`/agents/${run.agentId}/runs/${run.id}`}
-                label={`${agentsById.get(run.agentId)?.name ?? "An agent"} on ${run.issue.title}: ${stat}`}
+                label={t("responsibilities.oneScreen.runLabel", { agent: agentsById.get(run.agentId)?.name ?? t("responsibilities.agentsWorking.anAgent", { defaultValue: "An agent" }), title: run.issue.title, stat, defaultValue: "{{agent}} on {{title}}: {{stat}}" })}
                 title={run.issue.title}
                 stat={stat}
                 who={whoFor(run.agentId)}
@@ -583,9 +594,9 @@ export function ResponsibilityOneScreenV2({
 
         <SectionTable
           section="artifacts"
-          title={SECTION_TITLE.artifacts}
+          title={sectionTitle("artifacts")}
           withWho={false}
-          empty={responsibility.artifacts.length === 0 ? "None yet." : null}
+          empty={responsibility.artifacts.length === 0 ? t("responsibilities.oneScreen.noneYet", { defaultValue: "None yet." }) : null}
         >
           {responsibility.artifacts.map((artifact) => (
             <SectionTableRow

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useTranslation } from "@/i18n";
 import { cn } from "@/lib/utils";
 
 /**
@@ -39,11 +40,12 @@ export function BoardAreaHeader({
   ownedLabel: string;
   shareLabel: string | null;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-0.5">
       <h2 id={headingId} className="min-w-0 text-sm font-semibold text-foreground">
         {title}
-        {archived ? <span className="font-normal text-muted-foreground"> · Archived</span> : null}
+        {archived ? <span className="font-normal text-muted-foreground"> · {t("responsibilities.board.archived", { defaultValue: "Archived" })}</span> : null}
       </h2>
       <p className="text-xs text-muted-foreground">
         {ownedLabel}

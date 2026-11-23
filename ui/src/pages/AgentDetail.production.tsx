@@ -5,7 +5,7 @@ import { AgentCharacter } from "../components/AgentCharacter";
 import { characterStateForAgent } from "@paperclipai/shared";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import type { TFunction } from "i18next";
-import { useTranslation } from "../i18n";
+import { i18n, useTranslation } from "../i18n";
 import { useParams, useNavigate, useLocation, Link, Navigate, useBeforeUnload, type NavigateFunction } from "@/lib/router";
 import { useQuery, useMutation, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import {
@@ -167,10 +167,10 @@ function shouldUseMarkdownInstructionsEditor(input: {
 }
 
 const sourceLabels: Record<string, string> = {
-  timer: "Timer",
-  assignment: "Assignment",
-  on_demand: "On-demand",
-  automation: "Automation",
+  timer: i18n.t("agentDetail.runSource.timer", { defaultValue: "Timer" }),
+  assignment: i18n.t("agentDetail.runSource.assignment", { defaultValue: "Assignment" }),
+  on_demand: i18n.t("agentDetail.runSource.onDemand", { defaultValue: "On-demand" }),
+  automation: i18n.t("agentDetail.runSource.automation", { defaultValue: "Automation" }),
 };
 
 type AgentDetailView = "dashboard" | "instructions" | "configuration" | "secrets" | "skills" | "tools" | "channels" | "runs" | "audit" | "budget";
@@ -217,17 +217,19 @@ function agentDetailTabLabel(t: TFunction, view: AgentDetailView): string {
   }
 }
 
+const tabLabel = (key: string, fallback: string) => i18n.t(`agentDetail.tabs.${key}`, { defaultValue: fallback });
+
 export const AGENT_DETAIL_TABS: ReadonlyArray<{ value: AgentDetailView; label: string }> = [
-  { value: "dashboard", label: "Dashboard" },
-  { value: "instructions", label: "Instructions" },
-  { value: "skills", label: "Skills" },
-  { value: "configuration", label: "Configuration" },
-  { value: "secrets", label: "Secrets" },
-  { value: "tools", label: "Tools" },
-  { value: "channels", label: "Channels" },
-  { value: "runs", label: "Runs" },
-  { value: "audit", label: "Audit" },
-  { value: "budget", label: "Budget" },
+  { value: "dashboard", label: tabLabel("dashboard", "Dashboard") },
+  { value: "instructions", label: tabLabel("instructions", "Instructions") },
+  { value: "skills", label: tabLabel("skills", "Skills") },
+  { value: "configuration", label: tabLabel("configuration", "Configuration") },
+  { value: "secrets", label: tabLabel("secrets", "Secrets") },
+  { value: "tools", label: tabLabel("tools", "Tools") },
+  { value: "channels", label: tabLabel("channels", "Channels") },
+  { value: "runs", label: tabLabel("runs", "Runs") },
+  { value: "audit", label: tabLabel("audit", "Audit") },
+  { value: "budget", label: tabLabel("budget", "Budget") },
 ];
 
 export const DISCARD_AGENT_CONFIG_CHANGES_MESSAGE = "Discard unsaved agent configuration changes?";
@@ -236,7 +238,7 @@ export function confirmAgentConfigNavigation(
   dirty: boolean,
   confirm: (message: string) => boolean = (message) =>
     typeof window === "undefined" || window.confirm(message),
-  message: string = DISCARD_AGENT_CONFIG_CHANGES_MESSAGE,
+  message: string = i18n.t("agentDetail.discardChanges", { defaultValue: "Discard unsaved agent configuration changes?" }),
 ): boolean {
   return !dirty || confirm(message);
 }
@@ -3093,7 +3095,7 @@ function RunDetail({ run: initialRun, agentRouteId, adapterType, adapterConfig }
             )}
             {cancelRun.error && (
               <div className="text-xs text-destructive" role="alert">
-                {cancelRun.error instanceof Error ? cancelRun.error.message : "Failed to stop run"}
+                {cancelRun.error instanceof Error ? cancelRun.error.message : t("agentDetail.runs.stopFailed", { defaultValue: "Failed to stop run" })}
               </div>
             )}
             {resumeRun.isError && ( // query-error-ok: mutation result, not a query

@@ -110,17 +110,19 @@ export function SkillSourceTree({ candidates, selected, excludedFolders, onChang
           disabled={disabled || candidates.length === 0} onChange={() => toggleCheck('')} />
         <span>{t("skillSourceTree.selectedCount", { selected: selectedCount, total: candidates.length, defaultValue: "{{selected}} of {{total}} selected" })}</span>
       </label>
-      <Button type="button" variant="ghost" size="xs" className="font-normal text-muted-foreground" disabled={disabled || Boolean(search) || allDirs.size === 0} onClick={() => setExpansion(new Map([...allDirs].map(path => [path, allCollapsed])))}>{allCollapsed ? 'Expand all' : 'Collapse all'}</Button>
+      <Button type="button" variant="ghost" size="xs" className="font-normal text-muted-foreground" disabled={disabled || Boolean(search) || allDirs.size === 0} onClick={() => setExpansion(new Map([...allDirs].map(path => [path, allCollapsed])))}>{allCollapsed ? t("skillSourceTree.expandAll", { defaultValue: "Expand all" }) : t("skillSourceTree.collapseAll", { defaultValue: "Collapse all" })}</Button>
     </div>
     <div className="min-h-0 max-h-(--sz-480px) overflow-auto py-1">
       <FileTree layout="explorer" wrapLabels={false}
         nodes={nodes} selectedFile={null} expandedDirs={expanded}
-        visiblePaths={visiblePaths} disabled={disabled} ariaLabel="Discovered skills"
-        empty={{ title: 'No matching skills found.', description: 'Try another skill name or path.' }}
+        visiblePaths={visiblePaths} disabled={disabled} ariaLabel={t("skillSourceTree.discoveredSkills", { defaultValue: "Discovered skills" })}
+        empty={{ title: t("skillSourceTree.noMatches", { defaultValue: "No matching skills found." }), description: t("skillSourceTree.noMatchesDescription", { defaultValue: "Try another skill name or path." }) }}
         onToggleDir={path => setExpansion(previous => new Map(previous).set(path, !expanded.has(path)))}
         onSelectFile={path => { const file = included.get(path); if (file) onPreview?.(file.skill, file.filePath); }}
         onToggleCheck={toggleCheck}
-        checkboxLabel={node => skillsByPath.has(node.path) ? `Import ${node.path}` : `Import folder ${node.path}`}
+        checkboxLabel={node => skillsByPath.has(node.path)
+          ? t("skillSourceTree.importPath", { defaultValue: "Import {{path}}", path: node.path })
+          : t("skillSourceTree.importFolderPath", { defaultValue: "Import folder {{path}}", path: node.path })}
         getCheckboxState={node => {
           if (included.has(node.path)) return null;
           if (skillsByPath.has(node.path)) return selected.has(node.path) ? 'checked' : 'unchecked';

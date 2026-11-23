@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { RESPONSIBILITY_DETAIL_TASK_LIMIT } from "@paperclipai/shared";
 import { Card } from "@/components/ui/card";
 import { describeStale } from "@/lib/responsibilities";
@@ -17,6 +18,7 @@ const STATUS_ANCHOR = "#responsibility-status";
  * Skills and artifacts close it as a short strip of cards.
  */
 export function ResponsibilityWhatsMoving({ responsibility, agentsById, now, notices, onReviewProposal }: ResponsibilityViewProps) {
+  const { t } = useTranslation();
   const { rollup } = responsibility;
   const attention = useMemo(() => rollup.workSummary.filter((signal) => signal.tone === "attention"), [rollup.workSummary]);
   const moving = useMemo(() => rollup.workSummary.filter((signal) => signal.tone !== "attention"), [rollup.workSummary]);
@@ -36,24 +38,24 @@ export function ResponsibilityWhatsMoving({ responsibility, agentsById, now, not
       {responsibility.status === "proposed" ? <ProposalsNotice count={1} subject="this" onReview={onReviewProposal} /> : null}
 
       <section aria-labelledby="moving-summary-heading" className="flex flex-col gap-3">
-        <h2 id="moving-summary-heading" className="text-base font-semibold text-foreground">What's moving</h2>
+        <h2 id="moving-summary-heading" className="text-base font-semibold text-foreground">{t("responsibilities.moving.heading", { defaultValue: "What's moving" })}</h2>
         {rollup.workSummary.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            Nothing to report yet. Once projects, tasks or routines are filed here, what they need shows up here.
+            {t("responsibilities.page.nothingToReport", { defaultValue: "Nothing to report yet. Once projects, tasks or routines are filed here, what they need shows up here." })}
           </p>
         ) : (
           <Card elevation="low" className="gap-5 px-5 py-4">
             {attention.length > 0 ? (
               <div className="flex flex-col gap-2" data-signal-group="attention">
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Needs attention</h3>
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("responsibilities.moving.needsAttention", { defaultValue: "Needs attention" })}</h3>
                 <WorkSignalList signals={attention} responsibilityHref={() => STATUS_ANCHOR} />
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">Nothing in the work needs attention.</p>
+              <p className="text-sm text-muted-foreground">{t("responsibilities.moving.nothingNeedsAttention", { defaultValue: "Nothing in the work needs attention." })}</p>
             )}
             {moving.length > 0 ? (
               <div className="flex flex-col gap-2" data-signal-group="moving">
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Everything else</h3>
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("responsibilities.moving.everythingElse", { defaultValue: "Everything else" })}</h3>
                 <WorkSignalList signals={moving} responsibilityHref={() => STATUS_ANCHOR} />
               </div>
             ) : null}
@@ -63,7 +65,7 @@ export function ResponsibilityWhatsMoving({ responsibility, agentsById, now, not
 
       <section aria-labelledby="moving-work-heading" className="flex flex-col gap-2">
         <h2 id="moving-work-heading" className="text-base font-semibold text-foreground">
-          The work <span className="text-sm font-normal tabular-nums text-muted-foreground">{work.items.length}</span>
+          {t("responsibilities.scorecard.theWork", { defaultValue: "The work" })} <span className="text-sm font-normal tabular-nums text-muted-foreground">{work.items.length}</span>
         </h2>
         {work.items.length > 0 ? (
           <Card elevation="low" className="gap-0 overflow-hidden py-0">
@@ -74,13 +76,21 @@ export function ResponsibilityWhatsMoving({ responsibility, agentsById, now, not
             </ul>
           </Card>
         ) : (
-          <p className="text-sm text-muted-foreground">No open projects, tasks or routines are filed here.</p>
+          <p className="text-sm text-muted-foreground">{t("responsibilities.moving.noOpenWork", { defaultValue: "No open projects, tasks or routines are filed here." })}</p>
         )}
         {work.finished > 0 || responsibility.tasksTruncated ? (
           <p className="text-xs text-muted-foreground">
-            {work.finished > 0 ? `${work.finished} finished ${work.finished === 1 ? "item is" : "items are"} not listed.` : null}
+            {work.finished > 0
+              ? t("responsibilities.moving.finishedItems", {
+                  count: work.finished,
+                  defaultValue_one: "{{count}} finished item is not listed.",
+                  defaultValue_other: "{{count}} finished items are not listed.",
+                })
+              : null}
             {work.finished > 0 && responsibility.tasksTruncated ? " " : null}
-            {responsibility.tasksTruncated ? `Only the first ${RESPONSIBILITY_DETAIL_TASK_LIMIT} tasks are listed.` : null}
+            {responsibility.tasksTruncated
+              ? t("responsibilities.moving.tasksTruncated", { limit: RESPONSIBILITY_DETAIL_TASK_LIMIT, defaultValue: "Only the first {{limit}} tasks are listed." })
+              : null}
           </p>
         ) : null}
       </section>

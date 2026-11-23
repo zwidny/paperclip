@@ -900,8 +900,8 @@ function Setup({
   if (cloud && !(adapterType === "paperclip_runner"
     ? harnessPolicy.isCloudRunnerProviderAllowed(runnerProvider)
     : harnessPolicy.isCloudHarnessAllowed(adapterType))) return <div className="space-y-4">
-    <p role="alert">This adapter is unavailable. Choose an enabled adapter.</p>
-    <Button onClick={() => setChoosingAdapter(true)}>Change adapter</Button>
+    <p role="alert">{t("newAgent.adapterUnavailable", { defaultValue: "This adapter is unavailable. Choose an enabled adapter." })}</p>
+    <Button onClick={() => setChoosingAdapter(true)}>{t("newAgent.changeAdapter", { defaultValue: "Change adapter" })}</Button>
   </div>;
   if (!created && connectionSettingsReady && !pendingAntigravity) return <div className="space-y-4">
     <p role={error ? "alert" : "status"}>{error ?? t("newAgent.creatingAgent", { defaultValue: "Creating your agent…" })}</p>

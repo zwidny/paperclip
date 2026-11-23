@@ -48,12 +48,12 @@ export function ComposerAddMenu({
   const mobile = mobileProp ?? narrow;
   if (!onModeChange && !onAttachFile && !onGoal && !privacy) return null;
   const actions: Array<{ id: string; label: string; detail?: string; Icon: LucideIcon; select: () => void; disabled?: boolean; selected?: boolean }> = [
-    ...(onAttachFile ? [{ id: "composer-add-file", label: "Files and images", Icon: Paperclip, select: onAttachFile, disabled: attachDisabled }] : []),
-    ...(privacy ? [{ id: "composer-add-private", label: "Private task", detail: privacy.inherited, Icon: Lock, select: () => privacy.onChange(!privacy.private), selected: privacy.private, disabled: Boolean(privacy.inherited) }] : []),
-    ...(onGoal ? [{ id: "composer-add-goal", label: "Goal", detail: "Keep pursuing", Icon: Target, select: onGoal }] : []),
+    ...(onAttachFile ? [{ id: "composer-add-file", label: t("composer.filesAndImages", { defaultValue: "Files and images" }), Icon: Paperclip, select: onAttachFile, disabled: attachDisabled }] : []),
+    ...(privacy ? [{ id: "composer-add-private", label: t("composer.privateTask", { defaultValue: "Private task" }), detail: privacy.inherited, Icon: Lock, select: () => privacy.onChange(!privacy.private), selected: privacy.private, disabled: Boolean(privacy.inherited) }] : []),
+    ...(onGoal ? [{ id: "composer-add-goal", label: t("composer.goal", { defaultValue: "Goal" }), detail: t("composer.keepPursuing", { defaultValue: "Keep pursuing" }), Icon: Target, select: onGoal }] : []),
     ...(onModeChange ? [
-      { id: "composer-add-plan", label: "Plan mode", detail: "Plan before acting", Icon: ClipboardList, select: () => onModeChange(mode === "planning" ? "standard" : "planning"), selected: mode === "planning" },
-      { id: "composer-add-ask", label: "Ask mode", detail: "Answer without changes", Icon: MessageCircleQuestion, select: () => onModeChange(mode === "ask" ? "standard" : "ask"), selected: mode === "ask" },
+      { id: "composer-add-plan", label: t("composer.planMode", { defaultValue: "Plan mode" }), detail: t("composer.planBeforeActing", { defaultValue: "Plan before acting" }), Icon: ClipboardList, select: () => onModeChange(mode === "planning" ? "standard" : "planning"), selected: mode === "planning" },
+      { id: "composer-add-ask", label: t("composer.askMode", { defaultValue: "Ask mode" }), detail: t("composer.answerWithoutChanges", { defaultValue: "Answer without changes" }), Icon: MessageCircleQuestion, select: () => onModeChange(mode === "ask" ? "standard" : "ask"), selected: mode === "ask" },
     ] : []),
   ];
   const trigger = <button type="button" aria-label={t("composer.addToComposer", { defaultValue: "Add to composer" })} aria-keyshortcuts={onModeChange ? "Meta+Period Control+Period Shift+Tab" : undefined}
@@ -118,7 +118,7 @@ export function ComposerModeChip({ mode, onRemove, disabled, testId, mobile = fa
 export function ComposerPrivacyChip({ inherited, onRemove, disabled }: { inherited?: string; onRemove: () => void; disabled?: boolean }) {
   const { t } = useTranslation();
   const [hintOpen, setHintOpen] = useState(false);
-  const explanation = inherited ?? "Only you and people you share with can read this task";
+  const explanation = inherited ?? t("composer.privateExplanation", { defaultValue: "Only you and people you share with can read this task" });
   return <TooltipProvider><Tooltip open={hintOpen} onOpenChange={setHintOpen}>
     <TooltipTrigger asChild>
       <span className="inline-flex shrink-0" role={inherited ? "button" : undefined}
@@ -127,7 +127,7 @@ export function ComposerPrivacyChip({ inherited, onRemove, disabled }: { inherit
         onKeyDown={inherited ? (event) => {
           if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setHintOpen(true); }
         } : undefined}>
-        <button type="button" onClick={onRemove} aria-label={inherited ? "Private task" : "Remove private task"}
+        <button type="button" onClick={onRemove} aria-label={inherited ? t("composer.privateTask", { defaultValue: "Private task" }) : t("composer.removePrivateTask", { defaultValue: "Remove private task" })}
           title={explanation}
           disabled={disabled || Boolean(inherited)} data-testid="composer-private-chip"
           className="inline-flex h-8 shrink-0 items-center gap-1 rounded-full border border-border bg-muted px-2 text-xs font-medium text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50">

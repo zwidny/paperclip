@@ -16,6 +16,7 @@ import {
   type BoardAreaRow,
   type ExplanationLine,
 } from "@/lib/responsibility-views";
+import { useTranslation } from "@/i18n";
 import { Link } from "@/lib/router";
 import { cn } from "@/lib/utils";
 import { BoardAreaHeader, BoardAreaSection, BoardGrid } from "./BoardLayout";
@@ -47,13 +48,18 @@ function LineMark({ role }: { role: ExplanationLine["role"] }) {
  * readers and keeps the status tint.
  */
 const BoardCard = memo(function BoardCard({ responsibility }: { responsibility: ResponsibilityWithRollup }) {
+  const { t } = useTranslation();
   const { health, metric } = responsibility.rollup;
   const value = metric ? describeReadingValue(metric) : null;
   const why = useMemo(() => explainResponsibilityStatus(responsibility), [responsibility]);
   const standard = responsibility.standard?.trim();
   const gapLine = why.gap ?? why.missing;
   const target = metric ? describeTargetPhrase(metric) : null;
-  const metricLine = metric ? (target ? `${target} · ${metric.name}` : metric.name) : "Nothing measured";
+  const metricLine = metric
+    ? target
+      ? `${target} · ${metric.name}`
+      : metric.name
+    : t("responsibilities.board.nothingMeasured", { defaultValue: "Nothing measured" });
   return (
     <li className="min-w-0" data-responsibility-id={responsibility.id} data-health={health}>
       <Link
@@ -66,17 +72,22 @@ const BoardCard = memo(function BoardCard({ responsibility }: { responsibility: 
           {responsibility.title}
         </span>
         <span className="mt-0.5 line-clamp-2 text-xs text-muted-foreground" title={standard || undefined}>
-          {standard || "No bar yet."}
+          {standard || t("responsibilities.oneScreen.noBarYet", { defaultValue: "No bar yet." })}
         </span>
 
         <span className="mt-2.5 flex min-w-0 items-center gap-1.5 tabular-nums" data-board-reading="">
           <span className={cn("whitespace-nowrap text-lg font-semibold", value ? "text-foreground" : "text-muted-foreground")}>
-            {value ?? (metric ? "No reading" : "No number")}
+            {value ??
+              (metric
+                ? t("responsibilities.board.noReading", { defaultValue: "No reading" })
+                : t("responsibilities.board.noNumber", { defaultValue: "No number" }))}
           </span>
           {metric?.stale ? (
-            <span className="text-(--status-task-icon-todo)" title="Not updated recently">
+            <span className="text-(--status-task-icon-todo)" title={t("responsibilities.board.notUpdatedRecently", { defaultValue: "Not updated recently" })}>
               <Clock aria-hidden="true" className="size-3.5" />
-              <span className="sr-only">, not updated recently</span>
+              <span className="sr-only">
+                {t("responsibilities.board.notUpdatedRecentlySr", { defaultValue: ", not updated recently" })}
+              </span>
             </span>
           ) : null}
         </span>
@@ -122,6 +133,7 @@ function StatusLabel({ health, count, className }: { health: ResponsibilityHealt
 
 /** One area: its name, how many you own in it and the share on track, then its cards in the status columns. */
 function AreaRow({ row }: { row: BoardAreaRow }) {
+  const { t } = useTranslation();
   const headingId = `board-area-${row.area?.id ?? "none"}`;
   return (
     <BoardAreaSection
@@ -130,7 +142,7 @@ function AreaRow({ row }: { row: BoardAreaRow }) {
       header={
         <BoardAreaHeader
           headingId={headingId}
-          title={row.area?.title ?? "Not in an area"}
+          title={row.area?.title ?? t("responsibilities.notInArea", { defaultValue: "Not in an area" })}
           archived={row.area?.status === "archived"}
           ownedLabel={row.ownedLabel}
           shareLabel={row.share?.label ?? null}

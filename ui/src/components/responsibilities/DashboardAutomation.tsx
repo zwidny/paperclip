@@ -15,6 +15,7 @@ import {
 } from "@paperclipai/shared";
 import { Bot, CirclePause, Hand, MessagesSquare, Pause, Play, Repeat, Repeat1, Trash2, Wrench, X, type LucideIcon } from "lucide-react";
 import { describeError } from "@/api/errors";
+import { useTranslation } from "@/i18n";
 import { responsibilitiesApi } from "@/api/responsibilities";
 import { routineSuggestionsApi } from "@/api/routine-suggestions";
 import { routinesApi } from "@/api/routines";
@@ -159,6 +160,7 @@ function AutomationSummary({
   onToggle: (level: ResponsibilityAutomationLevel) => void;
   onClear: () => void;
 }) {
+  const { t } = useTranslation();
   const total = RESPONSIBILITY_AUTOMATION_LEVELS.reduce((sum, level) => sum + counts[level], 0);
   const sentence = automationSentence({ total, manual: counts.manual, candidates: remainingCandidateCount(read, dismissed) });
   const { automations, manualTasks } = read.totals;
@@ -166,14 +168,14 @@ function AutomationSummary({
     <Card elevation="low" className="gap-4 px-5 py-4" aria-labelledby="responsibility-automation-heading" data-automation-summary="">
       <div className="flex items-baseline justify-between gap-3">
         <h3 id="responsibility-automation-heading" className="text-sm font-semibold text-foreground">
-          How much runs without you
+          {t("responsibilities.automation.howMuchRuns", { defaultValue: "How much runs without you" })}
         </h3>
         <p className="text-xs text-muted-foreground tabular-nums">
-          {total === 1 ? "1 responsibility" : `${total} responsibilities`}
+          {t("responsibilities.automation.responsibilityCount", { count: total, defaultValue_one: "{{count}} responsibility", defaultValue_other: "{{count}} responsibilities" })}
         </p>
       </div>
       <LevelBar counts={counts} />
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4" role="group" aria-label="Show responsibilities by how automated they are">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4" role="group" aria-label={t("responsibilities.automation.filterAria", { defaultValue: "Show responsibilities by how automated they are" })}>
         {RESPONSIBILITY_AUTOMATION_LEVELS.map((level) => {
           const pressed = filter.has(level);
           return (
@@ -202,13 +204,13 @@ function AutomationSummary({
         <p className="text-sm text-foreground" data-automation-sentence="">{sentence}</p>
         <p className="flex flex-wrap items-center gap-x-1 text-xs tabular-nums text-muted-foreground" data-automation-totals="">
           <span>
-            {automations === 1 ? "1 automation running" : `${automations} automations running`}
+            {t("responsibilities.automation.automationsRunning", { count: automations, defaultValue_one: "{{count}} automation running", defaultValue_other: "{{count}} automations running" })}
             <span aria-hidden="true"> · </span>
-            {manualTasks === 1 ? "1 manual task" : `${manualTasks} manual tasks`} in the last {read.recentDays} days
+            {t("responsibilities.automation.manualTasksInDays", { count: manualTasks, days: read.recentDays, defaultValue_one: "{{count}} manual task in the last {{days}} days", defaultValue_other: "{{count}} manual tasks in the last {{days}} days" })}
           </span>
           {filter.size > 0 ? (
             <Button type="button" variant="link" size="xs" className="h-auto px-1 text-xs" onClick={onClear} data-automation-show-all="">
-              Show all
+              {t("responsibilities.automation.showAll", { defaultValue: "Show all" })}
             </Button>
           ) : null}
         </p>
@@ -251,12 +253,13 @@ function CandidateRow({
   now: Date;
   actions: RowActions;
 }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const conversation = useOpenAutomationConversation();
   const offer = candidate.pendingOffer;
   const hint = candidate.hint;
   const reason = hint ? null : candidateReasonWords(candidate, agentName, now);
-  const who = candidate.responsibleAgentId ? agentName(candidate.responsibleAgentId) ?? "your agent" : null;
+  const who = candidate.responsibleAgentId ? agentName(candidate.responsibleAgentId) ?? t("responsibilities.automation.yourAgentLower", { defaultValue: "your agent" }) : null;
   const talk = () => conversation.open({
     issueId: candidate.issueId,
     agentId: candidate.responsibleAgentId,
@@ -266,7 +269,7 @@ function CandidateRow({
   const accept = useMutation({
     mutationFn: () => routineSuggestionsApi.accept(candidate.issueId, offer!.interactionId, localTimeZone()),
     onSuccess: async (response) => {
-      actions.onMade(`“${response.routine.title}” is automated now: ${offer!.cadenceLabel}.`);
+      actions.onMade(t("responsibilities.automation.madeSentence", { defaultValue: "“{{title}}” is automated now: {{cadence}}.", title: response.routine.title, cadence: offer!.cadenceLabel }));
       await refreshAutomation(queryClient);
     },
   });
@@ -296,14 +299,14 @@ function CandidateRow({
         {offer ? (
           <p className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground" data-candidate-offer="">
             <AutomationStartIcon kind="schedule" />
-            <span className="truncate">{agentName(offer.agentId ?? "") ?? "Your agent"} offered to repeat it: {offer.cadenceLabel}</span>
+            <span className="truncate">{t("responsibilities.automation.offeredToRepeat", { defaultValue: "{{agent}} offered to repeat it: {{cadence}}", agent: agentName(offer.agentId ?? "") ?? t("responsibilities.automation.yourAgent", { defaultValue: "Your agent" }), cadence: offer.cadenceLabel })}</span>
           </p>
         ) : hint ? (
           <div className="flex min-w-0 flex-col gap-0.5" data-candidate-hint={hint.trigger}>
             <p className="flex min-w-0 items-center gap-1.5 text-xs font-medium text-foreground">
               <AutomationStartIcon kind={hint.trigger} />
               <span className="truncate">
-                {HINT_LABEL[hint.trigger]}
+                {t(`responsibilities.automation.hint.${hint.trigger}`, { defaultValue: HINT_LABEL[hint.trigger] })}
                 {hint.cadenceLabel ? <span className="font-normal text-muted-foreground"> · {hint.cadenceLabel}</span> : null}
               </span>
             </p>
@@ -312,20 +315,24 @@ function CandidateRow({
         ) : (
           <p className="text-xs text-muted-foreground" data-candidate-why="">
             {reason ? `${reason}. ` : null}
-            {who ? `How it could run is unclear from the title; work it out with ${who}.` : "How it could run is unclear from the title."}
+            {who
+              ? t("responsibilities.automation.unclearWith", { defaultValue: "How it could run is unclear from the title; work it out with {{agent}}.", agent: who })
+              : t("responsibilities.automation.unclear", { defaultValue: "How it could run is unclear from the title." })}
           </p>
         )}
         {candidate.conversation ? (
           <p className="flex items-center gap-1.5 text-xs text-muted-foreground" data-candidate-conversation={candidate.conversation.state}>
             <MessagesSquare aria-hidden="true" className="size-3 shrink-0" />
             {candidate.conversation.state === "proposal_waiting"
-              ? `${agentName(candidate.conversation.agentId ?? "") ?? "Your agent"} has proposed an automation`
-              : `Talking it through with ${agentName(candidate.conversation.agentId ?? "") ?? "your agent"}`}
+              ? t("responsibilities.automation.proposedAutomation", { defaultValue: "{{agent}} has proposed an automation", agent: agentName(candidate.conversation.agentId ?? "") ?? t("responsibilities.automation.yourAgent", { defaultValue: "Your agent" }) })
+              : t("responsibilities.automation.talkingWith", { defaultValue: "Talking it through with {{agent}}", agent: agentName(candidate.conversation.agentId ?? "") ?? t("responsibilities.automation.yourAgentLower", { defaultValue: "your agent" }) })}
           </p>
         ) : null}
         {error ? (
           <p role="alert" className="text-xs text-destructive">
-            {conversation.error ? "Couldn’t open the conversation." : "Couldn’t accept the offer."} {describeError(error).body}
+            {conversation.error
+              ? t("responsibilities.automation.couldntOpen", { defaultValue: "Couldn’t open the conversation." })
+              : t("responsibilities.automation.couldntAccept", { defaultValue: "Couldn’t accept the offer." })} {describeError(error).body}
           </p>
         ) : null}
       </div>
@@ -334,10 +341,10 @@ function CandidateRow({
           <>
             <Button type="button" size="xs" disabled={accept.isPending} onClick={() => accept.mutate()}>
               <Repeat aria-hidden="true" />
-              {accept.isPending ? "Accepting…" : "Accept"}
+              {accept.isPending ? t("responsibilities.automation.accepting", { defaultValue: "Accepting…" }) : t("responsibilities.automation.accept", { defaultValue: "Accept" })}
             </Button>
             <Button type="button" size="xs" variant="ghost" disabled={accept.isPending} onClick={() => actions.onSetUpByHand(candidate, responsibilityId)}>
-              Change
+              {t("responsibilities.automation.change", { defaultValue: "Change" })}
             </Button>
           </>
         ) : (
@@ -346,16 +353,16 @@ function CandidateRow({
               type="button"
               size="xs"
               disabled={conversation.isPending || (!candidate.conversation && !candidate.responsibleAgentId)}
-              title={!candidate.conversation && !candidate.responsibleAgentId ? "No agent can take this; set it up by hand" : undefined}
+              title={!candidate.conversation && !candidate.responsibleAgentId ? t("responsibilities.automation.noAgentByHand", { defaultValue: "No agent can take this; set it up by hand" }) : undefined}
               onClick={talk}
               data-automate-with-agent=""
             >
               <MessagesSquare aria-hidden="true" />
-              {conversation.isPending ? "Opening…" : conversationButtonLabel(candidate, agentName)}
+              {conversation.isPending ? t("responsibilities.automation.opening", { defaultValue: "Opening…" }) : conversationButtonLabel(candidate, agentName)}
             </Button>
             <Button type="button" size="xs" variant="ghost" className="text-muted-foreground" onClick={() => actions.onSetUpByHand(candidate, responsibilityId)} data-set-up-by-hand="">
               <Wrench aria-hidden="true" />
-              Set up by hand
+              {t("responsibilities.automation.setUpByHand", { defaultValue: "Set up by hand" })}
             </Button>
           </>
         )}
@@ -364,8 +371,10 @@ function CandidateRow({
           size="icon-xs"
           variant="ghost"
           className="text-muted-foreground"
-          aria-label={offer ? `No thanks to repeating ${candidate.title}` : `${candidate.title} doesn't repeat`}
-          title={offer ? "No thanks" : "Doesn't repeat"}
+          aria-label={offer
+            ? t("responsibilities.automation.noThanksToRepeating", { defaultValue: "No thanks to repeating {{title}}", title: candidate.title })
+            : t("responsibilities.automation.doesntRepeatTitle", { defaultValue: "{{title}} doesn't repeat", title: candidate.title })}
+          title={offer ? t("responsibilities.automation.noThanks", { defaultValue: "No thanks" }) : t("responsibilities.automation.doesntRepeat", { defaultValue: "Doesn't repeat" })}
           onClick={dismiss}
         >
           <X aria-hidden="true" />
@@ -377,6 +386,7 @@ function CandidateRow({
 
 /** Pause, resume or remove a standing check. Removing archives it; the routine's page can restore it. */
 function StandingCheckActions({ routineId, title, paused }: { routineId: string; title: string; paused: boolean }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const change = useMutation({
     mutationFn: (status: "active" | "paused" | "archived") => routinesApi.update(routineId, { status }),
@@ -390,8 +400,10 @@ function StandingCheckActions({ routineId, title, paused }: { routineId: string;
         variant="ghost"
         className="text-muted-foreground"
         disabled={change.isPending}
-        aria-label={paused ? `Resume ${title}` : `Pause ${title}`}
-        title={paused ? "Resume" : "Pause"}
+        aria-label={paused
+          ? t("responsibilities.automation.resumeTitle", { defaultValue: "Resume {{title}}", title })
+          : t("responsibilities.automation.pauseTitle", { defaultValue: "Pause {{title}}", title })}
+        title={paused ? t("responsibilities.automation.resume", { defaultValue: "Resume" }) : t("responsibilities.automation.pause", { defaultValue: "Pause" })}
         onClick={() => change.mutate(paused ? "active" : "paused")}
       >
         {paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
@@ -402,8 +414,8 @@ function StandingCheckActions({ routineId, title, paused }: { routineId: string;
         variant="ghost"
         className="text-muted-foreground"
         disabled={change.isPending}
-        aria-label={`Remove ${title}`}
-        title="Remove"
+        aria-label={t("responsibilities.automation.removeTitle", { defaultValue: "Remove {{title}}", title })}
+        title={t("responsibilities.automation.remove", { defaultValue: "Remove" })}
         onClick={() => change.mutate("archived")}
       >
         <Trash2 aria-hidden="true" />
@@ -415,8 +427,9 @@ function StandingCheckActions({ routineId, title, paused }: { routineId: string;
 
 /** One running automation: how it starts (icon and words), what it is, who runs it, and what happened last. */
 function AutomationEntry({ item, agentName, now }: { item: ResponsibilityAutomationItem; agentName: (id: string) => string | undefined; now: Date }) {
+  const { t } = useTranslation();
   const words = automationStartWords(item, now);
-  const who = agentName(item.assigneeAgentId) ?? "An agent";
+  const who = agentName(item.assigneeAgentId) ?? t("responsibilities.automation.anAgent", { defaultValue: "An agent" });
   return (
     <li className="flex min-w-0 items-start gap-2" data-automation-id={item.id} data-automation-start={item.start.kind}>
       <AutomationStartIcon kind={item.start.kind} className="mt-0.5" />
@@ -435,7 +448,9 @@ function AutomationEntry({ item, agentName, now }: { item: ResponsibilityAutomat
           {words.label}
           {words.detail ? ` · ${words.detail}` : null}
           {` · ${who}`}
-          {item.otherStarts > 0 ? ` · +${item.otherStarts} more ${item.otherStarts === 1 ? "way" : "ways"} to start` : null}
+          {item.otherStarts > 0
+            ? ` · ${t("responsibilities.automation.moreWaysToStart", { count: item.otherStarts, defaultValue_one: "+{{count}} more way to start", defaultValue_other: "+{{count}} more ways to start" })}`
+            : null}
         </span>
         {words.status ? (
           <span className="text-xs text-muted-foreground" data-automation-status="">
@@ -502,6 +517,7 @@ const AutomationRow = memo(function AutomationRow({
   now: Date;
   actions: RowActions;
 }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const level = automation?.level ?? "manual";
   const share = automation?.share ?? null;
@@ -534,26 +550,28 @@ const AutomationRow = memo(function AutomationRow({
             {percent ? <div className="status-fill h-full rounded-full" style={{ ...levelStyle(level), width: `${percent}%` }} /> : null}
           </div>
           <p className="text-xs tabular-nums text-muted-foreground" data-automation-counts="">
-            {automation ? automationCountsLine(automation) : "Not counted yet."}
+            {automation ? automationCountsLine(automation) : t("responsibilities.automation.notCounted", { defaultValue: "Not counted yet." })}
           </p>
         </div>
 
-        <section className="flex min-w-0 flex-col gap-2" aria-label="Runs without you" data-automation-running="">
-          <h3 className="text-xs font-semibold text-muted-foreground">Runs without you</h3>
+        <section className="flex min-w-0 flex-col gap-2" aria-label={t("responsibilities.automation.runsWithoutYou", { defaultValue: "Runs without you" })} data-automation-running="">
+          <h3 className="text-xs font-semibold text-muted-foreground">{t("responsibilities.automation.runsWithoutYou", { defaultValue: "Runs without you" })}</h3>
           {running.length > 0 ? (
             <ul className="flex flex-col gap-2">
               {running.map((item) => <AutomationEntry key={item.id} item={item} agentName={agentName} now={now} />)}
               {moreRunning > 0 ? (
                 <li className="pl-5.5 text-xs text-muted-foreground">
-                  <Link to={path} className="hover:underline">and {moreRunning} more {moreRunning === 1 ? "automation" : "automations"}</Link>
+                  <Link to={path} className="hover:underline">
+                    {t("responsibilities.automation.andMoreAutomations", { count: moreRunning, defaultValue_one: "and {{count}} more automation", defaultValue_other: "and {{count}} more automations" })}
+                  </Link>
                 </li>
               ) : null}
             </ul>
           ) : (
-            <p className="text-xs text-muted-foreground" data-automation-none-running="">Nothing runs on its own yet.</p>
+            <p className="text-xs text-muted-foreground" data-automation-none-running="">{t("responsibilities.automation.nothingRuns", { defaultValue: "Nothing runs on its own yet." })}</p>
           )}
           {stalled.length > 0 ? (
-            <ul className="flex flex-col gap-1.5" aria-label="Not running">
+            <ul className="flex flex-col gap-1.5" aria-label={t("responsibilities.automation.notRunning", { defaultValue: "Not running" })}>
               {stalled.map((item) => <StalledEntry key={item.id} item={item} agentName={agentName} />)}
             </ul>
           ) : null}
@@ -562,8 +580,8 @@ const AutomationRow = memo(function AutomationRow({
         {/* Its own container: a task's actions sit beside its text only when this
             column, not the page, is wide enough; otherwise they go underneath
             so the title and the suggestion keep the full width. */}
-        <section className="@container flex min-w-0 flex-col gap-2" aria-label="Manual tasks that could be automated" data-automation-manual="">
-          <h3 className="text-xs font-semibold text-muted-foreground">Manual tasks that could be automated</h3>
+        <section className="@container flex min-w-0 flex-col gap-2" aria-label={t("responsibilities.automation.manualCouldAutomate", { defaultValue: "Manual tasks that could be automated" })} data-automation-manual="">
+          <h3 className="text-xs font-semibold text-muted-foreground">{t("responsibilities.automation.manualCouldAutomate", { defaultValue: "Manual tasks that could be automated" })}</h3>
           {listed.length > 0 ? (
             <ul className="flex flex-col gap-2">
               {listed.map((candidate) => (
@@ -583,17 +601,17 @@ const AutomationRow = memo(function AutomationRow({
           {tasks.more > 0 && !expanded ? (
             tasks.others.length > 0 ? (
               <Button type="button" variant="link" size="xs" className="h-auto self-start px-0 text-xs text-muted-foreground" onClick={() => setExpanded(true)} data-automation-more="">
-                and {tasks.more} more manual {tasks.more === 1 ? "task" : "tasks"}
+                {t("responsibilities.automation.andMoreManualTasks", { count: tasks.more, defaultValue_one: "and {{count}} more manual task", defaultValue_other: "and {{count}} more manual tasks" })}
               </Button>
             ) : (
               <Link to={path} className="text-xs text-muted-foreground hover:underline" data-automation-more="">
-                and {tasks.more} more manual {tasks.more === 1 ? "task" : "tasks"}
+                {t("responsibilities.automation.andMoreManualTasks", { count: tasks.more, defaultValue_one: "and {{count}} more manual task", defaultValue_other: "and {{count}} more manual tasks" })}
               </Link>
             )
           ) : null}
           {expanded && tasks.unlisted > 0 ? (
             <Link to={path} className="text-xs text-muted-foreground hover:underline" data-automation-more="">
-              and {tasks.unlisted} more on the responsibility’s page
+              {t("responsibilities.automation.andMoreOnPage", { count: tasks.unlisted, defaultValue: "and {{count}} more on the responsibility’s page" })}
             </Link>
           ) : null}
         </section>
@@ -617,13 +635,14 @@ function AutomationAreaSection({
   now: Date;
   actions: RowActions;
 }) {
+  const { t } = useTranslation();
   const areaKey = group.area?.id ?? "none";
   const headingId = `automation-area-${areaKey}`;
   return (
     <section aria-labelledby={headingId} data-board-area={areaKey} className="flex flex-col gap-3 border-t border-border pt-4">
       <BoardAreaHeader
         headingId={headingId}
-        title={group.area?.title ?? "Not in an area"}
+        title={group.area?.title ?? t("responsibilities.automation.notInArea", { defaultValue: "Not in an area" })}
         archived={group.area?.status === "archived"}
         ownedLabel={group.ownedLabel}
         shareLabel={group.automationShare}
@@ -646,8 +665,9 @@ function AutomationAreaSection({
 }
 
 function AutomationSkeleton() {
+  const { t } = useTranslation();
   return (
-    <div className="flex flex-col gap-6" aria-busy="true" aria-label="Loading how automated your responsibilities are">
+    <div className="flex flex-col gap-6" aria-busy="true" aria-label={t("responsibilities.automation.loadingAria", { defaultValue: "Loading how automated your responsibilities are" })}>
       <Skeleton className="h-44 w-full rounded-xl" />
       <div className="flex flex-col gap-3">
         {Array.from({ length: 3 }, (_, index) => (
@@ -669,6 +689,7 @@ function AutomationSkeleton() {
  * their bar.
  */
 export function DashboardAutomation({ companyId, overview, agents, agentsById, now, onAddResponsibility, onReviewProposals }: DashboardViewProps) {
+  const { t } = useTranslation();
   const active = useMemo(() => activeResponsibilities(overview.responsibilities), [overview.responsibilities]);
   const query = useQuery({
     queryKey: queryKeys.responsibilities.automation(companyId, overview.ownerUserId),
@@ -718,7 +739,7 @@ export function DashboardAutomation({ companyId, overview, agents, agentsById, n
             <Repeat aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
             {made}
           </p>
-          <Button type="button" size="icon-xs" variant="ghost" aria-label="Dismiss" onClick={() => setMade(null)}>
+          <Button type="button" size="icon-xs" variant="ghost" aria-label={t("responsibilities.automation.dismiss", { defaultValue: "Dismiss" })} onClick={() => setMade(null)}>
             <X aria-hidden="true" />
           </Button>
         </div>
@@ -747,7 +768,7 @@ export function DashboardAutomation({ companyId, overview, agents, agentsById, n
         task={making?.task ?? null}
         agents={agents}
         filedUnder={making?.filedUnder ?? []}
-        onCreated={(result) => setMade(`“${result.routine.title}” is automated now: ${result.cadenceLabel}.`)}
+        onCreated={(result) => setMade(t("responsibilities.automation.madeSentence", { defaultValue: "“{{title}}” is automated now: {{cadence}}.", title: result.routine.title, cadence: result.cadenceLabel }))}
       />
     </div>
   );

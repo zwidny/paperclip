@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { queryKeys } from "@/lib/queryKeys";
+import { useTranslation } from "@/i18n";
 import type { GivableItem } from "@/lib/responsibilities";
 
 /**
@@ -68,13 +69,14 @@ export function GiveToAgentMenu({
   /** `outline` where the hand-off is the row's main action (the "Needs you" queue). */
   variant?: "ghost" | "outline";
 }) {
+  const { t } = useTranslation();
   const give = useGiveToAgent(companyId);
   const [result, setResult] = useState<{ ok: boolean; text: string } | null>(null);
   const choices = useMemo(
     () => agents.filter((agent) => agent.status !== "terminated").slice().sort((a, b) => a.name.localeCompare(b.name)),
     [agents],
   );
-  const noun = item.kind === "project" ? "project" : item.kind === "routine" ? "routine" : "task";
+  const noun = item.kind === "project" ? t("responsibilities.nounProject", { defaultValue: "project" }) : item.kind === "routine" ? t("responsibilities.nounRoutine", { defaultValue: "routine" }) : t("responsibilities.nounTask", { defaultValue: "task" });
   return (
     <span className="inline-flex shrink-0 items-center gap-1">
       {result ? (
@@ -89,29 +91,29 @@ export function GiveToAgentMenu({
             variant={variant}
             className={variant === "ghost" ? "text-muted-foreground" : undefined}
             disabled={give.isPending}
-            aria-label={`Give ${item.label} to an agent`}
-            title={size === "icon-xs" ? "Give to an agent" : undefined}
+            aria-label={t("responsibilities.giveNamedToAgent", { label: item.label, defaultValue: "Give {{label}} to an agent" })}
+            title={size === "icon-xs" ? t("responsibilities.giveToAgent", { defaultValue: "Give to an agent" }) : undefined}
           >
             <Bot aria-hidden="true" />
-            {size === "xs" ? "Give to an agent" : null}
+            {size === "xs" ? t("responsibilities.giveToAgent", { defaultValue: "Give to an agent" }) : null}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="max-h-(--sz-50vh) overflow-y-auto">
           <DropdownMenuLabel>
-            {item.kind === "project" ? "Who leads this project" : `Who takes this ${noun}`}
+            {item.kind === "project" ? t("responsibilities.whoLeadsProject", { defaultValue: "Who leads this project" }) : `${t("responsibilities.whoTakesThis", { defaultValue: "Who takes this" })} ${noun}`}
           </DropdownMenuLabel>
           {choices.length === 0 ? (
-            <p className="px-2 py-1.5 text-sm text-muted-foreground">No agents yet. Add an agent first.</p>
+            <p className="px-2 py-1.5 text-sm text-muted-foreground">{t("responsibilities.noAgentsYet", { defaultValue: "No agents yet. Add an agent first." })}</p>
           ) : (
             <DropdownMenuRadioGroup
               value={item.currentAgentId ?? ""}
               onValueChange={(agentId) => {
                 if (!agentId || agentId === item.currentAgentId) return;
-                const name = choices.find((agent) => agent.id === agentId)?.name ?? "the agent";
+                const name = choices.find((agent) => agent.id === agentId)?.name ?? t("responsibilities.theAgent", { defaultValue: "the agent" });
                 setResult(null);
                 give.mutate({ item, agentId }, {
-                  onSuccess: () => setResult({ ok: true, text: item.kind === "project" ? `${name} leads it now.` : `${name} has it now.` }),
-                  onError: (error) => setResult({ ok: false, text: `Couldn’t give it to ${name}. ${describeError(error).body}` }),
+                  onSuccess: () => setResult({ ok: true, text: item.kind === "project" ? `${name} ${t("responsibilities.leadsItNow", { defaultValue: "leads it now." })}` : `${name} ${t("responsibilities.hasItNow", { defaultValue: "has it now." })}` }),
+                  onError: (error) => setResult({ ok: false, text: `${t("responsibilities.giveFailed", { defaultValue: "Couldn’t give it to" })} ${name}. ${describeError(error).body}` }),
                 });
               }}
             >

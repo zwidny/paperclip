@@ -38,6 +38,7 @@ import { Button } from "@/components/ui/button";
 import { useBreadcrumbs } from "@/context/BreadcrumbContext";
 import { useCompany } from "@/context/CompanyContext";
 import { useAgentlessOnboardingAutoOpen } from "@/hooks/useAgentlessOnboardingAutoOpen";
+import { useTranslation } from "@/i18n";
 import { queryKeys } from "@/lib/queryKeys";
 import {
   delegationPrefillForReason,
@@ -65,13 +66,18 @@ function ProvenanceLine({
   responsibilities: readonly ResponsibilityWithRollup[];
   agentName: (id: string) => string | undefined;
 }) {
+  const { t } = useTranslation();
   const provenance = useMemo(() => onboardingProvenance(responsibilities), [responsibilities]);
   if (!provenance) return null;
   const name = provenance.agentId ? agentName(provenance.agentId) : undefined;
   return (
     <p className="text-xs text-muted-foreground">
-      {name ? `Drafted by ${name} during onboarding.` : "Drafted during onboarding."}
-      {provenance.confirmedAt ? ` Confirmed by you on ${formatShortDate(provenance.confirmedAt)}.` : null}
+      {name
+        ? t("responsibilities.dashboard.draftedBy", { defaultValue: "Drafted by {{name}} during onboarding.", name })
+        : t("responsibilities.dashboard.drafted", { defaultValue: "Drafted during onboarding." })}
+      {provenance.confirmedAt
+        ? t("responsibilities.dashboard.confirmedOn", { defaultValue: " Confirmed by you on {{date}}.", date: formatShortDate(provenance.confirmedAt) })
+        : null}
     </p>
   );
 }
@@ -90,6 +96,7 @@ export function Responsibilities() {
 }
 
 function OwnerDashboard({ selectedCompanyId, ownerUserId }: { selectedCompanyId: string; ownerUserId: string }) {
+  const { t } = useTranslation();
   const { setBreadcrumbs } = useBreadcrumbs();
   const [includeLetGo, setIncludeLetGo] = useState(false);
   const [adding, setAdding] = useState<{ areaId: string | null } | null>(null);
@@ -111,8 +118,8 @@ function OwnerDashboard({ selectedCompanyId, ownerUserId }: { selectedCompanyId:
   useAgentlessOnboardingAutoOpen();
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Dashboard" }]);
-  }, [setBreadcrumbs]);
+    setBreadcrumbs([{ label: t("nav.dashboard", { defaultValue: "Dashboard" }) }]);
+  }, [setBreadcrumbs, t]);
 
   const overviewQuery = useQuery({
     queryKey: queryKeys.responsibilities.overview(selectedCompanyId ?? "__none__", { includeLetGo, ownerUserId }),
@@ -174,8 +181,8 @@ function OwnerDashboard({ selectedCompanyId, ownerUserId }: { selectedCompanyId:
               <ToolbarSearch
                 query={search}
                 onQueryChange={setSearch}
-                label="Search your dashboard"
-                placeholder="Search"
+                label={t("responsibilities.dashboard.searchDashboard", { defaultValue: "Search your dashboard" })}
+                placeholder={t("nav.search", { defaultValue: "Search" })}
                 inputType="search"
               />
               <p className="text-sm text-muted-foreground" data-dashboard-counts="">{outlineV2CountsLabel(outlineCounts)}</p>
@@ -183,10 +190,10 @@ function OwnerDashboard({ selectedCompanyId, ownerUserId }: { selectedCompanyId:
           ) : null
         ) : (
           <div className="flex min-w-0 flex-col gap-1">
-            <h1 className="text-2xl font-semibold text-foreground">Dashboard</h1>
+            <h1 className="text-2xl font-semibold text-foreground">{t("nav.dashboard", { defaultValue: "Dashboard" })}</h1>
             {view === "full" ? (
               <>
-                <p className="text-sm text-muted-foreground">What you own, whether each one is meeting its bar, and the work underneath.</p>
+                <p className="text-sm text-muted-foreground">{t("responsibilities.dashboard.description", { defaultValue: "What you own, whether each one is meeting its bar, and the work underneath." })}</p>
                 {overview ? <ProvenanceLine responsibilities={overview.responsibilities} agentName={agentName} /> : null}
               </>
             ) : null}
@@ -195,26 +202,26 @@ function OwnerDashboard({ selectedCompanyId, ownerUserId }: { selectedCompanyId:
         <div className="flex flex-wrap items-center justify-end gap-2">
           {visiting ? (
             <Button variant="ghost" onClick={leave} data-dashboard-back="">
-              Back
+              {t("common.back", { defaultValue: "Back" })}
             </Button>
           ) : null}
           {view === "outline_v2" ? (
             // The page's one primary action, last in the row after search.
             <Button onClick={() => setAddingArea(true)}>
               <Plus aria-hidden="true" />
-              New area
+              {t("responsibilities.dashboard.newArea", { defaultValue: "New area" })}
             </Button>
           ) : null}
           {view === "full" || view === "board" ? (
             <>
               <Button variant="outline" onClick={() => setAddingArea(true)}>
                 <Plus aria-hidden="true" />
-                Add area
+                {t("responsibilities.dashboard.addArea", { defaultValue: "Add area" })}
               </Button>
               {isEmpty ? null : (
                 <Button onClick={() => openAdd(null)}>
                   <Plus aria-hidden="true" />
-                  Add responsibility
+                  {t("responsibilities.dashboard.addResponsibility", { defaultValue: "Add responsibility" })}
                 </Button>
               )}
             </>
@@ -224,7 +231,7 @@ function OwnerDashboard({ selectedCompanyId, ownerUserId }: { selectedCompanyId:
 
       {restore.error ? (
         <p role="alert" className="text-sm text-destructive">
-          Couldn’t restore the area. {describeError(restore.error).body}
+          {t("responsibilities.dashboard.couldntRestore", { defaultValue: "Couldn’t restore the area." })} {describeError(restore.error).body}
         </p>
       ) : null}
 

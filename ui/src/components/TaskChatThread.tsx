@@ -1827,22 +1827,22 @@ export function TaskChatThread(props: TaskChatThreadProps) {
             : "native_runner_process_exited");
         const label =
           code === "native_provider_runtime_missing" && source.status === "failed"
-            ? "Runtime missing"
+            ? t("taskChatThread.runStatusRuntimeMissing", { defaultValue: "Runtime missing" })
             : code === "native_provider_model_rejected" && source.status === "failed"
-            ? "Model unavailable"
+            ? t("taskChatThread.runStatusModelUnavailable", { defaultValue: "Model unavailable" })
             : code === "native_provider_approval_required" && source.status === "failed"
-            ? "Approval required"
+            ? t("taskChatThread.runStatusApprovalRequired", { defaultValue: "Approval required" })
             : code === "native_provider_usage_limit" && source.status === "failed"
-            ? "Usage limit reached"
+            ? t("taskChatThread.runStatusUsageLimit", { defaultValue: "Usage limit reached" })
             : code === "sandbox_disk_full" && source.status === "failed"
-            ? "Disk full"
+            ? t("taskChatThread.runStatusDiskFull", { defaultValue: "Disk full" })
             : source.status === "cancelled"
-              ? "Run cancelled"
+              ? t("taskChatThread.runStatusCancelled", { defaultValue: "Run cancelled" })
               : source.status === "interrupted"
-                ? "Run interrupted"
+                ? t("taskChatThread.runStatusInterrupted", { defaultValue: "Run interrupted" })
                 : source.status === "timed_out"
-                  ? "Run timed out"
-                  : "Run failed";
+                  ? t("taskChatThread.runStatusTimedOut", { defaultValue: "Run timed out" })
+                  : t("taskChatThread.runStatusFailed", { defaultValue: "Run failed" });
         const responseBoundary = sourceHasNativeResponse
           ? t("taskChatThread.afterFinalResponse", { defaultValue: " after returning a final response" })
           : "";
@@ -1953,7 +1953,17 @@ export function TaskChatThread(props: TaskChatThreadProps) {
             id,
             kind: "marker",
             variant: "interrupted",
-            label: branchUnavailable ? "Starting branch unavailable" : restoreFailed ? "Workspace restore failed" : aiRequest?.status === "pending" ? "AI connection needed" : source.status === "cancelled" ? (meta?.startedAt ? "Stopped" : "Couldn't start") : "Run failed",
+            label: branchUnavailable
+              ? t("taskChatThread.markerStartingBranchUnavailable", { defaultValue: "Starting branch unavailable" })
+              : restoreFailed
+                ? t("taskChatThread.markerWorkspaceRestoreFailed", { defaultValue: "Workspace restore failed" })
+                : aiRequest?.status === "pending"
+                  ? t("taskChatThread.markerAiConnectionNeeded", { defaultValue: "AI connection needed" })
+                  : source.status === "cancelled"
+                    ? (meta?.startedAt
+                      ? t("taskChatThread.markerStopped", { defaultValue: "Stopped" })
+                      : t("taskChatThread.markerCouldntStart", { defaultValue: "Couldn't start" }))
+                    : t("taskChatThread.markerRunFailed", { defaultValue: "Run failed" }),
             runId: source.status === "cancelled" ? undefined : source.id,
             ...(branchUnavailable || aiRequest?.status === "pending" ? { retryable: false } : {}),
             ...(restoreFailed ? {

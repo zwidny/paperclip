@@ -81,7 +81,9 @@ export function DocumentAnnotationPopover(props: DocumentAnnotationPopoverProps)
     <div
       ref={cardRef}
       role="dialog"
-      aria-label={props.pendingAnchor ? "Add annotation comment" : "Annotation thread"}
+      aria-label={props.pendingAnchor
+        ? t("documentAnnotationPopover.addCommentAria", { defaultValue: "Add annotation comment" })
+        : t("documentAnnotationPopover.threadAria", { defaultValue: "Annotation thread" })}
       data-testid="document-annotation-popover"
       className="absolute z-(--z-20) w-80 max-w-full rounded-lg border border-border bg-popover text-popover-foreground shadow-xl"
       style={{ top, left }}

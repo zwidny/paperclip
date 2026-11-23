@@ -75,7 +75,7 @@ export function AgentChat() {
       void agentChatsApi.greet(selectedCompanyId, agent.id).then(() => {
         if (!cancelled) void client.invalidateQueries({ queryKey: queryKeys.issues.detail(chat.data!.id) });
       }).catch(error => {
-        if (!cancelled) setGreetingError(error instanceof Error ? error.message : "The welcome could not start.");
+        if (!cancelled) setGreetingError(error instanceof Error ? error.message : t("agentChatPage.welcomeFailed", { defaultValue: "The welcome could not start." }));
       });
     });
     return () => { cancelled = true; cancelPaint(); };
@@ -142,7 +142,7 @@ export function AgentChat() {
     <>
       {greetingError && <div role="alert" className="flex items-center gap-2 text-sm text-destructive">
         <span>{greetingError}</span>
-        <Button variant="outline" size="sm" onClick={() => setGreetingAttempt(attempt => attempt + 1)}>Retry welcome</Button>
+        <Button variant="outline" size="sm" onClick={() => setGreetingAttempt(attempt => attempt + 1)}>{t("agentChatPage.retryWelcome", { defaultValue: "Retry welcome" })}</Button>
       </div>}
       <TaskDetailSurface
         key={`${agent.id}:${userId}`}

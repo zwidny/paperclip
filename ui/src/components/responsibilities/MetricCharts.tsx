@@ -17,6 +17,7 @@ import {
   yFor,
 } from "@/lib/metric-charts";
 import { RESPONSIBILITY_HEALTH_TEXT_VAR } from "@/lib/responsibilities";
+import { useTranslation } from "@/i18n";
 import { cn } from "@/lib/utils";
 
 /**
@@ -46,14 +47,19 @@ function percent(share: number) {
 
 /** The readings as a table, for screen readers. */
 function ReadingsTable({ metric }: { metric: ChartMetric & Pick<ResponsibilityMetricView, "title"> }) {
+  const { t } = useTranslation();
   if (metric.readings.length === 0) return null;
   return (
     <table className="sr-only">
       <caption>{metric.title}</caption>
       <thead>
         <tr>
-          <th scope="col">{metric.period === "week" ? "Week of" : "Read on"}</th>
-          <th scope="col">Value</th>
+          <th scope="col">
+            {metric.period === "week"
+              ? t("responsibilities.metricCharts.weekOf", { defaultValue: "Week of" })
+              : t("responsibilities.metricCharts.readOn", { defaultValue: "Read on" })}
+          </th>
+          <th scope="col">{t("responsibilities.metricCharts.value", { defaultValue: "Value" })}</th>
         </tr>
       </thead>
       <tbody>
@@ -137,6 +143,7 @@ function AxisDates({ first, last }: { first: string | null; last: string | null 
  * dashed reference. None: an empty frame that says so. One: a single dot.
  */
 export function MetricLineChart({ metric, className }: { metric: ChartMetric; className?: string }) {
+  const { t } = useTranslation();
   const references = metricReferences(metric);
   const domain = chartDomain(
     metric.readings.map((reading) => reading.value),
@@ -150,7 +157,7 @@ export function MetricLineChart({ metric, className }: { metric: ChartMetric; cl
     <div className={cn("flex flex-col gap-1", className)}>
       <ChartFrame
         metric={metric}
-        empty={points.length === 0 ? "No readings yet" : null}
+        empty={points.length === 0 ? t("responsibilities.metricCharts.noReadings", { defaultValue: "No readings yet" }) : null}
         overlay={
           <>
             <ReferenceLines lines={references} domain={domain} />
@@ -204,6 +211,7 @@ export function MetricLineChart({ metric, className }: { metric: ChartMetric; cl
  * the others lighter, so the current week reads first.
  */
 export function MetricBarChart({ metric, className }: { metric: ChartMetric; className?: string }) {
+  const { t } = useTranslation();
   const references = metricReferences(metric);
   const domain = chartDomain(
     metric.readings.map((reading) => reading.value),
@@ -215,7 +223,7 @@ export function MetricBarChart({ metric, className }: { metric: ChartMetric; cla
     <div className={cn("flex flex-col gap-1", className)}>
       <ChartFrame
         metric={metric}
-        empty={bars.length === 0 ? "No readings yet" : null}
+        empty={bars.length === 0 ? t("responsibilities.metricCharts.noReadings", { defaultValue: "No readings yet" }) : null}
         overlay={<ReferenceLines lines={references} domain={domain} />}
       >
         <line x1={0} x2={CHART_WIDTH} y1={CHART_HEIGHT} y2={CHART_HEIGHT} className="stroke-border" strokeWidth={1} vectorEffect="non-scaling-stroke" />

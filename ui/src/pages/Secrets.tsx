@@ -1010,24 +1010,24 @@ export function Secrets() {
   // the company secret's name as an environment variable.
   const createEnvKey =
     secretValueProvider === "user" ? createForm.key.trim() : envKeyFromSecretName(secretLeafName(createForm.name));
-  const createNameError = !createLeafName.trim() ? "Give the secret a name." : null;
+  const createNameError = !createLeafName.trim() ? t("secrets.errors.nameRequired", { defaultValue: "Give the secret a name." }) : null;
   const createValueError =
     secretValueProvider !== "company"
       ? null
       : createMode === "managed"
         ? createForm.value
           ? null
-          : "Paste the value to store."
+          : t("secrets.errors.valueRequired", { defaultValue: "Paste the value to store." })
         : createForm.externalRef.trim()
           ? null
-          : "Paste the secret's ARN or path.";
+          : t("secrets.errors.referenceRequired", { defaultValue: "Paste the secret's ARN or path." });
   const createKeyError =
     secretValueProvider === "user" && !editingDefinition && !createForm.key.trim()
-      ? "Add the environment variable name agents will read."
+      ? t("secrets.errors.keyRequired", { defaultValue: "Add the environment variable name agents will read." })
       : null;
   const createAccessError =
     createAgentIds.size > 0 && !ENV_KEY_PATTERN.test(createEnvKey)
-      ? "Agents can only read names made of letters, digits and underscores that don't start with a digit. Rename the secret, or remove the agents and give access later."
+      ? t("secrets.errors.invalidEnvKey", { defaultValue: "Agents can only read names made of letters, digits and underscores that don't start with a digit. Rename the secret, or remove the agents and give access later." })
       : null;
   const createBlocked = Boolean(
     createNameError ||
@@ -1070,10 +1070,10 @@ export function Secrets() {
     }));
   }
 
-  const vaultNameError = vaultForm.displayName.trim() ? null : "Give the vault a name your team will recognize.";
+  const vaultNameError = vaultForm.displayName.trim() ? null : t("secrets.errors.vaultNameRequired", { defaultValue: "Give the vault a name your team will recognize." });
   const vaultRegionError =
     vaultForm.provider === "aws_secrets_manager" && !vaultForm.region.trim()
-      ? "Enter the AWS region, such as us-east-1."
+      ? t("secrets.errors.regionRequired", { defaultValue: "Enter the AWS region, such as us-east-1." })
       : null;
 
   const unifiedRows = useMemo<UnifiedSecretRow[]>(
@@ -2180,7 +2180,7 @@ export function Secrets() {
     const provider = vaultKindLabel(providers, secret.provider);
     return {
       linked,
-      text: `${linked ? "Linked from" : "Stored in"} ${config ? `${config.displayName} · ${provider}` : provider}`,
+      text: `${linked ? t("secrets.linkedFrom", { defaultValue: "Linked from" }) : t("secrets.storedIn", { defaultValue: "Stored in" })} ${config ? `${config.displayName} · ${provider}` : provider}`,
       unavailable: Boolean(getProviderConfigBlockReason(config)),
     };
   }
@@ -2538,8 +2538,8 @@ export function Secrets() {
                   ) : showManagedSection ? (
                     <p className="px-3 py-4 text-sm text-muted-foreground">
                       {searching || activeSecretFilterCount > 0
-                        ? "None of the secrets your team added match."
-                        : "Your team hasn't added a secret yet."}
+                        ? t("secrets.list.noneMatch", { defaultValue: "None of the secrets your team added match." })
+                        : t("secrets.list.noneYet", { defaultValue: "Your team hasn't added a secret yet." })}
                     </p>
                   ) : (
                     <EmptyState
@@ -3088,10 +3088,10 @@ export function Secrets() {
                   createNameError
                 ) : createEnvKey && createEnvKey !== createLeafName.trim() ? (
                   <>
-                    Agents read it as <code className="font-mono text-foreground">{createEnvKey}</code>.
+                    {t("secrets.agentsReadItAs", { defaultValue: "Agents read it as" })} <code className="font-mono text-foreground">{createEnvKey}</code>.
                   </>
                 ) : editingDefinition || secretValueProvider !== "company" || createMode !== "managed" ? (
-                  "Use a slash to put it in a folder, like staging/API_KEY."
+                  t("secrets.slashFolderHint", { defaultValue: "Use a slash to put it in a folder, like staging/API_KEY." })
                 ) : (
                   "Tip: paste NAME=value and both fields fill in."
                 )}
@@ -3404,7 +3404,7 @@ export function Secrets() {
                   <p className="text-xs text-destructive" role="alert">{createAccessError}</p>
                 ) : createAgentIds.size === 0 ? (
                   <p className="text-xs text-muted-foreground">
-                    You can also give access later from the secret or from an agent&apos;s settings.
+                    {t("secrets.accessLaterHint", { defaultValue: "You can also give access later from the secret or from an agent's settings." })}
                   </p>
                 ) : null}
               </div>
@@ -5262,8 +5262,8 @@ function AgentAccessSection({
       {!loading && !unavailable ? (
         <p className="text-xs text-muted-foreground">
           {reference.kind === "company"
-            ? "An agent gets it as an environment variable when its run starts."
-            : "An agent gets the value of the person it is working for when its run starts."}
+            ? t("secrets.agentAccess.envVarRunHint", { defaultValue: "An agent gets it as an environment variable when its run starts." })
+            : t("secrets.agentAccess.userValueHint", { defaultValue: "An agent gets the value of the person it is working for when its run starts." })}
         </p>
       ) : null}
     </section>

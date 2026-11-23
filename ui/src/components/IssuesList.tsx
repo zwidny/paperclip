@@ -1265,8 +1265,8 @@ function StreamlinedIssuesList({
     return sortIssues(filteredByControls, viewState, issue => {
       const parent = issue.parentId ? byId.get(issue.parentId) : null;
       return {
-        createdBy: issue.createdByAgentId ? agentName(issue.createdByAgentId) ?? "Unknown agent" : companyUserLabelMap.get(issue.createdByUserId ?? "") ?? "Board",
-        assignee: issue.assigneeAgentId ? agentName(issue.assigneeAgentId) ?? "Unknown agent" : companyUserLabelMap.get(issue.assigneeUserId ?? "") ?? null,
+        createdBy: issue.createdByAgentId ? agentName(issue.createdByAgentId) ?? translate("tasks.unknownAgent", { defaultValue: "Unknown agent" }) : companyUserLabelMap.get(issue.createdByUserId ?? "") ?? translate("assignee.board", { defaultValue: "Board" }),
+        assignee: issue.assigneeAgentId ? agentName(issue.assigneeAgentId) ?? translate("tasks.unknownAgent", { defaultValue: "Unknown agent" }) : companyUserLabelMap.get(issue.assigneeUserId ?? "") ?? null,
         project: projectById.get(issue.projectId ?? "")?.name,
         parentTask: parent ? `${parent.identifier} ${parent.title}` : null,
       };
@@ -1394,7 +1394,7 @@ function StreamlinedIssuesList({
         })
         .map((key) => ({
           key,
-          label: key === "__no_workspace" ? "No Workspace" : (workspaceNameMap.get(key) ?? key.slice(0, 8)),
+          label: key === "__no_workspace" ? translate("legacyIssues.groupNoWorkspace", { defaultValue: "No Workspace" }) : (workspaceNameMap.get(key) ?? key.slice(0, 8)),
           items: groups[key]!,
         }));
     }
@@ -1410,7 +1410,7 @@ function StreamlinedIssuesList({
         })
         .map((key) => ({
           key,
-          label: key === "__no_project" ? "No Project" : (projectById.get(key)?.name ?? key.slice(0, 8)),
+          label: key === "__no_project" ? translate("legacyIssues.groupNoProject", { defaultValue: "No Project" }) : (projectById.get(key)?.name ?? key.slice(0, 8)),
           items: groups[key]!,
         }));
     }
@@ -1425,7 +1425,7 @@ function StreamlinedIssuesList({
         })
         .map((key) => ({
           key,
-          label: key === "__no_parent" ? "No Parent" : (issueTitleMap.get(key) ?? key.slice(0, 8)),
+          label: key === "__no_parent" ? translate("legacyIssues.groupNoParent", { defaultValue: "No Parent" }) : (issueTitleMap.get(key) ?? key.slice(0, 8)),
           items: groups[key]!,
         }));
     }

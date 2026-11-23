@@ -2500,7 +2500,7 @@ export function Inbox() {
                       ["none", t("legacyInbox.groupNone", { defaultValue: "None" })],
                       ["type", t("legacyInbox.groupType", { defaultValue: "Type" })],
                       ["assignee", t("tasks.column.assignee", { defaultValue: "Responsible" })],
-                      ["project", t("nav.projects", { defaultValue: "Project" })],
+                      ["project", t("routinesPage.groupProject", { defaultValue: "Project" })],
                       ...(isolatedWorkspacesEnabled ? ([["workspace", t("tasks.column.workspace", { defaultValue: "Workspace" })]] as const) : []),
                     ] as const).map(([value, label]) => (
                       <button
@@ -2546,7 +2546,8 @@ export function Inbox() {
                         <DialogDescription>
                           {t("legacyInbox.markAllReadDescription", {
                             count: unreadIssueIds.length,
-                            defaultValue: `This will mark ${unreadIssueIds.length} unread ${unreadIssueIds.length === 1 ? "item" : "items"} as read.`,
+                            defaultValue_one: "This will mark {{count}} unread item as read.",
+                            defaultValue_other: "This will mark {{count}} unread items as read.",
                           })}
                         </DialogDescription>
                       </DialogHeader>

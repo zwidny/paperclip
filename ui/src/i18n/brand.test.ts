@@ -1,27 +1,47 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { changeLocale, t } from ".";
-import { brandFor } from "./brand";
+import { brandFor, resolveBrand } from "./brand";
+
+afterEach(async () => {
+  // Never leave another test suite rendering in zh-CN.
+  await changeLocale("en");
+});
 
 describe("brand name", () => {
-  it("defaults to Paperclip for English and Gnzs for Simplified Chinese", () => {
-    expect(brandFor("en")).toBe("Paperclip");
-    expect(brandFor("de")).toBe("Paperclip");
-    expect(brandFor("zh-CN")).toBe("Gnzs");
-    expect(brandFor("zh-TW")).toBe("Paperclip");
+  it("uses Gnzs by default in a shipped build, for every locale", () => {
+    expect(resolveBrand({ locale: "en" })).toBe("Gnzs");
+    expect(resolveBrand({ locale: "de" })).toBe("Gnzs");
+    expect(resolveBrand({ locale: "zh-CN" })).toBe("Gnzs");
+    expect(resolveBrand({ locale: "zh-TW" })).toBe("Gnzs");
   });
 
-  it("substitutes {{brand}} in translated strings and follows the locale", async () => {
-    // A locale file must never render the raw placeholder.
+  it("keeps the upstream name under test so master's copy assertions stay valid", () => {
+    expect(resolveBrand({ locale: "en", testMode: true })).toBe("Paperclip");
+    expect(resolveBrand({ locale: "zh-CN", testMode: true })).toBe("Paperclip");
+    expect(brandFor("en")).toBe("Paperclip");
+  });
+
+  it("lets a build override the name per locale", () => {
+    expect(resolveBrand({ locale: "en", env: { VITE_BRAND_NAME: "Acme" } })).toBe("Acme");
+    expect(resolveBrand({ locale: "zh-CN", env: { VITE_BRAND_NAME: "Acme", VITE_BRAND_NAME_ZH: "阿克米" } })).toBe("阿克米");
+    expect(resolveBrand({ locale: "de", env: { VITE_BRAND_NAME: "Acme", VITE_BRAND_NAME_ZH: "阿克米" } })).toBe("Acme");
+    // An explicit override wins over the test-mode default as well.
+    expect(resolveBrand({ locale: "en", env: { VITE_BRAND_NAME: "Acme" }, testMode: true })).toBe("Acme");
+  });
+
+  it("substitutes {{brand}} in translated strings and never leaks the placeholder", async () => {
     const sample = "app.cloudCreateUnavailable";
 
     await changeLocale("en");
-    expect(t(sample)).toContain("Paperclip");
+    expect(t(sample)).toContain(brandFor("en"));
     expect(t(sample)).not.toContain("{{brand}}");
 
-    await changeLocale("zh-CN");
-    expect(t(sample)).toContain("Gnzs");
-    expect(t(sample)).not.toContain("{{brand}}");
-
-    await changeLocale("en");
+    try {
+      await changeLocale("zh-CN");
+      expect(t(sample)).toContain(brandFor("zh-CN"));
+      expect(t(sample)).not.toContain("{{brand}}");
+    } finally {
+      await changeLocale("en");
+    }
   });
 });

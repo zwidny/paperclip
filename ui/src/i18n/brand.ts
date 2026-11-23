@@ -1,26 +1,53 @@
 /**
  * Product name shown in the UI.
  *
- * Locale files use the `{{brand}}` interpolation instead of a hardcoded name, so
- * a white-label build only changes configuration:
+ * Locale files use the `{{brand}}` interpolation instead of a hardcoded name, so a
+ * white-label build only changes configuration:
  *
- *   VITE_BRAND_NAME       brand for every locale      (default "Paperclip")
- *   VITE_BRAND_NAME_ZH    brand for Simplified Chinese (default "Gnzs")
+ *   VITE_BRAND_NAME       brand for every locale       (default "Gnzs")
+ *   VITE_BRAND_NAME_ZH    brand for Simplified Chinese (defaults to VITE_BRAND_NAME)
  *
- * Both are read at build time by Vite. Runtime changes need a rebuild, which is
- * the same trade-off the rest of the bundle already makes.
+ * Both are read at build time by Vite; a runtime change needs a rebuild, which is
+ * the same trade-off the rest of the bundle makes.
+ *
+ * Tests run with the upstream name on purpose. Their assertions quote the copy
+ * master ships ("Paperclip Cloud", "Paperclip Runner"), and those assertions are
+ * about product behaviour, not about which name this build chose. Keeping the
+ * test-mode default here means a white-label build does not have to rewrite
+ * hundreds of upstream assertions — and does not have to redo it after every
+ * upstream merge.
  */
-const FALLBACK_BRAND = "Paperclip";
-const ZH_CN_BRAND = "Gnzs";
+const TEST_BRAND = "Paperclip";
+const DEFAULT_BRAND = "Gnzs";
 
-function fromEnv(name: string): string | undefined {
-  const env = import.meta.env as unknown as Record<string, unknown>;
+export interface BrandInputs {
+  locale: string;
+  /** Build-time env, as `import.meta.env` provides it. */
+  env?: Record<string, unknown>;
+  /** True under Vitest, where upstream copy should stay intact. */
+  testMode?: boolean;
+}
+
+function readEnv(env: Record<string, unknown> | undefined, name: string): string | undefined {
   const raw = env?.[name];
   return typeof raw === "string" && raw.trim() ? raw.trim() : undefined;
 }
 
-/** Returns the brand name for a locale tag. */
+/** Pure resolver so both branches can be tested without faking the build mode. */
+export function resolveBrand({ locale, env, testMode = false }: BrandInputs): string {
+  // Most specific first: a locale override, then the build-wide override.
+  if (locale === "zh-CN") {
+    const zh = readEnv(env, "VITE_BRAND_NAME_ZH");
+    if (zh) return zh;
+  }
+  const explicit = readEnv(env, "VITE_BRAND_NAME");
+  if (explicit) return explicit;
+  if (testMode) return TEST_BRAND;
+  return DEFAULT_BRAND;
+}
+
+/** Returns the brand name for a locale tag in the current build. */
 export function brandFor(locale: string): string {
-  if (locale === "zh-CN") return fromEnv("VITE_BRAND_NAME_ZH") ?? ZH_CN_BRAND;
-  return fromEnv("VITE_BRAND_NAME") ?? FALLBACK_BRAND;
+  const env = import.meta.env as unknown as Record<string, unknown>;
+  return resolveBrand({ locale, env, testMode: env?.MODE === "test" });
 }

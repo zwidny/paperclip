@@ -109,6 +109,36 @@ Consequence to know about: the image ships no remote provider pack and no
 tailscale, so remote OpenCode/ACPX runs and tailnet access are unavailable. Runs
 that use a local model endpoint through the `llm-proxy` sidecar are unaffected.
 
+## Pushing the result: watch the 100 MB limit
+
+GitHub rejects a push whose history contains a blob over 100 MB (`pre-receive
+hook declined`, with the reason usually cut off by a log tail). Tool output that
+lives in the checkout root is the usual culprit: `index.scip` from a code index,
+`.codegraph/**` caches, editor or agent notes.
+
+If that happens before the push succeeds, do **not** rewrite published history:
+
+```sh
+# stop any partial index rewrite first; `git rm` on a 270k-file cache takes ~20 min
+git reset 545c0d4c2f          # index back to the pre-merge commit; worktree untouched
+printf '.codegraph/\n*.scip\n' >> .gitignore
+git add -A                    # the ignored trees are now excluded
+tree=$(git write-tree)
+new=$(git commit-tree "$tree" -p <parent1> -p <parent2> -F message.txt)
+git reset --soft "$new"
+```
+
+`git write-tree` + `git commit-tree` rebuilds the merge commit in O(1) instead of
+deleting hundreds of thousands of index entries one by one. Verify before
+pushing:
+
+```sh
+git ls-tree -r -l HEAD | awk '$4 > 5000000'    # expect empty
+```
+
+Ignore local tool output in `.gitignore` **before** the first `git add -A` of a
+merge; these files are untracked, so an ignored pattern is enough.
+
 ## Rollback
 
 Keep the previous image ID before deploying:

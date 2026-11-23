@@ -1,5 +1,6 @@
 import type { ResponsibilitySummary } from "@paperclipai/shared";
 import { timeAgo } from "./timeAgo";
+import { i18n } from "../i18n";
 
 /**
  * The written paragraphs on the Dashboard and the responsibility page
@@ -42,8 +43,12 @@ export function summaryAttribution(
   stillWaiting: boolean,
 ): SummaryAttribution {
   return {
-    source: summary.source === "model" ? "Written by AI" : "Summarized from the numbers",
+    source: summary.source === "model"
+      ? i18n.t("responsibilities.summaryWords.writtenByAi", { defaultValue: "Written by AI" })
+      : i18n.t("responsibilities.summaryWords.summarizedFromNumbers", { defaultValue: "Summarized from the numbers" }),
     when: timeAgo(summary.generatedAt),
-    pending: summary.refreshing && stillWaiting && summary.source !== "model" ? "AI summary on the way" : null,
+    pending: summary.refreshing && stillWaiting && summary.source !== "model"
+      ? i18n.t("responsibilities.summaryWords.aiOnTheWay", { defaultValue: "AI summary on the way" })
+      : null,
   };
 }

@@ -1,6 +1,5 @@
 import {
   RESPONSIBILITY_STATUS_REPORT_FRESH_DAYS,
-  RESPONSIBILITY_STATUS_REPORT_LABEL,
   type ResponsibilityArea,
   type ResponsibilityHealth,
   type ResponsibilityMetricSummary,
@@ -9,6 +8,7 @@ import {
   type ResponsibilityWithRollup,
 } from "@paperclipai/shared";
 import { describeMetricReading, groupByArea, RESPONSIBILITY_HEALTH_LABEL } from "./responsibilities";
+import { i18n } from "../i18n";
 
 /**
  * Derivations for the Dashboard's "Agent status" view (experimental,
@@ -28,10 +28,18 @@ export type AgentStatusSource = "agent" | "person" | "number";
 export const AGENT_STATUS_TILE_ORDER: readonly AgentStatusKind[] = ["on_track", "at_risk", "behind", "unclear"];
 
 export const AGENT_STATUS_TILE_LABEL: Record<AgentStatusKind, string> = {
-  on_track: "On track",
-  at_risk: "At risk",
-  behind: "Behind",
-  unclear: "Unclear",
+  get on_track() {
+    return i18n.t("responsibilities.healthLabel.on_track", { defaultValue: "On track" });
+  },
+  get at_risk() {
+    return i18n.t("responsibilities.healthLabel.at_risk", { defaultValue: "At risk" });
+  },
+  get behind() {
+    return i18n.t("responsibilities.healthLabel.behind", { defaultValue: "Behind" });
+  },
+  get unclear() {
+    return i18n.t("responsibilities.agentStatusWords.unclear", { defaultValue: "Unclear" });
+  },
 };
 
 /** The status hue each kind borrows. */
@@ -86,7 +94,9 @@ export function agentStatusRow(
     return {
       ...base,
       kind: report.status === "unknown" ? "unclear" : report.status,
-      label: RESPONSIBILITY_STATUS_REPORT_LABEL[report.status],
+      label: report.status === "unknown"
+        ? i18n.t("responsibilities.agentStatusWords.cantTellYet", { defaultValue: "Can't tell yet" })
+        : RESPONSIBILITY_HEALTH_LABEL[report.status],
       source: report.userId ? "person" : "agent",
       message: report.message,
       detail: report.detail,
@@ -139,7 +149,12 @@ function count(n: number, one: string, many: string) {
 
 function joinNames(names: readonly string[]): string {
   if (names.length <= 1) return names[0] ?? "";
-  return `${names.slice(0, -1).join(", ")} and ${names.at(-1)}`;
+  const last = names.at(-1) ?? "";
+  return i18n.t("responsibilities.agentStatusWords.joinNames", {
+    head: names.slice(0, -1).join(i18n.t("responsibilities.words.listJoin", { defaultValue: ", " })),
+    last,
+    defaultValue: "{{head}} and {{last}}",
+  });
 }
 
 /** Who wrote a row's status, in words: the agent's name, "you", "a person", or null for the number. */
@@ -149,17 +164,31 @@ export function agentStatusAuthor(
   viewerUserId: string | null,
 ): string | null {
   if (row.source === "number") return null;
-  if (row.source === "person") return row.authorUserId && row.authorUserId === viewerUserId ? "You" : "A person";
-  return (row.authorAgentId && agentName(row.authorAgentId)) || "An agent";
+  if (row.source === "person") {
+    return row.authorUserId && row.authorUserId === viewerUserId
+      ? i18n.t("responsibilities.agentStatusWords.you", { defaultValue: "You" })
+      : i18n.t("responsibilities.agentStatusWords.aPerson", { defaultValue: "A person" });
+  }
+  return (row.authorAgentId && agentName(row.authorAgentId))
+    || i18n.t("responsibilities.agentStatusWords.anAgent", { defaultValue: "An agent" });
 }
 
 /** "today", "yesterday", "3 days ago", "on Oct 2". */
 export function writtenAgo(writtenAt: string, now: Date): string {
   const days = Math.max(0, Math.floor((now.getTime() - new Date(writtenAt).getTime()) / 86_400_000));
-  if (days === 0) return "today";
-  if (days === 1) return "yesterday";
-  if (days < 30) return `${days} days ago`;
-  return `on ${new Date(writtenAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+  if (days === 0) return i18n.t("responsibilities.words.today", { defaultValue: "today" });
+  if (days === 1) return i18n.t("responsibilities.words.yesterday", { defaultValue: "yesterday" });
+  if (days < 30) {
+    return i18n.t("responsibilities.words.daysAgo", {
+      count: days,
+      defaultValue_one: "{{count}} day ago",
+      defaultValue_other: "{{count}} days ago",
+    });
+  }
+  return i18n.t("responsibilities.words.onDate", {
+    date: new Date(writtenAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+    defaultValue: "on {{date}}",
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -190,17 +219,39 @@ export function agentStatusTiles(rows: readonly AgentStatusRow[]): AgentStatusTi
   const total = rows.length;
   const of = (kind: AgentStatusKind) => rows.filter((row) => row.kind === kind);
   const areasOf = (list: readonly AgentStatusRow[]) => new Set(list.map((row) => row.areaId ?? "__none__")).size;
+  const dotSeparator = i18n.t("responsibilities.agentStatusWords.dotSeparator", { defaultValue: " · " });
+  const responsibilitiesWord = count(
+    total,
+    i18n.t("responsibilities.agentStatusWords.responsibilityOne", { defaultValue: "responsibility" }),
+    i18n.t("responsibilities.agentStatusWords.responsibilityOther", { defaultValue: "responsibilities" }),
+  );
   const tiles = AGENT_STATUS_TILE_ORDER.map((kind): AgentStatusTile => {
     const list = of(kind);
     let line: string;
-    if (kind === "on_track") line = `Of ${count(total, "responsibility", "responsibilities")}`;
-    else if (kind === "unclear") {
+    if (kind === "on_track") {
+      line = i18n.t("responsibilities.agentStatusWords.ofTotal", { total: responsibilitiesWord, defaultValue: "Of {{total}}" });
+    } else if (kind === "unclear") {
       const cantTell = list.filter((row) => row.source !== "number").length;
       const notMeasured = list.length - cantTell;
       line = list.length === 0
-        ? "Every one has a status"
-        : [cantTell > 0 ? `${cantTell} can't tell yet` : null, notMeasured > 0 ? `${notMeasured} not measured` : null].filter(Boolean).join(" · ");
-    } else line = list.length === 0 ? "None right now" : `In ${count(areasOf(list), "area", "areas")}`;
+        ? i18n.t("responsibilities.agentStatusWords.everyOneHasStatus", { defaultValue: "Every one has a status" })
+        : [
+          cantTell > 0
+            ? i18n.t("responsibilities.agentStatusWords.cantTellCount", { count: cantTell, defaultValue: "{{count}} can't tell yet" })
+            : null,
+          notMeasured > 0
+            ? i18n.t("responsibilities.agentStatusWords.notMeasuredCount", { count: notMeasured, defaultValue: "{{count}} not measured" })
+            : null,
+        ].filter(Boolean).join(dotSeparator);
+    } else {
+      line = list.length === 0
+        ? i18n.t("responsibilities.agentStatusWords.noneRightNow", { defaultValue: "None right now" })
+        : i18n.t("responsibilities.agentStatusWords.inAreas", {
+          count: areasOf(list),
+          defaultValue_one: "In {{count}} area",
+          defaultValue_other: "In {{count}} areas",
+        });
+    }
     return { kind, label: AGENT_STATUS_TILE_LABEL[kind], value: list.length, line };
   });
   const byAgent = rows.filter((row) => row.source === "agent").length;
@@ -208,11 +259,23 @@ export function agentStatusTiles(rows: readonly AgentStatusRow[]): AgentStatusTi
   const outOfDate = rows.filter((row) => row.outOfDate).length;
   const fromNumber = rows.filter((row) => row.source === "number").length;
   const provenance = [
-    `${byAgent} written by ${byAgent === 1 ? "an agent" : "agents"}`,
-    outOfDate > 0 ? `${outOfDate} out of date` : null,
-    byPerson > 0 ? `${byPerson} written by a person` : null,
-    `${fromNumber} from the ${fromNumber === 1 ? "number" : "numbers"}`,
-  ].filter(Boolean).join(" · ");
+    i18n.t("responsibilities.agentStatusWords.writtenByAgent", {
+      count: byAgent,
+      defaultValue_one: "{{count}} written by an agent",
+      defaultValue_other: "{{count}} written by agents",
+    }),
+    outOfDate > 0
+      ? i18n.t("responsibilities.agentStatusWords.outOfDateCount", { count: outOfDate, defaultValue: "{{count}} out of date" })
+      : null,
+    byPerson > 0
+      ? i18n.t("responsibilities.agentStatusWords.writtenByPerson", { count: byPerson, defaultValue: "{{count}} written by a person" })
+      : null,
+    i18n.t("responsibilities.agentStatusWords.fromNumber", {
+      count: fromNumber,
+      defaultValue_one: "{{count}} from the number",
+      defaultValue_other: "{{count}} from the numbers",
+    }),
+  ].filter(Boolean).join(dotSeparator);
   return { tiles, total, byAgent, byPerson, outOfDate, fromNumber, provenance };
 }
 
@@ -249,28 +312,65 @@ export function composeAgentStatusSummary(
   const written = rows.filter((row) => row.source !== "number");
   const total = rows.length;
   let lead: string;
-  if (total === 0) lead = "You do not own any responsibilities yet.";
-  else if (written.length === 0) lead = "No agent has written a status yet. Every status below comes from the numbers.";
-  else {
+  if (total === 0) {
+    lead = i18n.t("responsibilities.words.noResponsibilitiesYet", { defaultValue: "You do not own any responsibilities yet." });
+  } else if (written.length === 0) {
+    lead = i18n.t("responsibilities.agentStatusWords.noneWritten", {
+      defaultValue: "No agent has written a status yet. Every status below comes from the numbers.",
+    });
+  } else {
     const behind = written.filter((row) => row.kind === "behind").length;
     const atRisk = written.filter((row) => row.kind === "at_risk").length;
     const stale = written.filter((row) => row.outOfDate).length;
     const intro = written.length === total
-      ? total === 1 ? "Your one status is written." : `All ${total} of your statuses are written.`
-      : `${written.length} of your ${total} statuses are written; the rest come from the numbers.`;
+      ? i18n.t("responsibilities.agentStatusWords.allWritten", {
+        count: total,
+        defaultValue_one: "Your one status is written.",
+        defaultValue_other: "All {{count}} of your statuses are written.",
+      })
+      : i18n.t("responsibilities.agentStatusWords.partWritten", {
+        written: written.length,
+        total,
+        defaultValue: "{{written}} of your {{total}} statuses are written; the rest come from the numbers.",
+      });
     const verdict = behind + atRisk === 0
-      ? "None of the written ones is behind or at risk."
-      : `They put ${[behind > 0 ? `${behind} behind` : null, atRisk > 0 ? `${atRisk} at risk` : null].filter(Boolean).join(" and ")}.`;
-    const freshness = stale > 0 ? ` ${stale} ${stale === 1 ? "is" : "are"} older than ${RESPONSIBILITY_STATUS_REPORT_FRESH_DAYS} days.` : "";
-    lead = `${intro} ${verdict}${freshness}`;
+      ? i18n.t("responsibilities.agentStatusWords.noneWrong", {
+        defaultValue: "None of the written ones is behind or at risk.",
+      })
+      : i18n.t("responsibilities.agentStatusWords.theyPut", {
+        list: [
+          behind > 0
+            ? i18n.t("responsibilities.agentStatusWords.behindCount", { count: behind, defaultValue: "{{count}} behind" })
+            : null,
+          atRisk > 0
+            ? i18n.t("responsibilities.agentStatusWords.atRiskCount", { count: atRisk, defaultValue: "{{count}} at risk" })
+            : null,
+        ].filter(Boolean).join(i18n.t("responsibilities.agentStatusWords.joinAnd", { defaultValue: " and " })),
+        defaultValue: "They put {{list}}.",
+      });
+    const freshness = stale > 0
+      ? i18n.t("responsibilities.agentStatusWords.staleOlder", {
+        count: stale,
+        days: RESPONSIBILITY_STATUS_REPORT_FRESH_DAYS,
+        defaultValue_one: "{{count}} is older than {{days}} days.",
+        defaultValue_other: "{{count}} are older than {{days}} days.",
+      })
+      : "";
+    lead = [intro, verdict, freshness].filter(Boolean).join(" ");
   }
   const concerning = sortAgentStatusRows(written.filter((row) => row.kind !== "on_track")).slice(0, limit);
   const lines = concerning.map((row) => ({ row, by: agentStatusAuthor(row, agentName, viewerUserId) ?? "" }));
   const waitingRows = rows.filter((row) => row.updateRequested);
   let waiting: string | null = null;
   if (waitingRows.length > 0) {
-    const names = [...new Set(waitingRows.map((row) => (row.reporterAgentId && agentName(row.reporterAgentId)) || "an agent"))];
-    waiting = `${joinNames(names)}, for ${count(waitingRows.length, "update", "updates")}`;
+    const names = [...new Set(waitingRows.map((row) => (row.reporterAgentId && agentName(row.reporterAgentId))
+      || i18n.t("responsibilities.words.anAgent", { defaultValue: "an agent" })))];
+    waiting = i18n.t("responsibilities.agentStatusWords.waitingFor", {
+      names: joinNames(names),
+      count: waitingRows.length,
+      defaultValue_one: "{{names}}, for {{count}} update",
+      defaultValue_other: "{{names}}, for {{count}} updates",
+    });
   }
   return { lead, lines, waiting };
 }
@@ -323,7 +423,15 @@ export function agentStatusAreaGroups(
         ? { text: top.message, by: agentStatusAuthor(top, agentName, viewerUserId), fromNumber: top.source === "number" }
         : null,
       onTrack,
-      onTrackLabel: `${onTrack} of ${count(sorted.length, "responsibility", "responsibilities")} on track`,
+      onTrackLabel: i18n.t("responsibilities.agentStatusWords.onTrackOf", {
+        onTrack,
+        total: count(
+          sorted.length,
+          i18n.t("responsibilities.agentStatusWords.responsibilityOne", { defaultValue: "responsibility" }),
+          i18n.t("responsibilities.agentStatusWords.responsibilityOther", { defaultValue: "responsibilities" }),
+        ),
+        defaultValue: "{{onTrack}} of {{total}} on track",
+      }),
       onTrackPercent: sorted.length === 0 ? 0 : Math.round((onTrack / sorted.length) * 100),
       agentIds,
     };
@@ -347,15 +455,30 @@ export interface AgentStatusMetricCell {
 export function agentStatusMetricCell(metric: ResponsibilityMetricSummary | null): AgentStatusMetricCell | null {
   if (!metric) return null;
   const reading = describeMetricReading(metric);
+  const noReadingYet = i18n.t("responsibilities.agentStatusWords.noReadingYet", { defaultValue: "No reading yet" });
   if (reading.visual.kind === "yes_no") {
-    return { label: metric.name, value: reading.current ?? "No answer yet", target: "should be yes" };
+    return {
+      label: metric.name,
+      value: reading.current ?? i18n.t("responsibilities.agentStatusWords.noAnswerYet", { defaultValue: "No answer yet" }),
+      target: i18n.t("responsibilities.agentStatusWords.shouldBeYes", { defaultValue: "should be yes" }),
+    };
   }
   if (reading.visual.kind === "range" || metric.kind === "range") {
-    return { label: metric.name, value: reading.current ?? "No reading yet", target: reading.target ? `range ${reading.target}` : "no range set" };
+    return {
+      label: metric.name,
+      value: reading.current ?? noReadingYet,
+      target: reading.target
+        ? i18n.t("responsibilities.words.range", { range: reading.target, defaultValue: "range {{range}}" })
+        : i18n.t("responsibilities.words.noRangeSet", { defaultValue: "no range set" }),
+    };
   }
   return {
     label: metric.name,
-    value: reading.current ?? "No reading yet",
-    target: reading.target ? `${metric.direction === "at_most" ? "target at most" : "target"} ${reading.target}` : "no target set",
+    value: reading.current ?? noReadingYet,
+    target: reading.target
+      ? (metric.direction === "at_most"
+        ? i18n.t("responsibilities.words.targetAtMost", { target: reading.target, defaultValue: "target at most {{target}}" })
+        : i18n.t("responsibilities.words.target", { target: reading.target, defaultValue: "target {{target}}" }))
+      : i18n.t("responsibilities.words.noTargetSet", { defaultValue: "no target set" }),
   };
 }

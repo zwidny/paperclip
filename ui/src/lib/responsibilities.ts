@@ -24,15 +24,24 @@ import {
   type ResponsibilityMetricKind,
 } from "@paperclipai/shared";
 import { ApiError } from "@/api/client";
+import { i18n } from "../i18n";
 
 /** Display order for status everywhere: what needs you first. */
 export const RESPONSIBILITY_HEALTH_ORDER: readonly ResponsibilityHealth[] = ["behind", "at_risk", "on_track", "not_measured"];
 
 export const RESPONSIBILITY_HEALTH_LABEL: Record<ResponsibilityHealth, string> = {
-  behind: "Behind",
-  at_risk: "At risk",
-  on_track: "On track",
-  not_measured: "Not measured",
+  get behind() {
+    return i18n.t("responsibilities.healthLabel.behind", { defaultValue: "Behind" });
+  },
+  get at_risk() {
+    return i18n.t("responsibilities.healthLabel.at_risk", { defaultValue: "At risk" });
+  },
+  get on_track() {
+    return i18n.t("responsibilities.healthLabel.on_track", { defaultValue: "On track" });
+  },
+  get not_measured() {
+    return i18n.t("responsibilities.healthLabel.not_measured", { defaultValue: "Not measured" });
+  },
 };
 
 /**
@@ -151,15 +160,28 @@ export function describeMetricReading(metric: ReadableMetric): MetricReading {
   const lowerName = name.charAt(0).toLowerCase() + name.slice(1);
   const progress = metric.attainment === null ? null : Math.min(1, Math.max(0, metric.attainment));
 
+  const noAnswerYet = i18n.t("responsibilities.words.noAnswerYet", { defaultValue: "no answer yet" });
+  const noReadingYet = i18n.t("responsibilities.words.noReadingYet", { defaultValue: "no reading yet" });
+  const noRangeSet = i18n.t("responsibilities.words.noRangeSet", { defaultValue: "no range set" });
+  const noTargetSet = i18n.t("responsibilities.words.noTargetSet", { defaultValue: "no target set" });
+
   if (kind === "yes_no") {
     const value = metric.current === null ? null : metric.current >= 1;
-    const current = value === null ? null : value ? "Yes" : "No";
+    const yes = i18n.t("responsibilities.words.yes", { defaultValue: "Yes" });
+    const no = i18n.t("responsibilities.words.no", { defaultValue: "No" });
+    const current = value === null ? null : value ? yes : no;
     return {
       current,
-      target: "yes",
-      targetLabel: value === true ? "as the bar asks" : "the bar is yes",
+      target: i18n.t("responsibilities.words.yesLower", { defaultValue: "yes" }),
+      targetLabel: value === true
+        ? i18n.t("responsibilities.words.asBarAsks", { defaultValue: "as the bar asks" })
+        : i18n.t("responsibilities.words.theBarIsYes", { defaultValue: "the bar is yes" }),
       progress,
-      summary: `${name}: ${current ? current.toLowerCase() : "no answer yet"}`,
+      summary: i18n.t("responsibilities.words.summaryYesNo", {
+        name,
+        value: current ? current.toLowerCase() : noAnswerYet,
+        defaultValue: "{{name}}: {{value}}",
+      }),
       visual: { kind: "yes_no", value },
     };
   }
@@ -170,8 +192,12 @@ export function describeMetricReading(metric: ReadableMetric): MetricReading {
     const current = metric.current === null ? null : formatMetricValue(metric.current, metric.unit);
     if (low === null || high === null || !(high > low)) {
       return {
-        current, target: null, targetLabel: "no range set", progress: null,
-        summary: `${name}: ${current ?? "no reading yet"}, no range set`,
+        current, target: null, targetLabel: noRangeSet, progress: null,
+        summary: i18n.t("responsibilities.words.summaryNoRange", {
+          name,
+          value: current ?? noReadingYet,
+          defaultValue: "{{name}}: {{value}}, no range set",
+        }),
         visual: { kind: "fill", progress: null },
       };
     }
@@ -184,9 +210,14 @@ export function describeMetricReading(metric: ReadableMetric): MetricReading {
     return {
       current,
       target: range,
-      targetLabel: `range ${range}`,
+      targetLabel: i18n.t("responsibilities.words.range", { range, defaultValue: "range {{range}}" }),
       progress,
-      summary: `${name}: ${current ?? "no reading yet"}, range ${range}`,
+      summary: i18n.t("responsibilities.words.summaryRange", {
+        name,
+        value: current ?? noReadingYet,
+        range,
+        defaultValue: "{{name}}: {{value}}, range {{range}}",
+      }),
       visual: { kind: "range", low: at(low), high: at(high), marker: metric.current === null ? null : at(metric.current) },
     };
   }
@@ -197,17 +228,67 @@ export function describeMetricReading(metric: ReadableMetric): MetricReading {
   const visual: MetricVisual = { kind: "fill", progress };
 
   if (current === null) {
-    const targetLabel = target ? (atMost ? `target at most ${target}` : `target ${target}`) : "no target set";
-    return { current: null, target, targetLabel, progress, summary: `${name}: no reading yet, ${targetLabel}`, visual };
+    const targetLabel = target
+      ? (atMost
+        ? i18n.t("responsibilities.words.targetAtMost", { target, defaultValue: "target at most {{target}}" })
+        : i18n.t("responsibilities.words.target", { target, defaultValue: "target {{target}}" }))
+      : noTargetSet;
+    return {
+      current: null,
+      target,
+      targetLabel,
+      progress,
+      summary: i18n.t("responsibilities.words.summaryNoReading", {
+        name,
+        targetLabel,
+        defaultValue: "{{name}}: no reading yet, {{targetLabel}}",
+      }),
+      visual,
+    };
   }
   if (target === null) {
-    return { current, target, targetLabel: "no target set", progress, summary: `${name}: ${current}, no target set`, visual };
+    return {
+      current,
+      target,
+      targetLabel: noTargetSet,
+      progress,
+      summary: i18n.t("responsibilities.words.summaryReadingNoTarget", {
+        name,
+        current,
+        defaultValue: "{{name}}: {{current}}, no target set",
+      }),
+      visual,
+    };
   }
   if (atMost) {
-    const targetLabel = `vs. at most ${target}`;
-    return { current, target, targetLabel, progress, summary: `${name}: ${current}, target at most ${target}`, visual };
+    const targetLabel = i18n.t("responsibilities.words.vsAtMost", { target, defaultValue: "vs. at most {{target}}" });
+    return {
+      current,
+      target,
+      targetLabel,
+      progress,
+      summary: i18n.t("responsibilities.words.summaryTargetAtMost", {
+        name,
+        current,
+        target,
+        defaultValue: "{{name}}: {{current}}, target at most {{target}}",
+      }),
+      visual,
+    };
   }
-  return { current, target, targetLabel: `of ${target}`, progress, summary: `${current} of ${target} ${lowerName}`, visual };
+  return {
+    current,
+    target,
+    targetLabel: i18n.t("responsibilities.words.ofTarget", { target, defaultValue: "of {{target}}" }),
+    progress,
+    summary: i18n.t("responsibilities.words.summaryOfTarget", {
+      current,
+      target,
+      name: lowerName,
+      defaultValue: "{{current}} of {{target}} {{name}}",
+    }),
+    visual,
+  };
 }
 
 /** Whole days between two instants, never negative. */
@@ -218,21 +299,32 @@ export function daysBetween(earlier: Date | string, later: Date): number {
 /** When a reading was taken, as a phrase: "today", "yesterday", "3 days ago", "on Oct 2". */
 export function describeReadingAge(updatedAt: Date | string, now: Date): string {
   const days = daysBetween(updatedAt, now);
-  if (days === 0) return "today";
-  if (days === 1) return "yesterday";
-  if (days < 30) return `${days} days ago`;
+  if (days === 0) return i18n.t("responsibilities.words.today", { defaultValue: "today" });
+  if (days === 1) return i18n.t("responsibilities.words.yesterday", { defaultValue: "yesterday" });
+  if (days < 30) {
+    return i18n.t("responsibilities.words.daysAgo", {
+      count: days,
+      defaultValue_one: "{{count}} day ago",
+      defaultValue_other: "{{count}} days ago",
+    });
+  }
   const date = new Date(updatedAt);
-  return `on ${date.toLocaleDateString("en-US", {
+  const formatted = date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     ...(date.getFullYear() !== now.getFullYear() ? { year: "numeric" as const } : {}),
-  })}`;
+  });
+  return i18n.t("responsibilities.words.onDate", { date: formatted, defaultValue: "on {{date}}" });
 }
 
 /** The stale flag's words: "Not updated in 16 days". */
 export function describeStale(updatedAt: Date | string, now: Date): string {
   const days = daysBetween(updatedAt, now);
-  return `Not updated in ${days} ${days === 1 ? "day" : "days"}`;
+  return i18n.t("responsibilities.words.notUpdatedIn", {
+    count: days,
+    defaultValue_one: "Not updated in {{count}} day",
+    defaultValue_other: "Not updated in {{count}} days",
+  });
 }
 
 /** How close (ms) an activity entry must be to `metricUpdatedAt` to be the same reading. */
@@ -259,8 +351,18 @@ export function lastReadingActor(
 }
 
 export const METRIC_DIRECTION_OPTIONS: ReadonlyArray<{ value: ResponsibilityMetricDirection; label: string }> = [
-  { value: "at_least", label: "At least (higher is better)" },
-  { value: "at_most", label: "At most (lower is better)" },
+  {
+    value: "at_least",
+    get label() {
+      return i18n.t("responsibilities.metricDirection.atLeast", { defaultValue: "At least (higher is better)" });
+    },
+  },
+  {
+    value: "at_most",
+    get label() {
+      return i18n.t("responsibilities.metricDirection.atMost", { defaultValue: "At most (lower is better)" });
+    },
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -425,10 +527,28 @@ export function agentsWorkingUnder(detail: {
 /** "2 tasks, 1 routine" */
 export function describeAgentWork(work: Pick<AgentAtWork, "tasks" | "routines" | "projects">): string {
   const parts: string[] = [];
-  if (work.tasks) parts.push(`${work.tasks} ${work.tasks === 1 ? "task" : "tasks"}`);
-  if (work.routines) parts.push(`${work.routines} ${work.routines === 1 ? "routine" : "routines"}`);
-  if (work.projects) parts.push(`leads ${work.projects} ${work.projects === 1 ? "project" : "projects"}`);
-  return parts.join(", ");
+  if (work.tasks) {
+    parts.push(i18n.t("responsibilities.agentWork.tasks", {
+      count: work.tasks,
+      defaultValue_one: "{{count}} task",
+      defaultValue_other: "{{count}} tasks",
+    }));
+  }
+  if (work.routines) {
+    parts.push(i18n.t("responsibilities.agentWork.routines", {
+      count: work.routines,
+      defaultValue_one: "{{count}} routine",
+      defaultValue_other: "{{count}} routines",
+    }));
+  }
+  if (work.projects) {
+    parts.push(i18n.t("responsibilities.agentWork.leadsProjects", {
+      count: work.projects,
+      defaultValue_one: "leads {{count}} project",
+      defaultValue_other: "leads {{count}} projects",
+    }));
+  }
+  return parts.join(i18n.t("responsibilities.words.listJoin", { defaultValue: ", " }));
 }
 
 // ---------------------------------------------------------------------------
@@ -438,13 +558,27 @@ export function describeAgentWork(work: Pick<AgentAtWork, "tasks" | "routines" |
 export type BarField = "standard" | "metricName" | "metricTarget" | "metricCurrent" | "metricUnit" | "metricLow" | "metricHigh";
 
 export const BAR_FIELD_LABEL: Record<BarField, string> = {
-  standard: "the bar",
-  metricName: "what you measure",
-  metricTarget: "a target",
-  metricCurrent: "the current reading",
-  metricUnit: "the unit",
-  metricLow: "a low bound",
-  metricHigh: "a high bound",
+  get standard() {
+    return i18n.t("responsibilities.barField.standard", { defaultValue: "the bar" });
+  },
+  get metricName() {
+    return i18n.t("responsibilities.barField.metricName", { defaultValue: "what you measure" });
+  },
+  get metricTarget() {
+    return i18n.t("responsibilities.barField.metricTarget", { defaultValue: "a target" });
+  },
+  get metricCurrent() {
+    return i18n.t("responsibilities.barField.metricCurrent", { defaultValue: "the current reading" });
+  },
+  get metricUnit() {
+    return i18n.t("responsibilities.barField.metricUnit", { defaultValue: "the unit" });
+  },
+  get metricLow() {
+    return i18n.t("responsibilities.barField.metricLow", { defaultValue: "a low bound" });
+  },
+  get metricHigh() {
+    return i18n.t("responsibilities.barField.metricHigh", { defaultValue: "a high bound" });
+  },
 };
 
 /** The bar templates in the order the form offers them, with their person-facing names. */
@@ -549,11 +683,11 @@ export function validateBarDraft(draft: BarDraft): BarValidation {
   const high = number("metricHigh");
   if (kind === "percentage" && target !== null && (target < 0 || target > 100)) {
     invalid.push("metricTarget");
-    problems.metricTarget = "A share from 0 to 100";
+    problems.metricTarget = i18n.t("responsibilities.barValidation.shareRange", { defaultValue: "A share from 0 to 100" });
   }
   if (low !== null && high !== null && !(high > low)) {
     invalid.push("metricHigh");
-    problems.metricHigh = "Above the low bound";
+    problems.metricHigh = i18n.t("responsibilities.barValidation.aboveLowBound", { defaultValue: "Above the low bound" });
   }
   let current: number | boolean | null = null;
   if (kind === "yes_no") {
@@ -563,7 +697,7 @@ export function validateBarDraft(draft: BarDraft): BarValidation {
     if (parsed === "invalid") invalid.push("metricCurrent");
     else if (kind === "percentage" && parsed !== null && (parsed < 0 || parsed > 100)) {
       invalid.push("metricCurrent");
-      problems.metricCurrent = "A share from 0 to 100";
+      problems.metricCurrent = i18n.t("responsibilities.barValidation.shareRange", { defaultValue: "A share from 0 to 100" });
     } else current = parsed;
   }
   if (missing.length > 0 || invalid.length > 0) return { ok: false, missing, invalid, problems };
@@ -585,7 +719,12 @@ export function validateBarDraft(draft: BarDraft): BarValidation {
 
 /** How status will be read for a draft ("On track at 90% or more; at risk from 68%"), or null while it is incomplete. */
 export function describeDraftStatusRule(draft: BarDraft): string | null {
-  const checked = validateBarDraft({ ...draft, standard: draft.standard || "-", metricName: draft.metricName || "Value", metricCurrent: "" });
+  const checked = validateBarDraft({
+    ...draft,
+    standard: draft.standard || "-",
+    metricName: draft.metricName || i18n.t("responsibilities.words.valueFallback", { defaultValue: "Value" }),
+    metricCurrent: "",
+  });
   if (!checked.ok) return null;
   const bar = checked.value;
   return responsibilityStatusRule({
@@ -657,7 +796,11 @@ export function isMetricDraftBlank(draft: BarDraft): boolean {
 export function joinFieldLabels(fields: readonly BarField[]): string {
   const labels = fields.map((field) => BAR_FIELD_LABEL[field]);
   if (labels.length <= 1) return labels[0] ?? "";
-  return `${labels.slice(0, -1).join(", ")} and ${labels.at(-1)}`;
+  return i18n.t("responsibilities.words.joinAnd", {
+    head: labels.slice(0, -1).join(i18n.t("responsibilities.words.listJoin", { defaultValue: ", " })),
+    last: labels.at(-1) ?? "",
+    defaultValue: "{{head}} and {{last}}",
+  });
 }
 
 /**
@@ -683,18 +826,36 @@ export interface DelegationModeOption {
 export const RESPONSIBILITY_DELEGATION_MODE_OPTIONS: readonly DelegationModeOption[] = [
   {
     value: "plan_with_me",
-    title: "Plan it with me",
-    description: "The agent proposes a plan and waits for your approval before doing the work.",
+    get title() {
+      return i18n.t("responsibilities.delegationMode.planWithMe.title", { defaultValue: "Plan it with me" });
+    },
+    get description() {
+      return i18n.t("responsibilities.delegationMode.planWithMe.description", {
+        defaultValue: "The agent proposes a plan and waits for your approval before doing the work.",
+      });
+    },
   },
   {
     value: "prepare_i_decide",
-    title: "Prepare it, I decide",
-    description: "The agent does the groundwork and brings the decision back to you.",
+    get title() {
+      return i18n.t("responsibilities.delegationMode.prepareIDecide.title", { defaultValue: "Prepare it, I decide" });
+    },
+    get description() {
+      return i18n.t("responsibilities.delegationMode.prepareIDecide.description", {
+        defaultValue: "The agent does the groundwork and brings the decision back to you.",
+      });
+    },
   },
   {
     value: "handle_and_tell_me",
-    title: "Handle it and tell me",
-    description: "The agent does it end to end and tells you what it did.",
+    get title() {
+      return i18n.t("responsibilities.delegationMode.handleAndTellMe.title", { defaultValue: "Handle it and tell me" });
+    },
+    get description() {
+      return i18n.t("responsibilities.delegationMode.handleAndTellMe.description", {
+        defaultValue: "The agent does it end to end and tells you what it did.",
+      });
+    },
   },
   // "own_from_now_on" is left out: a person gives an agent a task, a routine
   // or a project, never a whole responsibility.
@@ -734,15 +895,30 @@ export function delegationPrefillForReason(
   overdueProjects: readonly ResponsibilityOverdueProject[],
 ): { title: string; projectId: string | null } {
   const project = overdueProjects.find((candidate) => reason.startsWith(`${candidate.name} is `));
-  if (project) return { title: `Get “${project.name}” back on schedule`, projectId: project.id };
+  if (project) {
+    return {
+      title: i18n.t("responsibilities.words.getBackOnSchedule", {
+        name: project.name,
+        defaultValue: "Get “{{name}}” back on schedule",
+      }),
+      projectId: project.id,
+    };
+  }
   return { title: reason, projectId: null };
 }
 
 /** Agent-run share of open work: `agentTasks` of `openTasks`, as a whole percentage. */
 export function agentPoweredShare(agentTasks: number, openTasks: number): { percent: number; label: string } {
-  if (openTasks <= 0) return { percent: 0, label: "No open tasks" };
+  if (openTasks <= 0) return { percent: 0, label: i18n.t("responsibilities.words.noOpenTasks", { defaultValue: "No open tasks" }) };
   const percent = Math.round((Math.min(agentTasks, openTasks) / openTasks) * 100);
-  return { percent, label: `${agentTasks} of ${openTasks}` };
+  return {
+    percent,
+    label: i18n.t("responsibilities.words.ofRatio", {
+      agent: agentTasks,
+      total: openTasks,
+      defaultValue: "{{agent}} of {{total}}",
+    }),
+  };
 }
 
 /** Local calendar date as `YYYY-MM-DD`, to compare with target dates. */

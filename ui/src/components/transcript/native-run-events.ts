@@ -607,17 +607,18 @@ export function contextUsageFromUsagePayload(
 const CARD_PROVIDER_ACTIVITY_FAMILIES: Partial<Record<ProviderActivityEventType, {
   family: Extract<TranscriptEntry, { kind: "provider_activity" }>["family"];
   title: string;
+  titleKey: string;
 }>> = {
-  "research.started": { family: "research", title: "Research" },
-  "research.progressed": { family: "research", title: "Research" },
-  "research.completed": { family: "research", title: "Research" },
-  "model.route.changed": { family: "model_identity", title: "Model" },
-  "model.verification.updated": { family: "model_identity", title: "Model" },
-  "artifact.viewed": { family: "artifact", title: "Artifact" },
-  "artifact.generated": { family: "artifact", title: "Artifact" },
-  "review.mode.changed": { family: "review", title: "Review mode" },
-  "wait.started": { family: "wait", title: "Intentional wait" },
-  "wait.completed": { family: "wait", title: "Intentional wait" },
+  "research.started": { family: "research", title: "Research", titleKey: "nativeRunEvents.research" },
+  "research.progressed": { family: "research", title: "Research", titleKey: "nativeRunEvents.research" },
+  "research.completed": { family: "research", title: "Research", titleKey: "nativeRunEvents.research" },
+  "model.route.changed": { family: "model_identity", title: "Model", titleKey: "nativeRunEvents.model" },
+  "model.verification.updated": { family: "model_identity", title: "Model", titleKey: "nativeRunEvents.model" },
+  "artifact.viewed": { family: "artifact", title: "Artifact", titleKey: "nativeRunEvents.artifact" },
+  "artifact.generated": { family: "artifact", title: "Artifact", titleKey: "nativeRunEvents.artifact" },
+  "review.mode.changed": { family: "review", title: "Review mode", titleKey: "nativeRunEvents.reviewMode" },
+  "wait.started": { family: "wait", title: "Intentional wait", titleKey: "nativeRunEvents.intentionalWait" },
+  "wait.completed": { family: "wait", title: "Intentional wait", titleKey: "nativeRunEvents.intentionalWait" },
 };
 
 function cardProviderActivityEntry(
@@ -643,7 +644,7 @@ function cardProviderActivityEntry(
     family: card.family,
     eventType: event.eventType,
     status,
-    title: card.title,
+    title: i18n.t(card.titleKey, { defaultValue: card.title }),
     // No query, URL or reason: leave the row's label to speak for itself
     // rather than echoing a generic family title as if it were a subject.
     summary: presentation.summary === event.eventType ? "" : presentation.summary,

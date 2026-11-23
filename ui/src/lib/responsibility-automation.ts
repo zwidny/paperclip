@@ -1,5 +1,4 @@
 import {
-  AUTOMATION_TRIGGER_LABEL,
   RESPONSIBILITY_AUTOMATION_LEVELS,
   responsibilityAutomationPercent,
   type AutomationCandidate,
@@ -15,6 +14,7 @@ import {
 } from "@paperclipai/shared";
 import { describeReadingAge } from "./responsibilities";
 import { outlineAreaGroups, type OutlineAreaGroup } from "./responsibility-views";
+import { i18n } from "../i18n";
 
 /**
  * Derivations for the Dashboard's Automation view and the automation line on
@@ -24,19 +24,28 @@ import { outlineAreaGroups, type OutlineAreaGroup } from "./responsibility-views
  * has and puts it in words. Pure, so the view stays a plain renderer.
  */
 
-function count(n: number, singular: string, plural: string): string {
-  return `${n} ${n === 1 ? singular : plural}`;
-}
-
 /** "40% automated", or null with no share. */
 export function automationShareLabel(share: number | null): string | null {
   const percent = responsibilityAutomationPercent(share);
-  return percent === null ? null : `${percent}% automated`;
+  return percent === null
+    ? null
+    : i18n.t("responsibilities.automationWords.percentAutomated", { percent, defaultValue: "{{percent}}% automated" });
 }
 
 /** "2 automations · 5 manual tasks": the counts in words. */
 export function automationSplitWords(automations: number, manualTasks: number): string {
-  return `${count(automations, "automation", "automations")} · ${count(manualTasks, "manual task", "manual tasks")}`;
+  const separator = i18n.t("responsibilities.automationWords.splitSeparator", { defaultValue: " · " });
+  const automationCount = i18n.t("responsibilities.agentWork.automations", {
+    count: automations,
+    defaultValue_one: "{{count}} automation",
+    defaultValue_other: "{{count}} automations",
+  });
+  const manualCount = i18n.t("responsibilities.agentWork.manualTasks", {
+    count: manualTasks,
+    defaultValue_one: "{{count}} manual task",
+    defaultValue_other: "{{count}} manual tasks",
+  });
+  return `${automationCount}${separator}${manualCount}`;
 }
 
 /**
@@ -44,8 +53,12 @@ export function automationSplitWords(automations: number, manualTasks: number): 
  * this yet.").
  */
 export function automationCountsLine(automation: Pick<ResponsibilityAutomation, "automationCount" | "manualTaskCount" | "nothingFiled">): string {
-  if (automation.nothingFiled) return "Nothing is filed under this yet.";
-  if (automation.automationCount + automation.manualTaskCount === 0) return "No automations and no recent manual tasks.";
+  if (automation.nothingFiled) {
+    return i18n.t("responsibilities.words.nothingFiled", { defaultValue: "Nothing is filed under this yet." });
+  }
+  if (automation.automationCount + automation.manualTaskCount === 0) {
+    return i18n.t("responsibilities.automationWords.noneFiled", { defaultValue: "No automations and no recent manual tasks." });
+  }
   return automationSplitWords(automation.automationCount, automation.manualTaskCount);
 }
 
@@ -121,32 +134,72 @@ export function remainingCandidateCount(
  */
 export function automationSentence(input: { total: number; manual: number; candidates: number }): string {
   const { total, manual, candidates } = input;
-  if (total === 0) return "You do not own any responsibilities yet.";
+  if (total === 0) {
+    return i18n.t("responsibilities.words.noResponsibilitiesYet", { defaultValue: "You do not own any responsibilities yet." });
+  }
   const tail = candidates > 0
-    ? `${count(candidates, "manual task", "manual tasks")} could be automated.`
+    ? i18n.t("responsibilities.agentWork.candidateTail", {
+      count: candidates,
+      defaultValue_one: "{{count}} manual task could be automated.",
+      defaultValue_other: "{{count}} manual tasks could be automated.",
+    })
     : null;
   if (manual === 0) {
-    return tail ? `Every responsibility you own has something automated; ${tail}` : "Everything you own is automated.";
+    return tail
+      ? i18n.t("responsibilities.automationWords.everyWithTail", {
+        tail,
+        defaultValue: "Every responsibility you own has something automated; {{tail}}",
+      })
+      : i18n.t("responsibilities.automationWords.everythingAutomated", { defaultValue: "Everything you own is automated." });
   }
   const lead = manual === total
-    ? total === 1 ? "Your responsibility has nothing automated yet" : `None of your ${total} responsibilities has anything automated yet`
-    : `${manual} of your ${total} responsibilities ${manual === 1 ? "has" : "have"} nothing automated yet`;
-  return tail ? `${lead}; ${tail}` : `${lead}.`;
+    ? total === 1
+      ? i18n.t("responsibilities.automationWords.yourResponsibilityNothing", { defaultValue: "Your responsibility has nothing automated yet" })
+      : i18n.t("responsibilities.automationWords.noneOfTotal", {
+        total,
+        defaultValue: "None of your {{total}} responsibilities has anything automated yet",
+      })
+    : i18n.t("responsibilities.automationWords.partialLead", {
+      manual,
+      total,
+      count: manual,
+      defaultValue_one: "{{manual}} of your {{total}} responsibilities has nothing automated yet",
+      defaultValue_other: "{{manual}} of your {{total}} responsibilities have nothing automated yet",
+    });
+  return tail
+    ? i18n.t("responsibilities.automationWords.leadWithTail", { lead, tail, defaultValue: "{{lead}}; {{tail}}" })
+    : i18n.t("responsibilities.automationWords.leadAsSentence", { lead, defaultValue: "{{lead}}." });
 }
 
 type AgentName = (id: string) => string | undefined;
 
-function agentLabel(id: string | null | undefined, agentName: AgentName, fallback = "an agent"): string {
-  return (id ? agentName(id) : undefined) ?? fallback;
+function agentLabel(id: string | null | undefined, agentName: AgentName, fallback?: string): string {
+  return (id ? agentName(id) : undefined)
+    ?? fallback
+    ?? i18n.t("responsibilities.words.anAgent", { defaultValue: "an agent" });
 }
 
 /** "3 minutes ago", "2 hours ago", else the day words ("yesterday", "4 days ago"). */
 export function describeCheckAge(at: Date | string, now: Date): string {
   const minutes = Math.floor((now.getTime() - new Date(at).getTime()) / 60_000);
-  if (!Number.isFinite(minutes) || minutes < 1) return "just now";
-  if (minutes < 60) return `${minutes} ${minutes === 1 ? "minute" : "minutes"} ago`;
+  if (!Number.isFinite(minutes) || minutes < 1) {
+    return i18n.t("responsibilities.words.justNow", { defaultValue: "just now" });
+  }
+  if (minutes < 60) {
+    return i18n.t("responsibilities.words.minutesAgo", {
+      count: minutes,
+      defaultValue_one: "{{count}} minute ago",
+      defaultValue_other: "{{count}} minutes ago",
+    });
+  }
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
+  if (hours < 24) {
+    return i18n.t("responsibilities.words.hoursAgo", {
+      count: hours,
+      defaultValue_one: "{{count}} hour ago",
+      defaultValue_other: "{{count}} hours ago",
+    });
+  }
   return describeReadingAge(at, now);
 }
 
@@ -168,30 +221,48 @@ export function automationStartWords(item: Pick<ResponsibilityAutomationItem, "s
     case "schedule":
       return {
         kind: start.kind,
-        label: AUTOMATION_TRIGGER_LABEL.schedule,
+        label: i18n.t("responsibilities.automationWords.triggerSchedule", { defaultValue: "On a schedule" }),
         detail: start.cadenceLabel,
         status: null,
       };
     case "webhook":
       return {
         kind: start.kind,
-        label: AUTOMATION_TRIGGER_LABEL.webhook,
-        detail: "when another system calls it",
-        status: start.lastDeliveryAt ? `Last called ${describeCheckAge(start.lastDeliveryAt, now)}` : "Not called yet",
+        label: i18n.t("responsibilities.automationWords.triggerWebhook", { defaultValue: "From a webhook" }),
+        detail: i18n.t("responsibilities.automationWords.whenSystemCalls", { defaultValue: "when another system calls it" }),
+        status: start.lastDeliveryAt
+          ? i18n.t("responsibilities.automationWords.lastCalled", {
+            age: describeCheckAge(start.lastDeliveryAt, now),
+            defaultValue: "Last called {{age}}",
+          })
+          : i18n.t("responsibilities.automationWords.notCalledYet", { defaultValue: "Not called yet" }),
       };
     case "standing_check": {
       const last = start.lastResult;
       return {
         kind: start.kind,
-        label: AUTOMATION_TRIGGER_LABEL.standing_check,
-        detail: "on each wake-up",
+        label: i18n.t("responsibilities.automationWords.triggerStandingCheck", { defaultValue: "Standing check" }),
+        detail: i18n.t("responsibilities.automationWords.onEachWakeUp", { defaultValue: "on each wake-up" }),
         status: last
-          ? `Last checked ${describeCheckAge(last.checkedAt, now)}: ${last.outcome === "acted" ? `acted${last.note ? ` (${last.note})` : ""}` : "nothing needed"}`
-          : "Not checked yet",
+          ? i18n.t("responsibilities.automationWords.lastChecked", {
+            age: describeCheckAge(last.checkedAt, now),
+            outcome: last.outcome === "acted"
+              ? last.note
+                ? i18n.t("responsibilities.automationWords.actedWithNote", { note: last.note, defaultValue: "acted ({{note}})" })
+                : i18n.t("responsibilities.automationWords.acted", { defaultValue: "acted" })
+              : i18n.t("responsibilities.automationWords.nothingNeeded", { defaultValue: "nothing needed" }),
+            defaultValue: "Last checked {{age}}: {{outcome}}",
+          })
+          : i18n.t("responsibilities.automationWords.notCheckedYet", { defaultValue: "Not checked yet" }),
       };
     }
     case "on_request":
-      return { kind: start.kind, label: "On request", detail: "when someone runs it", status: null };
+      return {
+        kind: start.kind,
+        label: i18n.t("responsibilities.automationWords.triggerOnRequest", { defaultValue: "On request" }),
+        detail: i18n.t("responsibilities.automationWords.whenSomeoneRunsIt", { defaultValue: "when someone runs it" }),
+        status: null,
+      };
   }
 }
 
@@ -199,11 +270,18 @@ export function automationStartWords(item: Pick<ResponsibilityAutomationItem, "s
 export function stalledWords(stalled: Pick<ResponsibilityAutomationStalled, "reason" | "assigneeAgentId">, agentName: AgentName): string {
   switch (stalled.reason) {
     case "paused":
-      return "Paused";
+      return i18n.t("responsibilities.words.paused", { defaultValue: "Paused" });
     case "no_agent":
-      return "No agent to run it";
+      return i18n.t("responsibilities.automationWords.noAgentToRunIt", { defaultValue: "No agent to run it" });
     case "no_wakeups":
-      return `Not running: ${agentLabel(stalled.assigneeAgentId, agentName, "its agent")} doesn’t wake up on its own (heartbeat off)`;
+      return i18n.t("responsibilities.automationWords.noWakeups", {
+        agent: agentLabel(
+          stalled.assigneeAgentId,
+          agentName,
+          i18n.t("responsibilities.automationWords.itsAgent", { defaultValue: "its agent" }),
+        ),
+        defaultValue: "Not running: {{agent}} doesn’t wake up on its own (heartbeat off)",
+      });
   }
 }
 
@@ -216,17 +294,34 @@ export function candidateReasonWords(candidate: AutomationCandidate, agentName: 
   switch (candidate.reason) {
     case "pending_offer": {
       const offer = candidate.pendingOffer;
-      if (!offer) return "An agent offered to repeat it";
-      return `${agentName(offer.agentId ?? "") ?? "Your agent"} offered: ${offer.cadenceLabel}`;
+      if (!offer) {
+        return i18n.t("responsibilities.automationWords.anAgentOffered", { defaultValue: "An agent offered to repeat it" });
+      }
+      return i18n.t("responsibilities.automationWords.agentOffered", {
+        agent: agentName(offer.agentId ?? "")
+          ?? i18n.t("responsibilities.automationWords.yourAgent", { defaultValue: "Your agent" }),
+        cadence: offer.cadenceLabel,
+        defaultValue: "{{agent}} offered: {{cadence}}",
+      });
     }
     case "hint":
       return candidate.hint?.why ?? null;
     case "done_by_agent":
-      return `Done by ${agentLabel(candidate.assigneeAgentId, agentName)} ${describeReadingAge(candidate.completedAt ?? candidate.updatedAt, now)}`;
+      return i18n.t("responsibilities.automationWords.doneByAgent", {
+        agent: agentLabel(candidate.assigneeAgentId, agentName),
+        age: describeReadingAge(candidate.completedAt ?? candidate.updatedAt, now),
+        defaultValue: "Done by {{agent}} {{age}}",
+      });
     case "done":
-      return `Done by hand ${describeReadingAge(candidate.completedAt ?? candidate.updatedAt, now)}`;
+      return i18n.t("responsibilities.automationWords.doneByHand", {
+        age: describeReadingAge(candidate.completedAt ?? candidate.updatedAt, now),
+        defaultValue: "Done by hand {{age}}",
+      });
     case "with_agent":
-      return `With ${agentLabel(candidate.assigneeAgentId, agentName)} now`;
+      return i18n.t("responsibilities.automationWords.withAgentNow", {
+        agent: agentLabel(candidate.assigneeAgentId, agentName),
+        defaultValue: "With {{agent}} now",
+      });
     case "open":
       return null;
   }
@@ -234,10 +329,18 @@ export function candidateReasonWords(candidate: AutomationCandidate, agentName: 
 
 /** The primary action's label: start, continue, or review the agent's proposal. */
 export function conversationButtonLabel(candidate: Pick<AutomationCandidate, "conversation" | "responsibleAgentId">, agentName: AgentName): string {
-  const who = agentLabel(candidate.responsibleAgentId, agentName, "your agent");
-  if (candidate.conversation?.state === "proposal_waiting") return `Review ${who}’s proposal`;
-  if (candidate.conversation?.state === "discussing") return `Continue with ${who}`;
-  return `Automate with ${who}`;
+  const who = agentLabel(
+    candidate.responsibleAgentId,
+    agentName,
+    i18n.t("responsibilities.automationWords.yourAgentLower", { defaultValue: "your agent" }),
+  );
+  if (candidate.conversation?.state === "proposal_waiting") {
+    return i18n.t("responsibilities.automationWords.reviewProposal", { agent: who, defaultValue: "Review {{agent}}’s proposal" });
+  }
+  if (candidate.conversation?.state === "discussing") {
+    return i18n.t("responsibilities.automationWords.continueWith", { agent: who, defaultValue: "Continue with {{agent}}" });
+  }
+  return i18n.t("responsibilities.automationWords.automateWith", { agent: who, defaultValue: "Automate with {{agent}}" });
 }
 
 /**
@@ -246,9 +349,13 @@ export function conversationButtonLabel(candidate: Pick<AutomationCandidate, "co
  */
 export function noCandidatesWords(automation: Pick<ResponsibilityAutomation, "automationCount" | "manualTaskCount" | "nothingFiled">): string | null {
   if (automation.nothingFiled) return null;
-  if (automation.manualTaskCount > 0) return "Nothing else here looks worth automating.";
-  if (automation.automationCount > 0) return "The automations are covering the work.";
-  return "No recent manual tasks to automate.";
+  if (automation.manualTaskCount > 0) {
+    return i18n.t("responsibilities.automationWords.nothingElseWorth", { defaultValue: "Nothing else here looks worth automating." });
+  }
+  if (automation.automationCount > 0) {
+    return i18n.t("responsibilities.automationWords.coveringWork", { defaultValue: "The automations are covering the work." });
+  }
+  return i18n.t("responsibilities.automationWords.noRecentManual", { defaultValue: "No recent manual tasks to automate." });
 }
 
 // ---------------------------------------------------------------------------

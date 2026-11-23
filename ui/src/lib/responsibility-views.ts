@@ -30,6 +30,7 @@ import {
   type AreaGroup,
 } from "./responsibilities";
 import { issueUrl, projectUrl } from "./utils";
+import { i18n } from "../i18n";
 
 /**
  * Derivations for the simpler views of the Dashboard and the responsibility
@@ -51,21 +52,21 @@ export type DashboardView = "full" | "outline" | "outline_v2" | "board" | "excep
 export type ResponsibilityPageView = "full" | "scorecard" | "moving" | "one_screen" | "one_screen_v2";
 
 export const DASHBOARD_VIEW_OPTIONS: readonly ViewOption<DashboardView>[] = [
-  { value: "full", label: "Full" },
-  { value: "outline", label: "Outline" },
-  { value: "outline_v2", label: "Outline v2" },
-  { value: "board", label: "Board" },
-  { value: "exceptions", label: "Exceptions" },
-  { value: "automation", label: "Automation" },
-  { value: "agent_status", label: "Agent status" },
+  { value: "full", get label() { return i18n.t("responsibilities.views.options.full", { defaultValue: "Full" }); } },
+  { value: "outline", get label() { return i18n.t("responsibilities.views.options.outline", { defaultValue: "Outline" }); } },
+  { value: "outline_v2", get label() { return i18n.t("responsibilities.views.options.outlineV2", { defaultValue: "Outline v2" }); } },
+  { value: "board", get label() { return i18n.t("responsibilities.views.options.board", { defaultValue: "Board" }); } },
+  { value: "exceptions", get label() { return i18n.t("responsibilities.views.options.exceptions", { defaultValue: "Exceptions" }); } },
+  { value: "automation", get label() { return i18n.t("responsibilities.views.options.automation", { defaultValue: "Automation" }); } },
+  { value: "agent_status", get label() { return i18n.t("responsibilities.views.options.agentStatus", { defaultValue: "Agent status" }); } },
 ];
 
 export const RESPONSIBILITY_PAGE_VIEW_OPTIONS: readonly ViewOption<ResponsibilityPageView>[] = [
-  { value: "full", label: "Full" },
-  { value: "scorecard", label: "Scorecard" },
-  { value: "moving", label: "What's moving" },
-  { value: "one_screen", label: "One screen" },
-  { value: "one_screen_v2", label: "One screen v2" },
+  { value: "full", get label() { return i18n.t("responsibilities.views.options.full", { defaultValue: "Full" }); } },
+  { value: "scorecard", get label() { return i18n.t("responsibilities.views.options.scorecard", { defaultValue: "Scorecard" }); } },
+  { value: "moving", get label() { return i18n.t("responsibilities.views.options.moving", { defaultValue: "What's moving" }); } },
+  { value: "one_screen", get label() { return i18n.t("responsibilities.views.options.oneScreen", { defaultValue: "One screen" }); } },
+  { value: "one_screen_v2", get label() { return i18n.t("responsibilities.views.options.oneScreenV2", { defaultValue: "One screen v2" }); } },
 ];
 
 export const DASHBOARD_VIEW_STORAGE_KEY = "paperclip:responsibilities:dashboard-view";
@@ -109,14 +110,6 @@ export function writeStoredView(key: string, value: string): void {
 // Words
 // ---------------------------------------------------------------------------
 
-function count(n: number, singular: string, plural: string): string {
-  return `${n} ${n === 1 ? singular : plural}`;
-}
-
-function isAre(n: number): string {
-  return n === 1 ? "is" : "are";
-}
-
 // ---------------------------------------------------------------------------
 // The overall status
 // ---------------------------------------------------------------------------
@@ -142,18 +135,49 @@ export function overallStanding(counts: Record<ResponsibilityHealth, number>): O
 
   let sentence: string;
   if (total === 0) {
-    sentence = "You do not own any responsibilities yet.";
+    sentence = i18n.t("responsibilities.words.noResponsibilitiesYet", { defaultValue: "You do not own any responsibilities yet." });
   } else if (behind > 0) {
-    const lead = `${count(behind, "responsibility", "responsibilities")} ${isAre(behind)} behind`;
-    sentence = atRisk > 0 ? `${lead} and ${atRisk} ${isAre(atRisk)} at risk.` : `${lead}.`;
+    const lead = i18n.t("responsibilities.views.standingBehind", {
+      count: behind,
+      defaultValue_one: "{{count}} responsibility is behind",
+      defaultValue_other: "{{count}} responsibilities are behind",
+    });
+    sentence = atRisk > 0
+      ? i18n.t("responsibilities.views.standingAndAtRisk", {
+        lead,
+        count: atRisk,
+        defaultValue_one: "{{lead}} and {{count}} is at risk.",
+        defaultValue_other: "{{lead}} and {{count}} are at risk.",
+      })
+      : i18n.t("responsibilities.views.asSentence", { lead, defaultValue: "{{lead}}." });
   } else if (atRisk > 0) {
-    sentence = `Nothing is behind. ${count(atRisk, "responsibility", "responsibilities")} ${isAre(atRisk)} at risk.`;
+    sentence = i18n.t("responsibilities.views.asSentence", {
+      lead: [
+        i18n.t("responsibilities.views.nothingBehind", { defaultValue: "Nothing is behind." }),
+        i18n.t("responsibilities.views.standingAtRisk", {
+          count: atRisk,
+          defaultValue_one: "{{count}} responsibility is at risk",
+          defaultValue_other: "{{count}} responsibilities are at risk",
+        }),
+      ].join(" "),
+      defaultValue: "{{lead}}.",
+    });
   } else if (onTrack > 0) {
     sentence = notMeasured === 0
-      ? "Everything you own is on track."
-      : `Nothing is behind or at risk. ${count(notMeasured, "responsibility", "responsibilities")} ${isAre(notMeasured)} not measured yet.`;
+      ? i18n.t("responsibilities.views.everythingOnTrack", { defaultValue: "Everything you own is on track." })
+      : i18n.t("responsibilities.views.asSentence", {
+        lead: [
+          i18n.t("responsibilities.views.nothingBehindOrAtRisk", { defaultValue: "Nothing is behind or at risk." }),
+          i18n.t("responsibilities.views.standingNotMeasured", {
+            count: notMeasured,
+            defaultValue_one: "{{count}} responsibility is not measured yet",
+            defaultValue_other: "{{count}} responsibilities are not measured yet",
+          }),
+        ].join(" "),
+        defaultValue: "{{lead}}.",
+      });
   } else {
-    sentence = "Nothing you own is measured yet.";
+    sentence = i18n.t("responsibilities.views.nothingMeasured", { defaultValue: "Nothing you own is measured yet." });
   }
   return { health, sentence, total };
 }
@@ -171,7 +195,7 @@ export function activeResponsibilities(responsibilities: readonly Responsibility
 export function onTrackShare(onTrack: number, total: number): { percent: number; label: string } | null {
   if (total <= 0) return null;
   const percent = Math.round((Math.max(0, Math.min(onTrack, total)) / total) * 100);
-  return { percent, label: `${percent}% on track` };
+  return { percent, label: i18n.t("responsibilities.views.onTrackShare", { percent, defaultValue: "{{percent}}% on track" }) };
 }
 
 export interface OutlineAreaGroup extends AreaGroup<ResponsibilityWithRollup> {
@@ -193,7 +217,11 @@ export function outlineAreaGroups(
 ): OutlineAreaGroup[] {
   return groupByArea(areas, sortByStatus(activeResponsibilities(responsibilities)), keepEmpty).map((group) => ({
     ...group,
-    ownedLabel: `${count(group.items.length, "responsibility", "responsibilities")} you own`,
+    ownedLabel: i18n.t("responsibilities.views.ownedLabel", {
+      count: group.items.length,
+      defaultValue_one: "{{count}} responsibility you own",
+      defaultValue_other: "{{count}} responsibilities you own",
+    }),
     share: onTrackShare(group.items.filter((item) => item.rollup.health === "on_track").length, group.items.length),
   }));
 }
@@ -246,22 +274,30 @@ export function dashboardSnapshot(overview: Pick<ResponsibilityOverview, "areas"
   return {
     areas: {
       value: owningAreas.length,
-      line: areasBehind > 0 ? `${areasBehind} with something behind` : "None with anything behind",
+      line: areasBehind > 0
+        ? i18n.t("responsibilities.views.withSomethingBehind", { count: areasBehind, defaultValue: "{{count}} with something behind" })
+        : i18n.t("responsibilities.views.noneWithAnythingBehind", { defaultValue: "None with anything behind" }),
       alert: areasBehind > 0,
     },
     responsibilities: {
       value: responsibilities,
-      line: totals.byHealth.behind > 0 ? `${totals.byHealth.behind} behind` : "None behind",
+      line: totals.byHealth.behind > 0
+        ? i18n.t("responsibilities.views.behindCount", { count: totals.byHealth.behind, defaultValue: "{{count}} behind" })
+        : i18n.t("responsibilities.views.noneBehind", { defaultValue: "None behind" }),
       alert: totals.byHealth.behind > 0,
     },
     projects: {
       value: totals.projects,
-      line: totals.lateProjects > 0 ? `${totals.lateProjects} late` : "None late",
+      line: totals.lateProjects > 0
+        ? i18n.t("responsibilities.views.lateCount", { count: totals.lateProjects, defaultValue: "{{count}} late" })
+        : i18n.t("responsibilities.views.noneLate", { defaultValue: "None late" }),
       alert: totals.lateProjects > 0,
     },
     tasks: {
       value: totals.openTasks,
-      line: totals.blockedTasks > 0 ? `${totals.blockedTasks} blocked` : "None blocked",
+      line: totals.blockedTasks > 0
+        ? i18n.t("responsibilities.views.blockedCount", { count: totals.blockedTasks, defaultValue: "{{count}} blocked" })
+        : i18n.t("responsibilities.views.noneBlocked", { defaultValue: "None blocked" }),
       alert: totals.blockedTasks > 0,
     },
   };
@@ -314,7 +350,12 @@ export function responsibilityExceptions(
     if (onTrackHere.length === 0) continue;
     onTrack.push({
       areaId: group.area?.id ?? null,
-      label: `${group.area?.title ?? "Not in an area"}: ${onTrackHere.length} of ${group.items.length} on track`,
+      label: i18n.t("responsibilities.views.areaOnTrack", {
+        area: group.area?.title ?? i18n.t("responsibilities.views.notInArea", { defaultValue: "Not in an area" }),
+        onTrack: onTrackHere.length,
+        total: group.items.length,
+        defaultValue: "{{area}}: {{onTrack}} of {{total}} on track",
+      }),
       responsibilities: onTrackHere.filter((item) => !item.rollup.metric?.stale),
     });
   }
@@ -328,9 +369,15 @@ export function responsibilityExceptions(
 export type WorkItemKind = "project" | "task" | "routine";
 
 export const WORK_ITEM_KIND_LABEL: Record<WorkItemKind, string> = {
-  project: "Project",
-  task: "Task",
-  routine: "Routine",
+  get project() {
+    return i18n.t("responsibilities.workKind.project", { defaultValue: "Project" });
+  },
+  get task() {
+    return i18n.t("responsibilities.workKind.task", { defaultValue: "Task" });
+  },
+  get routine() {
+    return i18n.t("responsibilities.workKind.routine", { defaultValue: "Routine" });
+  },
 };
 
 interface WorkItemBase {
@@ -399,8 +446,12 @@ export function responsibilityWorkList(
       id: project.id,
       title: project.name,
       href: projectUrl(project),
-      attention: due?.late ? `Late · ${due.label}` : null,
-      note: due && !due.late ? `Due ${due.label}` : null,
+      attention: due?.late
+        ? i18n.t("responsibilities.views.lateWith", { label: due.label, defaultValue: "Late · {{label}}" })
+        : null,
+      note: due && !due.late
+        ? i18n.t("responsibilities.views.dueWith", { label: due.label, defaultValue: "Due {{label}}" })
+        : null,
       project,
     });
   }
@@ -414,7 +465,7 @@ export function responsibilityWorkList(
       id: task.id,
       title: task.title,
       href: issueUrl(task),
-      attention: task.status === "blocked" ? "Blocked" : null,
+      attention: task.status === "blocked" ? i18n.t("responsibilities.words.blocked", { defaultValue: "Blocked" }) : null,
       note: null,
       task,
     });
@@ -429,8 +480,10 @@ export function responsibilityWorkList(
       id: routine.id,
       title: routine.title,
       href: routinePath(routine.id),
-      attention: failed.has(routine.id) ? "Failed on its last run" : null,
-      note: routine.status === "paused" ? "Paused" : null,
+      attention: failed.has(routine.id)
+        ? i18n.t("responsibilities.views.failedOnLastRun", { defaultValue: "Failed on its last run" })
+        : null,
+      note: routine.status === "paused" ? i18n.t("responsibilities.words.paused", { defaultValue: "Paused" }) : null,
       routine,
     });
   }
@@ -462,23 +515,35 @@ export function responsibilityWorkCounts(
   const late = rollup.overdueProjects.length;
   const failed = signalCount(rollup.workSummary, "routine_failed");
   const paused = detail.routines.filter((routine) => routine.status === "paused").length;
-  const routineParts = [failed > 0 ? `${failed} failed` : null, paused > 0 ? `${paused} paused` : null].filter(Boolean);
+  const listJoin = i18n.t("responsibilities.words.listJoin", { defaultValue: ", " });
+  const routineParts = [
+    failed > 0 ? i18n.t("responsibilities.views.failedCount", { count: failed, defaultValue: "{{count}} failed" }) : null,
+    paused > 0 ? i18n.t("responsibilities.views.pausedCount", { count: paused, defaultValue: "{{count}} paused" }) : null,
+  ].filter(Boolean);
+  const blockedPart = rollup.blockedTasks > 0
+    ? i18n.t("responsibilities.views.blockedCount", { count: rollup.blockedTasks, defaultValue: "{{count}} blocked" })
+    : i18n.t("responsibilities.views.noneBlocked", { defaultValue: "None blocked" });
+  const agentsPart = rollup.agentTasks > 0
+    ? i18n.t("responsibilities.views.withAgentsCount", { count: rollup.agentTasks, defaultValue: "{{count}} with agents" })
+    : i18n.t("responsibilities.views.noneWithAgents", { defaultValue: "none with agents" });
   return {
     projects: {
       value: detail.projects.filter((project) => !isFinishedProject(project)).length,
-      line: late > 0 ? `${late} late` : "None late",
+      line: late > 0
+        ? i18n.t("responsibilities.views.lateCount", { count: late, defaultValue: "{{count}} late" })
+        : i18n.t("responsibilities.views.noneLate", { defaultValue: "None late" }),
       alert: late > 0,
     },
     tasks: {
       value: rollup.openTasks,
-      line: `${rollup.blockedTasks > 0 ? `${rollup.blockedTasks} blocked` : "None blocked"}, ${
-        rollup.agentTasks > 0 ? `${rollup.agentTasks} with agents` : "none with agents"
-      }`,
+      line: `${blockedPart}${listJoin}${agentsPart}`,
       alert: rollup.blockedTasks > 0,
     },
     routines: {
       value: rollup.routines,
-      line: routineParts.length > 0 ? routineParts.join(", ") : "None failed or paused",
+      line: routineParts.length > 0
+        ? routineParts.join(listJoin)
+        : i18n.t("responsibilities.views.noneFailedOrPaused", { defaultValue: "None failed or paused" }),
       alert: failed > 0,
     },
   };
@@ -500,7 +565,12 @@ type MetricForGap = Pick<ResponsibilityMetricSummary, "name" | "unit" | "target"
 function formatGapAmount(value: number, unit: string | null): string {
   if (unit?.trim() === "%") {
     const points = formatMetricValue(value, null);
-    return `${points} ${value === 1 ? "point" : "points"}`;
+    const word = i18n.t("responsibilities.views.pointsWord", {
+      count: value,
+      defaultValue_one: "point",
+      defaultValue_other: "points",
+    });
+    return `${points} ${word}`;
   }
   return formatMetricValue(value, unit);
 }
@@ -525,14 +595,30 @@ function formatRange(low: number, high: number, unit: string | null): string {
 export function describeMetricGap(metric: MetricForGap): string | null {
   const { current, unit } = metric;
   if (current === null) return null;
-  if (metric.kind === "yes_no") return current >= 1 ? "Yes" : "Not yet";
+  if (metric.kind === "yes_no") {
+    return current >= 1
+      ? i18n.t("responsibilities.words.yes", { defaultValue: "Yes" })
+      : i18n.t("responsibilities.views.notYet", { defaultValue: "Not yet" });
+  }
   if (metric.kind === "range") {
     const { low, high } = metric;
     if (low === null || low === undefined || high === null || high === undefined) return null;
     const range = formatRange(low, high, unit);
-    if (current < low) return `${formatGapAmount(roundGap(low - current), unit)} below the range ${range}`;
-    if (current > high) return `${formatGapAmount(roundGap(current - high), unit)} above the range ${range}`;
-    return `Inside the range ${range}`;
+    if (current < low) {
+      return i18n.t("responsibilities.views.belowRange", {
+        amount: formatGapAmount(roundGap(low - current), unit),
+        range,
+        defaultValue: "{{amount}} below the range {{range}}",
+      });
+    }
+    if (current > high) {
+      return i18n.t("responsibilities.views.aboveRange", {
+        amount: formatGapAmount(roundGap(current - high), unit),
+        range,
+        defaultValue: "{{amount}} above the range {{range}}",
+      });
+    }
+    return i18n.t("responsibilities.views.insideRange", { range, defaultValue: "Inside the range {{range}}" });
   }
   const { target } = metric;
   if (target === null) return null;
@@ -541,13 +627,33 @@ export function describeMetricGap(metric: MetricForGap): string | null {
   const targetText = formatMetricValue(target, unit);
   const amount = formatGapAmount(Math.abs(diff), unit);
   if (atMost) {
-    if (diff > 0) return `${amount} over the limit of ${targetText}`;
-    if (diff < 0) return `${amount} inside the limit of ${targetText}`;
-    return `Right at the limit of ${targetText}`;
+    if (diff > 0) {
+      return i18n.t("responsibilities.views.overLimit", {
+        amount,
+        target: targetText,
+        defaultValue: "{{amount}} over the limit of {{target}}",
+      });
+    }
+    if (diff < 0) {
+      return i18n.t("responsibilities.views.insideLimit", {
+        amount,
+        target: targetText,
+        defaultValue: "{{amount}} inside the limit of {{target}}",
+      });
+    }
+    return i18n.t("responsibilities.views.rightAtLimit", { target: targetText, defaultValue: "Right at the limit of {{target}}" });
   }
-  if (diff > 0) return `${amount} short of ${targetText}`;
-  if (diff < 0) return `${amount} past the target of ${targetText}`;
-  return `Right at the target of ${targetText}`;
+  if (diff > 0) {
+    return i18n.t("responsibilities.views.shortOf", { amount, target: targetText, defaultValue: "{{amount}} short of {{target}}" });
+  }
+  if (diff < 0) {
+    return i18n.t("responsibilities.views.pastTarget", {
+      amount,
+      target: targetText,
+      defaultValue: "{{amount}} past the target of {{target}}",
+    });
+  }
+  return i18n.t("responsibilities.views.rightAtTarget", { target: targetText, defaultValue: "Right at the target of {{target}}" });
 }
 
 /**
@@ -559,13 +665,18 @@ export function describeTargetPhrase(metric: MetricForGap): string | null {
   if (metric.kind === "yes_no") return null;
   if (metric.kind === "range") {
     return metric.low === null || metric.low === undefined || metric.high === null || metric.high === undefined
-      ? "no range set"
-      : `range ${formatRange(metric.low, metric.high, metric.unit)}`;
+      ? i18n.t("responsibilities.words.noRangeSet", { defaultValue: "no range set" })
+      : i18n.t("responsibilities.words.range", {
+        range: formatRange(metric.low, metric.high, metric.unit),
+        defaultValue: "range {{range}}",
+      });
   }
-  if (metric.target === null) return "no target set";
+  if (metric.target === null) return i18n.t("responsibilities.words.noTargetSet", { defaultValue: "no target set" });
   const target = formatMetricValue(metric.target, metric.unit);
-  if (metric.direction === "at_most") return `limit ${target}`;
-  return metric.current === null ? `target ${target}` : `of ${target}`;
+  if (metric.direction === "at_most") return i18n.t("responsibilities.views.limit", { target, defaultValue: "limit {{target}}" });
+  return metric.current === null
+    ? i18n.t("responsibilities.words.target", { target, defaultValue: "target {{target}}" })
+    : i18n.t("responsibilities.words.ofTarget", { target, defaultValue: "of {{target}}" });
 }
 
 /** The reading on a card, value and unit together ("20 hours", "Yes"); null before the first one. Same as every view's reading. */
@@ -581,15 +692,25 @@ function lowerFirst(text: string): string {
 export function describeMissingMeasure(
   metric: (Pick<ResponsibilityMetricSummary, "name" | "target" | "current"> & Partial<Pick<ResponsibilityMetricSummary, "kind" | "low" | "high">>) | null,
 ): string | null {
-  if (!metric) return "No number set: add what you measure and a target.";
-  const name = lowerFirst(metric.name.trim());
-  if (metric.kind === "yes_no") return metric.current === null ? "No answer yet." : null;
-  if (metric.kind === "range") {
-    if (metric.low === null || metric.low === undefined || metric.high === null || metric.high === undefined) return `No range set for ${name}.`;
-  } else if (metric.target === null) {
-    return `No target set for ${name}.`;
+  if (!metric) {
+    return i18n.t("responsibilities.views.noNumberSet", { defaultValue: "No number set: add what you measure and a target." });
   }
-  if (metric.current === null) return `No reading of ${name} yet.`;
+  const name = lowerFirst(metric.name.trim());
+  if (metric.kind === "yes_no") {
+    return metric.current === null
+      ? i18n.t("responsibilities.views.noAnswerYetPeriod", { defaultValue: "No answer yet." })
+      : null;
+  }
+  if (metric.kind === "range") {
+    if (metric.low === null || metric.low === undefined || metric.high === null || metric.high === undefined) {
+      return i18n.t("responsibilities.views.noRangeFor", { name, defaultValue: "No range set for {{name}}." });
+    }
+  } else if (metric.target === null) {
+    return i18n.t("responsibilities.views.noTargetFor", { name, defaultValue: "No target set for {{name}}." });
+  }
+  if (metric.current === null) {
+    return i18n.t("responsibilities.views.noReadingOf", { name, defaultValue: "No reading of {{name}} yet." });
+  }
   return null;
 }
 
@@ -642,7 +763,13 @@ export function explainResponsibilityStatus(
   if (rollup.healthOverridden) {
     const note = responsibility.healthNote?.trim();
     const label = RESPONSIBILITY_HEALTH_LABEL[health].toLowerCase();
-    lines.push({ kind: "override", role: "note", text: note ? `You marked it ${label}: ${note}` : `You marked it ${label}.` });
+    lines.push({
+      kind: "override",
+      role: "note",
+      text: note
+        ? i18n.t("responsibilities.views.markedWithNote", { label, note, defaultValue: "You marked it {{label}}: {{note}}" })
+        : i18n.t("responsibilities.views.marked", { label, defaultValue: "You marked it {{label}}." }),
+    });
   }
   const attention = workSummary.filter((signal) => signal.tone === "attention");
   let candidates: ExplanationLine[];
@@ -662,10 +789,18 @@ export function explainResponsibilityStatus(
       // Nothing flagged: say what work there is and who has it, or that there is none.
       const hasWork = rollup.projects + rollup.routines + rollup.openTasks + rollup.doneTasks > 0;
       if (!hasWork) {
-        candidates = [{ kind: "no_work", role: "holding", text: "No work is filed under this yet." }];
+        candidates = [{
+          kind: "no_work",
+          role: "holding",
+          text: i18n.t("responsibilities.views.noWorkFiled", { defaultValue: "No work is filed under this yet." }),
+        }];
       } else if (health !== "not_measured") {
         const present = workSummary.map((signal) => ({ kind: signal.kind, role: "note" as const, text: signal.text }));
-        candidates = present.length > 0 ? present : [{ kind: "no_open_work", role: "note", text: "Nothing under this is open right now." }];
+        candidates = present.length > 0 ? present : [{
+          kind: "no_open_work",
+          role: "note",
+          text: i18n.t("responsibilities.views.nothingOpen", { defaultValue: "Nothing under this is open right now." }),
+        }];
       }
     }
   }
@@ -701,7 +836,7 @@ function routineRunDetail(signal: ResponsibilityWorkSignal | undefined, title: s
 }
 
 function agentLabel(agentId: string, agentName: (id: string) => string | undefined): string {
-  return agentName(agentId) ?? "an agent";
+  return agentName(agentId) ?? i18n.t("responsibilities.words.anAgent", { defaultValue: "an agent" });
 }
 
 /**
@@ -730,46 +865,130 @@ export function workBearings(
       const due = describeNextDue(project.targetDate, now);
       if (due?.late) {
         const days = overdue.get(project.id)?.daysOverdue ?? daysBetween(`${project.targetDate}T00:00:00`, now);
-        return { item, bearing: "holding", reason: `${days} ${days === 1 ? "day" : "days"} late (due ${due.label})`, finished: false };
+        return {
+          item,
+          bearing: "holding",
+          reason: i18n.t("responsibilities.views.daysLate", {
+            count: days,
+            due: due.label,
+            defaultValue_one: "{{count}} day late (due {{due}})",
+            defaultValue_other: "{{count}} days late (due {{due}})",
+          }),
+          finished: false,
+        };
       }
       const daysUntil = project.targetDate && project.targetDate >= today
         ? Math.round((new Date(`${project.targetDate}T00:00:00`).getTime() - new Date(`${today}T00:00:00`).getTime()) / (24 * 60 * 60 * 1000))
         : null;
       const dueSoon = daysUntil !== null && daysUntil <= RESPONSIBILITY_DUE_SOON_DAYS;
       if (project.status === "in_progress" && (dueSoon || project.leadAgentId)) {
-        const parts = [dueSoon && due ? `Due ${due.label}, in progress` : "In progress"];
-        if (project.leadAgentId) parts.push(`led by ${agentLabel(project.leadAgentId, agentName)}`);
-        return { item, bearing: "moving", reason: parts.join(", "), finished: false };
+        const parts = [
+          dueSoon && due
+            ? i18n.t("responsibilities.views.dueInProgress", { due: due.label, defaultValue: "Due {{due}}, in progress" })
+            : i18n.t("responsibilities.views.inProgress", { defaultValue: "In progress" }),
+        ];
+        if (project.leadAgentId) {
+          parts.push(i18n.t("responsibilities.views.ledBy", {
+            agent: agentLabel(project.leadAgentId, agentName),
+            defaultValue: "led by {{agent}}",
+          }));
+        }
+        return {
+          item,
+          bearing: "moving",
+          reason: parts.join(i18n.t("responsibilities.words.listJoin", { defaultValue: ", " })),
+          finished: false,
+        };
       }
-      const state = project.status === "backlog" || project.status === "planned" ? "Not started" : "In progress";
-      return { item, bearing: "neutral", reason: due ? `${state}, due ${due.label}` : state, finished: false };
+      const state = project.status === "backlog" || project.status === "planned"
+        ? i18n.t("responsibilities.views.notStarted", { defaultValue: "Not started" })
+        : i18n.t("responsibilities.views.inProgress", { defaultValue: "In progress" });
+      return {
+        item,
+        bearing: "neutral",
+        reason: due
+          ? i18n.t("responsibilities.views.stateDue", { state, due: due.label, defaultValue: "{{state}}, due {{due}}" })
+          : state,
+        finished: false,
+      };
     }
     if (item.kind === "task") {
       const { task } = item;
-      if (task.status === "blocked") return { item, bearing: "holding", reason: "Blocked", finished: false };
-      if (!task.assigneeAgentId && !task.assigneeUserId) return { item, bearing: "holding", reason: "Not assigned to anyone", finished: false };
+      if (task.status === "blocked") {
+        return {
+          item,
+          bearing: "holding",
+          reason: i18n.t("responsibilities.words.blocked", { defaultValue: "Blocked" }),
+          finished: false,
+        };
+      }
+      if (!task.assigneeAgentId && !task.assigneeUserId) {
+        return {
+          item,
+          bearing: "holding",
+          reason: i18n.t("responsibilities.views.notAssigned", { defaultValue: "Not assigned to anyone" }),
+          finished: false,
+        };
+      }
       if (task.assigneeAgentId) {
         const name = agentLabel(task.assigneeAgentId, agentName);
-        const reason = task.status === "in_progress" ? `In progress with ${name}`
-          : task.status === "in_review" ? `In review with ${name}`
-          : `With ${name}, not started`;
+        const reason = task.status === "in_progress"
+          ? i18n.t("responsibilities.views.inProgressWith", { agent: name, defaultValue: "In progress with {{agent}}" })
+          : task.status === "in_review"
+            ? i18n.t("responsibilities.views.inReviewWith", { agent: name, defaultValue: "In review with {{agent}}" })
+            : i18n.t("responsibilities.views.withNotStarted", { agent: name, defaultValue: "With {{agent}}, not started" });
         return { item, bearing: "moving", reason, finished: false };
       }
-      const who = task.assigneeUserId === detail.ownerUserId ? "you" : "a person";
-      return { item, bearing: "neutral", reason: task.status === "in_review" ? `In review with ${who}` : `With ${who}`, finished: false };
+      const who = task.assigneeUserId === detail.ownerUserId
+        ? i18n.t("responsibilities.words.you", { defaultValue: "you" })
+        : i18n.t("responsibilities.words.aPerson", { defaultValue: "a person" });
+      return {
+        item,
+        bearing: "neutral",
+        reason: task.status === "in_review"
+          ? i18n.t("responsibilities.views.inReviewWith", { agent: who, defaultValue: "In review with {{agent}}" })
+          : i18n.t("responsibilities.views.withAgent", { agent: who, defaultValue: "With {{agent}}" }),
+        finished: false,
+      };
     }
     const { routine } = item;
     if (item.attention) return { item, bearing: "holding", reason: item.attention, finished: false };
-    if (routine.status === "paused") return { item, bearing: "holding", reason: "Paused", finished: false };
-    if (!routine.assigneeAgentId) return { item, bearing: "holding", reason: "No agent runs it", finished: false };
+    if (routine.status === "paused") {
+      return {
+        item,
+        bearing: "holding",
+        reason: i18n.t("responsibilities.words.paused", { defaultValue: "Paused" }),
+        finished: false,
+      };
+    }
+    if (!routine.assigneeAgentId) {
+      return {
+        item,
+        bearing: "holding",
+        reason: i18n.t("responsibilities.views.noAgentRunsIt", { defaultValue: "No agent runs it" }),
+        finished: false,
+      };
+    }
     const detailText = routineRunDetail(
       signals.find((signal) => signal.kind === "routine_active" && signal.refId === routine.id),
       routine.title,
     );
     if (detailText && GOOD_LAST_RUN.test(detailText)) {
-      return { item, bearing: "moving", reason: `Active, ${detailText}`, finished: false };
+      return {
+        item,
+        bearing: "moving",
+        reason: i18n.t("responsibilities.views.activeWith", { detail: detailText, defaultValue: "Active, {{detail}}" }),
+        finished: false,
+      };
     }
-    return { item, bearing: "neutral", reason: detailText ? `Active, ${detailText}` : "Active", finished: false };
+    return {
+      item,
+      bearing: "neutral",
+      reason: detailText
+        ? i18n.t("responsibilities.views.activeWith", { detail: detailText, defaultValue: "Active, {{detail}}" })
+        : i18n.t("responsibilities.views.active", { defaultValue: "Active" }),
+      finished: false,
+    };
   });
   const ordered = marked
     .map((entry, index) => ({ entry, index }))
@@ -782,7 +1001,10 @@ export function workBearings(
     .map((task): BearingItem => ({
       item: { kind: "task", id: task.id, title: task.title, href: issueUrl(task), attention: null, note: null, task },
       bearing: "moving",
-      reason: `Completed ${describeReadingAge(task.updatedAt, now)}`,
+      reason: i18n.t("responsibilities.views.completedWith", {
+        age: describeReadingAge(task.updatedAt, now),
+        defaultValue: "Completed {{age}}",
+      }),
       finished: true,
     }));
   return [...ordered, ...recent];

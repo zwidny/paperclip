@@ -1715,7 +1715,7 @@ export function Inbox() {
     },
     onError: (error) => {
       pushToast({
-        title: "Run retry failed",
+        title: t("issueDetail.runRetryFailed", { defaultValue: "Run retry failed" }),
         body: describeError(error, { action: "retry the run" }).body,
         tone: "error",
       });

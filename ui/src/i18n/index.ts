@@ -15,6 +15,7 @@ import {
   persistLocale,
   resolveInitialLocale,
 } from "./locale-preference";
+import { brandFor } from "./brand";
 
 export const initialLocale = resolveInitialLocale(
   supportedLocales,
@@ -27,7 +28,7 @@ const i18nextOptions: InitOptions = {
   fallbackLng: DEFAULT_LOCALE,
   supportedLngs: supportedLocales,
   defaultNS: "translation",
-  interpolation: { escapeValue: false },
+  interpolation: { escapeValue: false, defaultVariables: { brand: brandFor(resolveInitialLocale(supportedLocales, DEFAULT_LOCALE)) } },
   returnObjects: false,
   initAsync: false,
   partialBundledLanguages: true,
@@ -39,6 +40,21 @@ void i18n
   .catch((error: unknown) => {
     console.error("Failed to initialize i18next", error);
   });
+
+/**
+ * `{{brand}}` resolves from `interpolation.defaultVariables`, so the value has to
+ * follow the active language: zh-CN ships as Gnzs, other locales as Paperclip.
+ */
+function applyBrand(locale: string): void {
+  const interpolation = i18n.options.interpolation as { defaultVariables?: Record<string, unknown> } | undefined;
+  if (!interpolation) return;
+  interpolation.defaultVariables = { ...(interpolation.defaultVariables ?? {}), brand: brandFor(locale) };
+}
+
+i18n.on("languageChanged", (locale) => {
+  applyBrand(locale);
+  applyDocumentLanguage(locale);
+});
 
 function applyDocumentLanguage(locale: string): void {
   if (typeof document === "undefined") return;

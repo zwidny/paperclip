@@ -283,7 +283,8 @@
     "badgeUnread": "unread",
     "badgeDecisions": "decisions",
     "globalSearch": "Global search",
-    "mainNavigation": "Main navigation"
+    "mainNavigation": "Main navigation",
+    "newTaskAction": "New task"
   },
   "common": {
     "skipToMainContent": "Skip to Main Content",
@@ -558,7 +559,8 @@
       "parkedBlockerTitle": "Blocked by parked work — at least one assigned blocker is in backlog and will not wake its assignee.",
       "openTaskAria": "Open task {{identifier}} ({{status}})",
       "openTask": "Open {{identifier}}: {{title}}",
-      "recoveryStatus": "Task recovery status"
+      "recoveryStatus": "Task recovery status",
+      "restoreFromArchive": "Restore from archive"
     },
     "myTasks": "My Tasks",
     "noAssigned": "No tasks assigned to you.",
@@ -909,7 +911,6 @@
     "configure": {
       "title": "Configure your agent",
       "dotCreateFirst": "Create this agent, then copy its pairing prompt to your Dot.",
-      "dotEnableMcp": "Enable Assistant connections (MCP) in Experimental settings before pairing.",
       "allowExternallyBilled": "Allow externally billed provider",
       "allowExternallyBilledHint": "Dot does not report token usage or cost. Paperclip cannot enforce a provider spend ceiling; known company and agent budget limits still apply.",
       "modelsError": "Could not load models. Retry or enter a model ID manually.",
@@ -2352,13 +2353,7 @@
         "footnote": "Presentation only. Turning this off restores the current cards; no data changes.",
         "ariaLabel": "Toggle artifacts V1 experimental setting"
       },
-      "assistantConnections": {
-        "title": "Assistant connections (MCP)",
-        "description": "Connect Codex, Claude, and other assistants to your Paperclip organization. People sign in, select an organization once, and approve access to review work, delegate tasks, and add feedback.",
-        "footnote": "Requires an authenticated instance with a configured public URL. Takes effect immediately. Turning this off blocks assistant calls and event delivery; work already delegated continues.",
-        "setupLink": "Set up an assistant connection",
-        "ariaLabel": "Toggle assistant connections experimental setting"
-      },
+      "assistantConnections": {},
       "betaSkills": {
         "title": "Beta skills",
         "description": "Allow agents to pin beta releases of the Paperclip core skill. Disabling this returns every agent to the default live skill without removing saved pins.",
@@ -2436,7 +2431,7 @@
       "grokBot": {
         "title": "Grok Bot",
         "description": "Connect an existing Grok Bot as an agent. Verify routine delivery and an authenticated reply before assigning work.",
-        "footnote": "Requires Assistant connections (MCP), Paperclip Runner, and authenticated public HTTPS. Usage is not reported. Turning this off blocks Grok calls and new dispatch.",
+        "footnote": "Requires Paperclip Runner and authenticated public HTTPS. Usage is not reported. Turning this off blocks Grok calls and new dispatch.",
         "ariaLabel": "Toggle Grok Bot experimental setting"
       },
       "memoryConnectors": {
@@ -2454,7 +2449,7 @@
       "openAiDot": {
         "title": "OpenAI Dot",
         "description": "Add OpenAI Dot as a standalone agent choice. Pair your Dot and verify event delivery before assigning work.",
-        "footnote": "Requires Assistant connections (MCP) and an authenticated instance with a public HTTPS URL. Turning this off blocks Dot calls and new work; saved connections are kept.",
+        "footnote": "Requires an authenticated instance with a public HTTPS URL. Turning this off blocks Dot calls and new work; saved connections are kept.",
         "ariaLabel": "Toggle OpenAI Dot experimental setting"
       },
       "paperclipRunner": {
@@ -2548,6 +2543,18 @@
         "description": "Show the built-in Google Workspace connector for Gmail, Drive, and Calendar while Google verification is pending.",
         "footnote": "Off by default. While off, Google apps are offered through Composio and Arcade instead, and the built-in connector cannot be set up or run.",
         "ariaLabel": "Toggle Paperclip Google Workspace connector experimental setting"
+      },
+      "responsibilities": {
+        "title": "Areas & Responsibilities dashboard",
+        "description": "Replace the classic dashboard with one built around the areas you care about and the responsibilities you own in each. An agent can interview you to create it, and you can undo any change.",
+        "footnote": "Turning this off brings back the classic dashboard. Your areas and responsibilities are kept.",
+        "ariaLabel": "Toggle Areas & Responsibilities dashboard experimental setting"
+      },
+      "awsConnector": {
+        "title": "AWS connector",
+        "description": "Let agents work in AWS through AWS's hosted MCP server, with short-lived credentials made for each connection.",
+        "footnote": "Off by default. While off, the AWS connector cannot be set up or run.",
+        "ariaLabel": "Toggle AWS connector experimental setting"
       }
     }
   },
@@ -6512,7 +6519,7 @@
     "sectionAria": "Grok Bot connection",
     "intro": "Runs in Grok Bot. The Bot retains its apps and persistent context. Paperclip supplies task coordination and first-party tools. Usage and spending are not reported.",
     "loading": "Loading connection…",
-    "disabled": "Enable Grok Bot, Assistant connections (MCP), and Paperclip Runner on an authenticated public HTTPS instance.",
+    "disabled": "Enable Grok Bot and Paperclip Runner on an authenticated public HTTPS instance.",
     "connectedPrefix": "Agent access connected. ",
     "routineVerified": "Routine round trip verified.",
     "routineUnverified": "Assignments require a verified routine round trip.",
@@ -6563,7 +6570,7 @@
   "dotRunnerConnection": {
     "saveAgentFirst": "Save the agent, then return here to pair your Dot.",
     "intro": "Dot manages its model and external tools. Paperclip supplies task coordination, people, assigned skills, and connected app tools. Dot can start a task directly from its conversation. Enable Read task attachments below to send assigned task file contents to OpenAI. Enable workspace files and commands for work in the assigned workspace. Provider usage and cost are unavailable; stopping a Paperclip run revokes access without confirming an external stop.",
-    "disabled": "Enable OpenAI Dot and Assistant connections (MCP) in experimental settings.",
+    "disabled": "Enable OpenAI Dot in experimental settings.",
     "mcpUrlPrefix": "Private plugin MCP URL: ",
     "connection": "Connection: {{status}}. Event subscription: {{subscription}}.",
     "subscriptionVerified": "verified",
@@ -7059,7 +7066,8 @@
     },
     "trigger": {
       "replay": "replay {{seconds}}s",
-      "api": "API"
+      "api": "API",
+      "heartbeat": "Standing check on each wake-up"
     },
     "variables": {
       "none": "(none)"
@@ -7667,7 +7675,6 @@
     }
   },
   "toolDialogs": {
-    "catalogTitle": "Tool catalog — {{name}}",
     "noToolsDiscovered": "No tools discovered yet. Use “Refresh catalog” to discover tools from this connection.",
     "createFailed": "Could not create connection",
     "probeFailed": "Probe failed",
@@ -7713,7 +7720,8 @@
     "probing": "Probing…",
     "reprobe": "Re-probe",
     "activating": "Activating…",
-    "activate": "Activate"
+    "activate": "Activate",
+    "catalogTitlePrefix": "Tool catalog — "
   },
   "gatewayTokens": {
     "intro": "Issue a reusable token for an external client. Its name is also used as the client label.",
@@ -7841,9 +7849,6 @@
     "selectOrganization": "Select an organization to connect an assistant.",
     "headerDescription": "Connect your assistant to Paperclip. Review work, create tasks, and follow up using your account’s access to this organization.",
     "loadingSetup": "Loading assistant setup…",
-    "enableTitle": "Enable assistant connections",
-    "enableDescription": "An instance administrator must turn on Assistant connections (MCP) in Experimental settings. Then return here to connect your assistant.",
-    "openExperimental": "Open Experimental settings",
     "inviteAria": "Invite your assistant",
     "inviteTitle": "Invite your assistant",
     "inviteDescription": "Paste this invitation into your assistant. It will help set up the connection and ask you to approve access in Paperclip.",
@@ -8185,7 +8190,8 @@
       "fallbackPrefix": "source adapter",
       "fallbackMiddle": "is not installed here — this agent will use",
       "runnerUnavailable": "Paperclip Runner is unavailable here. Choose a runner or another harness explicitly.",
-      "providerRequiresExperimental": "Paperclip Runner provider {{provider}} requires its experimental feature to be enabled. This import keeps its saved harness until you choose another one."
+      "providerRequiresExperimental": "Paperclip Runner provider {{provider}} requires its experimental feature to be enabled. This import keeps its saved harness until you choose another one.",
+      "chooseAvailableHarness": "Choose an available harness"
     },
     "errors": {
       "selectZip": "Select a .zip organization package.",
@@ -8614,7 +8620,7 @@
     "folder": "Folder",
     "routineCount_one": "{{count}} routine",
     "routineCount_other": "{{count}} routines",
-    "emptyNoRoutines": "No active routines. Use Create routine to define the first recurring workflow.",
+    "emptyNoRoutines": "No active routines. Use New routine to define the first recurring workflow.",
     "emptyNoSearchMatch": "No routines match your search.",
     "emptyNoViewMatch": "No routines match this view.",
     "emptyFolder": "This folder is empty.",
@@ -8754,7 +8760,6 @@
     "connectThrough": "Connect through {{providers}}.",
     "providerOr": " or ",
     "providerAnd": " and ",
-    "connectCopilot": "Connect Copilot",
     "accountNumbered": "{{name}} account {{number}}",
     "account": "{{name}} account",
     "providerRouteAction": "{{action}} {{app}} through {{provider}}, a third-party service",
@@ -8830,7 +8835,8 @@
       "failedDescription": "Couldn’t remove the connection. Please try again.",
       "removing": "Removing…",
       "removeConnection": "Remove connection",
-      "poolKeptDialog": "The connections in this pool are kept."
+      "poolKeptDialog": "The connections in this pool are kept.",
+      "removedAndDeleting": "Connection removed. Deleting its saved data."
     },
     "chat": {
       "speko": "Talk with an agent using experimental browser voice.",
@@ -10449,10 +10455,8 @@
     "noWorktreesYet": "No existing worktrees yet. Choose New worktree to start one.",
     "planWith": "Plan with {{agent}}…",
     "askAgent": "Ask {{agent}}…",
-    "messageAgent": "Message {{agent}}…",
     "planWithDetail": "Plan with {{agent}} — shapes the plan doc, no code changes…",
     "askAgentDetail": "Ask {{agent}} a question — read-only, nothing runs…",
-    "messageAgentDetail": "Message {{agent}} — describe what you want done…",
     "theAgent": "the agent",
     "editQueuedMessage": "Edit queued message…",
     "goalVerifyHint": "Support will be verified when the session starts.",
@@ -10495,7 +10499,8 @@
     "retryAttachment": "Retry {{name}}",
     "imageAttachments": "Image attachments",
     "addImagesAndFilesToMessage": "Add images and files to your message",
-    "addImagesAndFilesToTask": "Add images and files to your new task"
+    "addImagesAndFilesToTask": "Add images and files to your new task",
+    "workWith": "Work with {{agent}}"
   },
   "taskChat": {
     "agentCouldNotStart": "{{agentName}} couldn’t start",
@@ -11031,7 +11036,15 @@
     "showFewer": "Show fewer",
     "subagentsAria": "Subagents",
     "proposedPlan": "Proposed a plan ·",
-    "patchTooLarge": "This patch is too large to show here."
+    "patchTooLarge": "This patch is too large to show here.",
+    "kindRoutineOffer": "Routine offer",
+    "kindRoutine": "Routine",
+    "kindProposedBar": "Proposed bar",
+    "kindBar": "Bar",
+    "kindProposedAutomation": "Proposed automation",
+    "kindAutomation": "Automation",
+    "kindProposedDashboardChanges": "Proposed dashboard changes",
+    "kindDashboard": "Dashboard"
   },
   "runnerGoal": {
     "pendingStarting": "Starting",
@@ -11183,7 +11196,8 @@
       "run_completed": "Run completed"
     },
     "modelRejectedNamedModel": "The provider rejected the model \"{{model}}\".",
-    "loadingTaskHistory": "Loading task history…"
+    "loadingTaskHistory": "Loading task history…",
+    "sandboxDiskFull": "The agent filled the disk of its computer, so the run stopped. Ask the agent to use less disk space, then retry."
   },
   "toolVerbs": {
     "unnamedTool": "Unnamed tool",
@@ -14084,20 +14098,33 @@
     "viewAllRuns": "View all tasks",
     "agent": "Agent",
     "asc": "Asc",
-    "createRoutine": "Create routine",
     "created": "Created",
     "desc": "Desc",
-    "done": "Done",
     "folder": "Folder",
     "group": "Group",
     "lastRun": "Last run",
     "newFolder": "New folder",
     "none": "None",
     "project": "Project",
-    "select": "Select",
     "sort": "Sort",
     "title": "Title",
-    "updated": "Updated"
+    "updated": "Updated",
+    "newRoutine": "New routine",
+    "sortAria": "Sort routines",
+    "filter": "Filter",
+    "filterAria": "Filter routines",
+    "filterAriaActive": "Filter routines ({{count}})",
+    "filters": "Filters",
+    "filtersActive": "Filters ({{count}})",
+    "clear": "Clear",
+    "enabled": "Enabled",
+    "responsibleUser": "Responsible user",
+    "source": "Source",
+    "noOptions": "No options",
+    "groupAria": "Group routines",
+    "columns": "Columns",
+    "columnsAria": "Routine columns",
+    "resetColumns": "Reset columns"
   },
   "agentsToolbar": {
     "controls": "Agents controls",
@@ -14487,7 +14514,8 @@
     "signInExpired": "This sign-in expired",
     "signInIncomplete": "Sign-in didn’t finish",
     "retryHint": "Retry sign-in to get a fresh code. Your setup is saved.",
-    "retrySignIn": "Retry sign-in"
+    "retrySignIn": "Retry sign-in",
+    "finishingSignIn": "Finishing sign-in…"
   },
   "projectAccess": {
     "thisAgent": "This agent",
@@ -14621,7 +14649,7 @@
     "yourAssistant": "your assistant",
     "connectAssistantPrefix": "Connect ",
     "connectAssistantSuffix": " to Paperclip",
-    "confirmCode": "Confirm this matches the code shown by your assistant: ",
+    "confirmCode": "Confirm this matches the code shown by your assistant:",
     "startNewConnection": "Start a new connection from your assistant.",
     "pairingIntro": "Enter the one-use code from Paperclip’s agent setup to review this connection’s access. Keep the code out of Bot chat. Access is granted only when you approve the named agent below.",
     "allowConnectionAs": "Allow this connection to work as {{agent}} in {{company}}.",
@@ -16056,7 +16084,8 @@
     "confirmRunStoppedPlaceholder": "For example: no codex or claude process for this task is running on the server host.",
     "confirmRunStoppedResuming": "Starting your Retry…",
     "confirmRunStoppedConfirm": "Confirm it stopped",
-    "setupFailureFix": "Couldn’t set up the task workspace. {{message}}. Fix the command in the project’s workspace settings, then retry."
+    "setupFailureFix": "Couldn’t set up the task workspace. {{message}}. Fix the command in the project’s workspace settings, then retry.",
+    "respondToQuestion": "Respond to the pending question to continue."
   },
   "jsonSchemaForm": {
     "validation": {
@@ -16438,7 +16467,6 @@
   },
   "envVarEditor": {
     "defaultHint": "Set the KEY to the env var name the process expects, for example GH_TOKEN. Choose a secret to resolve a stored value at run start. PAPERCLIP_* variables are injected automatically.",
-    "addVariable": "Add variable",
     "addedPrefix": "New: {{names}}",
     "bindSecret": "Bind {{name}}",
     "bindingsNeedAttention": "{{count}} bindings need attention",
@@ -16722,9 +16750,10 @@
   },
   "executorManagementSetup": {
     "consoleUrl": "Console URL",
-    "description": "Choose where to manage accounts for “{{name}}”. Include your workspace path.",
     "invalidUrl": "Enter an HTTPS console URL without credentials.",
-    "title": "Executor console"
+    "title": "Executor console",
+    "descriptionPrefix": "Choose where to manage accounts for ",
+    "descriptionSuffix": ". Include your workspace path."
   },
   "gatewayDetail": {
     "backToGateways": "Back to gateways",
@@ -17027,7 +17056,8 @@
     "reviewedRevisionUnavailableBody": "The exact reviewed revision could not be found. The current version has not been substituted.",
     "reviewedVersion": "Reviewed version",
     "conversationDocuments": "Conversation documents",
-    "documentEmpty": "Document is empty."
+    "documentEmpty": "Document is empty.",
+    "openSourceTask": "Open source task"
   },
   "voiceControls": {
     "sectionAria": "Voice conversation with {{name}}",
@@ -19292,15 +19322,11 @@
       "plugin": "Plugin",
       "unknown": "Unknown actor"
     },
-    "action": {
-      "view": "View {{ref}}"
-    },
+    "action": {},
     "activity": {
-      "created": "{{actor}} created {{ref}}",
-      "updated": "{{actor}} updated {{ref}}",
-      "commented": "{{actor}} commented on {{ref}}",
-      "reopenedCommented": "{{actor}} reopened and commented on {{ref}}",
-      "commentedUpdated": "{{actor}} commented and updated {{ref}}"
+      "createdTask": "{{actor}} created the task",
+      "addedComment": "{{actor}} added a comment",
+      "viewTask": "View task"
     },
     "joinRequest": {
       "agent": "Agent",
@@ -19338,11 +19364,7 @@
     "pinnedPages": "Pinned pages",
     "pinned": "Pinned",
     "recents": "Recents",
-    "collapseProject": "Collapse {{name}}",
-    "expandProject": "Expand {{name}}",
     "loadingTasks": "Loading tasks…",
-    "tasksLoadFailed": "Couldn’t load tasks.",
-    "noTasks": "No tasks yet.",
     "emptyRecents": "Your conversations and tasks will appear here.",
     "searchTooltip": "Search tasks, agents, projects"
   },
@@ -19707,7 +19729,9 @@
     "couldNotLoad": "Could not load tasks",
     "rowDetailsFailed": "Task details couldn’t load.",
     "loadedSummary": "{{count}} tasks loaded. Load more to include them in filters.",
-    "tasksLoaded": "tasks loaded. Load more to include them in filters."
+    "tasksLoaded": "tasks loaded. Load more to include them in filters.",
+    "noArchived": "No archived tasks",
+    "signInArchived": "Sign in to view archived tasks."
   },
   "legacyBoardSend": {
     "discardTrigger": "Discard saved delivery record",
@@ -20045,10 +20069,10 @@
         "incomplete": "Authorization not completed"
       },
       "createSshEnvironment": "Create SSH environment",
-      "disconnect": "Disconnect {{name}}",
-      "reconnect": "Reconnect {{name}}",
       "backToConnectors": "Back to connectors",
-      "connecting": "Connecting…"
+      "connecting": "Connecting…",
+      "disconnectVerb": "Disconnect",
+      "reconnectVerb": "Reconnect"
     },
     "deviceSignIn": {
       "expired": "Sign-in expired. Cancel and connect again.",
@@ -20555,7 +20579,14 @@
     "loadingSaved": "Loading your saved service access…",
     "readOnly": "Read only",
     "readWrite": "Read & write",
-    "selectAtLeastOne": "Select at least one service to continue."
+    "selectAtLeastOne": "Select at least one service to continue.",
+    "dataUse": {
+      "ariaLabel": "How Paperclip uses your Google data",
+      "agentsCanDo": "What agents can do",
+      "howUsed": "How your data is used",
+      "privacyLink": "Read our privacy policy, including how we meet Google's Limited Use requirements",
+      "opensInNewTab": " (opens in a new tab)"
+    }
   },
   "apiKeyCredentialField": {
     "checkingSaved": "Checking saved API key…",
@@ -20657,7 +20688,9 @@
     "personal": "Personal · {{owner}}",
     "accountOwner": "Account owner",
     "checking": "Checking account details…",
-    "retry": "Retry account check"
+    "retry": "Retry account check",
+    "chatGptWorkspace": "ChatGPT workspace",
+    "checkingInline": "Checking…"
   },
   "taskChatRunHealth": {
     "serverFailed": " MCP server failed to start",

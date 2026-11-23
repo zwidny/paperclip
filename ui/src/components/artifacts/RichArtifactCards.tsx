@@ -32,6 +32,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useTranslation } from "../../i18n";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
+import { cn } from "@/lib/utils";
 
 // Renderers contain UI labels only. All artifact-specific content is passed in.
 // Example values live exclusively in the individual stories' args.
@@ -311,7 +313,7 @@ export function CommitCard(props: CommitCardProps) {
 function Markdown({ body, preview = false }: { body: string; preview?: boolean }) {
   const { t } = useTranslation();
   return (
-    <div className="flex flex-col gap-3 text-sm leading-relaxed">
+    <div className={cn("flex flex-col gap-3 text-sm leading-relaxed", ANALYTICS_MASK_CLASS)}>
       <ReactMarkdown
         components={{
           pre: ({ children }) => <pre className={preview
@@ -392,9 +394,9 @@ export function DocumentCard(props: DocumentCardProps) {
   const { t } = useTranslation();
   const patch = props.patch ?? isPatchFile(props.filename);
   const content = (body: string, preview = false) => patch
-    ? <pre className={preview
+    ? <pre className={cn(ANALYTICS_MASK_CLASS, preview
       ? "paperclip-patch-preview m-0 min-w-0 overflow-hidden whitespace-pre font-mono text-xs leading-5"
-      : "m-0 min-w-0 whitespace-pre-wrap wrap-anywhere font-mono text-xs leading-5"}><code><PatchLines text={body} /></code></pre>
+      : "m-0 min-w-0 whitespace-pre-wrap wrap-anywhere font-mono text-xs leading-5", ANALYTICS_MASK_CLASS)}><code><PatchLines text={body} /></code></pre>
     : <Markdown body={body} preview={preview} />;
   return (
     <Card>
@@ -458,7 +460,7 @@ function DataTable({ columns, rows }: Pick<DataCardProps, "columns" | "rows">) {
   const { t } = useTranslation();
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-xs">
+      <table className={cn("w-full text-left text-xs", ANALYTICS_MASK_CLASS)}>
         <thead>
           <tr>
             {columns.map((column, i) => (

@@ -29,6 +29,7 @@ import {
   protocolActivityPresentation,
   providerNoticeSeverity,
 } from "./task-chat-activity-presentation";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 const COMPACT_RESEARCH_RESULT_LIMIT = 5;
 const COMPACT_WORKSPACE_FILE_LIMIT = 8;
@@ -183,7 +184,7 @@ function ProviderDetails({ item, neutral = false }: { item: TaskChatProviderActi
         <DetailList details={item.details} />
       ) : null}
       {item.output ? (
-        <pre className="max-h-(--sz-64) overflow-auto whitespace-pre-wrap rounded-sm bg-muted/50 p-2 font-mono text-(length:--text-micro) text-foreground">{item.output}</pre>
+        <pre className={cn("max-h-(--sz-64) overflow-auto whitespace-pre-wrap rounded-sm bg-muted/50 p-2 font-mono text-(length:--text-micro) text-foreground", ANALYTICS_MASK_CLASS)}>{item.output}</pre>
       ) : null}
       {item.outputTruncated ? <p className="text-muted-foreground">{t("taskChat.outputTruncated", { defaultValue: "Output truncated to 8 KiB." })}</p> : null}
     </div>
@@ -235,7 +236,7 @@ function WorkspaceFileDetails({ item }: { item: TaskChatWorkspaceFileItem }) {
         item.presentation === "document" ? (
           <div className="max-h-(--sz-64) overflow-auto rounded-sm bg-muted/30 p-2 text-foreground"><MarkdownBody>{item.preview}</MarkdownBody></div>
         ) : (
-          <pre className="max-h-(--sz-64) overflow-auto whitespace-pre-wrap rounded-sm bg-muted/50 p-2 font-mono text-(length:--text-micro) text-foreground">{item.preview}</pre>
+          <pre className={cn("max-h-(--sz-64) overflow-auto whitespace-pre-wrap rounded-sm bg-muted/50 p-2 font-mono text-(length:--text-micro) text-foreground", ANALYTICS_MASK_CLASS)}>{item.preview}</pre>
         )
       ) : <p className="text-muted-foreground">{t("taskChat.previewUnavailable", { defaultValue: "Preview unavailable." })}</p>}
       {item.previewTruncated ? <p className="text-muted-foreground">{t("taskChat.previewTruncated", { defaultValue: "Preview truncated by the runner." })}</p> : null}

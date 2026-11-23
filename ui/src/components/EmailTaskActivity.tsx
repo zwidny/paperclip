@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { describeError } from "@/api/errors";
 import { QueryErrorState, useQueryView } from "./QueryView";
 import type { EmailPublicationSummary, EmailDeliveryOutcome } from "@paperclipai/shared";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
+import { cn } from "@/lib/utils";
 import { useTranslation } from "../i18n";
 
 const OUTCOME_LABEL: Record<EmailDeliveryOutcome, { key: string; defaultValue: string }> = {
@@ -105,7 +107,7 @@ function EmailDelivery({
       {p.request && !p.providerMessageId && (
         <article
           aria-label={t("emailTaskActivity.sendIntentAria", { defaultValue: "Email send intent" })}
-          className="task-context-notice space-y-3"
+          className={cn("task-context-notice space-y-3", ANALYTICS_MASK_CLASS)}
         >
           <p className="font-semibold">{p.request.subject ?? t("emailTaskActivity.replySubject", { defaultValue: "Email reply" })}</p>
           {p.request.to && <p>{t("emailTaskActivity.toLine", { recipients: p.request.to.join(", "), defaultValue: "To: {{recipients}}" })}</p>}

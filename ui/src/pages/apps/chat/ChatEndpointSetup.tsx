@@ -56,6 +56,8 @@ import {
   readGitHubPrivateKeyFile,
 } from "./github-private-key-file";
 import { describeError } from "@/api/errors";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
+import { cn } from "@/lib/utils";
 import { useTranslation } from "../../../i18n";
 
 const providerNames: Record<ChatProvider, string> = {
@@ -1635,7 +1637,7 @@ function ProviderConnectStep({
                   {t("chatSetup.slack.viewManifest", { defaultValue: "View Slack App Manifest" })}
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-2xl">
+              <DialogContent className={cn("sm:max-w-2xl", ANALYTICS_MASK_CLASS)}>
                 <DialogHeader>
                   <DialogTitle>{t("chatSetup.slack.manifestTitle", { defaultValue: "Slack app manifest" })}</DialogTitle>
                   <DialogDescription>

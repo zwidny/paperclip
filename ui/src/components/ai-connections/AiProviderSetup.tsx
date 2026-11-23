@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/select";
 import { AiConnectionCredentialStep } from "./AiConnectionCredentialStep";
 import { useTranslation } from "../../i18n";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
+import { cn } from "@/lib/utils";
 
 const providers = [
   {
@@ -367,10 +369,10 @@ export function AiProviderSetup({
                   }}
                   disabled={Boolean(reconnect) || Boolean(initialProtocol)}
                 >
-                  <SelectTrigger aria-label={t("aiConnections.setup.apiFormat", { defaultValue: "API format" })} className="w-full">
+                  <SelectTrigger aria-label={t("aiConnections.setup.apiFormat", { defaultValue: "API format" })} className={cn("w-full", ANALYTICS_MASK_CLASS)}>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className={ANALYTICS_MASK_CLASS}>
                     <SelectItem value="responses">
                       OpenAI Responses · Codex
                     </SelectItem>
@@ -404,10 +406,10 @@ export function AiProviderSetup({
                 onValueChange={(v) => setAuth(v as typeof auth)}
                 disabled={Boolean(reconnect)}
               >
-                <SelectTrigger aria-label={t("aiConnections.setup.authentication", { defaultValue: "Authentication" })} className="w-full">
+                <SelectTrigger aria-label={t("aiConnections.setup.authentication", { defaultValue: "Authentication" })} className={cn("w-full", ANALYTICS_MASK_CLASS)}>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className={ANALYTICS_MASK_CLASS}>
                   <SelectItem value="bearer">
                     {provider === "bedrock"
                       ? t("aiConnections.setup.bedrockApiKey", { defaultValue: "Bedrock API key" })

@@ -15,6 +15,8 @@ import { useResilientFetch } from "@/hooks/useResilientFetch";
 import { useTranslation } from "../i18n";
 import { api } from "../api/client";
 import { describeError } from "../api/errors";
+import { cn } from "@/lib/utils";
+import { ANALYTICS_NO_CAPTURE_CLASS } from "@/lib/analytics/privacy";
 
 const PAIRING_CODE_PATTERN = /^[A-Za-z0-9_-]{32}$/;
 
@@ -107,7 +109,7 @@ function McpConnectRequest({ id, device = false, agentPairingOnly = false, onEdi
       </div>
       {clientOrigin && <ClientOrigin key={clientOrigin} origin={clientOrigin} />}
       {!device && data?.redirectOrigin && data.redirectOrigin !== clientOrigin && <ClientOrigin key={data.redirectOrigin} origin={data.redirectOrigin} />}
-      {device && <p className="text-sm">{t("mcpConnect.confirmCode", { defaultValue: "Confirm this matches the code shown by your assistant:" })} <strong className="font-mono">{id.toUpperCase()}</strong></p>}
+      {device && <p className="text-sm">{t("mcpConnect.confirmCode", { defaultValue: "Confirm this matches the code shown by your assistant:" })} <strong className={cn("font-mono", ANALYTICS_NO_CAPTURE_CLASS)}>{id.toUpperCase()}</strong></p>}
       {(requestView.kind === "loading" || requestView.kind === "reconnecting") && <p role="status" className="text-sm text-muted-foreground">{t("mcp.loadingRequest", { defaultValue: "Loading connection request…" })}</p>}
       {requestView.kind === "error" && <QueryErrorState error={requestView.error} action="load this connection request" onRetry={requestView.retry} retrying={requestView.isFetching} />}
       {requestView.kind === "error" && <p className="text-sm text-muted-foreground">{t("mcpConnect.startNewConnection", { defaultValue: "Start a new connection from your assistant." })}</p>}

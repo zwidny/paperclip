@@ -8,6 +8,8 @@ import { taskChatHashAnchor } from "./task-chat/scroll-navigation";
 import { DecisionResolver } from "./DecisionResolver";
 import { Button } from "./ui/button";
 import { useTranslation } from "../i18n";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
+import { cn } from "@/lib/utils";
 
 /** A selected Decisions-v1 record belongs to its task, not a second history tab. */
 export function TaskDecisionRecord({ companyId, issueId, viewerId, agentMap }: {
@@ -30,7 +32,7 @@ export function TaskDecisionRecord({ companyId, issueId, viewerId, agentMap }: {
     {["loading", "reconnecting"].includes(recordView.kind) ? <p role="status" className="text-sm text-muted-foreground">{t("taskDecisionRecord.loading", { defaultValue: "Loading decision…" })}</p> : (recordView.kind === "error") ? (
       <div role="alert" className="text-sm"><p>{t("taskDecisionRecord.loadFailed", { defaultValue: "Could not load this decision." })}</p><Button size="sm" variant="ghost" onClick={() => void record.refetch()}>{t("common.retry", { defaultValue: "Retry" })}</Button></div>
     ) : !matchesTask ? <p role="alert" className="text-sm text-muted-foreground">{t("taskDecisionRecord.unavailable", { defaultValue: "This decision is not available in this task." })}</p> : <>
-      {decision.status !== "open" ? <dl className="space-y-2 text-sm">
+      {decision.status !== "open" ? <dl className={cn("space-y-2 text-sm", ANALYTICS_MASK_CLASS)}>
         <div><dt className="text-muted-foreground">{t("taskDecisionRecord.recordedChoice", { defaultValue: "Recorded choice" })}</dt><dd>{choice?.label ?? (decision.chosenOptionId === "dismissed" ? t("decisions.dismissed", { defaultValue: "Dismissed" }) : decision.status)}</dd></div>
         {(decision.inputs ?? []).filter((input) => decision.inputValues?.[input.id] !== undefined).map((input) => <div key={input.id}>
           <dt className="text-muted-foreground">{input.label}</dt><dd className="whitespace-pre-wrap">{decision.inputValues![input.id]}</dd>

@@ -10,6 +10,7 @@ import { QueryErrorState, useQueryView } from "@/components/QueryView";
 import { Button } from "@/components/ui/button";
 import { queryKeys } from "@/lib/queryKeys";
 import { AppLogo } from "../AppLogo";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 import { useTranslation } from "../../../i18n";
 
 const catalogBySlug = new Map(AGGREGATOR_APP_CATALOG.map(app => [app.slug, app]));
@@ -105,9 +106,10 @@ export function ConnectedAggregatorApps({ connection }: { connection: ToolConnec
               <p className="truncate text-sm font-medium" title={app.appName}>{app.appName}</p>
               {accounts.length > 1 ? <p className="text-xs text-muted-foreground">{t("appDetail.connectedApps.accountCount", {
                 count: accounts.length,
-                defaultValue: accounts.length === 1 ? "{{count}} account" : "{{count}} accounts",
+                defaultValue_one: "{{count}} account",
+                defaultValue_other: "{{count}} accounts",
               })}</p>
-                : accounts[0]?.alias ? <p className="truncate text-xs text-muted-foreground">{accounts[0].alias}</p> : null}
+                : accounts[0]?.alias ? <p className={`truncate text-xs text-muted-foreground ${ANALYTICS_MASK_CLASS}`}>{accounts[0].alias}</p> : null}
             </div>
             <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
               {connected ? <Check className="size-4 text-(--status-task-done)" aria-hidden="true" /> : null}

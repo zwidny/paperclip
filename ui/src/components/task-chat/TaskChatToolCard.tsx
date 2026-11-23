@@ -17,6 +17,7 @@ import { useTranslation } from "../../i18n";
 import { ProviderToolIcon, useProviderToolIcons } from "@/components/ProviderToolIcon";
 import type { ToolCallProgressSnapshot } from "@paperclipai/shared";
 import { TaskChatToolProgress, useToolCallProgress } from "./tool-call-progress";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 const STATUS_ICON = {
   pending: { Icon: Loader2, spin: false, tone: "text-muted-foreground" },
@@ -151,7 +152,7 @@ export function TaskChatToolCard({ item, progress: givenProgress }: {
         </div>
       ) : null}
       {item.detail && showDetail ? (
-        <pre className="task-chat-expanded-line-wrap ml-1.5 mt-0.5 min-w-0 max-w-full overflow-hidden whitespace-pre-wrap border-l-2 border-border py-1 pl-2.5 font-mono text-(length:--text-micro) leading-relaxed text-muted-foreground">
+        <pre className={cn("task-chat-expanded-line-wrap ml-1.5 mt-0.5 min-w-0 max-w-full overflow-hidden whitespace-pre-wrap border-l-2 border-border py-1 pl-2.5 font-mono text-(length:--text-micro) leading-relaxed text-muted-foreground", ANALYTICS_MASK_CLASS)}>
           {item.detail}
         </pre>
       ) : null}

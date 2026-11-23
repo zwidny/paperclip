@@ -35,6 +35,7 @@ import { ProfileActionDialog, type ProfileActionDialogKind } from "./ProfileActi
 import { allowsLabel, STATUS_LABEL } from "./profile-summary";
 import { useProfilesData } from "./useProfilesData";
 import { useTranslation } from "../../../i18n";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 type DialogKind = "edit" | "duplicate" | "archive" | "delete" | "restore" | null;
 
@@ -432,7 +433,7 @@ function NewToolsReviewDialog({
                   {tool.description ? (
                     <p className="mt-1 text-sm text-muted-foreground">{tool.description}</p>
                   ) : null}
-                  <p className="mt-1 text-xs text-muted-foreground">
+                  <p className={cn("mt-1 text-xs text-muted-foreground", ANALYTICS_MASK_CLASS)}>
                     {tool.applicationName ?? tool.connectionName ?? t("profiles.detail.review.appTool", { defaultValue: "App tool" })} · {t("profiles.detail.review.added", { defaultValue: "added" })} {formatShortDate(tool.addedAt)}
                   </p>
                 </div>

@@ -43,6 +43,7 @@ import { t as translate, useTranslation } from "../../i18n";
 
 import { LegacyBoardSendNotice } from "./LegacyBoardSendNotice";
 import { createUuid } from "../../lib/uuid";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 const providerNames: Record<ChatProvider, string> = {
   speko: "Speko",
@@ -574,7 +575,7 @@ function ConnectedTaskComposer({
             <p className="font-medium">
               {t("externalTaskBanner.connectedTo", { provider: providerNames[binding.provider], defaultValue: "Connected to {{provider}}" })}
             </p>
-            <p className="truncate text-xs text-muted-foreground">
+            <p className={cn("truncate text-xs text-muted-foreground", ANALYTICS_MASK_CLASS)}>
               {binding.externalLabel} · {binding.provider === "slack"
                 ? t("externalTaskBanner.slackMirror", { defaultValue: "Messages you send here and agent replies are also posted to Slack." })
                 : t("externalTaskBanner.assignmentFixed", { defaultValue: "Agent assignment is fixed for this external task." })}

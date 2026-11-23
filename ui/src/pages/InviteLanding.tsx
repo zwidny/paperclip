@@ -12,9 +12,11 @@ import { AuthApiError, authApi, authErrorServerMessage } from "../api/auth";
 import { fetchCompanyListForCurrentAccount, useCompanyListQuery } from "../api/companies-query";
 import { healthApi } from "../api/health";
 import { getAdapterLabel } from "../adapters/adapter-display-registry";
+import { useCloudHarnessPolicy } from "@/hooks/useCloudHarnessPolicy";
 import { clearPendingInviteToken, rememberPendingInviteToken } from "../lib/invite-memory";
 import { queryKeys } from "../lib/queryKeys";
-import { formatDate } from "../lib/utils";
+import { cn, formatDate } from "../lib/utils";
+import { ANALYTICS_NO_CAPTURE_CLASS } from "@/lib/analytics/privacy";
 import { t as translate, useTranslation } from "../i18n";
 
 type AuthMode = "sign_in" | "sign_up";
@@ -200,13 +202,13 @@ function AwaitingJoinApprovalPanel({
         {claimSecret && claimApiKeyPath ? (
           <div className="mt-4 space-y-1 border border-zinc-800 p-3 text-xs text-zinc-400">
             <div className="text-zinc-200">{t("invite.approval.claimSecret", { defaultValue: "Claim secret" })}</div>
-            <div className="font-mono break-all">{claimSecret}</div>
+            <div className={cn("font-mono break-all", ANALYTICS_NO_CAPTURE_CLASS)}>{claimSecret}</div>
             <div className="font-mono break-all">POST {claimApiKeyPath}</div>
           </div>
         ) : null}
         {onboardingTextUrl ? (
           <div className="mt-4 text-xs text-zinc-400">
-            {t("invite.approval.onboarding", { defaultValue: "Onboarding:" })} <span className="font-mono break-all">{onboardingTextUrl}</span>
+            {t("invite.approval.onboarding", { defaultValue: "Onboarding:" })} <span className={cn("font-mono break-all", ANALYTICS_NO_CAPTURE_CLASS)}>{onboardingTextUrl}</span>
           </div>
         ) : null}
       </div>
@@ -215,6 +217,7 @@ function AwaitingJoinApprovalPanel({
 }
 
 export function InviteLandingPage() {
+  const harnessPolicy = useCloudHarnessPolicy();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -238,6 +241,9 @@ export function InviteLandingPage() {
     queryKey: queryKeys.health,
     queryFn: () => healthApi.get(),
   });
+  const availableJoinAdapterOptions = joinAdapterOptions.filter(type => !healthQuery.data?.cloud || harnessPolicy.isCloudHarnessAllowed(type));
+  const enabledJoinAdapterOptions = availableJoinAdapterOptions.filter(type => ENABLED_INVITE_ADAPTERS.has(type));
+  const selectedAdapterType = enabledJoinAdapterOptions.includes(adapterType) ? adapterType : enabledJoinAdapterOptions[0];
   const sessionQuery = useQuery({
     queryKey: queryKeys.auth.session,
     queryFn: () => authApi.getSession(),
@@ -346,10 +352,11 @@ export function InviteLandingPage() {
       if (invite.inviteType === "bootstrap_ceo" || invite.allowedJoinTypes !== "agent") {
         return accessApi.acceptInvite(token, { requestType: "human" });
       }
+      if (!selectedAdapterType) throw new Error("No adapters are available for this invite.");
       return accessApi.acceptInvite(token, {
         requestType: "agent",
         agentName: agentName.trim(),
-        adapterType,
+        adapterType: selectedAdapterType,
         capabilities: capabilities.trim() || null,
       });
     },
@@ -641,10 +648,12 @@ export function InviteLandingPage() {
                   <span className="mb-1 block text-zinc-400">{t("invite.adapterType", { defaultValue: "Adapter type" })}</span>
                   <select
                     className={fieldClassName}
-                    value={adapterType}
+                    value={selectedAdapterType ?? ""}
+                    disabled={!selectedAdapterType}
                     onChange={(event) => setAdapterType(event.target.value as AgentAdapterType)}
                   >
-                    {joinAdapterOptions.map((type) => (
+                    {!selectedAdapterType && <option value="" disabled>No available adapter</option>}
+                    {availableJoinAdapterOptions.map((type) => (
                       <option key={type} value={type} disabled={!ENABLED_INVITE_ADAPTERS.has(type)}>
                         {getAdapterLabel(type)}{!ENABLED_INVITE_ADAPTERS.has(type) ? " (Coming soon)" : ""}
                       </option>
@@ -663,7 +672,7 @@ export function InviteLandingPage() {
                 {error ? <p className="text-xs text-red-400">{error}</p> : null}
                 <Button
                   className="w-full rounded-none"
-                  disabled={acceptMutation.isPending || agentName.trim().length === 0}
+                  disabled={acceptMutation.isPending || agentName.trim().length === 0 || !selectedAdapterType}
                   onClick={() => acceptMutation.mutate()}
                 >
                   {acceptMutation.isPending ? t("common.working", { defaultValue: "Working..." }) : joinButtonLabel}

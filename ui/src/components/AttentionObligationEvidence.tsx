@@ -4,6 +4,7 @@ import { Link } from "@/lib/router";
 import { useTranslation } from "../i18n";
 import { attentionEvidenceLabel, attentionEvidenceText } from "@/lib/attention-obligations";
 import { cn } from "@/lib/utils";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 /**
  * The rest of one obligation, folded into its lead card (PAP-749 plan §2,
@@ -30,7 +31,7 @@ export function AttentionObligationEvidence({
       {evidence.map((entry) => {
         const { title, detail } = attentionEvidenceText(entry);
         return (
-          <li key={entry.id} data-attention-evidence={entry.id} data-attention-evidence-source={entry.sourceKind}>
+          <li className={ANALYTICS_MASK_CLASS} key={entry.id} data-attention-evidence={entry.id} data-attention-evidence-source={entry.sourceKind}>
             <span className="font-medium text-foreground">{attentionEvidenceLabel(item, entry)}: </span>
             {entry.subject.href ? (
               <Link to={entry.subject.href} className="inline-flex items-center gap-1 hover:text-foreground">

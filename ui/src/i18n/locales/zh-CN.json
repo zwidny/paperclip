@@ -283,7 +283,8 @@
     "badgeUnread": "条未读",
     "badgeDecisions": "项决策",
     "globalSearch": "全局搜索",
-    "mainNavigation": "主导航"
+    "mainNavigation": "主导航",
+    "newTaskAction": "新建任务"
   },
   "common": {
     "skipToMainContent": "跳到主要内容",
@@ -558,7 +559,8 @@
       "parkedBlockerTitle": "被搁置的工作阻塞 — 至少有一个已分配的阻塞项处于待办中，且不会唤醒其负责人。",
       "openTaskAria": "打开任务 {{identifier}}（{{status}}）",
       "openTask": "打开 {{identifier}}：{{title}}",
-      "recoveryStatus": "任务恢复状态"
+      "recoveryStatus": "任务恢复状态",
+      "restoreFromArchive": "从归档恢复"
     },
     "myTasks": "我的任务",
     "noAssigned": "没有分配给你的任务。",
@@ -909,7 +911,6 @@
     "configure": {
       "title": "配置你的 Agent",
       "dotCreateFirst": "创建此 Agent，然后将其配对提示词复制给你的 Dot。",
-      "dotEnableMcp": "在配对前，请先在实验性设置中启用助手连接（MCP）。",
       "allowExternallyBilled": "允许外部计费的服务商",
       "allowExternallyBilledHint": "Dot 不会上报 Token 用量或成本。Paperclip 无法强制服务商支出上限；已知的组织和 Agent 预算限制仍然适用。",
       "modelsError": "无法加载模型。请重试或手动输入模型 ID。",
@@ -2352,13 +2353,7 @@
         "footnote": "仅影响呈现方式。关闭后会恢复当前的卡片样式；数据不会改变。",
         "ariaLabel": "切换产出物 V1 实验性设置"
       },
-      "assistantConnections": {
-        "title": "助手连接（MCP）",
-        "description": "将 Codex、Claude 及其他助手连接到你的 Paperclip 组织。用户登录后选择一次组织，并授权其审阅工作、委派任务和添加反馈。",
-        "footnote": "需要已认证的实例并配置公共 URL。立即生效。关闭后会阻止助手调用和事件投递；已委派的工作仍会继续。",
-        "setupLink": "设置助手连接",
-        "ariaLabel": "切换助手连接实验性设置"
-      },
+      "assistantConnections": {},
       "betaSkills": {
         "title": "测试版技能",
         "description": "允许 Agent 固定使用 Paperclip 核心技能的测试版。关闭后每个 Agent 都会回到默认的正式版技能，但已保存的固定版本不会被移除。",
@@ -2436,7 +2431,7 @@
       "grokBot": {
         "title": "Grok 机器人",
         "description": "将现有的 Grok 机器人连接为一个 Agent。在分配工作前，先验证常规投递和带认证的回复。",
-        "footnote": "需要助手连接（MCP）、Paperclip Runner 以及带认证的公共 HTTPS。用量不会上报。关闭后会阻止 Grok 调用和新的派发。",
+        "footnote": "需要 Paperclip Runner 以及带认证的公共 HTTPS。用量不会上报。关闭后会阻止 Grok 调用和新的派发。",
         "ariaLabel": "切换 Grok 机器人实验性设置"
       },
       "memoryConnectors": {
@@ -2454,7 +2449,7 @@
       "openAiDot": {
         "title": "OpenAI Dot",
         "description": "将 OpenAI Dot 添加为独立的 Agent 选项。先配对 Dot 并验证事件投递，再分配工作。",
-        "footnote": "需要助手连接（MCP）以及带公共 HTTPS URL 的已认证实例。关闭后会阻止 Dot 调用和新的工作；已保存的连接会保留。",
+        "footnote": "需要带公共 HTTPS URL 的已认证实例。关闭后会阻止 Dot 调用和新的工作；已保存的连接会保留。",
         "ariaLabel": "切换 OpenAI Dot 实验性设置"
       },
       "paperclipRunner": {
@@ -2548,6 +2543,18 @@
         "description": "在 Google 验证待审期间，显示内置的 Google Workspace 连接器（Gmail、Drive 和日历）。",
         "footnote": "默认关闭。关闭期间，Google 应用改由 Composio 和 Arcade 提供，内置连接器无法设置或运行。",
         "ariaLabel": "切换「Paperclip Google Workspace 连接器」实验项"
+      },
+      "responsibilities": {
+        "title": "领域与职责仪表盘",
+        "description": "用围绕你关注的领域和你在其中承担的职责构建的仪表盘替代经典仪表盘。Agent 可以通过访谈为你创建，任何改动都可以撤销。",
+        "footnote": "关闭后会恢复经典仪表盘。你的领域与职责会保留。",
+        "ariaLabel": "切换「领域与职责仪表盘」实验性设置"
+      },
+      "awsConnector": {
+        "title": "AWS 连接器",
+        "description": "让 Agent 通过 AWS 托管的 MCP 服务器在 AWS 中工作，每次连接都会生成短期凭证。",
+        "footnote": "默认关闭。关闭期间无法设置或运行 AWS 连接器。",
+        "ariaLabel": "切换 AWS 连接器实验性设置"
       }
     }
   },
@@ -6512,7 +6519,7 @@
     "sectionAria": "Grok Bot 连接",
     "intro": "在 Grok Bot 中运行。Bot 保留其应用和持久上下文。Paperclip 提供任务协调和第一方工具。用量和支出不会上报。",
     "loading": "正在加载连接…",
-    "disabled": "请在已认证的公开 HTTPS 实例上启用 Grok Bot、助手连接（MCP）和 Paperclip Runner。",
+    "disabled": "在经过身份验证的公共 HTTPS 实例上启用 Grok Bot 和 Paperclip Runner。",
     "connectedPrefix": "Agent 访问已连接。",
     "routineVerified": "例行往返已验证。",
     "routineUnverified": "分配工作需要已验证的例行往返。",
@@ -6563,7 +6570,7 @@
   "dotRunnerConnection": {
     "saveAgentFirst": "请先保存 Agent，然后返回此处配对你的 Dot。",
     "intro": "Dot 管理自己的模型和外部工具。Paperclip 提供任务协调、人员、已分配的技能和已连接的应用工具。Dot 可以直接从其对话中启动任务。请在下方启用「读取任务附件」以将已分配任务的文件内容发送给 OpenAI。启用工作区文件和命令以在分配的工作区中工作。服务商用量和成本不可用；停止 Paperclip 运行会撤销访问权限，但不会确认外部停止。",
-    "disabled": "请在实验性设置中启用 OpenAI Dot 和助手连接（MCP）。",
+    "disabled": "在实验设置中启用 OpenAI Dot。",
     "mcpUrlPrefix": "私有插件 MCP URL：",
     "connection": "连接：{{status}}。事件订阅：{{subscription}}。",
     "subscriptionVerified": "已验证",
@@ -7059,7 +7066,8 @@
     },
     "trigger": {
       "replay": "重放 {{seconds}} 秒",
-      "api": "API"
+      "api": "API",
+      "heartbeat": "每次唤醒时进行常驻检查"
     },
     "variables": {
       "none": "（无）"
@@ -7667,7 +7675,6 @@
     }
   },
   "toolDialogs": {
-    "catalogTitle": "工具目录 —— {{name}}",
     "noToolsDiscovered": "尚未发现任何工具。使用“刷新目录”来发现此连接中的工具。",
     "createFailed": "无法创建连接",
     "probeFailed": "探测失败",
@@ -7713,7 +7720,8 @@
     "probing": "正在探测…",
     "reprobe": "重新探测",
     "activating": "正在激活…",
-    "activate": "激活"
+    "activate": "激活",
+    "catalogTitlePrefix": "工具目录 — "
   },
   "gatewayTokens": {
     "intro": "为外部客户端签发可重复使用的 Token。其名称同时用作客户端标签。",
@@ -7841,9 +7849,6 @@
     "selectOrganization": "请选择组织以连接助手。",
     "headerDescription": "将你的助手连接到 Paperclip。使用你账号对此组织的访问权限查看工作、创建任务并跟进。",
     "loadingSetup": "正在加载助手设置…",
-    "enableTitle": "启用助手连接",
-    "enableDescription": "实例管理员必须在实验性设置中启用 Assistant connections (MCP)。然后返回此处连接你的助手。",
-    "openExperimental": "打开实验性设置",
     "inviteAria": "邀请你的助手",
     "inviteTitle": "邀请你的助手",
     "inviteDescription": "将此邀请粘贴到你的助手中。它会帮助建立连接，并请你在 Paperclip 中批准访问。",
@@ -8185,7 +8190,8 @@
       "fallbackPrefix": "源适配器",
       "fallbackMiddle": "未在此处安装 — 此 Agent 将使用",
       "runnerUnavailable": "Paperclip Runner 在此不可用。请明确选择一个运行器或其他 harness。",
-      "providerRequiresExperimental": "Paperclip Runner 提供商 {{provider}} 需要启用其实验性功能。在你选择其他 harness 之前，此导入会保留其已保存的 harness。"
+      "providerRequiresExperimental": "Paperclip Runner 提供商 {{provider}} 需要启用其实验性功能。在你选择其他 harness 之前，此导入会保留其已保存的 harness。",
+      "chooseAvailableHarness": "选择可用的 harness"
     },
     "errors": {
       "selectZip": "请选择 .zip 组织包。",
@@ -8614,7 +8620,7 @@
     "folder": "文件夹",
     "routineCount_one": "{{count}} 个例行任务",
     "routineCount_other": "{{count}} 个例行任务",
-    "emptyNoRoutines": "没有活跃的例行任务。使用“创建例行任务”定义第一个重复性工作流。",
+    "emptyNoRoutines": "没有活跃的例行任务。使用“新建例行任务”定义第一个重复性工作流。",
     "emptyNoSearchMatch": "没有匹配搜索的例行任务。",
     "emptyNoViewMatch": "没有匹配此视图的例行任务。",
     "emptyFolder": "此文件夹为空。",
@@ -8754,7 +8760,6 @@
     "connectThrough": "通过 {{providers}} 连接。",
     "providerOr": " 或 ",
     "providerAnd": " 和 ",
-    "connectCopilot": "连接 Copilot",
     "accountNumbered": "{{name}} 账户 {{number}}",
     "account": "{{name}} 账户",
     "providerRouteAction": "通过第三方服务 {{provider}} {{action}} {{app}}",
@@ -8830,7 +8835,8 @@
       "failedDescription": "无法移除连接。请重试。",
       "removing": "正在移除…",
       "removeConnection": "移除连接",
-      "poolKeptDialog": "连接池中的连接将被保留。"
+      "poolKeptDialog": "连接池中的连接将被保留。",
+      "removedAndDeleting": "连接已移除，正在删除其已保存的数据。"
     },
     "chat": {
       "speko": "使用实验性的浏览器语音与 Agent 对话。",
@@ -10449,10 +10455,8 @@
     "noWorktreesYet": "还没有现有工作树。选择“新建工作树”来创建一个。",
     "planWith": "与 {{agent}} 一起计划…",
     "askAgent": "向 {{agent}} 提问…",
-    "messageAgent": "给 {{agent}} 发消息…",
     "planWithDetail": "与 {{agent}} 一起计划 —— 只调整计划文档，不改动代码…",
     "askAgentDetail": "向 {{agent}} 提一个问题 —— 只读，不执行任何操作…",
-    "messageAgentDetail": "给 {{agent}} 发消息 —— 描述你希望完成的事情…",
     "theAgent": "该 Agent",
     "editQueuedMessage": "编辑队列消息…",
     "goalVerifyHint": "会话启动时会验证是否支持。",
@@ -10495,7 +10499,8 @@
     "retryAttachment": "重试 {{name}}",
     "imageAttachments": "图片附件",
     "addImagesAndFilesToMessage": "向消息添加图片和文件",
-    "addImagesAndFilesToTask": "向新任务添加图片和文件"
+    "addImagesAndFilesToTask": "向新任务添加图片和文件",
+    "workWith": "与 {{agent}} 协作"
   },
   "taskChat": {
     "agentCouldNotStart": "{{agentName}} 无法启动",
@@ -11031,7 +11036,15 @@
     "showFewer": "收起",
     "subagentsAria": "子 Agent",
     "proposedPlan": "提出了一个计划 ·",
-    "patchTooLarge": "此补丁过大，无法在此显示。"
+    "patchTooLarge": "此补丁过大，无法在此显示。",
+    "kindRoutineOffer": "例行任务邀请",
+    "kindRoutine": "例行任务",
+    "kindProposedBar": "建议标准",
+    "kindBar": "标准",
+    "kindProposedAutomation": "建议自动化",
+    "kindAutomation": "自动化",
+    "kindProposedDashboardChanges": "建议的仪表盘更改",
+    "kindDashboard": "仪表盘"
   },
   "runnerGoal": {
     "pendingStarting": "正在启动",
@@ -11183,7 +11196,8 @@
       "run_completed": "运行已完成"
     },
     "modelRejectedNamedModel": "服务方拒绝了模型“{{model}}”。",
-    "loadingTaskHistory": "正在加载任务历史…"
+    "loadingTaskHistory": "正在加载任务历史…",
+    "sandboxDiskFull": "智能体占满了它所在电脑的磁盘，因此本次运行已停止。请让智能体减少磁盘占用，然后重试。"
   },
   "toolVerbs": {
     "unnamedTool": "未命名工具",
@@ -14084,20 +14098,33 @@
     "viewAllRuns": "查看全部任务",
     "agent": "Agent",
     "asc": "升序",
-    "createRoutine": "创建例行任务",
     "created": "已创建",
     "desc": "降序",
-    "done": "完成",
     "folder": "文件夹",
     "group": "分组",
     "lastRun": "上次运行",
     "newFolder": "新建文件夹",
     "none": "无",
     "project": "项目",
-    "select": "选择",
     "sort": "排序",
     "title": "标题",
-    "updated": "已更新"
+    "updated": "已更新",
+    "newRoutine": "新建例行任务",
+    "sortAria": "排序例行任务",
+    "filter": "筛选",
+    "filterAria": "筛选例行任务",
+    "filterAriaActive": "筛选例行任务（{{count}}）",
+    "filters": "筛选条件",
+    "filtersActive": "筛选条件（{{count}}）",
+    "clear": "清除",
+    "enabled": "已启用",
+    "responsibleUser": "负责人",
+    "source": "来源",
+    "noOptions": "没有可选项",
+    "groupAria": "分组例行任务",
+    "columns": "列",
+    "columnsAria": "例行任务列",
+    "resetColumns": "重置列"
   },
   "agentsToolbar": {
     "controls": "Agent 控件",
@@ -14487,7 +14514,8 @@
     "signInExpired": "本次登录已过期",
     "signInIncomplete": "登录未完成",
     "retryHint": "重新登录以获取新的验证码。你的设置已保存。",
-    "retrySignIn": "重试登录"
+    "retrySignIn": "重试登录",
+    "finishingSignIn": "正在完成登录…"
   },
   "projectAccess": {
     "thisAgent": "此 Agent",
@@ -14621,7 +14649,7 @@
     "yourAssistant": "你的助手",
     "connectAssistantPrefix": "将 ",
     "connectAssistantSuffix": " 连接到 Paperclip",
-    "confirmCode": "确认此代码与你的助手显示的一致：",
+    "confirmCode": "确认这与你的助手显示的代码一致：",
     "startNewConnection": "请从你的助手启动新的连接。",
     "pairingIntro": "输入 Paperclip 智能体设置中提供的一次性代码，以查看此连接的访问权限。请勿将代码泄露到机器人聊天中。仅当你批准下方指定的智能体时，才会授予访问权限。",
     "allowConnectionAs": "允许此连接以 {{agent}} 的身份在 {{company}} 中工作。",
@@ -16056,7 +16084,8 @@
     "confirmRunStoppedPlaceholder": "例如：服务器主机上没有为此任务运行的 codex 或 claude 进程。",
     "confirmRunStoppedResuming": "正在开始你的重试…",
     "confirmRunStoppedConfirm": "确认它已停止",
-    "setupFailureFix": "无法设置任务工作区。{{message}}。请在项目的工作区设置中修正该命令，然后重试。"
+    "setupFailureFix": "无法设置任务工作区。{{message}}。请在项目的工作区设置中修正该命令，然后重试。",
+    "respondToQuestion": "回复待处理的问题以继续。"
   },
   "jsonSchemaForm": {
     "validation": {
@@ -16438,7 +16467,6 @@
   },
   "envVarEditor": {
     "defaultHint": "将 KEY 设置为进程预期的环境变量名称，例如 GH_TOKEN。选择一个密钥以在运行开始时解析存储的值。PAPERCLIP_* 变量会自动注入。",
-    "addVariable": "添加变量",
     "addedPrefix": "新增：{{names}}",
     "bindSecret": "绑定 {{name}}",
     "bindingsNeedAttention": "{{count}} 个绑定需要关注",
@@ -16722,9 +16750,10 @@
   },
   "executorManagementSetup": {
     "consoleUrl": "控制台 URL",
-    "description": "选择在哪里管理“{{name}}”的账户。请包含你的工作区路径。",
     "invalidUrl": "请输入不带凭据的 HTTPS 控制台 URL。",
-    "title": "Executor 控制台"
+    "title": "Executor 控制台",
+    "descriptionPrefix": "选择为 ",
+    "descriptionSuffix": " 管理账号的位置。请包含你的工作区路径。"
   },
   "gatewayDetail": {
     "backToGateways": "返回 Gateway 列表",
@@ -17027,7 +17056,8 @@
     "reviewedRevisionUnavailableBody": "找不到该已审阅的具体版本。当前版本未被替代。",
     "reviewedVersion": "已审阅版本",
     "conversationDocuments": "会话文档",
-    "documentEmpty": "文档为空。"
+    "documentEmpty": "文档为空。",
+    "openSourceTask": "打开来源任务"
   },
   "voiceControls": {
     "sectionAria": "与 {{name}} 的语音对话",
@@ -19292,15 +19322,11 @@
       "plugin": "插件",
       "unknown": "未知操作者"
     },
-    "action": {
-      "view": "查看 {{ref}}"
-    },
+    "action": {},
     "activity": {
-      "created": "{{actor}} 创建了 {{ref}}",
-      "updated": "{{actor}} 更新了 {{ref}}",
-      "commented": "{{actor}} 评论了 {{ref}}",
-      "reopenedCommented": "{{actor}} 重新打开并评论了 {{ref}}",
-      "commentedUpdated": "{{actor}} 评论并更新了 {{ref}}"
+      "createdTask": "{{actor}} 创建了任务",
+      "addedComment": "{{actor}} 添加了评论",
+      "viewTask": "查看任务"
     },
     "joinRequest": {
       "agent": "智能体",
@@ -19338,11 +19364,7 @@
     "pinnedPages": "已固定的页面",
     "pinned": "已固定",
     "recents": "最近",
-    "collapseProject": "折叠 {{name}}",
-    "expandProject": "展开 {{name}}",
     "loadingTasks": "正在加载任务…",
-    "tasksLoadFailed": "无法加载任务。",
-    "noTasks": "还没有任务。",
     "emptyRecents": "您的对话和任务将显示在这里。",
     "searchTooltip": "搜索任务、Agent 和项目"
   },
@@ -19707,7 +19729,9 @@
     "couldNotLoad": "Could not load tasks",
     "rowDetailsFailed": "无法加载任务详情。",
     "loadedSummary": "{{count}} tasks loaded. Load more to include them in filters.",
-    "tasksLoaded": "个任务已加载。加载更多以将其纳入筛选。"
+    "tasksLoaded": "个任务已加载。加载更多以将其纳入筛选。",
+    "noArchived": "没有已归档的任务",
+    "signInArchived": "登录后查看已归档的任务。"
   },
   "legacyBoardSend": {
     "discardTrigger": "Discard saved delivery record",
@@ -20045,10 +20069,10 @@
         "incomplete": "授权未完成"
       },
       "createSshEnvironment": "创建 SSH 环境",
-      "disconnect": "断开 {{name}}",
-      "reconnect": "重新连接 {{name}}",
       "backToConnectors": "返回连接器",
-      "connecting": "正在连接…"
+      "connecting": "正在连接…",
+      "disconnectVerb": "断开连接",
+      "reconnectVerb": "重新连接"
     },
     "deviceSignIn": {
       "expired": "登录已过期。请取消并重新连接。",
@@ -20555,7 +20579,14 @@
     "loadingSaved": "正在加载你已保存的服务访问权限…",
     "readOnly": "只读",
     "readWrite": "读取和写入",
-    "selectAtLeastOne": "至少选择一个服务才能继续。"
+    "selectAtLeastOne": "至少选择一个服务才能继续。",
+    "dataUse": {
+      "ariaLabel": "Paperclip 如何使用你的 Google 数据",
+      "agentsCanDo": "代理可以做什么",
+      "howUsed": "你的数据如何使用",
+      "privacyLink": "阅读我们的隐私政策，包括我们如何满足 Google 的 Limited Use 要求",
+      "opensInNewTab": " (在新标签页中打开)"
+    }
   },
   "apiKeyCredentialField": {
     "checkingSaved": "正在检查已保存的 API 密钥…",
@@ -20657,7 +20688,9 @@
     "personal": "个人 · {{owner}}",
     "accountOwner": "账户所有者",
     "checking": "正在检查账户详情…",
-    "retry": "重试账户检查"
+    "retry": "重试账户检查",
+    "chatGptWorkspace": "ChatGPT 工作区",
+    "checkingInline": "检查中…"
   },
   "taskChatRunHealth": {
     "serverFailed": " MCP 服务器启动失败",

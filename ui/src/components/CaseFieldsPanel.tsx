@@ -7,6 +7,7 @@ import { Link, useCaseHref } from "@/lib/router";
 import { copyTextToClipboard } from "@/lib/clipboard";
 import { useTranslation } from "@/i18n";
 import { cn } from "@/lib/utils";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 // -----------------------------------------------------------------------------
 // CaseFieldsPanel (PAP-12968 §3) — the generic key-value renderer for a case's
@@ -225,7 +226,7 @@ export function CaseFieldValue({
       );
     }
     return (
-      <pre className="max-w-full whitespace-pre-wrap break-words font-mono text-xs text-muted-foreground">
+      <pre className={cn("max-w-full whitespace-pre-wrap break-words font-mono text-xs text-muted-foreground", ANALYTICS_MASK_CLASS)}>
         {JSON.stringify(value, null, 2)}
       </pre>
     );
@@ -333,7 +334,7 @@ export function CaseFieldsTable({ fields }: { fields: Record<string, unknown> })
     return <p className="text-sm text-muted-foreground">{t("caseFieldsPanel.noFields", { defaultValue: "No fields set" })}</p>;
   }
   return (
-    <table aria-label={t("caseFieldsPanel.tableAria", { defaultValue: "Case fields" })} className="w-full table-fixed border-collapse font-mono text-xs leading-5">
+    <table aria-label="Case fields" className={cn("w-full table-fixed border-collapse font-mono text-xs leading-5", ANALYTICS_MASK_CLASS)}>
       <tbody>
         {rows.map(({ id, path, value }) => (
           <tr key={id} className="even:bg-muted/50">

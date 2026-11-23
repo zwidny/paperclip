@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 import { useTranslation } from "../../i18n";
 
 export function ExecutorManagementSetup({ connection, onClose }: { connection: ToolConnection; onClose: () => void }) {
@@ -25,8 +26,8 @@ export function ExecutorManagementSetup({ connection, onClose }: { connection: T
     const result = await toolsApi.syncAggregatorApps(connection.id, true);
     queries.setQueryData(queryKeys.tools.aggregatorApps(connection.id, userId), result);
   }, onSuccess: async () => { await queries.invalidateQueries({ queryKey: queryKeys.tools.connections(connection.companyId) }); onClose(); } });
-  return <Dialog open onOpenChange={open => { if (!open && !save.isPending) onClose(); }}><DialogContent>
-    <DialogHeader><DialogTitle>{t("executorManagementSetup.title", { defaultValue: "Executor console" })}</DialogTitle><DialogDescription>{t("executorManagementSetup.description", { name: connection.name, defaultValue: "Choose where to manage accounts for “{{name}}”. Include your workspace path." })}</DialogDescription></DialogHeader>
+  return <Dialog open onOpenChange={open => { if (!open && !save.isPending) onClose(); }}><DialogContent className={ANALYTICS_MASK_CLASS}>
+    <DialogHeader><DialogTitle>{t("executorManagementSetup.title", { defaultValue: "Executor console" })}</DialogTitle><DialogDescription>{t("executorManagementSetup.descriptionPrefix", { defaultValue: "Choose where to manage accounts for " })}<span className={ANALYTICS_MASK_CLASS}>“{connection.name}”</span>{t("executorManagementSetup.descriptionSuffix", { defaultValue: ". Include your workspace path." })}</DialogDescription></DialogHeader>
     <form className="space-y-4" onSubmit={event => { event.preventDefault(); save.mutate(); }}>
       <div className="space-y-2"><Label htmlFor="executor-console-url">{t("executorManagementSetup.consoleUrl", { defaultValue: "Console URL" })}</Label><Input id="executor-console-url" type="url" required value={url} onChange={event => setUrl(event.target.value)} /></div>
       {save.error ? <p role="alert" className="text-sm text-destructive">{describeError(save.error).body}</p> : null}

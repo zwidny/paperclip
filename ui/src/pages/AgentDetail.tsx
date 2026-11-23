@@ -6,7 +6,7 @@ import { GrokBotWorkSummary } from "@/components/GrokBotWorkSummary";
 import { PrimaryAgentCrownButton } from "@/components/primary-agent/PrimaryAgentPresentation";
 import { AiConnectionPoolRunDetails } from "@/components/ai-connections/AiConnectionPoolRunDetails";
 import { ProviderFailureNotice } from "@/components/ProviderFailureNotice";
-import { readProviderFailure } from "@paperclipai/shared";
+import { readProviderFailure, runFailureMessage } from "@paperclipai/shared";
 import { AgentConnectionInstructions } from "@/features/connections/ConnectionInstructions";
 import type { AgentInstructionCandidate, AgentInstructionsBundle } from "@paperclipai/shared";
 import { InstructionHistory } from "../components/InstructionHistory";
@@ -74,6 +74,7 @@ import { SourceResolvedFoldBadge } from "../components/SourceResolvedFoldBadge";
 import { readSourceResolvedWatchdogFold } from "../lib/source-resolved-watchdog-fold";
 import { formatCents, formatDate, relativeTime, formatTokens, visibleRunCostUsd, visibleRunTokenTotal, hasUnavailableProviderAccounting, supportsRawProviderTrace } from "../lib/utils";
 import { cn } from "../lib/utils";
+import { ProviderLimitMessage } from "../components/ProviderLimitMessage";
 import { RunRetryDetails } from "../components/RunRetryDetails";
 import { Button } from "@/components/ui/button";
 import { Tabs } from "@/components/ui/tabs";
@@ -169,7 +170,6 @@ import {
 } from "../hooks/useResourceMemberships";
 import { Badge } from "@/components/ui/badge";
 import {
-  AGENT_DETAIL_NAVIGATION,
   agentDetailHref,
   agentDetailSegment,
   agentDetailViewLabel,
@@ -190,6 +190,7 @@ export {
   heartbeatProgressLogLineKey,
   RunInvocationCard,
 } from "../components/run-log/RunDetails";
+import { ANALYTICS_MASK_CLASS, ANALYTICS_NO_CAPTURE_CLASS } from "@/lib/analytics/privacy";
 
 const AgentAdvancedTab = lazy(() => import("./AgentAdvancedTab").then(module => ({ default: module.AgentAdvancedTab })));
 
@@ -230,21 +231,6 @@ const sourceLabels: Record<string, string> = {
   on_demand: "On-demand",
   automation: "Automation",
 };
-
-/** @deprecated Use AGENT_DETAIL_NAVIGATION for contextual navigation. */
-export const AGENT_DETAIL_TABS = AGENT_DETAIL_NAVIGATION.flatMap((section) => section.items);
-
-const LEGACY_AGENT_DETAIL_TABS = [
-  { value: "dashboard", label: "Dashboard" },
-  { value: "instructions", label: "Instructions" },
-  { value: "skills", label: "Skills" },
-  { value: "configuration", label: "Configuration" },
-  { value: "secrets", label: "Secrets" },
-  { value: "tools", label: "Tools" },
-  { value: "runs", label: "Runs" },
-  { value: "audit", label: "Audit" },
-  { value: "budget", label: "Budget" },
-] as const;
 
 const AGENT_DETAIL_VIEW_LABEL_KEY: Record<Exclude<AgentDetailView, "run-detail">, string> = {
   overview: "agentDetail.tabs.overview",
@@ -2777,7 +2763,7 @@ export function PromptsTab({
                         className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-foreground">
                         <Copy className="h-3.5 w-3.5" />{t("agentDetail.prompts.copyPreservedEdits", { defaultValue: "Copy preserved edits" })}
                       </CopyText>
-                      <pre className="overflow-x-auto whitespace-pre-wrap break-words rounded-md border border-border bg-muted p-3 font-mono text-sm">{candidate.content}</pre>
+                      <pre className={cn("overflow-x-auto whitespace-pre-wrap break-words rounded-md border border-border bg-muted p-3 font-mono text-sm", ANALYTICS_MASK_CLASS)}>{candidate.content}</pre>
                     </div>
                   )}
                 </div>
@@ -2787,7 +2773,7 @@ export function PromptsTab({
           {candidateRunId && <div role="status" className="space-y-3">
             <p className="text-sm text-muted-foreground">{t("agentDetail.prompts.reviewingPreserved", { defaultValue: "Reviewing preserved edits. Save to apply your resolved draft and close this preserved edit." })}</p>
             <details><summary className="cursor-pointer text-sm text-muted-foreground">{t("agentDetail.prompts.compareCurrent", { defaultValue: "Compare current instructions" })}</summary>
-              <pre className="whitespace-pre-wrap break-words rounded-md border border-border p-3 font-mono text-sm">{currentContent}</pre>
+              <pre className={cn("whitespace-pre-wrap break-words rounded-md border border-border p-3 font-mono text-sm", ANALYTICS_MASK_CLASS)}>{currentContent}</pre>
             </details>
             {draftBaseRevisionRef.current !== (selectedFileDetail?.revision?.id ?? null) && <p className="text-sm text-destructive">{t("agentDetail.prompts.staleDraft", { defaultValue: "The current instructions changed after this draft was loaded. Refresh the current revision, compare the instructions, and save your resolved draft again." })}</p>}
             {(resolveCandidate.error || draftBaseRevisionRef.current !== (selectedFileDetail?.revision?.id ?? null)) && <Button type="button" variant="outline" size="sm" disabled={isSaving} onClick={() => refreshCandidateBase.mutate()}>{t("agentDetail.prompts.refreshCurrentRevision", { defaultValue: "Refresh current revision" })}</Button>}
@@ -2840,7 +2826,7 @@ export function PromptsTab({
               onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setInstructionMode("edit"); } }}>
             {displayValue.trim() ? <pre
               data-testid="instructions-raw-source"
-              className="block min-h-(--sz-420px) w-full overflow-x-auto p-(--agent-identity-panel-gap) font-mono text-xs leading-5 whitespace-pre-wrap break-words text-muted-foreground"
+              className={cn("block min-h-(--sz-420px) w-full overflow-x-auto p-(--agent-identity-panel-gap) font-mono text-xs leading-5 whitespace-pre-wrap break-words text-muted-foreground", ANALYTICS_MASK_CLASS)}
             >
               {displayValue}
             </pre> : <p className="min-h-(--sz-420px) p-(--agent-identity-panel-gap) text-sm text-muted-foreground">{t("agentDetail.prompts.emptyFile", { defaultValue: "This instruction file is empty." })}</p>}
@@ -3413,7 +3399,7 @@ function RunDetail({ run: initialRun, agentRouteId, adapterType, adapterConfig }
                 className="text-xs text-muted-foreground"
               >
                 {t("agentDetail.runs.onBehalfOf", { defaultValue: "On behalf of" })}{" "}
-                <span className="text-foreground">
+                <span className={cn("text-foreground", ANALYTICS_MASK_CLASS)}>
                   {responsibleUserName ?? responsibleUserLabel(null)}
                 </span>
               </div>
@@ -3421,7 +3407,7 @@ function RunDetail({ run: initialRun, agentRouteId, adapterType, adapterConfig }
             {Boolean(run.identityHistory?.length) && (
               <details className="text-xs text-muted-foreground" data-testid="run-identity-history">
                 <summary className="cursor-pointer">{t("agentDetail.runs.identityHistory", { defaultValue: "GitHub identity history" })}</summary>
-                <ol className="mt-2 space-y-2">
+                <ol className={cn("mt-2 space-y-2", ANALYTICS_MASK_CLASS)}>
                   {run.identityHistory!.map((identity) => {
                     const person = userDirectory?.users.find((entry) => entry.principalId === identity.responsibleUserId);
                     return (
@@ -3478,11 +3464,11 @@ function RunDetail({ run: initialRun, agentRouteId, adapterType, adapterConfig }
               </div>
             )}
             <AgentFileRunNotice resultJson={run.resultJson} />
-            {readProviderFailure(run.resultJson?.providerFailure) ? (
+            {run.errorCode !== "sandbox_disk_full" && readProviderFailure(run.resultJson?.providerFailure) ? (
               <ProviderFailureNotice failure={readProviderFailure(run.resultJson?.providerFailure)!} />
-            ) : run.error && (
+            ) : runFailureMessage(run) && (
               <div className="text-xs">
-                <span className="text-red-600 dark:text-red-400">{run.error}</span>
+                <span className="text-destructive"><ProviderLimitMessage>{runFailureMessage(run)!}</ProviderLimitMessage></span>
                 {run.errorCode && <span className="text-muted-foreground ml-1">({run.errorCode})</span>}
               </div>
             )}
@@ -3522,12 +3508,12 @@ function RunDetail({ run: initialRun, agentRouteId, adapterType, adapterConfig }
                 {claudeLoginResult && (
                   <>
                     {!!claudeLoginResult.stdout && (
-                      <pre className="bg-neutral-100 dark:bg-neutral-950 rounded-md p-3 text-xs font-mono text-foreground overflow-x-auto whitespace-pre-wrap">
+                      <pre className={cn("bg-neutral-100 dark:bg-neutral-950 rounded-md p-3 text-xs font-mono text-foreground overflow-x-auto whitespace-pre-wrap", ANALYTICS_MASK_CLASS)}>
                         {claudeLoginResult.stdout}
                       </pre>
                     )}
                     {!!claudeLoginResult.stderr && (
-                      <pre className="bg-neutral-100 dark:bg-neutral-950 rounded-md p-3 text-xs font-mono text-red-700 dark:text-red-300 overflow-x-auto whitespace-pre-wrap">
+                      <pre className={cn("bg-neutral-100 dark:bg-neutral-950 rounded-md p-3 text-xs font-mono text-red-700 dark:text-red-300 overflow-x-auto whitespace-pre-wrap", ANALYTICS_MASK_CLASS)}>
                         {claudeLoginResult.stderr}
                       </pre>
                     )}
@@ -3644,7 +3630,7 @@ function RunDetail({ run: initialRun, agentRouteId, adapterType, adapterConfig }
       {run.stderrExcerpt && (
         <div className="space-y-1">
           <span className="text-xs font-medium text-red-600 dark:text-red-400">stderr</span>
-          <pre className="bg-neutral-100 dark:bg-neutral-950 rounded-md p-3 text-xs font-mono text-red-700 dark:text-red-300 overflow-x-auto whitespace-pre-wrap">{run.stderrExcerpt}</pre>
+          <pre className={cn("bg-neutral-100 dark:bg-neutral-950 rounded-md p-3 text-xs font-mono text-red-700 dark:text-red-300 overflow-x-auto whitespace-pre-wrap", ANALYTICS_MASK_CLASS)}>{run.stderrExcerpt}</pre>
         </div>
       )}
 
@@ -3652,7 +3638,7 @@ function RunDetail({ run: initialRun, agentRouteId, adapterType, adapterConfig }
       {run.stdoutExcerpt && !run.logRef && (
         <div className="space-y-1">
           <span className="text-xs font-medium text-muted-foreground">stdout</span>
-          <pre className="bg-neutral-100 dark:bg-neutral-950 rounded-md p-3 text-xs font-mono text-foreground overflow-x-auto whitespace-pre-wrap">{run.stdoutExcerpt}</pre>
+          <pre className={cn("bg-neutral-100 dark:bg-neutral-950 rounded-md p-3 text-xs font-mono text-foreground overflow-x-auto whitespace-pre-wrap", ANALYTICS_MASK_CLASS)}>{run.stdoutExcerpt}</pre>
         </div>
       )}
 
@@ -3742,7 +3728,7 @@ export function KeysTab({ agentId, companyId }: { agentId: string; companyId?: s
             {t("agentDetail.keys.apiKeyCreated", { defaultValue: "API key created — copy it now, it will not be shown again." })}
           </p>
           <div className="flex items-center gap-2">
-            <code className="flex-1 bg-neutral-100 dark:bg-neutral-950 rounded px-3 py-1.5 text-xs font-mono text-green-700 dark:text-green-300 truncate">
+            <code className={cn("flex-1 bg-neutral-100 dark:bg-neutral-950 rounded px-3 py-1.5 text-xs font-mono text-green-700 dark:text-green-300 truncate", ANALYTICS_NO_CAPTURE_CLASS)}>
               {tokenVisible ? newToken : newToken.replace(/./g, "•")}
             </code>
             <Button

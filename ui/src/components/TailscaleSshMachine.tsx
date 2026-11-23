@@ -7,6 +7,8 @@ import { Link } from "@/lib/router";
 import { useTranslation } from "@/i18n";
 import { Button } from "./ui/button";
 import { Field } from "./agent-config-primitives";
+import { cn } from "@/lib/utils";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 export function TailscaleSshMachine(props: {
   companyId: string; connectionId: string; deviceId: string;
@@ -34,7 +36,7 @@ export function TailscaleSshMachine(props: {
     <p className="text-sm text-muted-foreground"><Link className="underline" to="/apps/tailscale">{t("tailscale.machine.manageConnector", { defaultValue: "Manage Tailscale connector" })}</Link></p>
     {showConnectionSelector ? <div className="flex items-center gap-3">
       <Field label={t("tailscale.machine.tailnetConnection", { defaultValue: "Tailnet connection" })}>
-        <select className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm" value={props.connectionId}
+        <select className={cn("w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm", ANALYTICS_MASK_CLASS)} value={props.connectionId}
           onChange={event => props.onChange({ connectionId: event.target.value, deviceId: "", host: "" })}>
           <option value="">{t("tailscale.machine.chooseConnection", { defaultValue: "Choose a connection" })}</option>
           {props.connectionId && !connected.some(connection => connection.id === props.connectionId) ? <option value={props.connectionId} disabled>{t("tailscale.machine.unavailableConnection", { defaultValue: "Unavailable connection" })}</option> : null}

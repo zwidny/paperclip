@@ -17,6 +17,8 @@ import { allowedToolsLabel } from "./gateway-helpers";
 import { gatewaysQueryKey } from "./NewGatewayDialog";
 import { describeError } from "@/api/errors";
 import { useTranslation } from "../../../i18n";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
+import { cn } from "@/lib/utils";
 
 export function EditGatewayDialog({
   companyId,
@@ -79,7 +81,7 @@ export function EditGatewayDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className={cn("sm:max-w-lg", ANALYTICS_MASK_CLASS)}>
         <DialogHeader>
           <DialogTitle>{t("gatewayEdit.title", { defaultValue: "Edit gateway" })}</DialogTitle>
           <DialogDescription>

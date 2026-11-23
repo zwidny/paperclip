@@ -329,7 +329,7 @@ function modePlaceholder(
   if (mobile) {
     if (mode === "planning") return t("composer.planWith", { defaultValue: "Plan with {{agent}}…", agent: agentName });
     if (mode === "ask") return t("composer.askAgent", { defaultValue: "Ask {{agent}}…", agent: agentName });
-    return t("composer.messageAgent", { defaultValue: "Message {{agent}}…", agent: agentName });
+    return t("composer.workWith", { defaultValue: "Work with {{agent}}", agent: agentName });
   }
   switch (mode) {
     case "planning":
@@ -343,10 +343,7 @@ function modePlaceholder(
         agent: agentName,
       });
     default:
-      return t("composer.messageAgentDetail", {
-        defaultValue: "Message {{agent}} — describe what you want done…",
-        agent: agentName,
-      });
+      return t("composer.workWith", { defaultValue: "Work with {{agent}}", agent: agentName });
   }
 }
 

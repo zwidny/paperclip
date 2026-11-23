@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { RadioCardGroup } from '@/components/ui/radio-card';
 import { SkillSourceBranchRepair } from './SkillSourceBranchRepair';
 import { useTranslation } from '../../i18n';
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 export function SkillSourceConnectionRepair({ companyId, source, onClose, onSaved, onReturnFocus }: {
   companyId: string; source: SkillSource; onClose: () => void; onSaved: () => Promise<void>;
@@ -43,7 +44,7 @@ export function SkillSourceConnectionRepair({ companyId, source, onClose, onSave
       <div className="min-h-0 overflow-y-auto space-y-4">
       {query.isPending && <p role="status" className="text-sm text-muted-foreground">{t('skillSourceRepair.loadingConnections', { defaultValue: 'Loading connections…' })}</p>}
       {query.error && <p role="alert" className="text-sm text-destructive">{describeError(query.error).body} <Button variant="ghost" size="sm" onClick={() => void query.refetch()}>{t('common.tryAgain', { defaultValue: 'Try again' })}</Button></p>}
-      <RadioCardGroup ariaLabel={t('skillSourceRepair.connectionsAria', { defaultValue: 'GitHub connection' })} value={connectionId} onValueChange={setConnectionId} disabled={save.isPending}
+      <RadioCardGroup ariaLabel="GitHub connection" className={ANALYTICS_MASK_CLASS} value={connectionId} onValueChange={setConnectionId} disabled={save.isPending}
         options={connections.map(connection => ({ value: connection.id, title: connection.name }))} />
       {query.isSuccess && connections.length === 0 && <p className="text-sm text-muted-foreground">{t('skillSourceRepair.connectGitHub', { defaultValue: 'Connect GitHub to continue.' })}</p>}
       <Button asChild variant="link" className="justify-start p-0"><Link to="/apps">{t('skillSourceRepair.manageConnections', { defaultValue: 'Manage GitHub connections' })}</Link></Button>

@@ -9,6 +9,7 @@ import { createIssueDetailPath } from "../lib/issueDetailBreadcrumb";
 import { useTaskRetry } from "../hooks/useTaskRetry";
 import { describeError } from "../api/errors";
 import { useTranslation } from "@/i18n";
+import { ProviderLimitMessage } from "./ProviderLimitMessage";
 
 /**
  * Children and blockers of this task that stopped on a recovery action that
@@ -75,7 +76,7 @@ function StalledDependencyRow({ entry, child, readError, isFetching, refetch }: 
       </Link>
       <span className="min-w-0 flex-1 truncate">{entry.stalledIssueTitle}</span>
       {entry.recoveryAction.nextAction ? (
-        <span className="basis-full text-xs text-amber-800 dark:text-amber-200">{entry.recoveryAction.nextAction}</span>
+        <span className="basis-full text-xs text-amber-800 dark:text-amber-200"><ProviderLimitMessage>{entry.recoveryAction.nextAction}</ProviderLimitMessage></span>
       ) : null}
       {readError && !child ? (
         <span role="alert" className="flex basis-full items-center gap-2 text-xs text-destructive">

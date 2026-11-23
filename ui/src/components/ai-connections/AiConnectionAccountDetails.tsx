@@ -6,6 +6,8 @@ import { useTranslation } from "@/i18n";
 import { retryTransientOnly } from "@/lib/query-client";
 import { Button } from "@/components/ui/button";
 import { AI_PROVIDERS, aiMethodLabel } from "./model";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
+import { cn } from "@/lib/utils";
 
 /** Provider profile loading is independent of account access and maintenance controls. */
 export function AiConnectionAccountDetails({ account, grant }: {
@@ -13,7 +15,8 @@ export function AiConnectionAccountDetails({ account, grant }: {
   grant: ConnectionGrant;
 }) {
   const { t } = useTranslation();
-  const canLookUp = account.provider === "anthropic" && account.method === "subscription" && account.status === "connected";
+  const isChatGpt = account.provider === "openai" && account.method === "subscription" && !account.routing;
+  const canLookUp = !account.routing && (account.provider === "anthropic" || isChatGpt) && account.method === "subscription" && account.status === "connected";
   const identity = useQuery({
     queryKey: ["ai-account-identity", account.companyId, account.id, grant.id, grant.updatedAt],
     queryFn: ({ signal }) => aiConnectionsApi.accountIdentity(account.companyId, account.id, grant.id, { signal }),
@@ -29,10 +32,10 @@ export function AiConnectionAccountDetails({ account, grant }: {
       <h3 className="text-sm font-semibold">{t("aiConnectionAccountDetails.connectedAccount", { defaultValue: "Connected account" })}</h3>
       <dl className="grid grid-cols-2 gap-3 text-sm">
         <dt className="text-muted-foreground">{t("aiConnectionAccountDetails.providerAccount", { defaultValue: "{{provider}} account", provider: AI_PROVIDERS[account.provider].name })}</dt>
-        <dd className="break-words">{accountLabel ?? t("aiConnectionAccountDetails.notAvailable", { defaultValue: "Not available" })}</dd>
-        {identity.data?.organizationLabel && <>
-          <dt className="text-muted-foreground">{t("aiConnectionAccountDetails.organization", { defaultValue: "Organization" })}</dt>
-          <dd className="break-words">{identity.data.organizationLabel}</dd>
+        <dd className={cn("break-words", ANALYTICS_MASK_CLASS)}>{accountLabel ?? "Not available"}</dd>
+        {(isChatGpt || identity.data?.organizationLabel) && <>
+          <dt className="text-muted-foreground">{isChatGpt ? t("aiConnectionAccountDetails.chatGptWorkspace", { defaultValue: "ChatGPT workspace" }) : t("aiConnectionAccountDetails.organization", { defaultValue: "Organization" })}</dt>
+          <dd className={cn("break-words", ANALYTICS_MASK_CLASS)}>{identity.data?.organizationLabel ?? (identity.isPending && canLookUp ? t("aiConnectionAccountDetails.checkingInline", { defaultValue: "Checking…" }) : t("aiConnectionAccountDetails.notAvailable", { defaultValue: "Not available" }))}</dd>
         </>}
         <dt className="text-muted-foreground">{t("aiConnectionAccountDetails.signInMethod", { defaultValue: "Sign-in method" })}</dt>
         <dd>{aiMethodLabel(account.provider, account.method)}</dd>

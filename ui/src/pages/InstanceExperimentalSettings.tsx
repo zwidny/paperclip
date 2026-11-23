@@ -19,7 +19,6 @@ import { ToggleSwitch } from "@/components/ui/toggle-switch";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Link } from "@/lib/router";
 import { ClassicWorkspaceSetting } from "@/components/ClassicWorkspaceSetting";
 import { describeError } from "@/api/errors";
 import { useTranslation } from "../i18n";
@@ -243,6 +242,7 @@ export function InstanceExperimentalSettings() {
   const statusCardsBlockedByManagedSummaries = summariesManaged && !enableSummaries;
   const summariesRequiredByManagedStatusCards = statusCardsManaged && enableStatusCards;
   const enableDecisions = experimentalQuery.data?.enableDecisions === true;
+  const enableResponsibilities = experimentalQuery.data?.enableResponsibilities === true;
   const enableGoalsSidebarLink = experimentalQuery.data?.enableGoalsSidebarLink === true;
   const enableCases = experimentalQuery.data?.enableCases === true;
   const enableServerInfoDebugView = experimentalQuery.data?.enableServerInfoDebugView === true;
@@ -321,15 +321,27 @@ export function InstanceExperimentalSettings() {
         </div>
 
         <ExperimentalToggleCard
-          title={t("experimental.cards.assistantConnections.title", { defaultValue: "Assistant connections (MCP)" })}
-          description={t("experimental.cards.assistantConnections.description", { defaultValue: "Connect Codex, Claude, and other assistants to your Paperclip organization. People sign in, select an organization once, and approve access to review work, delegate tasks, and add feedback." })}
-          footnote={<>{t("experimental.cards.assistantConnections.footnote", { defaultValue: "Requires an authenticated instance with a configured public URL. Takes effect immediately. Turning this off blocks assistant calls and event delivery; work already delegated continues." })}{experimentalQuery.data?.enablePublicMcp && <> <Link className="underline" to="/apps/assistant-connection">{t("experimental.cards.assistantConnections.setupLink", { defaultValue: "Set up an assistant connection" })}</Link></>}</>}
-          checked={experimentalQuery.data?.enablePublicMcp === true}
-          onCheckedChange={(checked) => toggleMutation.mutate({ enablePublicMcp: checked })}
+          title={t("experimental.cards.responsibilities.title", { defaultValue: "Areas & Responsibilities dashboard" })}
+          description={t("experimental.cards.responsibilities.description", { defaultValue: "Replace the classic dashboard with one built around the areas you care about and the responsibilities you own in each. An agent can interview you to create it, and you can undo any change." })}
+          footnote={t("experimental.cards.responsibilities.footnote", { defaultValue: "Turning this off brings back the classic dashboard. Your areas and responsibilities are kept." })}
+          checked={enableResponsibilities}
+          onCheckedChange={(checked) => toggleMutation.mutate({ enableResponsibilities: checked })}
           disabled={toggleMutation.isPending}
-          settingKey="enablePublicMcp"
-          managed={managedKeys.enablePublicMcp}
-          ariaLabel={t("experimental.cards.assistantConnections.ariaLabel", { defaultValue: "Toggle assistant connections experimental setting" })}
+          settingKey="enableResponsibilities"
+          managed={managedKeys.enableResponsibilities}
+          ariaLabel={t("experimental.cards.responsibilities.ariaLabel", { defaultValue: "Toggle Areas & Responsibilities dashboard experimental setting" })}
+        />
+
+        <ExperimentalToggleCard
+          title={t("experimental.cards.awsConnector.title", { defaultValue: "AWS connector" })}
+          description={t("experimental.cards.awsConnector.description", { defaultValue: "Let agents work in AWS through AWS's hosted MCP server, with short-lived credentials made for each connection." })}
+          footnote={t("experimental.cards.awsConnector.footnote", { defaultValue: "Off by default. While off, the AWS connector cannot be set up or run." })}
+          checked={experimentalQuery.data?.enableAwsConnector === true}
+          onCheckedChange={(checked) => toggleMutation.mutate({ enableAwsConnector: checked })}
+          disabled={toggleMutation.isPending}
+          settingKey="enableAwsConnector"
+          managed={managedKeys.enableAwsConnector}
+          ariaLabel={t("experimental.cards.awsConnector.ariaLabel", { defaultValue: "Toggle AWS connector experimental setting" })}
         />
 
         <ExperimentalToggleCard
@@ -530,10 +542,11 @@ export function InstanceExperimentalSettings() {
           ariaLabel={t("experimental.cards.googleWorkspace.ariaLabel", { defaultValue: "Toggle Paperclip Google Workspace connector experimental setting" })}
         />
 
+
         <ExperimentalToggleCard
           title={t("experimental.cards.grokBot.title", { defaultValue: "Grok Bot" })}
           description={t("experimental.cards.grokBot.description", { defaultValue: "Connect an existing Grok Bot as an agent. Verify routine delivery and an authenticated reply before assigning work." })}
-          footnote={t("experimental.cards.grokBot.footnote", { defaultValue: "Requires Assistant connections (MCP), Paperclip Runner, and authenticated public HTTPS. Usage is not reported. Turning this off blocks Grok calls and new dispatch." })}
+          footnote={t("experimental.cards.grokBot.footnote", { defaultValue: "Requires Paperclip Runner and authenticated public HTTPS. Usage is not reported. Turning this off blocks Grok calls and new dispatch." })}
           checked={experimentalQuery.data?.enableGrokBot === true}
           onCheckedChange={checked => toggleMutation.mutate({ enableGrokBot: checked })}
           disabled={toggleMutation.isPending}
@@ -569,7 +582,7 @@ export function InstanceExperimentalSettings() {
         <ExperimentalToggleCard
           title={t("experimental.cards.openAiDot.title", { defaultValue: "OpenAI Dot" })}
           description={t("experimental.cards.openAiDot.description", { defaultValue: "Add OpenAI Dot as a standalone agent choice. Pair your Dot and verify event delivery before assigning work." })}
-          footnote={t("experimental.cards.openAiDot.footnote", { defaultValue: "Requires Assistant connections (MCP) and an authenticated instance with a public HTTPS URL. Turning this off blocks Dot calls and new work; saved connections are kept." })}
+          footnote={t("experimental.cards.openAiDot.footnote", { defaultValue: "Requires an authenticated instance with a public HTTPS URL. Turning this off blocks Dot calls and new work; saved connections are kept." })}
           checked={experimentalQuery.data?.enableOpenAiDot === true}
           onCheckedChange={(checked) => toggleMutation.mutate({ enableOpenAiDot: checked })}
           disabled={toggleMutation.isPending}

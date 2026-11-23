@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { timeAgo } from "@/lib/timeAgo";
 import { DecisionCardFooter } from "@/components/DecisionCardFooter";
 import { NeedsYouPanel, NeedsYouPanelRow, needsYouCardLabel } from "./NeedsYouCardKit";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 import { useTranslation } from "../../i18n";
 
 /**
@@ -149,8 +150,8 @@ export function NeedsYouReceiptCard({ receipt, userLabelMap, onDismiss, onOpen, 
       </div>
     </div>
     <div className="space-y-1.5">
-      <h2>{receipt.title ?? t("coordinator.needsYouCard.yourRequest", { defaultValue: "Your request" })}</h2>
-      {receipt.reason ? <p className="text-sm text-muted-foreground">{receipt.reason}</p> : null}
+      <h2 className={ANALYTICS_MASK_CLASS}>{receipt.title ?? t("coordinator.needsYouCard.yourRequest", { defaultValue: "Your request" })}</h2>
+      {receipt.reason ? <p className={cn("text-sm text-muted-foreground", ANALYTICS_MASK_CLASS)}>{receipt.reason}</p> : null}
     </div>
     <NeedsYouPanel>
       <NeedsYouPanelRow icon={negative ? <StatusIcon status="cancelled" /> : <Check className="text-(--status-task-icon-done)" />}

@@ -53,6 +53,8 @@ import {
 } from "@/components/ui/tooltip";
 import { describeError } from "@/api/errors";
 import { useTranslation } from "../../../i18n";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
+import { cn } from "@/lib/utils";
 
 export const githubSelectClass =
   "w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
@@ -95,7 +97,7 @@ function GitHubHelp({
           <HelpCircle className="size-4" />
         </button>
       </TooltipTrigger>
-      <TooltipContent className="max-w-xs">{children}</TooltipContent>
+      <TooltipContent className={cn("max-w-xs", ANALYTICS_MASK_CLASS)}>{children}</TooltipContent>
     </Tooltip>
   );
 }
@@ -727,7 +729,7 @@ export function GitHubAccessEditor({
             className="flex flex-wrap items-center gap-x-4 gap-y-3 py-4"
           >
             <div className="min-w-0 flex-1 basis-32">
-              <p className="break-words text-sm font-medium">@{person.login}</p>
+              <p className={cn("break-words text-sm font-medium", ANALYTICS_MASK_CLASS)}>@{person.login}</p>
               <p className="text-xs text-muted-foreground">
                 {person.kind === "guest"
                   ? t("githubBot.access.sponsoredBy", {
@@ -792,7 +794,7 @@ export function GitHubAccessEditor({
                     <MoreHorizontal className="size-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent className={ANALYTICS_MASK_CLASS} align="end">
                   {removable && (
                     <DropdownMenuItem onClick={() => removePerson(person)}>
                       {t("githubBot.access.removeAccess", { defaultValue: "Remove access" })}
@@ -994,7 +996,7 @@ export function GitHubAccessEditor({
           if (!open) setDialog(null);
         }}
       >
-        <DialogContent>
+        <DialogContent className={ANALYTICS_MASK_CLASS}>
           <DialogHeader>
             <DialogTitle>
               {dialog === "member"
@@ -1095,21 +1097,15 @@ export function GitHubAccessEditor({
                 />
               </div>
               {candidate && (
-                <p role="status" className="text-sm">
+                <p role="status" className={cn("text-sm", ANALYTICS_MASK_CLASS)}>
                   {configuration.people.some(
                     (p) => p.githubUserId === candidate.githubUserId,
                   ) ||
                   linkedAccounts.some(
                     (link) => link.githubUserId === candidate.githubUserId,
                   )
-                    ? t("githubBot.access.alreadyListed", {
-                        login: candidate.login,
-                        defaultValue: "@{{login}} is already listed in People.",
-                      })
-                    : t("githubBot.access.found", {
-                        login: candidate.login,
-                        defaultValue: "Found @{{login}}. They will be able to mention the bot after you save.",
-                      })}
+                    ? `@${candidate.login} is already listed in People.`
+                    : `Found @${candidate.login}. They will be able to mention the bot after you save.`}
                 </p>
               )}
               {lookupError && (

@@ -14,6 +14,8 @@ import type { OwnSlackAppSetup } from "./OwnSlackAppSetup";
 import { sanitizedSetupErrorMessage } from "../chat-setup-error";
 import { useTranslation } from "../../../../i18n";
 import { createUuid } from "../../../../lib/uuid";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
+import { cn } from "@/lib/utils";
 
 export function ManagedSlackSetup({ endpoint, disabled, saveDetails, onSaved, onBusy, onSaveExit, autoStart = false, reconnect = false }: ComponentProps<typeof OwnSlackAppSetup> & { autoStart?: boolean; reconnect?: boolean }) {
   const { t } = useTranslation();
@@ -129,10 +131,10 @@ export function ManagedSlackSetup({ endpoint, disabled, saveDetails, onSaved, on
     {busy || choices.isPending || creating ? <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" />{busy ? needsAuthorization ? t("managedSlackSetup.openingSlack", { defaultValue: "Opening Slack…" }) : t("managedSlackSetup.connectingAgent", { defaultValue: "Connecting your agent…" }) : creating ? t("managedSlackSetup.settingUp", { defaultValue: "Setting up your Slack app…" }) : t("managedSlackSetup.loading", { defaultValue: "Loading Slack…" })}</p>
       : !choices.data?.managedAvailable ? <p className="text-sm">{t("managedSlackSetup.unavailable", { defaultValue: "Managed Slack setup is unavailable. Try again later." })}</p>
       : reconnectWorkspace ? null : <>
-        {workspaces.length === 1 && <p className="text-sm">{t("managedSlackSetup.addPrefix", { defaultValue: "Add" })} <strong>{endpoint.assignedAgentName}</strong> {t("managedSlackSetup.addMid", { defaultValue: "to" })} <strong>{workspaces[0]!.workspaceName}</strong>{t("managedSlackSetup.addSuffix", { defaultValue: "." })}</p>}
+        {workspaces.length === 1 && <p className={cn("text-sm", ANALYTICS_MASK_CLASS)}>{t("managedSlackSetup.addPrefix", { defaultValue: "Add" })} <strong>{endpoint.assignedAgentName}</strong> {t("managedSlackSetup.addMid", { defaultValue: "to" })} <strong>{workspaces[0]!.workspaceName}</strong>{t("managedSlackSetup.addSuffix", { defaultValue: "." })}</p>}
         {workspaces.length > 1 && <Select value={grantId ?? ""} onValueChange={setSelectedGrant} disabled={busy || started}>
-          <SelectTrigger aria-label={t("managedSlackSetup.workspaceAria", { defaultValue: "Slack workspace" })}><SelectValue placeholder={t("managedSlackSetup.chooseWorkspace", { defaultValue: "Choose a Slack workspace" })} /></SelectTrigger>
-          <SelectContent>{workspaces.map(workspace => <SelectItem key={workspace.grantId} value={workspace.grantId}>{workspace.workspaceName}</SelectItem>)}</SelectContent>
+          <SelectTrigger className={ANALYTICS_MASK_CLASS} aria-label={t("managedSlackSetup.workspaceAria", { defaultValue: "Slack workspace" })}><SelectValue placeholder={t("managedSlackSetup.chooseWorkspace", { defaultValue: "Choose a Slack workspace" })} /></SelectTrigger>
+          <SelectContent className={ANALYTICS_MASK_CLASS}>{workspaces.map(workspace => <SelectItem key={workspace.grantId} value={workspace.grantId}>{workspace.workspaceName}</SelectItem>)}</SelectContent>
         </Select>}
         {!started && workspaces.length > 0 && <div><Button variant="link" className="h-auto p-0" disabled={busy} onClick={() => void run(authorize)}>{t("managedSlackSetup.connectAnotherWorkspace", { defaultValue: "Connect another Slack workspace" })}</Button></div>}
       </>}

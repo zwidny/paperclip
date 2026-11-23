@@ -39,6 +39,7 @@ import {
 } from "./GitHubBotConfiguration";
 import { ChatExecutionDefaults } from "./ChatExecutionDefaults";
 import { describeError } from "@/api/errors";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 import { t as translate, useTranslation } from "../../../i18n";
 
 export function GitHubRepositoryAccess({
@@ -98,7 +99,7 @@ export function GitHubRepositoryAccess({
               <MoreHorizontal className="size-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent className={ANALYTICS_MASK_CLASS} align="end">
             <DropdownMenuItem asChild>
               <a href={managementUrl} target="_blank" rel="noreferrer">
                 {t("githubBotManagement.manageOnGitHub", { defaultValue: "Manage on GitHub" })}

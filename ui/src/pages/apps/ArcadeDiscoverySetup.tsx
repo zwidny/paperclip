@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { ToolConnection } from "@paperclipai/shared";
 import { useTranslation } from "../../i18n";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 export function ArcadeDiscoverySetup({ connection, onClose }: { connection: ToolConnection; onClose: () => void }) {
   const { t } = useTranslation();
@@ -23,9 +24,9 @@ export function ArcadeDiscoverySetup({ connection, onClose }: { connection: Tool
     },
     onSuccess: onClose,
   });
-  return <Dialog open onOpenChange={open => { if (!open && !save.isPending) onClose(); }}><DialogContent>
+  return <Dialog open onOpenChange={open => { if (!open && !save.isPending) onClose(); }}><DialogContent className={ANALYTICS_MASK_CLASS}>
     <DialogHeader><DialogTitle>{t("arcadeDiscovery.title", { defaultValue: "Sync Arcade accounts" })}</DialogTitle>
-      <DialogDescription>{t("arcadeDiscovery.descriptionPrefix", { defaultValue: "See apps available through “" })}{connection.name}{t("arcadeDiscovery.descriptionSuffix", { defaultValue: "”. Your gateway works without account sync." })}</DialogDescription>
+      <DialogDescription>See apps available through <span className={ANALYTICS_MASK_CLASS}>“{connection.name}”</span>. Your gateway works without account sync.</DialogDescription>
     </DialogHeader>
     <form className="space-y-4" onSubmit={event => { event.preventDefault(); save.mutate(); }}>
       <div className="space-y-2"><Label htmlFor="arcade-discovery-key">{t("arcadeDiscovery.apiKeyLabel", { defaultValue: "Project API key" })}</Label>

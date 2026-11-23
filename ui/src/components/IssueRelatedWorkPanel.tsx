@@ -5,6 +5,8 @@ import type { IssueExternalObjectGroup } from "../hooks/useIssueExternalObjects"
 import { externalObjectToneSeverity } from "../lib/external-objects";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "@/i18n";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
+import { cn } from "@/lib/utils";
 
 type GroupedSource = {
   label: string;
@@ -149,7 +151,7 @@ function ExternalObjectsSection({
               >
                 <ExternalObjectPill object={pill} sourceCount={mentionCount} sourceSummary={sourceLabels.join(", ")} />
                 {pill.displayTitle ? (
-                  <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">
+                  <span className={cn("min-w-0 flex-1 truncate text-sm text-muted-foreground", ANALYTICS_MASK_CLASS)}>
                     {pill.displayTitle}
                   </span>
                 ) : null}

@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn, relativeTime } from "@/lib/utils";
 import { Diff } from "lucide-react";
 import { i18n, useTranslation } from "@/i18n";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 /** Author + via-issue attribution line for a revision. */
 function RevisionByline({ revision }: { revision: CaseDocumentRevision }) {
@@ -166,7 +167,7 @@ function CaseDocumentDiffModal({
                   <span className="select-none px-3 text-center text-muted-foreground">
                     {markerByKind[row.kind]}
                   </span>
-                  <pre className="overflow-x-auto whitespace-pre-wrap break-words px-3 py-0 text-inherit">
+                  <pre className={cn("overflow-x-auto whitespace-pre-wrap break-words px-3 py-0 text-inherit", ANALYTICS_MASK_CLASS)}>
                     {row.text.length > 0 ? row.text : " "}
                   </pre>
                 </div>

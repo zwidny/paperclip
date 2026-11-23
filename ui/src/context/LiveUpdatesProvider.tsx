@@ -6,6 +6,8 @@ import { getPageVisibility, usePageVisibility } from "../lib/page-visibility";
 import { createLiveQueryRecovery } from "../lib/live-query-recovery";
 import { isLiveReconciledQuery } from "../lib/live-reconcile";
 import { refreshPendingTaskBrowserReads, refreshTaskBrowsers } from "../lib/task-browsers-refresh";
+import { refreshRecentTaskSummaries } from "../lib/recent-task-summary-refresh";
+import { invalidateInteractionRecordViews } from "../lib/attention-record-views";
 import {
   createContext,
   useCallback,
@@ -63,6 +65,7 @@ import { queryKeys } from "../lib/queryKeys";
 import { extractCompanyPrefixFromPath, toCompanyRelativePath } from "../lib/company-routes";
 import { useLocation } from "../lib/router";
 import { agentRouteRef } from "../lib/utils";
+import { markdownToPlainText } from "../lib/markdown-plain-text";
 import { buildSameOriginWebSocketUrl } from "../lib/websocket-url";
 import { tryCreateWebSocket } from "../lib/websocket";
 
@@ -1171,32 +1174,25 @@ function describeIssueUpdate(
 ): string | null {
   if (!details) return null;
   const changes: string[] = [];
-  if (typeof details.status === "string")
-    changes.push(`status -> ${details.status.replace(/_/g, " ")}`);
-  if (typeof details.priority === "string")
-    changes.push(`priority -> ${details.priority}`);
-  if (
-    typeof details.assigneeAgentId === "string" ||
-    typeof details.assigneeUserId === "string"
-  ) {
-    changes.push("reassigned");
-  } else if (
-    details.assigneeAgentId === null ||
-    details.assigneeUserId === null
-  ) {
-    changes.push("unassigned");
-  }
+  const statusLabel = (status: string) => status === "todo" ? "to do" : status.replace(/_/g, " ");
   if (details.reopened === true) {
-    const from = readString(details.reopenedFrom);
-    changes.push(
-      from ? `reopened from ${from.replace(/_/g, " ")}` : "reopened",
-    );
+    const from = readString(details.reopenedFrom) ?? readString(details.statusFrom);
+    const to = readString(details.status);
+    changes.push(`reopened${from ? ` from ${statusLabel(from)}` : " the task"}${to ? ` to ${statusLabel(to)}` : ""}`);
+  } else if (typeof details.status === "string") {
+    changes.push(typeof details.statusFrom === "string"
+      ? `changed status from ${statusLabel(details.statusFrom)} to ${statusLabel(details.status)}`
+      : `changed status to ${statusLabel(details.status)}`);
   }
-  if (typeof details.title === "string") changes.push("title changed");
-  if (typeof details.description === "string")
-    changes.push("description changed");
-  if (changes.length > 0) return changes.join(", ");
-  return null;
+  if (typeof details.priority === "string") changes.push(`set priority to ${details.priority}`);
+  if (details.assignment === "reassigned" || typeof details.assigneeAgentId === "string" || typeof details.assigneeUserId === "string") {
+    changes.push("reassigned the task");
+  } else if (details.assignment === "unassigned" || details.assigneeAgentId === null || details.assigneeUserId === null) {
+    changes.push("unassigned the task");
+  }
+  if (details.titleChanged === true || typeof details.title === "string") changes.push("changed the title");
+  if (details.descriptionChanged === true || typeof details.description === "string") changes.push("changed the description");
+  return changes.length > 0 ? changes.join(", ") : null;
 }
 
 function buildActivityToast(
@@ -1209,7 +1205,8 @@ function buildActivityToast(
   const entityType = readString(payload.entityType);
   const entityId = readString(payload.entityId);
   const action = readString(payload.action);
-  const details = readRecord(payload.details);
+  const activityDetails = readRecord(payload.details);
+  const details = readRecord(payload.notificationDetails) ?? activityDetails;
   const actorId = readString(payload.actorId);
   const actorType = readString(payload.actorType);
 
@@ -1227,8 +1224,9 @@ function buildActivityToast(
     companyId,
     entityId,
     {
-      ...details,
-      identifier: readString(payload.issueIdentifier) ?? readString(details?.identifier),
+      ...activityDetails,
+      title: readString(payload.issueTitle) ?? readString(activityDetails?.title),
+      identifier: readString(payload.issueIdentifier) ?? readString(activityDetails?.identifier),
     },
   );
   const actor = readString(readString(payload.actorName)?.trim()) ?? resolveActorLabel(queryClient, companyId, actorType, actorId, t);
@@ -1257,70 +1255,41 @@ function buildActivityToast(
       actorId === currentActor.agentId);
   if (isSelfActivity) return null;
 
+  const title = truncate((issue.title?.trim() || "Task").replace(/\s+/g, " "), 120);
+  const actionLink = { label: t ? t("liveUpdates.activity.viewTask", { defaultValue: "View task" }) : "View task", href: issue.href };
   if (action === "issue.created") {
     return {
       actor: toastActor,
-      title: copy("activity.created", "{{actor}} created {{ref}}", { actor, ref: issue.ref }),
-      body: issue.title ? truncate(issue.title, 96) : undefined,
+      title,
+      body: copy("activity.createdTask", "{{actor}} created the task", { actor }),
       tone: "success",
-      action: { label: copy("action.view", "View {{ref}}", { ref: issue.ref }), href: issue.href },
+      action: actionLink,
       dedupeKey: `activity:${action}:${entityId}`,
     };
   }
 
+  const changeDesc = describeIssueUpdate(details);
   if (action === "issue.updated") {
-    if (readString(details?.source) === "comment") {
-      // Comment-driven updates emit a paired comment event; show one combined toast on the comment event.
-      return null;
-    }
-    const changeDesc = describeIssueUpdate(details);
-    const body = changeDesc
-      ? issue.title
-        ? `${truncate(issue.title, 64)} - ${changeDesc}`
-        : changeDesc
-      : issue.title
-        ? truncate(issue.title, 96)
-        : issue.label;
+    if (details?.source === "comment" || !changeDesc) return null;
     return {
       actor: toastActor,
-      title: copy("activity.updated", "{{actor}} updated {{ref}}", { actor, ref: issue.ref }),
-      body: truncate(body, 100),
+      title,
+      body: truncate(`${actor} ${changeDesc}`, 240),
       tone: "info",
-      action: { label: copy("action.view", "View {{ref}}", { ref: issue.ref }), href: issue.href },
+      action: actionLink,
       dedupeKey: `activity:${action}:${entityId}`,
     };
   }
 
   const commentId = readString(details?.commentId);
-  const bodySnippet = readString(details?.bodySnippet);
-  const reopened = details?.reopened === true;
-  const updated = details?.updated === true;
-  const reopenedFrom = readString(details?.reopenedFrom);
-  const reopenedLabel = reopened
-    ? reopenedFrom
-      ? `reopened from ${reopenedFrom.replace(/_/g, " ")}`
-      : "reopened"
-    : null;
-  const title = reopened
-    ? copy("activity.reopenedCommented", "{{actor}} reopened and commented on {{ref}}", { actor, ref: issue.ref })
-    : updated
-      ? copy("activity.commentedUpdated", "{{actor}} commented and updated {{ref}}", { actor, ref: issue.ref })
-      : copy("activity.commented", "{{actor}} commented on {{ref}}", { actor, ref: issue.ref });
-  const body = bodySnippet
-    ? reopenedLabel
-      ? `${reopenedLabel} - ${bodySnippet.replace(/^#+\s*/m, "").replace(/\n/g, " ")}`
-      : bodySnippet.replace(/^#+\s*/m, "").replace(/\n/g, " ")
-    : reopenedLabel
-      ? issue.title
-        ? `${reopenedLabel} - ${issue.title}`
-        : reopenedLabel
-      : (issue.title ?? undefined);
+  const snippet = markdownToPlainText(readString(details?.bodySnippet) ?? "");
+  const summary = changeDesc ? `${actor} ${changeDesc}` : actor;
   return {
     actor: toastActor,
     title,
-    body: body ? truncate(body, 96) : undefined,
+    body: truncate(snippet ? `${summary}: ${snippet}` : changeDesc ? summary : copy("activity.addedComment", "{{actor}} added a comment", { actor }), 240),
     tone: "info",
-    action: { label: `View ${issue.ref}`, href: issue.href },
+    action: actionLink,
     dedupeKey: `activity:${action}:${entityId}:${commentId ?? "na"}`,
   };
 }
@@ -1408,6 +1377,7 @@ function buildRunStatusToast(
   // Interrupt is an intentional conversation control. Its caller gives
   // feedback; the terminal event must not announce a cancelled/failed run.
   if (errorCode === "operator_interrupted") return null;
+  if (status === "cancelled" && errorCode === "provider_limit_wait") return null;
   // Workspace contention is ordinary scheduling, not a failed user action.
   if (errorCode === "workspace_busy" || errorCode === "agent_directory_busy") return null;
   const contextSource = readString(payload.contextSource);
@@ -1541,7 +1511,10 @@ function invalidateHeartbeatQueries(
   companyId: string,
   payload: Record<string, unknown>,
 ) {
-  queryClient.invalidateQueries({ queryKey: queryKeys.issues.summaries(companyId) });
+  const parentIds = Array.isArray(payload.recentSubtaskParentIds)
+    ? payload.recentSubtaskParentIds.filter((id): id is string => typeof id === "string") : undefined;
+  const issueId = readString(payload.issueId);
+  refreshRecentTaskSummaries(queryClient, companyId, issueId, parentIds);
   // Note: liveRuns(companyId) is intentionally NOT invalidated here — it is
   // event-sourced via applyRunLifecycleToCompanyLiveRuns in the caller.
   queryClient.invalidateQueries({ queryKey: queryKeys.heartbeats(companyId) });
@@ -1635,6 +1608,8 @@ function invalidateActivityQueries(
   const actorType = readString(payload.actorType);
   const actorId = readString(payload.actorId);
   const details = readRecord(payload.details);
+  const subtaskParents = Array.isArray(payload.recentSubtaskParentIds)
+    ? payload.recentSubtaskParentIds.filter((id): id is string => typeof id === "string") : undefined;
   queryClient.invalidateQueries({ queryKey: queryKeys.activity(companyId) });
   if (entityType === "issue" && (action === "issue.read_marked" || action === "issue.read_unmarked")) {
     // Audit views show read receipts, while unread state belongs to one person.
@@ -1645,6 +1620,7 @@ function invalidateActivityQueries(
     }
     const readerId = readString(details?.userId) ?? (actorType === "user" ? actorId : null);
     if (readerId && readerId === currentActor.userId) {
+      refreshRecentTaskSummaries(queryClient, companyId, entityId, subtaskParents);
       for (const queryKey of [
         queryKeys.issues.listMineByMe(companyId),
         queryKeys.issues.listTouchedByMe(companyId),
@@ -1677,12 +1653,16 @@ function invalidateActivityQueries(
     action?.startsWith("company_membership.") ||
     action?.startsWith("membership.") || action?.includes("privacy");
   if (decisionAudienceChanged) {
+    void queryClient.resetQueries({ queryKey: queryKeys.issues.summaries(companyId) });
     // Drop old permission-filtered payloads immediately while the API resolves
     // the current audience. A failed refetch must not retain a revoked receipt.
     for (const queryKey of [queryKeys.attention(companyId), ["decisions", companyId, "task-record"], ["issues", "decision-receipts"], ["issues", "chat-handoffs"], ["issues", "pending-questions"]]) {
       void queryClient.resetQueries({ queryKey });
     }
   } else if (decisionProjectionChanged) {
+    if (action?.startsWith("issue.thread_interaction_")) {
+      invalidateInteractionRecordViews(queryClient, companyId);
+    }
     queryClient.invalidateQueries({ queryKey: queryKeys.attention(companyId) });
     queryClient.invalidateQueries({ queryKey: ["decisions", companyId] });
     queryClient.invalidateQueries({ queryKey: queryKeys.decisionQueues.list(companyId) });
@@ -1716,6 +1696,7 @@ function invalidateActivityQueries(
   }
 
   if (entityType === "issue") {
+    refreshRecentTaskSummaries(queryClient, companyId, entityId, subtaskParents);
     // Browser lists stop polling while connected; this activity refreshes them.
     if (entityId && action?.startsWith("browser.")) refreshTaskBrowsers(queryClient, entityId);
     const chatListKey = queryKeys.agentChats.list(companyId, currentActor.userId);
@@ -1731,7 +1712,8 @@ function invalidateActivityQueries(
     }
     queryClient.invalidateQueries({
       queryKey: queryKeys.issues.list(companyId),
-      predicate: excludingQueryKeys(queryKeys.issues.mentionPool(companyId), queryKeys.issues.listIndex(companyId)),
+      predicate: excludingQueryKeys(queryKeys.issues.mentionPool(companyId), queryKeys.issues.listIndex(companyId),
+        queryKeys.issues.summaries(companyId)),
     });
     refreshTaskIndexForActivity(queryClient, companyId, ownActorActivity);
     refreshMentionPoolForActivity(

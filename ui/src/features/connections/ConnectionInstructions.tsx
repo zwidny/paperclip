@@ -19,7 +19,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleSwitch } from "@/components/ui/toggle-switch";
 import { InlineBanner } from "@/components/InlineBanner";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 import { useTranslation } from "@/i18n";
+import { cn } from "@/lib/utils";
 
 export function ConnectionInstructionsEditor({ provider, template, value, onChange, disabled = false }: {
   provider: string;
@@ -41,7 +43,7 @@ export function ConnectionInstructionsEditor({ provider, template, value, onChan
     {!value.enabled && <InlineBanner tone="warning">{t("connectionInstructions.disabledWarning", { defaultValue: "Agents can still use this connection’s tools, but won’t receive these instructions." })}</InlineBanner>}
     {editing ? <Textarea aria-label={t("connectionInstructions.textAria", { defaultValue: "Instructions text" })} value={value.text} disabled={disabled} maxLength={CONNECTION_INSTRUCTIONS_MAX_LENGTH}
       className="min-h-40" onChange={(event) => onChange({ ...value, text: event.target.value })} />
-      : <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">{value.text}</p>}
+      : <p className={cn("whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground", ANALYTICS_MASK_CLASS)}>{value.text}</p>}
     {!value.text.trim() && <p role="alert" className="text-sm text-destructive">{t("connectionInstructions.empty", { defaultValue: "Enter instructions." })}</p>}
     <div className="flex items-center gap-3">
       <Button variant="ghost" size="sm" disabled={disabled} onClick={() => setEditing(!editing)}>{editing
@@ -100,10 +102,10 @@ export function AgentConnectionInstructions({ companyId, agentId }: { companyId:
       const app = getConnectableAppDefinition(String(config.sourceTemplateKey ?? ""));
       const context = connectionInstructionContext(app, config);
       return <div key={connection.id} className="space-y-3 rounded-lg border border-border p-4">
-        <Link className="text-sm font-medium underline underline-offset-2" to={`/apps/${connection.id}/permissions`}>{connection.name}</Link>
+        <Link className={cn("text-sm font-medium underline underline-offset-2", ANALYTICS_MASK_CLASS)} to={`/apps/${connection.id}/permissions`}>{connection.name}</Link>
         {!connection.agentInstructions!.enabled && <InlineBanner tone="warning">{t("connectionInstructions.turnedOff", { defaultValue: "These instructions are turned off for this connection." })}</InlineBanner>}
         {context === null ? <InlineBanner tone="warning">{t("connectionInstructions.incomplete", { defaultValue: "Complete this connection’s configuration before agents receive its instructions." })}</InlineBanner>
-          : <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">{connection.agentInstructions!.text}</p>}
+          : <p className={cn("whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground", ANALYTICS_MASK_CLASS)}>{connection.agentInstructions!.text}</p>}
       </div>;
     })}
   </section>;

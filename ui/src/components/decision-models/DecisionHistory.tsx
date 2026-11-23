@@ -5,6 +5,7 @@ import { Link } from "@/lib/router";
 import { formatDateTime, formatTokens, formatDetailedCents } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/i18n";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 export function DecisionHistoryTable({ entries, fastResponse = false, fastResponsesEnabled = true }: { entries: (DecisionHistoryEntry & { publicationStatus?: string; connectionName?: string | null })[]; fastResponse?: boolean; fastResponsesEnabled?: boolean }) {
   const { t } = useTranslation();
@@ -17,7 +18,7 @@ export function DecisionHistoryTable({ entries, fastResponse = false, fastRespon
         <td className="px-3 py-3"><div className="whitespace-nowrap">{formatDateTime(row.startedAt)}</div><div className="text-xs text-muted-foreground">{row.feature === "settings.test" ? t("decisionHistory.setupTest", { defaultValue: "Setup test" }) : row.feature}</div></td>
         <td className="px-3 py-3">{row.actorType === "system" ? t("decisionHistory.paperclipServices", { defaultValue: "Paperclip services" }) : row.userName ?? (row.responsibleUserId === "local-board" ? t("decisionHistory.board", { defaultValue: "Board" }) : t("decisionHistory.formerUser", { defaultValue: "Former user" }))}</td>
         <td className="px-3 py-3">{row.issueId ? <Link className="underline underline-offset-4" to={`/issues/${row.issueIdentifier ?? row.issueId}`}>{row.issueIdentifier ?? t("decisionHistory.viewTask", { defaultValue: "View task" })}</Link> : "—"}</td>
-        {fastResponse && <td className="px-3 py-3">{row.connectionName ?? (row.connectionId ? t("decisionHistory.removedConnection", { defaultValue: "Removed connection" }) : "—")}</td>}
+        {fastResponse && <td className={`px-3 py-3 ${ANALYTICS_MASK_CLASS}`}>{row.connectionName ?? (row.connectionId ? t("decisionHistory.removedConnection", { defaultValue: "Removed connection" }) : "—")}</td>}
         <td className="px-3 py-3 font-mono text-xs">{row.model}</td>
         <td className="px-3 py-3"><div>{row.status === "succeeded" ? t("decisionHistory.statusSucceeded", { defaultValue: "Succeeded" }) : row.status === "running" ? t("decisionHistory.statusRunning", { defaultValue: "Running" }) : row.status === "unknown" ? t("decisionHistory.statusUnresolved", { defaultValue: "Unresolved" }) : row.status === "skipped" ? t("decisionHistory.statusSkipped", { defaultValue: "Skipped" }) : row.status === "pending" ? t("decisionHistory.statusPending", { defaultValue: "Pending" }) : t("decisionHistory.statusFailed", { defaultValue: "Failed" })}</div>{row.publicationStatus && <div className="text-xs text-muted-foreground">{row.publicationStatus}</div>}{row.errorCode && <div className="text-xs text-muted-foreground">{row.errorCode.replaceAll("_", " ")}</div>}</td>
         <td className="px-3 py-3 font-mono">{row.durationMs === null ? "—" : `${(row.durationMs / 1000).toFixed(1)}s`}</td>

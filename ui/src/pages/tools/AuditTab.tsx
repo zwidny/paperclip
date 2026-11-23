@@ -24,7 +24,8 @@ import {
 } from "@/api/tools";
 import { agentsApi } from "@/api/agents";
 import { AgentSelect } from "@/components/AgentMultiSelect";
-import { ToolsPageHeader, LoadingState, ErrorState, RelativeTime } from "./shared";
+import { ToolsPageHeader, LoadingState, RelativeTime } from "./shared";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 import { useTranslation } from "../../i18n";
 
 const PAGE_SIZE = 50;
@@ -303,7 +304,7 @@ function ActivityRow({
                       return connectionId ? (
                         <div key={connectionId} className="flex gap-2">
                           <span className="shrink-0 text-muted-foreground">{t("auditTool.notInstalled", { defaultValue: "Not installed" })}</span>
-                          <Link to={`/apps/${connectionId}/permissions`} className="font-medium text-primary hover:underline">
+                          <Link to={`/apps/${connectionId}/permissions`} className={cn("font-medium text-primary hover:underline", ANALYTICS_MASK_CLASS)}>
                             {connectionName}
                           </Link>
                         </div>
@@ -314,7 +315,7 @@ function ActivityRow({
                 {argumentsText ? (
                   <div className="space-y-1">
                     <span className="text-muted-foreground">{t("auditTool.parameters", { defaultValue: "Parameters (redacted)" })}</span>
-                    <pre className="whitespace-pre-wrap break-words rounded-md border border-border bg-background p-3 font-mono text-xs text-foreground">
+                    <pre className={cn("whitespace-pre-wrap break-words rounded-md border border-border bg-background p-3 font-mono text-xs text-foreground", ANALYTICS_MASK_CLASS)}>
                       {argumentsText}
                     </pre>
                   </div>

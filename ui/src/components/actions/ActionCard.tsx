@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { EnforcementBanner } from "@/components/EnforcementBanner";
 import { CapabilityBadges, DecisionBadge, RiskBadge } from "@/pages/tools/shared";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 /**
  * Action approval card (PAP-10787 / PAP-10778, surfaces 11/12/99).
@@ -269,7 +270,7 @@ export function ActionCard({
         {/* JSON input */}
         <div className="space-y-1">
           <p className="text-xs font-medium uppercase tracking-normal text-muted-foreground">{t("actionCard.input", { defaultValue: "Input" })}</p>
-          <pre className="overflow-x-auto rounded-md border border-border bg-muted/40 p-3 font-mono text-xs leading-relaxed text-foreground">
+          <pre className={cn("overflow-x-auto rounded-md border border-border bg-muted/40 p-3 font-mono text-xs leading-relaxed text-foreground", ANALYTICS_MASK_CLASS)}>
             {json}
           </pre>
         </div>
@@ -277,7 +278,7 @@ export function ActionCard({
         {/* Why I'm asking */}
         <div className="space-y-1">
           <p className="text-xs font-medium uppercase tracking-normal text-muted-foreground">{t("actionCard.whyAsking", { defaultValue: "Why I'm asking" })}</p>
-          <p className="text-sm text-muted-foreground">
+          <p className={cn("text-sm text-muted-foreground", ANALYTICS_MASK_CLASS)}>
             {reason}
             {policyNumber != null ? (
               <>

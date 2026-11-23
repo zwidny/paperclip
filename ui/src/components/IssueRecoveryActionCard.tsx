@@ -40,6 +40,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { agentUrl } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { ProviderLimitMessage } from "./ProviderLimitMessage";
 import { Badge } from "@/components/ui/badge";
 import {
   deriveRecoveryDisplayState,
@@ -52,6 +53,7 @@ import {
   type RecoveryRetryLineage,
 } from "@/lib/recovery-lineage";
 import { useTranslation, i18n as i18nInstance } from "../i18n";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 export type RecoveryCardCardState = RecoveryDisplayState;
 export const deriveRecoveryCardState = deriveRecoveryDisplayState;
@@ -1244,7 +1246,7 @@ export function IssueRecoveryActionCard({
               </>
             ) : null}
           </div>
-          <p className="mt-1 text-sm leading-6">{headline}</p>
+          <p className={cn("mt-1 text-sm leading-6", ANALYTICS_MASK_CLASS)}>{headline}</p>
         </div>
       </header>
       {variant === "compact" ? null : (
@@ -1386,18 +1388,18 @@ export function IssueRecoveryActionCard({
         <MetadataRow label={t("recoveryCard.metadata.evidence", { defaultValue: "Evidence" })}>
           {evidenceSummary ? (
             evidenceSummary.isCode ? (
-              <span className="break-words font-mono text-(length:--text-micro) text-foreground/80">
+              <span className={cn("break-words font-mono text-(length:--text-micro) text-foreground/80", ANALYTICS_MASK_CLASS)}>
                 {evidenceSummary.text}
               </span>
             ) : (
-              <span className="text-xs leading-5 text-foreground/80">{evidenceSummary.text}</span>
+              <span className={cn("text-xs leading-5 text-foreground/80", ANALYTICS_MASK_CLASS)}>{evidenceSummary.text}</span>
             )
           ) : (
             <MissingValue />
           )}
         </MetadataRow>
         <MetadataRow label={t("recoveryCard.metadata.nextAction", { defaultValue: "Next action" })}>
-          {action.nextAction ? <span>{action.nextAction}</span> : <MissingValue />}
+          {action.nextAction ? <span><ProviderLimitMessage>{action.nextAction}</ProviderLimitMessage></span> : <MissingValue />}
         </MetadataRow>
         <MetadataRow label={t("recoveryCard.metadata.followUp", { defaultValue: "Follow-up" })}>
           <span className="inline-flex flex-wrap items-center gap-1.5">
@@ -1461,7 +1463,7 @@ export function IssueRecoveryActionCard({
                       )}
                     >
                       <span className="font-medium leading-5">{t(option.labelKey, { defaultValue: option.label })}</span>
-                      <span className="text-(length:--text-micro) leading-4 text-muted-foreground">{t(option.descriptionKey, { defaultValue: option.description })}</span>
+                      <span className={cn("text-(length:--text-micro) leading-4 text-muted-foreground", ANALYTICS_MASK_CLASS)}>{t(option.descriptionKey, { defaultValue: option.description })}</span>
                     </button>
                   ))}
                 </div>

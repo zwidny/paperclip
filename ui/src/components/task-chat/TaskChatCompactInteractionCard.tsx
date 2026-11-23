@@ -20,8 +20,12 @@ import {
   Loader2,
   MessageSquareQuote,
   Plug,
+  Repeat,
+  LayoutList,
   Search,
+  Target,
   X,
+  Zap,
 } from "lucide-react";
 import type { IssueDocument } from "@paperclipai/shared";
 import type {
@@ -32,6 +36,10 @@ import { InteractionPreparationNotice } from "@/components/InteractionPreparatio
 import { IssueThreadInteractionCard } from "@/components/IssueThreadInteractionCard";
 import { ToolActionAuditHashCopy } from "@/components/ToolActionAuditHashCopy";
 import { ConnectionIntentInteractionBody } from "@/features/connections/ConnectionIntentInteractionBody";
+import { RoutineSuggestionCard } from "@/components/RoutineSuggestionCard";
+import { BarProposalCard } from "@/components/responsibilities/BarProposalCard";
+import { AutomationProposalCard } from "@/components/responsibilities/AutomationProposalCard";
+import { DashboardChangesCard } from "@/components/responsibilities/DashboardChangesCard";
 import { MarkdownBody } from "@/components/MarkdownBody";
 import type { MentionOption } from "@/components/MarkdownEditor";
 import { Button } from "@/components/ui/button";
@@ -78,6 +86,7 @@ import { TaskChatPlanPreviewCard } from "./TaskChatPlanPreviewCard";
 import { TaskChatRichInput } from "./TaskChatRichInput";
 import type { TFunction } from "i18next";
 import { useTranslation } from "../../i18n";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 const TAKEOVER_TEXTAREA_CLASS =
   "min-h-16 resize-y border-0 bg-muted/35 text-sm shadow-none focus-visible:ring-0 focus-visible:ring-offset-0";
@@ -127,6 +136,26 @@ function kindCopy(t: TFunction) {
       fallbackTitle: t("taskChat.kindConnectService", { defaultValue: "Connect service" }),
       label: t("taskChat.kindConnection", { defaultValue: "Connection" }),
       icon: Plug,
+    },
+    suggest_routine: {
+      fallbackTitle: t("taskChat.kindRoutineOffer", { defaultValue: "Routine offer" }),
+      label: t("taskChat.kindRoutine", { defaultValue: "Routine" }),
+      icon: Repeat,
+    },
+    propose_responsibility_bar: {
+      fallbackTitle: t("taskChat.kindProposedBar", { defaultValue: "Proposed bar" }),
+      label: t("taskChat.kindBar", { defaultValue: "Bar" }),
+      icon: Target,
+    },
+    propose_automation: {
+      fallbackTitle: t("taskChat.kindProposedAutomation", { defaultValue: "Proposed automation" }),
+      label: t("taskChat.kindAutomation", { defaultValue: "Automation" }),
+      icon: Zap,
+    },
+    propose_dashboard_changes: {
+      fallbackTitle: t("taskChat.kindProposedDashboardChanges", { defaultValue: "Proposed dashboard changes" }),
+      label: t("taskChat.kindDashboard", { defaultValue: "Dashboard" }),
+      icon: LayoutList,
     },
   } as const;
 }
@@ -577,6 +606,30 @@ function ReceiptDisclosure({
         })}
       </p>
     );
+  } else if (interaction.kind === "suggest_routine") {
+    request = (
+      <p className="text-sm text-foreground">
+        Repeat {interaction.payload.title}: {interaction.payload.cadenceLabel}.
+      </p>
+    );
+  } else if (interaction.kind === "propose_responsibility_bar") {
+    request = (
+      <p className="text-sm text-foreground">
+        {interaction.payload.bar.standard} ({interaction.payload.templateLabel}: {interaction.payload.targetLabel}).
+      </p>
+    );
+  } else if (interaction.kind === "propose_automation") {
+    request = (
+      <p className="text-sm text-foreground">
+        {interaction.payload.title}: {interaction.payload.startLabel}.
+      </p>
+    );
+  } else if (interaction.kind === "propose_dashboard_changes") {
+    request = (
+      <p className="text-sm text-foreground">
+        {interaction.payload.message ?? (interaction.payload.changes.length === 1 ? "1 change to the dashboard." : `${interaction.payload.changes.length} changes to the dashboard.`)}
+      </p>
+    );
   } else {
     request = (
       <div className="grid gap-2">
@@ -611,7 +664,7 @@ function ReceiptDisclosure({
                 {interaction.payload.toolAction.previewMarkdown}
               </MarkdownBody>
             </div>
-            <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-words font-mono text-xs">
+            <pre className={cn("mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-words font-mono text-xs", ANALYTICS_MASK_CLASS)}>
               {interaction.payload.toolAction.argumentsSummaryJson}
             </pre>
             <ToolActionAuditHashCopy hash={interaction.payload.toolAction.argumentsHash} />
@@ -988,7 +1041,7 @@ function ConfirmationCard({
             <summary className="cursor-pointer text-xs font-medium text-muted-foreground">
               Arguments
             </summary>
-            <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-words font-mono text-xs text-foreground">
+            <pre className={cn("mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-words font-mono text-xs text-foreground", ANALYTICS_MASK_CLASS)}>
               {interaction.payload.toolAction.argumentsSummaryJson}
             </pre>
             <ToolActionAuditHashCopy hash={interaction.payload.toolAction.argumentsHash} />
@@ -2094,6 +2147,20 @@ export function TaskChatCompactInteractionCard({
     && interaction.kind !== "request_item_verdicts"
     && !(interaction.kind === "request_confirmation" && (interaction.payload.toolAction || interaction.payload.secretProposal || interaction.payload.connectionAuthorization))) {
     return <CoordinatorInteractionReceipt interaction={interaction} />;
+  }
+
+  if (interaction.kind === "suggest_routine") {
+    return <RoutineSuggestionCard interaction={interaction} />;
+  }
+
+  if (interaction.kind === "propose_responsibility_bar") {
+    return <BarProposalCard interaction={interaction} />;
+  }
+  if (interaction.kind === "propose_automation") {
+    return <AutomationProposalCard interaction={interaction} />;
+  }
+  if (interaction.kind === "propose_dashboard_changes") {
+    return <DashboardChangesCard interaction={interaction} />;
   }
 
   if (interaction.kind === "connection_intent") {

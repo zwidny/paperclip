@@ -180,6 +180,7 @@ import {
   type RunTemplateSelection,
   type SavedInputDraftState,
 } from "@/lib/skill-studio";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 const PANE_STORAGE_KEY = "skillStudio.paneSizes";
 const RUN_TEMPLATE_STORAGE_KEY_PREFIX = "skillStudio.runTemplate";
@@ -2897,7 +2898,7 @@ function RunTemplateAdvancedPanel({
               {selectedTemplate.description ? (
                 <p className="text-xs text-muted-foreground">{selectedTemplate.description}</p>
               ) : null}
-              <pre className="max-h-(--sz-240px) overflow-auto whitespace-pre-wrap rounded-md border border-border bg-muted/30 p-3 text-xs leading-5 text-muted-foreground">
+              <pre className={cn("max-h-(--sz-240px) overflow-auto whitespace-pre-wrap rounded-md border border-border bg-muted/30 p-3 text-xs leading-5 text-muted-foreground", ANALYTICS_MASK_CLASS)}>
                 {selectedTemplate.body}
               </pre>
             </div>
@@ -3637,7 +3638,7 @@ function VersionHistorySheet({
               <div className="border-b border-border px-3 py-1.5 text-xs text-muted-foreground">
                 {t("skillStudio.versions.diff", { left: left?.revisionNumber, right: right?.revisionNumber, defaultValue: "Diff v{{left}} → v{{right}}" })}
               </div>
-              <pre className="max-h-64 overflow-auto p-2 text-xs">
+              <pre className={cn("max-h-64 overflow-auto p-2 text-xs", ANALYTICS_MASK_CLASS)}>
                 {diff.map((row, i) => (
                   <div
                     key={i}

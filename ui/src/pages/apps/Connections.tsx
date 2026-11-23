@@ -1,3 +1,4 @@
+import { connectionRemovalToast } from "@/features/connections/googleAccessRemoval";
 import { useAuthorizationWindow } from "@/hooks/useAuthorizationWindow";
 import { isRetiredComposioConnection, RETIRED_COMPOSIO_MESSAGE } from "@paperclipai/shared";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
@@ -56,6 +57,7 @@ import {
   type ConnectionOwnerProfile,
 } from "./connection-owner";
 import { describeError } from "@/api/errors";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 const BROWSE_HREF = "/apps";
 
@@ -209,24 +211,22 @@ export function Connections() {
 
     }) =>
       toolsApi.archiveConnection(target.id),
-    onSuccess: (_connection, target) => {
+    onSuccess: (removed, target) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.tools.connections(selectedCompanyId!) });
       queryClient.invalidateQueries({ queryKey: queryKeys.tools.applications(selectedCompanyId!) });
       queryClient.invalidateQueries({ queryKey: queryKeys.apps.attention(selectedCompanyId!) });
-      pushToast({
-        title: t("connectionsPage.toast.deletedTitle", { defaultValue: "Connection deleted" }),
-        body: target.remainingConnectionCount > 0
-          ? t("connectionsPage.toast.deletedRemaining", {
-              app: target.appName,
-              count: target.remainingConnectionCount,
-              defaultValue: "{{app}} still has {{count}} active connection available to agents.",
-            })
-          : t("connectionsPage.toast.deletedLast", {
-              app: target.appName,
-              defaultValue: "{{app}} is no longer available to agents and its credentials are deleted. Connecting it again needs a new sign-in or key.",
-            }),
-        tone: "success",
-      });
+      const body = target.remainingConnectionCount > 0
+        ? t("connectionsPage.toast.deletedRemaining", {
+            app: target.appName,
+            count: target.remainingConnectionCount,
+            defaultValue_one: "{{app}} still has {{count}} active connection available to agents.",
+            defaultValue_other: "{{app}} still has {{count}} active connections available to agents.",
+          })
+        : t("connectionsPage.toast.deletedLast", {
+            app: target.appName,
+            defaultValue: "{{app}} is no longer available to agents and its credentials are deleted. Connecting it again needs a new sign-in or key.",
+          });
+      pushToast(connectionRemovalToast({ title: t("connectionsPage.toast.deletedTitle", { defaultValue: "Connection deleted" }), body, providerAccess: removed?.removal?.providerAccess }));
       setConnectionToDelete(null);
     },
     onError: (error) =>
@@ -435,7 +435,7 @@ export function Connections() {
             </button>
           )}
 
-          <div className="overflow-hidden rounded-lg border border-border">
+          <div className={cn("overflow-hidden rounded-lg border border-border", ANALYTICS_MASK_CLASS)}>
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/40 text-left text-(length:--text-micro) font-semibold uppercase tracking-wide text-muted-foreground">
@@ -495,7 +495,7 @@ export function Connections() {
                           />
                           <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
-                              <span className="font-medium text-foreground">{row.displayName}</span>
+                              <span className={cn("font-medium text-foreground", ANALYTICS_MASK_CLASS)}>{row.displayName}</span>
                               <ConnectionProvenanceChip connection={row.connection} />
                             </div>
                             {hint && (
@@ -594,7 +594,7 @@ export function Connections() {
           if (!open && !deleteConnection.isPending) setConnectionToDelete(null);
         }}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className={ANALYTICS_MASK_CLASS}>
           <AlertDialogHeader>
             <AlertDialogTitle>
               {t("connectionsPage.deleteTitle", {

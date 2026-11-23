@@ -156,6 +156,7 @@ import {
 import type { MyUserSecretEntry } from "../api/secrets";
 import { describeError } from "@/api/errors";
 import { i18n, useTranslation } from "../i18n";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 type CreateMode = "managed" | "external";
 // "value" writes a new secret value (for external references: through to the
@@ -4686,7 +4687,7 @@ function AwsProviderVaultDiscoveryError({
               </span>
               <CopyDetailsButton text={detailsText} />
             </div>
-            <pre className="max-h-36 overflow-auto whitespace-pre-wrap break-words font-mono text-(length:--text-micro) leading-relaxed">
+            <pre className={cn("max-h-36 overflow-auto whitespace-pre-wrap break-words font-mono text-(length:--text-micro) leading-relaxed", ANALYTICS_MASK_CLASS)}>
               {detailsText}
             </pre>
           </div>
@@ -4794,7 +4795,7 @@ function SecretCreateError({
               </span>
               <CopyDetailsButton text={detailsText} />
             </div>
-            <pre className="max-h-36 overflow-auto whitespace-pre-wrap break-words font-mono text-(length:--text-micro) leading-relaxed">
+            <pre className={cn("max-h-36 overflow-auto whitespace-pre-wrap break-words font-mono text-(length:--text-micro) leading-relaxed", ANALYTICS_MASK_CLASS)}>
               {detailsText}
             </pre>
           </div>

@@ -8,8 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/StatusBadge";
 import { queryKeys } from "@/lib/queryKeys";
-import { ErrorState, RelativeTime } from "@/pages/tools/shared";
+import { RelativeTime } from "@/pages/tools/shared";
 import { useTranslation } from "../../../../i18n";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
+import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 25;
 
@@ -125,7 +127,7 @@ function ActivityRow({ event }: { event: ToolGatewayActivityEvent }) {
           {argumentsText ? (
             <div className="mt-2 space-y-1">
               <div className="text-muted-foreground">{t("gatewayActivity.arguments", { defaultValue: "Arguments (redacted)" })}</div>
-              <pre className="overflow-x-auto whitespace-pre-wrap break-words rounded-md border border-border bg-background p-3 font-mono text-xs text-foreground">
+              <pre className={cn("overflow-x-auto whitespace-pre-wrap break-words rounded-md border border-border bg-background p-3 font-mono text-xs text-foreground", ANALYTICS_MASK_CLASS)}>
                 {argumentsText}
               </pre>
             </div>
@@ -133,7 +135,7 @@ function ActivityRow({ event }: { event: ToolGatewayActivityEvent }) {
           {resultText ? (
             <div className="mt-3 space-y-1">
               <div className="text-muted-foreground">{t("gatewayActivity.result", { defaultValue: "Result (redacted)" })}</div>
-              <pre className="overflow-x-auto whitespace-pre-wrap break-words rounded-md border border-border bg-background p-3 font-mono text-xs text-foreground">
+              <pre className={cn("overflow-x-auto whitespace-pre-wrap break-words rounded-md border border-border bg-background p-3 font-mono text-xs text-foreground", ANALYTICS_MASK_CLASS)}>
                 {resultText}
               </pre>
             </div>

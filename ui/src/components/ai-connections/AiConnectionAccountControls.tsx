@@ -8,6 +8,7 @@ import { AI_PROVIDERS, type AiConnectionSummary } from "./model";
 import { describeError } from "@/api/errors";
 import { AiDefaultCrown } from "./AiConnectionDefault";
 import { isOwnAiAccount } from "./useAiConnectionDefaults";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 import { useTranslation } from "../../i18n";
 
 /** AI-only account controls; identity, access and navigation belong to AppDetail. */
@@ -50,7 +51,7 @@ export function AiConnectionAccountControls({
       )}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0 text-sm">
-          <p className="break-words text-xs text-muted-foreground">{account.method === "subscription" ? t("aiConnections.account.subscription", { defaultValue: "Subscription" }) : t("onboarding.connect.apiKey", { defaultValue: "API key" })}{account.accountLabel ? ` · ${account.accountLabel}` : ""}</p>
+          <p className={cn("break-words text-xs text-muted-foreground", ANALYTICS_MASK_CLASS)}>{account.method === "subscription" ? t("aiConnections.account.subscription", { defaultValue: "Subscription" }) : t("onboarding.connect.apiKey", { defaultValue: "API key" })}{account.accountLabel ? ` · ${account.accountLabel}` : ""}</p>
         </div>
         {!readOnly && grant.capabilities?.canRevoke && (
           <div className="flex flex-wrap items-center gap-2">

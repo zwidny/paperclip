@@ -47,6 +47,7 @@ import {
 import { cn, relativeTime } from "@/lib/utils";
 import { appTabHref } from "../app-tabs";
 import { t as translate, useTranslation } from "../../../i18n";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 const fallbackT = translate as unknown as TFunction;
 
@@ -134,7 +135,7 @@ export function ActionTestDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-(--sz-85vh) overflow-y-auto sm:max-w-2xl">
+      <DialogContent className={cn("max-h-(--sz-85vh) overflow-y-auto sm:max-w-2xl", ANALYTICS_MASK_CLASS)}>
         <DialogHeader>
           <DialogTitle>{t("appDetail.testDialog.title", { title, defaultValue: "Test {{title}}" })}</DialogTitle>
           <DialogDescription>
@@ -277,7 +278,7 @@ function AgentPicker({
           <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
         </button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-80 p-0" disablePortal>
+      <PopoverContent align="start" className={cn("w-80 p-0", ANALYTICS_MASK_CLASS)} disablePortal>
         <div className="border-b border-border p-2">
           <div className="relative">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -955,7 +956,7 @@ function AllowedResult({
   const value = outcome.result.result;
   const preview = resultPreview(value, t);
   return (
-    <div className="rounded-md border border-emerald-500/40 bg-emerald-500/5 p-4">
+    <div className={cn("rounded-md border border-emerald-500/40 bg-emerald-500/5 p-4", ANALYTICS_MASK_CLASS)}>
       <div className="flex items-center gap-2">
         <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
         <span className="text-sm font-medium text-foreground">{successHeadline(preview.summary, entry, appName, t)}</span>
@@ -1056,7 +1057,7 @@ function PrettyPreview({ value }: { value: unknown }) {
     );
   }
   if (typeof value === "string") {
-    return <pre className="max-h-64 overflow-auto whitespace-pre-wrap rounded-md border border-border bg-background p-3 text-xs text-foreground">{value}</pre>;
+    return <pre className={cn("max-h-64 overflow-auto whitespace-pre-wrap rounded-md border border-border bg-background p-3 text-xs text-foreground", ANALYTICS_MASK_CLASS)}>{value}</pre>;
   }
   if (value && typeof value === "object" && !Array.isArray(value)) {
     return (
@@ -1071,7 +1072,7 @@ function PrettyPreview({ value }: { value: unknown }) {
     );
   }
   return (
-    <pre className="max-h-64 overflow-auto rounded-md border border-border bg-background p-3 text-xs text-foreground">
+    <pre className={cn("max-h-64 overflow-auto rounded-md border border-border bg-background p-3 text-xs text-foreground", ANALYTICS_MASK_CLASS)}>
       {safeStringify(collapseDeep(value, 2))}
     </pre>
   );
@@ -1153,7 +1154,7 @@ function RawResponseDisclosure({ value, initiallyOpen = false }: { value: unknow
           : t("appDetail.testDialog.showRawResponse", { defaultValue: "Show raw response" })}
       </button>
       {showRaw && (
-        <pre className="mt-2 max-h-64 overflow-auto rounded-md border border-border bg-background p-3 text-xs text-foreground">
+        <pre className={cn("mt-2 max-h-64 overflow-auto rounded-md border border-border bg-background p-3 text-xs text-foreground", ANALYTICS_MASK_CLASS)}>
           {safeStringify(value)}
         </pre>
       )}
@@ -1179,7 +1180,7 @@ function ErrorResult({
   const hints = errorHints(toolErrorMessage, error.reasonCode);
   const needsReconnect = isReconnectError(error.reasonCode);
   return (
-    <div className="rounded-md border border-amber-500/40 bg-amber-500/5 p-4">
+    <div className={cn("rounded-md border border-amber-500/40 bg-amber-500/5 p-4", ANALYTICS_MASK_CLASS)}>
       <div className="flex items-center gap-2">
         <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
         <span className="text-sm font-medium text-foreground">{t("actionTest.failed", { defaultValue: "It didn't work." })}</span>

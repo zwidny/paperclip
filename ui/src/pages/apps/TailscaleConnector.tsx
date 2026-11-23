@@ -11,6 +11,8 @@ import { useTranslation } from "@/i18n";
 import { useAuthorizationWindow } from "@/hooks/useAuthorizationWindow";
 import { AppLogo } from "./AppLogo";
 import { TailscaleDeviceSignIn } from "./TailscaleDeviceSignIn";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
+import { cn } from "@/lib/utils";
 
 export const TAILSCALE_CONNECTOR_PATH = "/apps/tailscale";
 
@@ -32,7 +34,7 @@ export function TailscaleConnectorCard({ onNavigate }: { onNavigate: (href: stri
       </div>
       <Button type="button" size="sm" variant="outline" onClick={() => onNavigate(TAILSCALE_CONNECTOR_PATH)} aria-label={t("tailscale.card.actionAria", { action, defaultValue: "{{action}} Tailscale" })}>{action}</Button>
     </div>
-    {connected.length > 0 && <p className="border-t border-border px-4 py-3 text-sm text-muted-foreground">{connected.map(connection => connection.name).join(", ")} · {t("tailscale.card.connected", { defaultValue: "Connected" })}</p>}
+    {connected.length > 0 && <p className="border-t border-border px-4 py-3 text-sm text-muted-foreground"><span className={ANALYTICS_MASK_CLASS}>{connected.map(connection => connection.name).join(", ")}</span> · {t("tailscale.card.connected", { defaultValue: "Connected" })}</p>}
     {connections.error && <p role="alert" className="border-t border-border px-4 py-3 text-sm text-destructive">{describeError(connections.error, { action: "load Tailscale connections" }).body}</p>}
   </div>;
 }
@@ -86,8 +88,8 @@ export function TailscaleConnector() {
     {connections.isPending && <p className="text-sm text-muted-foreground">{t("tailscale.connector.loadingConnections", { defaultValue: "Loading tailnet connections…" })}</p>}
     {returnError && <div role="alert" className="space-y-3"><p className="text-sm text-destructive">{returnError}</p>{retryConnection && <Button variant="outline" disabled={connect.isPending} onClick={() => start(retryConnection.id)}>{t("tailscale.connector.tryAgain", { defaultValue: "Try again" })}</Button>}</div>}
     {error && <div role="alert" className="space-y-3"><p className="text-sm text-destructive">{describeError(error, { action: "connect Tailscale" }).body}</p><Button variant="outline" onClick={() => void connections.refetch()}>{t("tailscale.connector.refreshConnections", { defaultValue: "Refresh connections" })}</Button></div>}
-    <div className="divide-y divide-border">{(connections.data ?? []).map(connection => <div key={connection.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
-      <div className="min-w-0 flex-1 space-y-1"><p className="font-medium">{connection.name}</p><p className="text-sm text-muted-foreground">{connection.status === "connected"
+    <div className={cn("divide-y divide-border", ANALYTICS_MASK_CLASS)}>{(connections.data ?? []).map(connection => <div key={connection.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+      <div className="min-w-0 flex-1 space-y-1"><p className={cn("font-medium", ANALYTICS_MASK_CLASS)}>{connection.name}</p><p className="text-sm text-muted-foreground">{connection.status === "connected"
         ? t("tailscale.connector.status.connected", { defaultValue: "Connected" })
         : connection.status === "authorizing"
           ? t("tailscale.connector.status.authorizing", { defaultValue: "Waiting for sign-in" })
@@ -100,9 +102,9 @@ export function TailscaleConnector() {
                 : t("tailscale.connector.status.incomplete", { defaultValue: "Authorization not completed" })}</p></div>
       {connection.status === "connected" ? <>
         <Button variant="outline" asChild><Link to={`/company/settings/instance/environments/new?tailscale_connection=${encodeURIComponent(connection.id)}`}>{t("tailscale.connector.createSshEnvironment", { defaultValue: "Create SSH environment" })}</Link></Button>
-        <Button variant="ghost" disabled={disconnect.isPending} onClick={() => disconnect.mutate(connection.id)}>{t("tailscale.connector.disconnect", { name: connection.name, defaultValue: "Disconnect {{name}}" })}</Button>
+        <Button variant="ghost" disabled={disconnect.isPending} onClick={() => disconnect.mutate(connection.id)}>{t("tailscale.connector.disconnectVerb", { defaultValue: "Disconnect" })} <span className={ANALYTICS_MASK_CLASS}>{connection.name}</span></Button>
       </> : connection.status === "authorizing" ? <TailscaleDeviceSignIn key={`${selectedCompanyId}:${connection.id}`} connection={connection} cancel={() => disconnect.mutate(connection.id)} disabled={disconnect.isPending} />
-        : <Button variant="outline" disabled={connect.isPending} onClick={() => start(connection.id)}>{t("tailscale.connector.reconnect", { name: connection.name, defaultValue: "Reconnect {{name}}" })}</Button>}
+        : <Button variant="outline" disabled={connect.isPending} onClick={() => start(connection.id)}>{t("tailscale.connector.reconnectVerb", { defaultValue: "Reconnect" })} <span className={ANALYTICS_MASK_CLASS}>{connection.name}</span></Button>}
     </div>)}</div>
     <footer className="flex items-center justify-between gap-3 border-t border-border pt-4">
       <Button variant="ghost" asChild><Link to="/apps">{t("tailscale.connector.backToConnectors", { defaultValue: "Back to connectors" })}</Link></Button>

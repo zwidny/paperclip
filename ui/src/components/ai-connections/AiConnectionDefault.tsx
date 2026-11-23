@@ -6,6 +6,7 @@ import { useTranslation } from "@/i18n";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { AI_PROVIDERS } from "./model";
+import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 export function AiDefaultCrown({ account }: { account: Pick<AiManagedConnectionSummary, "provider"> }) {
   const [open, setOpen] = useState(false);
@@ -17,7 +18,7 @@ export function AiDefaultCrown({ account }: { account: Pick<AiManagedConnectionS
         <Crown className="size-4" aria-hidden="true" />
       </button>
     </TooltipTrigger>
-    <TooltipContent>{label}</TooltipContent>
+    <TooltipContent className={ANALYTICS_MASK_CLASS}>{label}</TooltipContent>
   </Tooltip>;
 }
 

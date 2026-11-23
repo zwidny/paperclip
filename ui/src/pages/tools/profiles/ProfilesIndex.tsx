@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArchiveRestore, MoreHorizontal, Plus, ShieldCheck, Users } from "lucide-react";
-import type { ToolProfileWithDetails } from "@paperclipai/shared";
+import type { ToolProfileListItem } from "@paperclipai/shared";
 import { useNavigate } from "@/lib/router";
 import { toolsApi } from "@/api/tools";
 import { queryKeys } from "@/lib/queryKeys";
@@ -29,7 +29,7 @@ import { EffectiveAgentPanel } from "../ProfilesTab";
 import { LoadingState, RelativeTime, ToolsPageHeader } from "../shared";
 import { ProfileActionDialog, type ProfileActionDialogKind } from "./ProfileActionDialog";
 import { TEMPLATES, type TemplateKey } from "./profile-model";
-import { useProfilesData } from "./useProfilesData";
+import { useProfileIndexData } from "./useProfilesData";
 import { allowsLabel, assignedLabel, isDraft, STATUS_LABEL } from "./profile-summary";
 
 /** The wizard route for a fresh profile, optionally seeded with a template. */
@@ -39,7 +39,7 @@ function newProfileHref(template?: TemplateKey): string {
     : "/apps/advanced/profiles/new";
 }
 
-function statusVariant(status: ToolProfileWithDetails["status"]): "default" | "secondary" | "outline" {
+function statusVariant(status: ToolProfileListItem["status"]): "default" | "secondary" | "outline" {
   if (status === "active") return "default";
   if (status === "draft") return "secondary";
   return "outline";
@@ -58,13 +58,13 @@ export function ProfilesIndex({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { pushToast } = useToast();
-  const { profiles, agents } = useProfilesData(companyId);
+  const { profiles, agents } = useProfileIndexData(companyId);
   const profilesView = useQueryView(profiles);
   const [resolverOpen, setResolverOpen] = useState(Boolean(initialResolverOpen));
   const [statusFilter, setStatusFilter] = useState<"active" | "archived">(initialStatusFilter ?? "active");
   const [actionDialog, setActionDialog] = useState<{
     kind: ProfileActionDialogKind;
-    profile: ToolProfileWithDetails;
+    profile: ToolProfileListItem;
   } | null>(null);
 
   useEffect(() => {
@@ -84,7 +84,7 @@ export function ProfilesIndex({
   const errorBody = (error: unknown) => String((error as Error)?.message ?? error);
 
   const duplicate = useMutation({
-    mutationFn: (profile: ToolProfileWithDetails) =>
+    mutationFn: (profile: ToolProfileListItem) =>
       toolsApi.duplicateProfile(profile.id, { name: `${profile.name} (${t("profiles.detail.dialogs.copySuffix", { defaultValue: "copy" })})` }),
     onSuccess: () => {
       pushToast({ title: t("profiles.detail.toasts.duplicated", { defaultValue: "Profile duplicated" }), body: t("profiles.detail.toasts.duplicatedBody", { defaultValue: "The copy is not assigned to anyone yet." }), tone: "success" });
@@ -95,7 +95,7 @@ export function ProfilesIndex({
   });
 
   const archive = useMutation({
-    mutationFn: (profile: ToolProfileWithDetails) =>
+    mutationFn: (profile: ToolProfileListItem) =>
       toolsApi.updateProfile(profile.id, { status: "archived" }),
     onSuccess: () => {
       pushToast({ title: t("profiles.index.archivedToast", { defaultValue: "Profile archived" }), tone: "success" });
@@ -105,7 +105,7 @@ export function ProfilesIndex({
   });
 
   const restore = useMutation({
-    mutationFn: (profile: ToolProfileWithDetails) =>
+    mutationFn: (profile: ToolProfileListItem) =>
       toolsApi.updateProfile(profile.id, { status: "active" }),
     onSuccess: () => {
       pushToast({ title: t("profiles.index.restoredToast", { defaultValue: "Profile restored" }), tone: "success" });
@@ -115,7 +115,7 @@ export function ProfilesIndex({
   });
 
   const remove = useMutation({
-    mutationFn: (profile: ToolProfileWithDetails) => toolsApi.deleteProfile(profile.id),
+    mutationFn: (profile: ToolProfileListItem) => toolsApi.deleteProfile(profile.id),
     onSuccess: () => {
       pushToast({ title: t("profiles.detail.toasts.deleted", { defaultValue: "Profile deleted" }), tone: "success" });
       invalidate();

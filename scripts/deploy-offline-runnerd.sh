@@ -16,6 +16,8 @@
 #   --repo-url <url>      Clone URL on the host (default: local `fork`, else `origin` remote)
 #   --skip-runnerd        Do not rebuild or upload paperclip-runnerd
 #   --skip-build          Sync only; do not build or restart
+#   --skip-clone          Reuse the existing stage clone on the host (for when the
+#                         host cannot reach the git remote); verifies its commit
 #   --dry-run             Print the plan without changing anything
 #   -h, --help            Show this help
 #
@@ -31,6 +33,7 @@ BRANCH=""
 REPO_URL=""
 SKIP_RUNNERD=0
 SKIP_BUILD=0
+SKIP_CLONE=0
 DRY_RUN=0
 
 usage() {
@@ -46,6 +49,7 @@ while [ $# -gt 0 ]; do
     --repo-url) REPO_URL="${2:?--repo-url needs a value}"; shift 2 ;;
     --skip-runnerd) SKIP_RUNNERD=1; shift ;;
     --skip-build) SKIP_BUILD=1; shift ;;
+    --skip-clone) SKIP_CLONE=1; shift ;;
     --dry-run) DRY_RUN=1; shift ;;
     -h|--help) usage 0 ;;
     *) echo "unknown option: $1" >&2; usage 1 ;;
@@ -74,9 +78,24 @@ if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
   echo "!! local tracked files are modified; the host deploys the cloned commit, not this tree" >&2
 fi
 
+if [ "$SKIP_CLONE" = "1" ]; then
+  echo "==> 1/6 branch check skipped (--skip-clone); the staged clone is verified instead"
+else
 echo "==> 1/6 verify the branch is pushed"
-remote_exec "git ls-remote --exit-code --heads '${REPO_URL}' '${BRANCH}' >/dev/null" \
-  || { echo "branch '${BRANCH}' not found at ${REPO_URL}; push it first" >&2; exit 1; }
+set +e
+remote_exec "git ls-remote --exit-code --heads '${REPO_URL}' '${BRANCH}' >/dev/null"
+ls_remote_status=$?
+set -e
+if [ "$ls_remote_status" -ne 0 ]; then
+  # git exits 2 when the ref is genuinely absent; anything else is transport.
+  if [ "$ls_remote_status" -eq 2 ]; then
+    echo "branch '${BRANCH}' not found at ${REPO_URL}; push it first" >&2
+  else
+    echo "could not read refs from ${REPO_URL} (git ls-remote exit ${ls_remote_status}); network or remote error, retry" >&2
+  fi
+  exit 1
+fi
+fi
 
 if [ "$SKIP_RUNNERD" = "0" ]; then
   echo "==> 2/6 build paperclip-runnerd (release)"
@@ -101,10 +120,18 @@ echo "==> 4/6 stage a fresh clone and drop source files this commit no longer ha
 if [ "$DRY_RUN" = "1" ]; then
   echo "  [dry-run] clone ${REPO_URL} (${BRANCH}) -> ${STAGE_DIR}; diff *.ts/*.tsx/*.mjs; rm stale"
 else
-  ssh -o BatchMode=yes "$HOST" STAGE_DIR="$STAGE_DIR" REMOTE_DIR="$REMOTE_DIR" REPO_URL="$REPO_URL" BRANCH="$BRANCH" 'bash -s' <<'REMOTE'
+  ssh -o BatchMode=yes "$HOST" STAGE_DIR="$STAGE_DIR" REMOTE_DIR="$REMOTE_DIR" REPO_URL="$REPO_URL" BRANCH="$BRANCH" DO_CLONE="$([ "$SKIP_CLONE" = "1" ] && echo 0 || echo 1)" EXPECTED_SHA="$HEAD_SHA" 'bash -s' <<'REMOTE'
 set -euo pipefail
-rm -rf "$STAGE_DIR"
-git clone --quiet --depth 1 --branch "$BRANCH" "$REPO_URL" "$STAGE_DIR"
+if [ "$DO_CLONE" = "1" ]; then
+  rm -rf "$STAGE_DIR"
+  git clone --quiet --depth 1 --branch "$BRANCH" "$REPO_URL" "$STAGE_DIR"
+fi
+staged_sha=$(git -C "$STAGE_DIR" rev-parse HEAD)
+if [ "$staged_sha" != "$EXPECTED_SHA" ]; then
+  echo "!! staged clone is at $staged_sha but this deploy targets $EXPECTED_SHA" >&2
+  echo "   re-run without --skip-clone (or refresh the clone) " >&2
+  exit 1
+fi
 echo "    staged: $(git -C "$STAGE_DIR" log --oneline -1)"
 
 list_sources() {
@@ -139,8 +166,33 @@ rsync -a \
   --exclude=dist --exclude=dist-runtime --exclude=target --exclude=provider-assets \
   "$STAGE_DIR/" "$REMOTE_DIR/"
 REMOTE
-  rsync -az "$REPO_ROOT/docker/runner-package.t207.json" \
-    "${HOST}:${REMOTE_DIR}/packages/paperclip-runner/package.json"
+  # Derive the host-local Runner manifest from the deployed commit. Keeping a
+  # static copy in the repository drifts as soon as upstream bumps a dependency
+  # (@openai/codex did), and a stale manifest fails the image's frozen-lockfile
+  # check. Only the `build` script differs: it stages a prebuilt binary instead
+  # of invoking cargo.
+  MANIFEST="$REPO_ROOT/.git/runner-package.offline-runnerd.json"
+  node -e '
+const fs = require("node:fs");
+const pkg = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+// Upstream may route the binary step through build:binary or a helper script;
+// both shapes end up compiling cargo unless the host-local copy is adjusted.
+// Only this copy changes, and the image build does not run the repository
+// release tests that assert cargo sits in build:binary.
+const stageOnly = "node scripts/stage-runner-binary.mjs";
+const binaryScript = pkg.scripts["build:binary"];
+const build = pkg.scripts.build;
+if (typeof binaryScript === "string" && binaryScript.includes("cargo")) {
+  pkg.scripts["build:binary"] = stageOnly;
+} else if (typeof build === "string" && build.includes("pnpm run build:binary")) {
+  pkg.scripts.build = build.replace("pnpm run build:binary", stageOnly);
+} else {
+  console.error("could not find the cargo step in packages/paperclip-runner/package.json; update scripts/deploy-offline-runnerd.sh");
+  process.exit(1);
+}
+fs.writeFileSync(process.argv[2], JSON.stringify(pkg, null, 2) + "\n");
+' "$REPO_ROOT/packages/paperclip-runner/package.json" "$MANIFEST"
+  rsync -az "$MANIFEST" "${HOST}:${REMOTE_DIR}/packages/paperclip-runner/package.json"
 fi
 
 if [ "$SKIP_BUILD" = "1" ]; then

@@ -12,7 +12,7 @@ On hosts where either is missing, use the offline-runnerd pair:
 | --- | --- |
 | `docker/Dockerfile.offline-runnerd` | Drops every `runner-artifacts-*` stage, stages a prebuilt `vendor-bin/paperclip-runnerd` in `build`, and creates empty provider-pack directories so `production` still has copy targets. |
 | `docker/docker-compose.offline-runnerd.yml` | Points the `server` build at that Dockerfile and builds with host networking. |
-| `docker/runner-package.t207.json` | The Runner's `package.json` with `build` running `node scripts/stage-runner-binary.mjs` instead of `pnpm run build:binary`, so the build copies the prebuilt binary instead of invoking cargo. It must stay in sync with the committed `packages/paperclip-runner/package.json` except for that one line, or `pnpm install --frozen-lockfile` fails on a lockfile mismatch. |
+| host-local Runner manifest | `scripts/deploy-offline-runnerd.sh` derives it from the deployed commit's `packages/paperclip-runner/package.json` at deploy time: same file, except `build` runs `node scripts/stage-runner-binary.mjs` instead of `pnpm run build:binary`. Deriving it prevents drift — a static copy went stale when upstream bumped `@openai/codex` from 0.160.0 to 0.170.0 and the image then failed its frozen-lockfile check. |
 | `scripts/deploy-offline-runnerd.sh` | Stages a clone on the host, removes stale sources, syncs, builds, restarts, health-checks. |
 
 ## Deploy
@@ -52,7 +52,8 @@ ssh t207 'rsync -a --exclude=.git --exclude=.npmrc --exclude=Dockerfile \
   /tmp/pc-src/ /opt/paperclip/'
 
 # 4. host-local Runner manifest and binary
-rsync -az docker/runner-package.t207.json t207:/opt/paperclip/packages/paperclip-runner/package.json
+# (the deploy script derives this from the deployed package.json; a hand copy must
+#  also swap `pnpm run build:binary` for `node scripts/stage-runner-binary.mjs`)
 rsync -az packages/paperclip-runner/runner/target/release/paperclip-runnerd \
   t207:/opt/paperclip/vendor-bin/paperclip-runnerd
 

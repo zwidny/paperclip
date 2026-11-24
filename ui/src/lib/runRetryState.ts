@@ -53,12 +53,19 @@ export function describeRunRetryState(run: RetryAwareRun): RunRetryStateSummary 
     typeof run.scheduledRetryAttempt === "number" && Number.isFinite(run.scheduledRetryAttempt) && run.scheduledRetryAttempt > 0
       ? run.scheduledRetryAttempt
       : null;
-  const attemptLabel = attempt ? `Attempt ${attempt}` : null;
+  const attemptLabel = attempt
+    ? t("runRetry.attempt", { attempt, defaultValue: `Attempt ${attempt}` })
+    : null;
   const reasonLabel = formatRetryReason(run.scheduledRetryReason);
   const retryOfRunId = readNonEmptyString(run.retryOfRunId);
   const exhaustedReason = readNonEmptyString(run.retryExhaustedReason);
   const dueAt = run.scheduledRetryAt ? formatDateTime(run.scheduledRetryAt) : null;
   const isMaxTurnContinuation = run.scheduledRetryReason === "max_turns_continuation";
+
+  /** "Next continuation" / "Next retry" without a time, for the pending branch. */
+  const nextLabel = () => isMaxTurnContinuation
+    ? t("runRetry.nextContinuationLabel", { defaultValue: "Next continuation" })
+    : t("runRetry.nextRetryLabel", { defaultValue: "Next retry" });
   const hasRetryMetadata =
     Boolean(retryOfRunId)
     || Boolean(reasonLabel)
@@ -71,12 +78,21 @@ export function describeRunRetryState(run: RetryAwareRun): RunRetryStateSummary 
   if (run.status === "scheduled_retry") {
     return {
       kind: "scheduled",
-      badgeLabel: run.scheduledRetryReason === "ai_connection_pool_wait" ? "Pool exhausted" : isMaxTurnContinuation ? "Continuation scheduled" : "Retry scheduled",
+      badgeLabel: run.scheduledRetryReason === "ai_connection_pool_wait"
+        ? t("runRetry.poolExhausted", { defaultValue: "Pool exhausted" })
+        : isMaxTurnContinuation
+          ? t("runRetry.continuationScheduled", { defaultValue: "Continuation scheduled" })
+          : t("runRetry.retryScheduled", { defaultValue: "Retry scheduled" }),
       tone: "border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300",
       detail: joinFragments([attemptLabel, reasonLabel]),
       secondary: dueAt
-        ? `${isMaxTurnContinuation ? "Next continuation" : "Next retry"} ${dueAt}`
-        : `${isMaxTurnContinuation ? "Next continuation" : "Next retry"} pending schedule`,
+        ? (isMaxTurnContinuation
+            ? t("runRetry.nextContinuation", { when: dueAt, defaultValue: `Next continuation ${dueAt}` })
+            : t("runRetry.nextRetry", { when: dueAt, defaultValue: `Next retry ${dueAt}` }))
+        : t("runRetry.nextPending", {
+            label: nextLabel(),
+            defaultValue: `${nextLabel()} pending schedule`,
+          }),
       retryOfRunId,
     };
   }
@@ -84,19 +100,30 @@ export function describeRunRetryState(run: RetryAwareRun): RunRetryStateSummary 
   if (exhaustedReason) {
     return {
       kind: "exhausted",
-      badgeLabel: isMaxTurnContinuation ? "Continuation exhausted" : "Retry exhausted",
+      badgeLabel: isMaxTurnContinuation
+        ? t("runRetry.continuationExhausted", { defaultValue: "Continuation exhausted" })
+        : t("runRetry.retryExhausted", { defaultValue: "Retry exhausted" }),
       tone: "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300",
-      detail: joinFragments([attemptLabel, reasonLabel, "Automatic retries exhausted"]),
+      detail: joinFragments([
+        attemptLabel,
+        reasonLabel,
+        t("runRetry.autoRetriesExhausted", { defaultValue: "Automatic retries exhausted" }),
+      ]),
       secondary: exhaustedReason.includes("Manual intervention required")
         ? exhaustedReason
-        : `${exhaustedReason} Manual intervention required.`,
+        : t("runRetry.manualIntervention", {
+            reason: exhaustedReason,
+            defaultValue: `${exhaustedReason} Manual intervention required.`,
+          }),
       retryOfRunId,
     };
   }
 
   return {
     kind: "attempted",
-    badgeLabel: isMaxTurnContinuation ? "Continued run" : "Retried run",
+    badgeLabel: isMaxTurnContinuation
+      ? t("runRetry.continuedRun", { defaultValue: "Continued run" })
+      : t("runRetry.retriedRun", { defaultValue: "Retried run" }),
     tone: "border-slate-500/20 bg-slate-500/10 text-slate-700 dark:text-slate-300",
     detail: joinFragments([attemptLabel, reasonLabel]),
     secondary: null,

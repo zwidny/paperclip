@@ -10152,7 +10152,20 @@
     "nextRetryPending": "下次重試待排程",
     "nextContinuationPending": "下次續跑待排程",
     "automaticRetriesExhausted": "自動重試次數已用盡",
-    "manualInterventionRequired": "需要人工介入。"
+    "manualInterventionRequired": "需要人工介入。",
+    "poolExhausted": "Pool exhausted",
+    "continuationScheduled": "Continuation scheduled",
+    "retryScheduled": "Retry scheduled",
+    "nextAt": "{{label}} {{time}}",
+    "nextPending": "{{label}} pending schedule",
+    "continuationExhausted": "Continuation exhausted",
+    "retryExhausted": "Retry exhausted",
+    "autoRetriesExhausted": "Automatic retries exhausted",
+    "manualIntervention": "{{reason}} Manual intervention required.",
+    "continuedRun": "Continued run",
+    "retriedRun": "Retried run",
+    "nextContinuationLabel": "Next continuation",
+    "nextRetryLabel": "Next retry"
   },
   "appDetail": {
     "loadingConnection": "正在載入連線…",
@@ -23455,5 +23468,82 @@
     "company_updated": "updated organization",
     "company_archived": "archived organization",
     "company_budget_updated": "updated organization budget"
+  },
+  "taskStatus": {
+    "blocked": {
+      "base": "Blocked",
+      "waitingSubtask": "Blocked · waiting on active sub-task {{id}}",
+      "waitingOneSubtask": "Blocked · waiting on 1 active sub-task",
+      "waitingSubtasks": "Blocked · waiting on {{count}} active sub-tasks",
+      "coveredByDependency": "Blocked · covered by active dependency {{id}}",
+      "coveredByOneDependency": "Blocked · covered by 1 active dependency",
+      "coveredByDependencies": "Blocked · covered by {{count}} active dependencies",
+      "reviewStalledOn": "Blocked · review stalled on {{leaf}}",
+      "reviewStalledNoNextStep": "Blocked · review stalled with no clear next step",
+      "reviewsStalled": "Blocked · {{count}} reviews stalled with no clear next step",
+      "blockerNeedsAttention": "{{count}} blocker needs attention",
+      "blockersNeedAttention": "{{count}} blockers need attention",
+      "attention": "Blocked · {{copy}}",
+      "attentionWithCovered": "Blocked · {{copy}}; {{count}} covered by active work"
+    }
+  },
+  "runStopReason": {
+    "timeoutText": "{{seconds}}s timeout",
+    "timeoutWith": "timeout ({{text}})",
+    "timeout": "timeout",
+    "maxTurns": "max turns exhausted",
+    "budgetPaused": "budget paused",
+    "cancelled": "cancelled",
+    "pausedByBoard": "paused by board",
+    "processLost": "process lost",
+    "unmanagedBackgroundTaskStopped": "unmanaged background task stopped",
+    "adapterFailedWith": "adapter failed ({{cause}})",
+    "adapterFailed": "adapter failed",
+    "completedWith": "completed ({{text}})",
+    "completed": "completed"
+  },
+  "attentionResponder": {
+    "onlyYou": "Only you can answer it.",
+    "onlyAddressee": "Only @{{name}} can answer it.",
+    "boardMemberToo": "Any board member can answer it too.",
+    "boardMember": "Any board member can answer it.",
+    "addressedAgentOrBoardToo": "{{name}} or any board member can answer it too.",
+    "addressedAgentOrBoard": "{{name}} or any board member can answer it.",
+    "anyoneExceptToo": "Anyone except {{name}} can answer it too.",
+    "anyoneExcept": "Anyone except {{name}} can answer it.",
+    "anyoneElseToo": "Anyone else can answer it too.",
+    "anyone": "Anyone can answer it.",
+    "addressedPerson": "the addressed person",
+    "theAddressedAgent": "The addressed agent",
+    "theAgentThatAsked": "the agent that asked",
+    "noOwnerYet": "No owner yet. {{responders}}"
+  },
+  "decisionEffect": {
+    "commentOn": "Comment on {{target}}",
+    "createIssue": "Create issue “{{title}}” under {{parent}}",
+    "setStatus": "Set {{target}} to {{status}}",
+    "reassign": "Reassign {{target}}",
+    "unblock": "Unblock {{target}} — remove {{count}} blocker(s)",
+    "cancelTree": "Cancel {{target}} and its sub-tree ({{count}} issues)",
+    "apply": "Apply effect",
+    "cause": {
+      "deny": "blocked by the permission boundary (fail-closed)",
+      "invalidRef": "a referenced issue no longer exists",
+      "targetChanged": "the target changed since this was proposed",
+      "executed": "the effect errored while running",
+      "unknown": "the effect could not run"
+    },
+    "createdIssue": "Created {{target}}",
+    "createdNewIssue": "Created a new issue"
+  },
+  "routineEvent": {
+    "connectionWorking": "Connection working · No run or task created",
+    "updateKeyResend": "Update the key in your app and resend",
+    "authPassed": "Authentication passed",
+    "checkKey": "Check the key in your sending app",
+    "sourceWebhook": "Webhook",
+    "sourceSchedule": "Schedule",
+    "sourceManual": "Manual",
+    "taskCreated": "Task created"
   }
 }

@@ -9,6 +9,7 @@ import {
   type AttentionViewCounts,
 } from "@paperclipai/shared";
 import type { CurrentBoardAccess } from "@/api/access";
+import { t } from "../i18n";
 
 /**
  * The view switch on the classic Decisions page and Coordinator Needs You
@@ -148,17 +149,49 @@ export function attentionResponderText(
   const facts = item.sourceKind === "issue_thread_interaction" ? item.resolverAudience : null;
   if (!facts) return null;
   const mine = description.kind === "mine";
-  const too = mine ? " too" : "";
   if (facts.addresseeUserId) {
-    if (mine) return "Only you can answer it.";
-    return `Only @${userLabelMap?.get(facts.addresseeUserId) ?? "the addressed person"} can answer it.`;
+    if (mine) return t("attentionResponder.onlyYou", { defaultValue: "Only you can answer it." });
+    const name = userLabelMap?.get(facts.addresseeUserId)
+      ?? t("attentionResponder.addressedPerson", { defaultValue: "the addressed person" });
+    return t("attentionResponder.onlyAddressee", {
+      name,
+      defaultValue: `Only @${name} can answer it.`,
+    });
   }
-  if (facts.effectiveResolverPolicy === "human_only") return `Any board member can answer it${too}.`;
-  if (facts.addresseeAgentId) return `${facts.addresseeName?.trim() || "The addressed agent"} or any board member can answer it${too}.`;
+  if (facts.effectiveResolverPolicy === "human_only") {
+    return mine
+      ? t("attentionResponder.boardMemberToo", { defaultValue: "Any board member can answer it too." })
+      : t("attentionResponder.boardMember", { defaultValue: "Any board member can answer it." });
+  }
+  if (facts.addresseeAgentId) {
+    const name = facts.addresseeName?.trim()
+      || t("attentionResponder.theAddressedAgent", { defaultValue: "The addressed agent" });
+    return mine
+      ? t("attentionResponder.addressedAgentOrBoardToo", {
+          name,
+          defaultValue: `${name} or any board member can answer it too.`,
+        })
+      : t("attentionResponder.addressedAgentOrBoard", {
+          name,
+          defaultValue: `${name} or any board member can answer it.`,
+        });
+  }
   if (facts.effectiveResolverPolicy === "not_creator") {
-    return `Anyone except ${facts.createdByAgentName?.trim() || "the agent that asked"} can answer it${too}.`;
+    const name = facts.createdByAgentName?.trim()
+      || t("attentionResponder.theAgentThatAsked", { defaultValue: "the agent that asked" });
+    return mine
+      ? t("attentionResponder.anyoneExceptToo", {
+          name,
+          defaultValue: `Anyone except ${name} can answer it too.`,
+        })
+      : t("attentionResponder.anyoneExcept", {
+          name,
+          defaultValue: `Anyone except ${name} can answer it.`,
+        });
   }
-  return mine ? "Anyone else can answer it too." : "Anyone can answer it.";
+  return mine
+    ? t("attentionResponder.anyoneElseToo", { defaultValue: "Anyone else can answer it too." })
+    : t("attentionResponder.anyone", { defaultValue: "Anyone can answer it." });
 }
 
 /**
@@ -172,7 +205,9 @@ export function attentionUnownedAudienceText(
 ) {
   const responders = attentionResponderText(item, description, userLabelMap);
   if (!responders) return description.text;
-  return description.kind === "pool" ? `No owner yet. ${responders}` : `${description.text}. ${responders}`;
+  return description.kind === "pool"
+    ? t("attentionResponder.noOwnerYet", { responders, defaultValue: `No owner yet. ${responders}` })
+    : `${description.text}. ${responders}`;
 }
 
 /**

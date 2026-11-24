@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
+import { t } from "../i18n";
 import type { ActivityEvent } from "@paperclipai/shared";
 import { cn } from "@/lib/utils";
 import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
@@ -16,13 +17,23 @@ function formatTime(value: string | Date): string {
 
 function summarizeEvent(event: RoutineActivityEvent): string {
   const details = event.details;
-  if (event.action === "routine.webhook_test_received") return "Connection working · No run or task created";
-  if (event.action === "routine.webhook_test_rejected") return "Update the key in your app and resend";
-  if (event.action === "routine.webhook_received") return "Authentication passed";
-  if (event.action === "routine.webhook_rejected") return "Check the key in your sending app";
+  if (event.action === "routine.webhook_test_received") return t("routineEvent.connectionWorking", { defaultValue: "Connection working · No run or task created" });
+  if (event.action === "routine.webhook_test_rejected") return t("routineEvent.updateKeyResend", { defaultValue: "Update the key in your app and resend" });
+  if (event.action === "routine.webhook_received") return t("routineEvent.authPassed", { defaultValue: "Authentication passed" });
+  if (event.action === "routine.webhook_rejected") return t("routineEvent.checkKey", { defaultValue: "Check the key in your sending app" });
   if (!details) return "";
   if (typeof details.changeSummary === "string") return details.changeSummary;
-  if (event.action === "routine.run_triggered") return `${details.source === "webhook" ? "Webhook" : details.source === "schedule" ? "Schedule" : "Manual"} · ${details.status === "issue_created" ? "Task created" : String(details.status ?? "").replaceAll("_", " ")}`;
+  if (event.action === "routine.run_triggered") {
+    const source = details.source === "webhook"
+      ? t("routineEvent.sourceWebhook", { defaultValue: "Webhook" })
+      : details.source === "schedule"
+        ? t("routineEvent.sourceSchedule", { defaultValue: "Schedule" })
+        : t("routineEvent.sourceManual", { defaultValue: "Manual" });
+    const status = details.status === "issue_created"
+      ? t("routineEvent.taskCreated", { defaultValue: "Task created" })
+      : String(details.status ?? "").replaceAll("_", " ");
+    return `${source} · ${status}`;
+  }
   return Object.entries(details).filter(([key]) => !/id$/i.test(key)).slice(0, 3)
     .map(([key, value]) => `${key.replace(/([a-z])([A-Z])/g, "$1 $2").replaceAll("_", " ").toLowerCase()}: ${formatDetailValue(value)}`)
     .join(" · ");

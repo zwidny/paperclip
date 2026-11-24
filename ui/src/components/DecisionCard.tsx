@@ -22,7 +22,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { MarkdownBody } from "./MarkdownBody";
-import { useTranslation } from "../i18n";
+import { t, useTranslation } from "../i18n";
 import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 /**
@@ -101,26 +101,42 @@ function effectSummary(
   const target = issueLabel(resolve(effect.targetIssueId), effect.targetIssueId);
   switch (effect.type) {
     case "comment_on_issue":
-      return `Comment on ${target}`;
+      return t("decisionEffect.commentOn", { target, defaultValue: `Comment on ${target}` });
     case "create_issue": {
       const parent = effect.draft.parentId
         ? issueLabel(resolve(effect.draft.parentId), effect.draft.parentId)
         : target;
-      return `Create issue “${effect.draft.title}” under ${parent}`;
+      return t("decisionEffect.createIssue", {
+        title: effect.draft.title,
+        parent,
+        defaultValue: `Create issue “${effect.draft.title}” under ${parent}`,
+      });
     }
     case "update_issue_status":
-      return `Set ${target} to ${humanStatus(effect.status)}`;
+      return t("decisionEffect.setStatus", {
+        target,
+        status: humanStatus(effect.status),
+        defaultValue: `Set ${target} to ${humanStatus(effect.status)}`,
+      });
     case "assign_issue":
-      return `Reassign ${target}`;
+      return t("decisionEffect.reassign", { target, defaultValue: `Reassign ${target}` });
     case "resolve_blocker":
-      return `Unblock ${target} — remove ${pluralize(effect.removeBlockedByIssueIds.length, "blocker")}`;
+      return t("decisionEffect.unblock", {
+        target,
+        count: effect.removeBlockedByIssueIds.length,
+        defaultValue: `Unblock ${target} — remove ${pluralize(effect.removeBlockedByIssueIds.length, "blocker")}`,
+      });
     case "cancel_issue_tree": {
       const snapshot = snapshots[effect.targetIssueId];
       const descendantCount = snapshot?.descendantCount ?? snapshot?.descendantIds?.length ?? snapshot?.childCount ?? 0;
-      return `Cancel ${target} and its sub-tree (${pluralize(descendantCount + 1, "issue")})`;
+      return t("decisionEffect.cancelTree", {
+        target,
+        count: descendantCount + 1,
+        defaultValue: `Cancel ${target} and its sub-tree (${pluralize(descendantCount + 1, "issue")})`,
+      });
     }
     default:
-      return "Apply effect";
+      return t("decisionEffect.apply", { defaultValue: "Apply effect" });
   }
 }
 
@@ -149,7 +165,17 @@ function executionRow(
     return { key: execution.id, status: "skipped", summary: `Skipped ${target} — target changed since proposal`, link: targetRef };
   }
   if (execution.status === "failed") {
-    const cause = FAILURE_CAUSE[execution.error ?? ""] ?? execution.error ?? "the effect could not run";
+    const causeKey: Record<string, string> = {
+      deny_decision_intersection: "deny",
+      invalid_effect_reference: "invalidRef",
+      target_changed: "targetChanged",
+      effect_execution_failed: "executed",
+    };
+    const cause = execution.error && causeKey[execution.error]
+      ? t(`decisionEffect.cause.${causeKey[execution.error]}`, {
+          defaultValue: FAILURE_CAUSE[execution.error] ?? execution.error,
+        })
+      : (execution.error ?? t("decisionEffect.cause.unknown", { defaultValue: "the effect could not run" }));
     return { key: execution.id, status: "failed", summary: `Failed on ${target} — ${cause}`, link: targetRef };
   }
   if (execution.status === "claimed") {

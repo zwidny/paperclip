@@ -1,4 +1,5 @@
 import type { IssueBlockerAttention } from "@paperclipai/shared";
+import { t } from "../i18n";
 
 /**
  * Everything a task status surface needs to pick its glyph and label. Every
@@ -28,45 +29,73 @@ export function taskStatusLabel(status: string): string {
 }
 
 function blockedAttentionLabel(blockerAttention: IssueBlockerAttention | null | undefined) {
-  if (!blockerAttention || blockerAttention.state === "none") return "Blocked";
+  if (!blockerAttention || blockerAttention.state === "none") {
+    return t("taskStatus.blocked.base", { defaultValue: "Blocked" });
+  }
 
   if (blockerAttention.reason === "active_child") {
     const count = blockerAttention.coveredBlockerCount;
     if (count === 1 && blockerAttention.sampleBlockerIdentifier) {
-      return `Blocked · waiting on active sub-task ${blockerAttention.sampleBlockerIdentifier}`;
+      return t("taskStatus.blocked.waitingSubtask", {
+        id: blockerAttention.sampleBlockerIdentifier,
+        defaultValue: `Blocked · waiting on active sub-task ${blockerAttention.sampleBlockerIdentifier}`,
+      });
     }
-    if (count === 1) return "Blocked · waiting on 1 active sub-task";
-    return `Blocked · waiting on ${count} active sub-tasks`;
+    if (count === 1) return t("taskStatus.blocked.waitingOneSubtask", { defaultValue: "Blocked · waiting on 1 active sub-task" });
+    return t("taskStatus.blocked.waitingSubtasks", {
+      count,
+      defaultValue: `Blocked · waiting on ${count} active sub-tasks`,
+    });
   }
 
   if (blockerAttention.reason === "active_dependency") {
     const count = blockerAttention.coveredBlockerCount;
     if (count === 1 && blockerAttention.sampleBlockerIdentifier) {
-      return `Blocked · covered by active dependency ${blockerAttention.sampleBlockerIdentifier}`;
+      return t("taskStatus.blocked.coveredByDependency", {
+        id: blockerAttention.sampleBlockerIdentifier,
+        defaultValue: `Blocked · covered by active dependency ${blockerAttention.sampleBlockerIdentifier}`,
+      });
     }
-    if (count === 1) return "Blocked · covered by 1 active dependency";
-    return `Blocked · covered by ${count} active dependencies`;
+    if (count === 1) return t("taskStatus.blocked.coveredByOneDependency", { defaultValue: "Blocked · covered by 1 active dependency" });
+    return t("taskStatus.blocked.coveredByDependencies", {
+      count,
+      defaultValue: `Blocked · covered by ${count} active dependencies`,
+    });
   }
 
   if (blockerAttention.reason === "stalled_review") {
     const count = blockerAttention.stalledBlockerCount;
     const leaf = blockerAttention.sampleStalledBlockerIdentifier ?? blockerAttention.sampleBlockerIdentifier;
-    if (count === 1 && leaf) return `Blocked · review stalled on ${leaf}`;
-    if (count === 1) return "Blocked · review stalled with no clear next step";
-    return `Blocked · ${count} reviews stalled with no clear next step`;
+    if (count === 1 && leaf) {
+      return t("taskStatus.blocked.reviewStalledOn", {
+        leaf,
+        defaultValue: `Blocked · review stalled on ${leaf}`,
+      });
+    }
+    if (count === 1) return t("taskStatus.blocked.reviewStalledNoNextStep", { defaultValue: "Blocked · review stalled with no clear next step" });
+    return t("taskStatus.blocked.reviewsStalled", {
+      count,
+      defaultValue: `Blocked · ${count} reviews stalled with no clear next step`,
+    });
   }
 
   if (blockerAttention.reason === "attention_required") {
     const count = blockerAttention.attentionBlockerCount || blockerAttention.unresolvedBlockerCount;
-    const attentionCopy = `${count} ${count === 1 ? "blocker needs" : "blockers need"} attention`;
+    const attentionCopy = count === 1
+      ? t("taskStatus.blocked.blockerNeedsAttention", { count, defaultValue: `${count} blocker needs attention` })
+      : t("taskStatus.blocked.blockersNeedAttention", { count, defaultValue: `${count} blockers need attention` });
     const coveredCount = blockerAttention.coveredBlockerCount;
     if (coveredCount > 0) {
-      return `Blocked · ${attentionCopy}; ${coveredCount} covered by active work`;
+      return t("taskStatus.blocked.attentionWithCovered", {
+        copy: attentionCopy,
+        count: coveredCount,
+        defaultValue: `Blocked · ${attentionCopy}; ${coveredCount} covered by active work`,
+      });
     }
-    return `Blocked · ${attentionCopy}`;
+    return t("taskStatus.blocked.attention", { copy: attentionCopy, defaultValue: `Blocked · ${attentionCopy}` });
   }
 
-  return "Blocked";
+  return t("taskStatus.blocked.base", { defaultValue: "Blocked" });
 }
 
 /**

@@ -10152,7 +10152,20 @@
     "nextRetryPending": "下次重试待排期",
     "nextContinuationPending": "下次续跑待排期",
     "automaticRetriesExhausted": "自动重试次数已用尽",
-    "manualInterventionRequired": "需要人工介入。"
+    "manualInterventionRequired": "需要人工介入。",
+    "poolExhausted": "连接池已耗尽",
+    "continuationScheduled": "已安排继续",
+    "retryScheduled": "已安排重试",
+    "nextAt": "{{label}} {{time}}",
+    "nextPending": "{{label}}，等待安排",
+    "continuationExhausted": "继续已用尽",
+    "retryExhausted": "重试已用尽",
+    "autoRetriesExhausted": "自动重试已用尽",
+    "manualIntervention": "{{reason}} 需要人工介入。",
+    "continuedRun": "已继续的运行",
+    "retriedRun": "已重试的运行",
+    "nextContinuationLabel": "下次续跑",
+    "nextRetryLabel": "下次重试"
   },
   "appDetail": {
     "loadingConnection": "正在加载连接…",
@@ -23455,5 +23468,82 @@
     "company_updated": "更新了组织",
     "company_archived": "归档了组织",
     "company_budget_updated": "更新了组织预算"
+  },
+  "taskStatus": {
+    "blocked": {
+      "base": "受阻",
+      "waitingSubtask": "受阻 · 等待子任务 {{id}}",
+      "waitingOneSubtask": "受阻 · 等待 1 个进行中的子任务",
+      "waitingSubtasks": "受阻 · 等待 {{count}} 个进行中的子任务",
+      "coveredByDependency": "受阻 · 受进行中的依赖 {{id}} 阻塞",
+      "coveredByOneDependency": "受阻 · 受 1 个进行中的依赖阻塞",
+      "coveredByDependencies": "受阻 · 受 {{count}} 个进行中的依赖阻塞",
+      "reviewStalledOn": "受阻 · 审查在 {{leaf}} 停滞",
+      "reviewStalledNoNextStep": "受阻 · 审查停滞，没有明确的下一步",
+      "reviewsStalled": "受阻 · {{count}} 个审查停滞，没有明确的下一步",
+      "blockerNeedsAttention": "{{count}} 个阻塞项需要处理",
+      "blockersNeedAttention": "{{count}} 个阻塞项需要处理",
+      "attention": "受阻 · {{copy}}",
+      "attentionWithCovered": "受阻 · {{copy}}；{{count}} 项由进行中的工作覆盖"
+    }
+  },
+  "runStopReason": {
+    "timeoutText": "{{seconds}} 秒超时",
+    "timeoutWith": "超时（{{text}}）",
+    "timeout": "超时",
+    "maxTurns": "达到最大轮次",
+    "budgetPaused": "因预算暂停",
+    "cancelled": "已取消",
+    "pausedByBoard": "由董事会暂停",
+    "processLost": "进程丢失",
+    "unmanagedBackgroundTaskStopped": "未托管的后台任务已停止",
+    "adapterFailedWith": "适配器失败（{{cause}}）",
+    "adapterFailed": "适配器失败",
+    "completedWith": "已完成（{{text}}）",
+    "completed": "已完成"
+  },
+  "attentionResponder": {
+    "onlyYou": "只有你可以回答。",
+    "onlyAddressee": "只有 @{{name}} 可以回答。",
+    "boardMemberToo": "任何董事会成员也可以回答。",
+    "boardMember": "任何董事会成员都可以回答。",
+    "addressedAgentOrBoardToo": "{{name}} 或任何董事会成员也可以回答。",
+    "addressedAgentOrBoard": "{{name}} 或任何董事会成员都可以回答。",
+    "anyoneExceptToo": "除 {{name}} 外的人也可以回答。",
+    "anyoneExcept": "除 {{name}} 外的人可以回答。",
+    "anyoneElseToo": "其他人也可以回答。",
+    "anyone": "任何人都可以回答。",
+    "addressedPerson": "被指定的人",
+    "theAddressedAgent": "被指定的代理",
+    "theAgentThatAsked": "提问的代理",
+    "noOwnerYet": "暂无负责人。{{responders}}"
+  },
+  "decisionEffect": {
+    "commentOn": "在 {{target}} 上评论",
+    "createIssue": "在 {{parent}} 下创建任务“{{title}}”",
+    "setStatus": "将 {{target}} 设为 {{status}}",
+    "reassign": "重新分派 {{target}}",
+    "unblock": "解除 {{target}} 的阻塞 — 移除 {{count}} 个阻塞项",
+    "cancelTree": "取消 {{target}} 及其子树（{{count}} 个任务）",
+    "apply": "应用效果",
+    "cause": {
+      "deny": "被权限边界阻止（失败即关闭）",
+      "invalidRef": "引用的任务已不存在",
+      "targetChanged": "目标在此提议后已变更",
+      "executed": "效果执行时出错",
+      "unknown": "效果无法运行"
+    },
+    "createdIssue": "已创建 {{target}}",
+    "createdNewIssue": "已创建新任务"
+  },
+  "routineEvent": {
+    "connectionWorking": "连接正常 · 未创建运行或任务",
+    "updateKeyResend": "在你的应用中更新密钥后重新发送",
+    "authPassed": "认证通过",
+    "checkKey": "检查发送方应用中的密钥",
+    "sourceWebhook": "Webhook",
+    "sourceSchedule": "计划",
+    "sourceManual": "手动",
+    "taskCreated": "已创建任务"
   }
 }

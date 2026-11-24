@@ -312,6 +312,10 @@ function livenessCopyForRun(run: LedgerRun) {
   return isActiveRun(run) ? PENDING_LIVENESS_COPY : MISSING_LIVENESS_COPY;
 }
 
+/** Module-scope translation for the stop-reason table. */
+const trStop = (key: string, options: Record<string, unknown> = {}): string =>
+  String(i18n.t(`runStopReason.${key}`, options as never));
+
 function stopReasonLabel(run: RunForIssue) {
   const result = asRecord(run.resultJson);
   const stopReason = readString(result?.stopReason);
@@ -319,30 +323,36 @@ function stopReasonLabel(run: RunForIssue) {
   const effectiveTimeoutSec = readNumber(result?.effectiveTimeoutSec);
   const timeoutText =
     effectiveTimeoutSec && effectiveTimeoutSec > 0
-      ? `${effectiveTimeoutSec}s timeout`
+      ? trStop("timeoutText", { seconds: effectiveTimeoutSec, defaultValue: `${effectiveTimeoutSec}s timeout` })
       : null;
 
   if (timeoutFired || stopReason === "timeout") {
-    return timeoutText ? `timeout (${timeoutText})` : "timeout";
+    return timeoutText
+      ? trStop("timeoutWith", { text: timeoutText, defaultValue: `timeout (${timeoutText})` })
+      : trStop("timeout", { defaultValue: "timeout" });
   }
   if (
     stopReason === "max_turns_exhausted" ||
     stopReason === "turn_limit_exhausted"
   )
-    return "max turns exhausted";
-  if (stopReason === "budget_paused") return "budget paused";
-  if (stopReason === "cancelled") return "cancelled";
-  if (stopReason === "paused") return "paused by board";
-  if (stopReason === "process_lost") return "process lost";
+    return trStop("maxTurns", { defaultValue: "max turns exhausted" });
+  if (stopReason === "budget_paused") return trStop("budgetPaused", { defaultValue: "budget paused" });
+  if (stopReason === "cancelled") return trStop("cancelled", { defaultValue: "cancelled" });
+  if (stopReason === "paused") return trStop("pausedByBoard", { defaultValue: "paused by board" });
+  if (stopReason === "process_lost") return trStop("processLost", { defaultValue: "process lost" });
   if (stopReason === "unmanaged_background_task_stopped")
-    return "unmanaged background task stopped";
+    return trStop("unmanagedBackgroundTaskStopped", { defaultValue: "unmanaged background task stopped" });
   if (stopReason === "adapter_failed") {
     // Older runs have no recorded cause and keep the plain label.
     const failureCause = normalizeRunFailureCause(run.failureCause);
-    return failureCause ? `adapter failed (${failureCause})` : "adapter failed";
+    return failureCause
+      ? trStop("adapterFailedWith", { cause: failureCause, defaultValue: `adapter failed (${failureCause})` })
+      : trStop("adapterFailed", { defaultValue: "adapter failed" });
   }
   if (stopReason === "completed")
-    return timeoutText ? `completed (${timeoutText})` : "completed";
+    return timeoutText
+      ? trStop("completedWith", { text: timeoutText, defaultValue: `completed (${timeoutText})` })
+      : trStop("completed", { defaultValue: "completed" });
   return timeoutText;
 }
 

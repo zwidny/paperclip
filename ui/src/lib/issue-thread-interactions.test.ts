@@ -744,6 +744,31 @@ describe("interaction readiness polling", () => {
       await changeLocale("en");
     });
 
+    it("localizes the interaction summary across kinds", async () => {
+      await changeLocale("zh-CN");
+      const questions = (n: number) => Array.from({ length: n }, (_, i) => ({ id: `q${i}`, prompt: `P${i}`, options: [] }));
+      expect(buildIssueThreadInteractionSummary({
+        kind: "ask_user_questions", status: "expired",
+        payload: { questions: questions(1) }, result: {},
+      } as never)).toBe("问题已失效");
+      expect(buildIssueThreadInteractionSummary({
+        kind: "ask_user_questions", status: "answered",
+        payload: { questions: questions(3) }, result: { answers: [] },
+      } as never)).toBe("已回答 3 个问题");
+      expect(buildIssueThreadInteractionSummary({
+        kind: "ask_user_questions", status: "pending",
+        payload: { questions: questions(2) }, result: null,
+      } as never)).toBe("提问了 2 个问题");
+      expect(buildIssueThreadInteractionSummary({
+        kind: "request_confirmation", status: "expired",
+        payload: {}, result: {},
+      } as never)).toBe("确认已失效");
+      expect(buildIssueThreadInteractionSummary({
+        kind: "request_confirmation", status: "accepted",
+        payload: {}, result: {},
+      } as never)).toBe("已确认请求");
+    });
+
     it("renders the heading in Chinese while keeping the answers as given", async () => {
       await changeLocale("zh-CN");
       const interaction = {

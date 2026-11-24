@@ -5367,7 +5367,28 @@
       "runtime": "运行时",
       "governance": "治理"
     },
-    "apps": "应用"
+    "apps": "应用",
+    "section": {
+      "agent": "代理",
+      "audit": "审计"
+    },
+    "item": {
+      "overview": "概览",
+      "instructions": "身份",
+      "runtime": "运行时",
+      "secrets": "密钥与变量",
+      "permissions": "权限与信任",
+      "advanced": "高级",
+      "activity": "活动",
+      "runs": "运行",
+      "costs": "成本",
+      "budgets": "预算",
+      "skills": "技能",
+      "tools": "工具",
+      "channels": "频道",
+      "api-keys": "API 密钥",
+      "revisions": "代理历史"
+    }
   },
   "agentSidebar": {
     "agentFallback": "Agent",

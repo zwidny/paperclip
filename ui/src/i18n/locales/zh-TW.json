@@ -5367,7 +5367,28 @@
       "runtime": "執行環境",
       "governance": "治理"
     },
-    "apps": "應用"
+    "apps": "應用",
+    "section": {
+      "agent": "Agent",
+      "audit": "Audit"
+    },
+    "item": {
+      "overview": "Overview",
+      "instructions": "Identity",
+      "runtime": "Harness / Runtime",
+      "secrets": "Secrets & variables",
+      "permissions": "Permissions / Trust",
+      "advanced": "Advanced",
+      "activity": "Activity",
+      "runs": "Runs",
+      "costs": "Costs",
+      "budgets": "Budgets",
+      "skills": "Skills",
+      "tools": "Tools",
+      "channels": "Channels",
+      "api-keys": "API Keys",
+      "revisions": "Agent history"
+    }
   },
   "agentSidebar": {
     "agentFallback": "Agent",

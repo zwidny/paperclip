@@ -100,14 +100,15 @@ export function AgentContextualSidebar({
             ) : null}
             <div data-slot="contextual-sidebar-section" className={contextualSidebarStyles.section}>
               <p data-slot="contextual-sidebar-section-label" className={contextualSidebarStyles.sectionLabel}>
-                {section.label}
+                {t(`agentNavigation.section.${section.label.toLowerCase()}`, { defaultValue: section.label })}
               </p>
               <div data-slot="contextual-sidebar-group" className={contextualSidebarStyles.group}>
                 {section.items.map((item) => (
                   <SidebarNavItem
                     key={item.value}
                     to={agentDetailHref(agentRef, item.value)}
-                    label={resolvedLabels?.[item.value] ?? item.label}
+                    label={resolvedLabels?.[item.value]
+                      ?? t(`agentNavigation.item.${item.value}`, { defaultValue: item.label })}
                     icon={localIcons[item.value]}
                   />
                 ))}

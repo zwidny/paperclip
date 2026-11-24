@@ -18946,8 +18946,8 @@
   "activityFormat": {
     "suffixOn": "{{label}}",
     "listSeparator": "，",
-    "singularWithLabel": "{{singular}} {{label}}",
-    "countPlural": "{{count}} {{plural}}",
+    "singularWithLabel": "{{label}}（{{singular}}）",
+    "countPlural": "{{count}} 個{{plural}}",
     "entity": {
       "blocker": "阻塞項",
       "blockers": "阻塞項",

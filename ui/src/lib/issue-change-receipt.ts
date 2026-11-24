@@ -1,5 +1,6 @@
 import type { IssueChangeReceiptEntry } from "@paperclipai/shared";
 import { formatReviewPolicyValue } from "./review-policy";
+import { t } from "../i18n";
 
 /**
  * Read + format the field-level change receipts carried on an `issue.updated`
@@ -44,7 +45,7 @@ const FIELD_LABELS: Record<string, string> = {
 /** Human label for a changed field, e.g. `assigneeAgentId` → "Assignee". */
 export function issueChangeFieldLabel(field: string): string {
   const known = FIELD_LABELS[field];
-  if (known) return known;
+  if (known) return t(`issueChange.field.${field}`, { defaultValue: known });
   // camelCase / snake_case → "Sentence case".
   const spaced = field
     .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
@@ -186,5 +187,8 @@ const AUTHORIZATION_REASON_LABELS: Record<string, string> = {
 export function issueAuthorizationReasonLabel(reason: string | null | undefined): string | null {
   const trimmed = reason?.trim();
   if (!trimmed) return null;
-  return AUTHORIZATION_REASON_LABELS[trimmed] ?? trimmed.replace(/_/g, " ");
+  const english = AUTHORIZATION_REASON_LABELS[trimmed];
+  return english
+    ? t(`issueChange.authorizationReason.${trimmed}`, { defaultValue: english })
+    : trimmed.replace(/_/g, " ");
 }

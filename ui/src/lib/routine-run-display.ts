@@ -1,4 +1,5 @@
 import type { RoutineRunSummary, RoutineVariable } from "@paperclipai/shared";
+import { t } from "../i18n";
 
 /**
  * Format a single resolved variable value for the runs-row subtitle (§3.6).
@@ -54,11 +55,13 @@ export function runRowSubtitle(
   variables: readonly RoutineVariable[] | null | undefined,
 ): string {
   if (run.status === "failed") {
-    return run.failureReason?.trim() || "Run failed";
+    return run.failureReason?.trim() || t("routineRun.failed", { defaultValue: "Run failed" });
   }
   if (run.status === "skipped") {
     const reason = run.failureReason?.trim();
-    if (reason && SKIP_REASON_LABELS[reason]) return SKIP_REASON_LABELS[reason];
+    if (reason && SKIP_REASON_LABELS[reason]) {
+      return t(`routineRun.skipReason.${reason}`, { defaultValue: SKIP_REASON_LABELS[reason] });
+    }
   }
   const payload = run.triggerPayload;
   if (!payload || typeof payload !== "object") return "";

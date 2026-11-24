@@ -10119,7 +10119,15 @@
       "processLost": "程序遺失",
       "assignmentRecovery": "負責人恢復",
       "issueContinuationNeeded": "需要續跑",
-      "maxTurnsContinuation": "達到輪次上限後的續跑"
+      "maxTurnsContinuation": "達到輪次上限後的續跑",
+      "native_provider_overloaded": "Model at capacity",
+      "ai_connection_pool_wait": "Waiting for pool usage to recover",
+      "transient_failure": "Transient failure",
+      "missing_issue_comment": "Missing task comment",
+      "process_lost": "Process lost",
+      "assignment_recovery": "Assignment recovery",
+      "issue_continuation_needed": "Continuation needed",
+      "max_turns_continuation": "Max-turn continuation"
     },
     "attempt": "第 {{attempt}} 次嘗試",
     "badgePoolExhausted": "連線池已耗盡",
@@ -17149,7 +17157,9 @@
       "archived": "已封存",
       "authRequired": "需要授權",
       "rateLimited": "已限流",
-      "unreachable": "無法連線"
+      "unreachable": "無法連線",
+      "auth_required": "Authorization required",
+      "rate_limited": "Rate limited"
     },
     "liveness": {
       "unknown": "尚未重新整理",
@@ -17157,7 +17167,9 @@
       "stale": "已過期",
       "authRequired": "需要授權",
       "rateLimited": "已限流",
-      "unreachable": "無法連線"
+      "unreachable": "無法連線",
+      "auth_required": "Requires auth",
+      "rate_limited": "Rate limited"
     },
     "statusUnavailable": "狀態無法取得",
     "external": "外部",
@@ -17173,7 +17185,28 @@
     },
     "staleCount": "{{count}} 個過期",
     "totalCount": "共 {{count}} 個",
-    "breakdownTitle": "外部物件：{{parts}}"
+    "breakdownTitle": "外部物件：{{parts}}",
+    "provider": {
+      "github": "GitHub",
+      "github_pull_request": "GitHub",
+      "github_issue": "GitHub",
+      "hubspot": "HubSpot",
+      "linear": "Linear",
+      "jira": "Jira",
+      "notion": "Notion",
+      "asana": "Asana"
+    },
+    "objectType": {
+      "pull_request": "pull request",
+      "issue": "issue",
+      "deployment": "deployment",
+      "workflow_run": "workflow run",
+      "ticket": "ticket",
+      "lead": "lead",
+      "url_link": "URL"
+    },
+    "providerFallback": "External",
+    "objectTypeFallback": "object"
   },
   "agentsUsingSkill": {
     "usesSkill_one": "{{count}} 個 Agent 使用此 Skill",
@@ -23091,5 +23124,52 @@
     "runFailed": "Failed",
     "runCancelled": "Cancelled",
     "runTimedOut": "Timed out"
+  },
+  "issueChange": {
+    "field": {
+      "assigneeAgentId": "Assignee",
+      "assigneeUserId": "Assignee (user)",
+      "responsibleUserId": "Responsible user",
+      "blockedByIssueIds": "Blockers",
+      "labelIds": "Labels",
+      "parentId": "Parent",
+      "projectId": "Project",
+      "goalId": "Goal",
+      "workMode": "Work mode",
+      "reviewPolicy": "Who can approve",
+      "billingCode": "Billing code",
+      "checkoutRunId": "Checkout run",
+      "executionRunId": "Execution run",
+      "hiddenAt": "Hidden",
+      "startedAt": "Started",
+      "completedAt": "Completed",
+      "cancelledAt": "Cancelled",
+      "requestDepth": "Request depth",
+      "sourceTrust": "Source trust",
+      "executionPolicy": "Execution policy",
+      "executionWorkspaceId": "Execution workspace",
+      "projectWorkspaceId": "Project workspace"
+    },
+    "authorizationReason": {
+      "allow_visible_issue_write": "default-open write on a visible task",
+      "allow_scoped_agent_write": "scoped agent write",
+      "allow_board_actor": "board actor",
+      "allow_self": "own task",
+      "allow_issue_mention_grant": "mention grant",
+      "allow_direct_parent_report": "direct parent report",
+      "allow_low_trust_boundary": "low-trust boundary allowance",
+      "allow_explicit_grant": "explicit permission grant",
+      "allow_instance_admin": "instance admin",
+      "allow_local_board": "local board",
+      "internal_agent_write": "internal agent write"
+    }
+  },
+  "routineRun": {
+    "skipReason": {
+      "no_external_activity": "Skipped — no activity since last run",
+      "paused": "Skipped — routine paused",
+      "worktree_execution_cutoff": "Skipped — worktree execution cutoff"
+    },
+    "failed": "Run failed"
   }
 }

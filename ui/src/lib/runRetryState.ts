@@ -1,4 +1,5 @@
 import { formatDateTime } from "./utils";
+import { t } from "../i18n";
 
 type RetryAwareRun = {
   status: string;
@@ -41,7 +42,10 @@ function joinFragments(parts: Array<string | null>) {
 export function formatRetryReason(reason: string | null | undefined) {
   const normalized = readNonEmptyString(reason);
   if (!normalized) return null;
-  return RETRY_REASON_LABELS[normalized] ?? normalized.replace(/_/g, " ");
+  const english = RETRY_REASON_LABELS[normalized];
+  return english
+    ? t(`runRetry.reason.${normalized}`, { defaultValue: english })
+    : normalized.replace(/_/g, " ");
 }
 
 export function describeRunRetryState(run: RetryAwareRun): RunRetryStateSummary | null {

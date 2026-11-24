@@ -23,6 +23,7 @@ import type {
   ExternalObjectSummary,
   ExternalObjectSummaryItem,
 } from "@paperclipai/shared";
+import { t } from "../i18n";
 
 /**
  * Lucide icon for each status category. The mapping is host-owned per the
@@ -92,7 +93,10 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 export function externalObjectCategoryLabel(category: string): string {
-  return CATEGORY_LABELS[category] ?? category.replace(/_/g, " ");
+  const english = CATEGORY_LABELS[category];
+  return english
+    ? t(`externalObjects.category.${category}`, { defaultValue: english })
+    : category.replace(/_/g, " ");
 }
 
 const LIVENESS_LABELS: Record<string, string> = {
@@ -105,7 +109,10 @@ const LIVENESS_LABELS: Record<string, string> = {
 };
 
 export function externalObjectLivenessLabel(liveness: string): string {
-  return LIVENESS_LABELS[liveness] ?? liveness.replace(/_/g, " ");
+  const english = LIVENESS_LABELS[liveness];
+  return english
+    ? t(`externalObjects.liveness.${liveness}`, { defaultValue: english })
+    : liveness.replace(/_/g, " ");
 }
 
 export function externalObjectDisplayStatusLabel(input: {
@@ -177,9 +184,9 @@ const PROVIDER_LABELS: Record<string, string> = {
 };
 
 export function externalObjectProviderLabel(providerKey: string | null | undefined): string {
-  if (!providerKey) return "External";
+  if (!providerKey) return t("externalObjects.providerFallback", { defaultValue: "External" });
   const lookup = PROVIDER_LABELS[providerKey];
-  if (lookup) return lookup;
+  if (lookup) return t(`externalObjects.provider.${providerKey}`, { defaultValue: lookup });
   return providerKey
     .split(/[._-]/)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
@@ -197,8 +204,11 @@ const OBJECT_TYPE_LABELS: Record<string, string> = {
 };
 
 export function externalObjectTypeLabel(objectType: string | null | undefined): string {
-  if (!objectType) return "object";
-  return OBJECT_TYPE_LABELS[objectType] ?? objectType.replace(/_/g, " ");
+  if (!objectType) return t("externalObjects.objectTypeFallback", { defaultValue: "object" });
+  const english = OBJECT_TYPE_LABELS[objectType];
+  return english
+    ? t(`externalObjects.objectType.${objectType}`, { defaultValue: english })
+    : objectType.replace(/_/g, " ");
 }
 
 export function externalObjectDisplayLabel(

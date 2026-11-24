@@ -10119,7 +10119,15 @@
       "processLost": "进程丢失",
       "assignmentRecovery": "负责人恢复",
       "issueContinuationNeeded": "需要续跑",
-      "maxTurnsContinuation": "达到轮次上限后的续跑"
+      "maxTurnsContinuation": "达到轮次上限后的续跑",
+      "native_provider_overloaded": "模型容量已满",
+      "ai_connection_pool_wait": "等待连接池恢复",
+      "transient_failure": "临时性故障",
+      "missing_issue_comment": "缺少任务评论",
+      "process_lost": "进程丢失",
+      "assignment_recovery": "分派恢复",
+      "issue_continuation_needed": "需要继续",
+      "max_turns_continuation": "达到轮次上限后继续"
     },
     "attempt": "第 {{attempt}} 次尝试",
     "badgePoolExhausted": "连接池已耗尽",
@@ -17149,7 +17157,9 @@
       "archived": "已归档",
       "authRequired": "需要授权",
       "rateLimited": "已限流",
-      "unreachable": "无法访问"
+      "unreachable": "无法访问",
+      "auth_required": "需要授权",
+      "rate_limited": "触发限流"
     },
     "liveness": {
       "unknown": "尚未刷新",
@@ -17157,7 +17167,9 @@
       "stale": "已过期",
       "authRequired": "需要授权",
       "rateLimited": "已限流",
-      "unreachable": "无法访问"
+      "unreachable": "无法访问",
+      "auth_required": "需要授权",
+      "rate_limited": "触发限流"
     },
     "statusUnavailable": "状态不可用",
     "external": "外部",
@@ -17173,7 +17185,28 @@
     },
     "staleCount": "{{count}} 个过期",
     "totalCount": "共 {{count}} 个",
-    "breakdownTitle": "外部对象：{{parts}}"
+    "breakdownTitle": "外部对象：{{parts}}",
+    "provider": {
+      "github": "GitHub",
+      "github_pull_request": "GitHub",
+      "github_issue": "GitHub",
+      "hubspot": "HubSpot",
+      "linear": "Linear",
+      "jira": "Jira",
+      "notion": "Notion",
+      "asana": "Asana"
+    },
+    "objectType": {
+      "pull_request": "拉取请求",
+      "issue": "任务",
+      "deployment": "部署",
+      "workflow_run": "工作流运行",
+      "ticket": "工单",
+      "lead": "潜在客户",
+      "url_link": "链接"
+    },
+    "providerFallback": "外部",
+    "objectTypeFallback": "对象"
   },
   "agentsUsingSkill": {
     "usesSkill_one": "{{count}} 个 Agent 使用此 Skill",
@@ -23091,5 +23124,52 @@
     "runFailed": "失败",
     "runCancelled": "已取消",
     "runTimedOut": "已超时"
+  },
+  "issueChange": {
+    "field": {
+      "assigneeAgentId": "负责人",
+      "assigneeUserId": "负责人（用户）",
+      "responsibleUserId": "责任用户",
+      "blockedByIssueIds": "阻塞项",
+      "labelIds": "标签",
+      "parentId": "父任务",
+      "projectId": "项目",
+      "goalId": "目标",
+      "workMode": "工作模式",
+      "reviewPolicy": "审批权限",
+      "billingCode": "计费代码",
+      "checkoutRunId": "签出运行",
+      "executionRunId": "执行运行",
+      "hiddenAt": "隐藏",
+      "startedAt": "开始",
+      "completedAt": "完成",
+      "cancelledAt": "取消",
+      "requestDepth": "请求深度",
+      "sourceTrust": "来源信任",
+      "executionPolicy": "执行策略",
+      "executionWorkspaceId": "执行工作区",
+      "projectWorkspaceId": "项目工作区"
+    },
+    "authorizationReason": {
+      "allow_visible_issue_write": "可见任务的默认开放写入",
+      "allow_scoped_agent_write": "受限范围的代理写入",
+      "allow_board_actor": "董事会操作者",
+      "allow_self": "自己的任务",
+      "allow_issue_mention_grant": "提及授权",
+      "allow_direct_parent_report": "直接上级汇报",
+      "allow_low_trust_boundary": "低信任边界许可",
+      "allow_explicit_grant": "显式权限授予",
+      "allow_instance_admin": "实例管理员",
+      "allow_local_board": "本地董事会",
+      "internal_agent_write": "内部代理写入"
+    }
+  },
+  "routineRun": {
+    "skipReason": {
+      "no_external_activity": "已跳过 — 上次运行后无活动",
+      "paused": "已跳过 — 例行任务已暂停",
+      "worktree_execution_cutoff": "已跳过 — 工作树执行已截止"
+    },
+    "failed": "运行失败"
   }
 }

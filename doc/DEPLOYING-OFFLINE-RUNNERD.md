@@ -85,6 +85,14 @@ host-local files and downloaded provider assets the clone never contains.
 - The npm registry must be reachable at a usable speed. The offline Dockerfile
   sets `npm_config_registry` to a mirror; adjust it if a different mirror is
   faster.
+- The mirror must also serve **corepack's** pnpm tarball. corepack ignores
+  `npm_config_registry`, so the Dockerfile sets `COREPACK_NPM_REGISTRY` (build arg,
+  default `https://registry.npmmirror.com`) as well. Without it, a host whose
+  IPv6 route to `registry.npmjs.org` times out fails the build at
+  `pnpm --filter @paperclipai/paperclip-runner build` with
+  `ConnectTimeoutError ... 2606:4700::...`. The same ENV adds
+  `NODE_OPTIONS=--dns-result-order=ipv4first` so DNS prefers IPv4 throughout the
+  image.
 - The `build` stage keeps `PAPERCLIP_TSC_EMIT_ONLY=1` for the server build, which
   keeps the tsc step near 2.5 GiB instead of more than 10 GiB.
 

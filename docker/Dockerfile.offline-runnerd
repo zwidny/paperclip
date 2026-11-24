@@ -15,7 +15,15 @@ FROM node:24-trixie-slim AS base
 # built for (9.7s per request against registry.npmjs.org, 1.7s against the
 # mirror), and that link is sensitive to concurrency. Adjust if your mirror
 # differs.
+# corepack resolves the pnpm tarball from its own registry and ignores
+# npm_config_registry. On hosts whose IPv6 route to registry.npmjs.org times out
+# (observed: ConnectTimeoutError on 2606:4700::...), that download fails the
+# build. Point corepack at the mirror too, and prefer IPv4 for DNS so neither
+# the mirror nor any later fetch stalls on a dead IPv6 path.
+ARG COREPACK_NPM_REGISTRY=https://registry.npmmirror.com
 ENV npm_config_registry=https://registry.npmmirror.com \
+    COREPACK_NPM_REGISTRY=${COREPACK_NPM_REGISTRY} \
+    NODE_OPTIONS=--dns-result-order=ipv4first \
     npm_config_fetch_retries=5 \
     npm_config_fetch_retry_maxtimeout=120000 \
     npm_config_network_concurrency=4

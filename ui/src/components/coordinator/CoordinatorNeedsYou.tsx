@@ -46,13 +46,16 @@ import { NeedsYouAudience, NeedsYouReceiptCard, NeedsYouRequester, NeedsYouTaskL
 import { CoordinatorNeedsYouSidePanel, needsYouReviewTab, needsYouReviewTabId, needsYouTabArtifact, type NeedsYouReviewPayload } from "./CoordinatorNeedsYouSidePanel";
 import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 import { cn } from "@/lib/utils";
+import { attentionVerbLabel } from "@/lib/attention-verb-label";
 
 type Group = "type" | "none" | "task" | "agent" | "project";
 
 /** Rule 7: a card that cannot answer inline links to the exact control, named by its verb. */
 function openLabel(item: AttentionItem) {
-  return (item.decisionVerbs ?? []).find((verb) => verb.id === "open_recovery" || verb.id === "inspect")?.label
-    ?? i18n.t("coordinator.needsYou.openToReview", { defaultValue: "Open to review" });
+  const verb = (item.decisionVerbs ?? []).find((candidate) => candidate.id === "open_recovery" || candidate.id === "inspect");
+  return verb
+    ? attentionVerbLabel(verb.id, verb.label)
+    : i18n.t("coordinator.needsYou.openToReview", { defaultValue: "Open to review" });
 }
 
 /** Say each thing once (IA4): a quoted excerpt of the title is not a second line. */

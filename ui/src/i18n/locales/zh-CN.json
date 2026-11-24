@@ -23209,5 +23209,71 @@
       "worktree_execution_cutoff": "已跳过 — 工作树执行已截止"
     },
     "failed": "运行失败"
+  },
+  "attentionVerb": {
+    "respond": {
+      "label": "回答",
+      "description": "回答待处理的问题。"
+    },
+    "accept": {
+      "label": "接受",
+      "description": "接受待处理的交互。"
+    },
+    "reject": {
+      "label": "拒绝",
+      "description": "拒绝该请求，必要时说明理由。"
+    },
+    "approve": {
+      "label": "批准",
+      "description": "批准该请求。"
+    },
+    "request_revision": {
+      "label": "请求修订",
+      "description": "将请求退回以便修改。"
+    },
+    "decide": {
+      "label": "查看并决定",
+      "description": "查看并选择一个选项。"
+    },
+    "open_recovery": {
+      "label": "打开恢复",
+      "description": "在该任务上解决、重新分派或取消此次恢复。"
+    },
+    "reassign": {
+      "label": "重新分派",
+      "description": "将受阻任务交给其他负责人。"
+    },
+    "unblock": {
+      "label": "解除阻塞",
+      "description": "修复或替换停滞的阻塞路径。"
+    },
+    "nudge": {
+      "label": "提醒",
+      "description": "唤醒或提示当前负责人。"
+    },
+    "choose_review_path": {
+      "label": "选择审查路径",
+      "description": "添加审查者或等待路径、退回任务继续修改，或直接接受。"
+    },
+    "request_changes": {
+      "label": "请求修改",
+      "description": "将任务退回给负责人并请求修改。"
+    },
+    "retry": {
+      "label": "重试",
+      "description": "重试该任务失败的运行。"
+    },
+    "inspect": {
+      "label": "查看",
+      "description": "打开运行日志或代理错误以查明原因。"
+    },
+    "raise_budget_and_resume": {
+      "label": "提高上限",
+      "description": "提高预算上限并恢复暂停的工作。"
+    },
+    "keep_paused": {
+      "label": "保持暂停",
+      "description": "关闭或继续保持预算停止。"
+    }
   }
 }

@@ -17,6 +17,7 @@ import { issuesApi } from "../api/issues";
 import { getAdapterLabel } from "../adapters/adapter-display-registry";
 import { i18n, useTranslation } from "../i18n";
 import { queryKeys } from "../lib/queryKeys";
+import { attentionVerbLabel } from "../lib/attention-verb-label";
 import { ApprovalCardPanel } from "./ApprovalCardPanel";
 import { DecisionCardFooter } from "./DecisionCardFooter";
 import { NeedsYouPanel, NeedsYouPanelNote, NeedsYouPanelRow } from "./coordinator/NeedsYouCardKit";
@@ -557,7 +558,7 @@ function CompactDecisionActions({
           }}
         >
           {decision.isPending && decision.variables === action && <Loader2 className="h-3 w-3 animate-spin" />}
-          {label}
+          {attentionVerbLabel(id, label)}
         </Button>
       ))}
     </div>

@@ -23209,5 +23209,71 @@
       "worktree_execution_cutoff": "Skipped — worktree execution cutoff"
     },
     "failed": "Run failed"
+  },
+  "attentionVerb": {
+    "respond": {
+      "label": "Respond",
+      "description": "Submit answers to the pending questions."
+    },
+    "accept": {
+      "label": "Accept",
+      "description": "Accept the pending interaction."
+    },
+    "reject": {
+      "label": "Reject",
+      "description": "Reject the request and give a reason when required."
+    },
+    "approve": {
+      "label": "Approve",
+      "description": "Approve the request."
+    },
+    "request_revision": {
+      "label": "Request revision",
+      "description": "Send the request back for changes."
+    },
+    "decide": {
+      "label": "Review",
+      "description": "Review and choose an option."
+    },
+    "open_recovery": {
+      "label": "Open recovery",
+      "description": "Resolve, reassign or cancel this recovery on its task."
+    },
+    "reassign": {
+      "label": "Reassign",
+      "description": "Route this blocked task to another owner."
+    },
+    "unblock": {
+      "label": "Unblock",
+      "description": "Repair or replace the stalled blocker path."
+    },
+    "nudge": {
+      "label": "Nudge",
+      "description": "Wake or prompt the current owner."
+    },
+    "choose_review_path": {
+      "label": "Choose review path",
+      "description": "Add a reviewer or waiting path, return the task to work, or accept it."
+    },
+    "request_changes": {
+      "label": "Request changes",
+      "description": "Return the task to the assignee with changes requested."
+    },
+    "retry": {
+      "label": "Retry",
+      "description": "Retry the task's failed run."
+    },
+    "inspect": {
+      "label": "Inspect",
+      "description": "Open the run log or agent error to see why it failed."
+    },
+    "raise_budget_and_resume": {
+      "label": "Raise limit",
+      "description": "Raise the budget limit and resume paused work."
+    },
+    "keep_paused": {
+      "label": "Keep paused",
+      "description": "Dismiss or keep the budget stop in place."
+    }
   }
 }

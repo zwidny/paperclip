@@ -638,6 +638,16 @@ function formatStructuredIssueChange(input: {
   return null;
 }
 
+/**
+ * Last-resort copy for an action the tables do not name. The catalog key carries
+ * the humanized action as its English value, so English output is unchanged while
+ * a locale can supply its own wording.
+ */
+function activityFallbackText(action: string): string {
+  const english = action.replace(/[._]/g, " ");
+  return t(`activityFormat.fallback.${action.replace(/\./g, "_")}`, { defaultValue: english });
+}
+
 export function formatActivityVerb(
   action: string,
   details?: Record<string, unknown> | null,
@@ -717,7 +727,7 @@ export function formatActivityVerb(
   const english = ACTIVITY_ROW_VERBS[action];
   return english
     ? t(`activityFormat.verb.${action.replace(/\./g, "_")}`, { defaultValue: english })
-    : action.replace(/[._]/g, " ");
+    : activityFallbackText(action);
 }
 
 export function formatIssueActivityAction(
@@ -759,7 +769,7 @@ export function formatIssueActivityAction(
     const english = ISSUE_ACTIVITY_LABELS[action];
     const base = english
       ? t(`activityFormat.issue.${action.replace(/\./g, "_")}`, { defaultValue: english })
-      : action.replace(/[._]/g, " ");
+      : activityFallbackText(action);
     return serviceName
       ? t("activityFormat.withService", {
           label: base,
@@ -798,5 +808,5 @@ export function formatIssueActivityAction(
   const english = ISSUE_ACTIVITY_LABELS[action];
   return english
     ? t(`activityFormat.issue.${action.replace(/\./g, "_")}`, { defaultValue: english })
-    : action.replace(/[._]/g, " ");
+    : activityFallbackText(action);
 }

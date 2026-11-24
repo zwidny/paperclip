@@ -177,6 +177,18 @@ describe("localized activity copy", () => {
     expect(formatIssueActivityAction("issue.comment_added")).toBe("添加了评论");
   });
 
+  it("localizes actions the tables do not name", async () => {
+    // The humanized action is the English fallback; the catalog key supplies zh.
+    expect(formatActivityVerb("cost.accounting_closure_timed_out"))
+      .toBe("cost accounting closure timed out");
+    expect(formatIssueActivityAction("company.imported")).toBe("company imported");
+
+    await changeLocale("zh-CN");
+    expect(formatActivityVerb("cost.accounting_closure_timed_out")).toBe("成本核算结算超时");
+    expect(formatIssueActivityAction("company.imported")).toBe("已导入公司");
+    expect(formatActivityVerb("workspace.snapshot_skipped_unchanged")).toBe("工作区快照未变更已跳过");
+  });
+
   it("localizes priority values", async () => {
     await changeLocale("zh-CN");
     expect(

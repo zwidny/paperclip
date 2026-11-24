@@ -1,7 +1,7 @@
 import { connectionIntentsApi } from "@/api/connection-intents";
 import { useAwsRoleSetupStep } from "./useAwsRoleSetupStep";
 import { readOAuthWindowOutcome } from "@/lib/oauthWindowOutcome";
-import { i18n, useBrandName, useTranslation } from "@/i18n";
+import { i18n, useBrandName, useBrandText, useTranslation } from "@/i18n";
 import { bindAccount } from "@/lib/account-scope";
 import { StepHeader } from "./ConnectionSetupHeader";
 import { GoogleWorkspaceServicesDialog } from "./GoogleWorkspaceServices";
@@ -753,6 +753,7 @@ function StandardConnectionSetupFlow({
 }: ConnectionSetupFlowProps = {}) {
   const { t } = useTranslation();
   const brand = useBrandName();
+  const bt = useBrandText();
   const workspaceSelectionRef = useRef<GoogleWorkspaceServiceSelection | null>(null);
   const [workspaceConsent, setWorkspaceConsent] = useState<(() => void) | null>(null);
   const [workspaceConnection, setWorkspaceConnection] = useState<ToolConnection | undefined>();
@@ -2524,7 +2525,7 @@ function StandardConnectionSetupFlow({
         authorizationUrl={authorizationFallbackUrl}
         guidance={entry && SIGN_IN_GUIDANCE_SLUGS.has(entry.slug) && accessStepMethod ? (
           <div className="space-y-3 text-sm text-muted-foreground">
-            <p>{accessStepMethod.guidanceMd}</p>
+            <p>{bt(accessStepMethod.guidanceMd)}</p>
             <ul className="list-disc space-y-2 pl-5">
               {accessStepMethod.warnings?.map((warning) => <li key={warning}>{warning}</li>)}
             </ul>
@@ -2806,13 +2807,13 @@ function StandardConnectionSetupFlow({
 
       {managedConnectorUnavailable && entry ? (
         <div className="mx-auto max-w-xl rounded-xl border border-border bg-card p-6">
-          <h2 className="text-lg font-semibold text-foreground">{entry.name} sign-in is unavailable</h2>
+          <h2 className="text-lg font-semibold text-foreground">{bt(entry.name)} sign-in is unavailable</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            This instance is connected to {brand}, but {entry.name} sign-in is not currently available. Try again shortly or contact your instance administrator.
+            This instance is connected to {brand}, but {bt(entry.name)} sign-in is not currently available. Try again shortly or contact your instance administrator.
           </p>
           {customOAuthMethod ? (
             <Button type="button" variant="link" className="mt-4 h-auto p-0 text-xs" onClick={() => setConnectionMethodKey(customOAuthMethod.key)}>
-              {t("connections.setupFlow.useYourOwnNamedOauthApp", { defaultValue: "Use your own {{app}} OAuth app", app: entry.name })}
+              {t("connections.setupFlow.useYourOwnNamedOauthApp", { defaultValue: "Use your own {{app}} OAuth app", app: bt(entry.name) })}
             </Button>
           ) : null}
           <div className="mt-6 flex items-center justify-between gap-3">
@@ -2835,14 +2836,14 @@ function StandardConnectionSetupFlow({
                   {t("connections.setupFlow.connectWithPaperclip", { defaultValue: "Connect with Paperclip" })}
                 </h2>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  {t("connections.setupFlow.connectInstanceRequired", { defaultValue: "You must connect this instance to Paperclip to connect to {{app}} (you only need to do this once).", app: entry.name })}
+                  {t("connections.setupFlow.connectInstanceRequired", { defaultValue: "You must connect this instance to Paperclip to connect to {{app}} (you only need to do this once).", app: bt(entry.name) })}
                 </p>
               </div>
             </div>
 
             {customOAuthMethod ? (
               <Button type="button" variant="link" className="mt-4 h-auto p-0 text-xs" onClick={() => setConnectionMethodKey(customOAuthMethod.key)}>
-                {t("connections.setupFlow.useYourOwnNamedOauthApp", { defaultValue: "Use your own {{app}} OAuth app", app: entry.name })}
+                {t("connections.setupFlow.useYourOwnNamedOauthApp", { defaultValue: "Use your own {{app}} OAuth app", app: bt(entry.name) })}
               </Button>
             ) : null}
 
@@ -3362,6 +3363,7 @@ function GalleryStep({
   onUseLink: (link: string) => void;
 }) {
   const { t } = useTranslation();
+  const bt = useBrandText();
   const [search, setSearch] = useState("");
   const [linkInput, setLinkInput] = useState(initialLink);
   const linkInputEdited = useRef(false);
@@ -3481,8 +3483,8 @@ function GalleryStep({
                   )}
                 >
                   <AppLogo name={app.name} logoUrl={app.branding.logoUrl} darkLogoUrl={app.branding.darkLogoUrl} size={36} />
-                  <div className="mt-3 text-sm font-bold text-foreground">{app.name}</div>
-                  <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">{copy.tagline}</div>
+                  <div className="mt-3 text-sm font-bold text-foreground">{bt(app.name)}</div>
+                  <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">{bt(copy.tagline)}</div>
                   <div className="mt-3 text-xs font-semibold text-foreground">
                     {unavailable ? (
                       <span className="text-muted-foreground">
@@ -3697,6 +3699,7 @@ function KeyStep({
   onConnect: () => void;
 }) {
   const { t } = useTranslation();
+  const bt = useBrandText();
   const methods = useMemo(
     () => connectionMethodsForCredentialSource(entry, credentialSource),
     [credentialSource, entry],
@@ -3801,7 +3804,7 @@ function KeyStep({
     <div>
       <label className="text-sm font-medium text-foreground">{t("connections.setupFlow.capabilityQuestion", { defaultValue: "What should Paperclip be able to do?" })}</label>
       <RadioCardGroup
-        ariaLabel={`Access level for ${entry.name}`}
+        ariaLabel={`Access level for ${bt(entry.name)}`}
         className="mt-2"
         value={capabilityKey}
         onValueChange={(nextKey) => {
@@ -3812,8 +3815,8 @@ function KeyStep({
         }}
         options={capabilityGroups.map((group) => ({
           value: group.key,
-          title: group.label,
-          description: group.description,
+          title: bt(group.label),
+          description: bt(group.description ?? ""),
         }))}
       />
       {!capabilityKey && <p className="mt-2 text-xs text-muted-foreground">{t("connections.setupFlow.chooseAccessLevel", { defaultValue: "Choose an access level to continue." })}</p>}
@@ -3842,7 +3845,7 @@ function KeyStep({
         ? i18n.t("connections.setupFlow.usePaperclipInstead", { defaultValue: "Use Paperclip instead" })
         : i18n.t("connections.setupFlow.useOwnOAuthApp", {
             defaultValue: "Use your own {{app}} OAuth app",
-            app: isGoogleWorkspaceConnectorProfileId(managedOAuthMethod.connectorProfile ?? "") ? "Google" : entry.name,
+            app: isGoogleWorkspaceConnectorProfileId(managedOAuthMethod.connectorProfile ?? "") ? "Google" : bt(entry.name),
           })}
     </Button>
   ) : capabilityMethods.length > 1 ? (
@@ -3854,7 +3857,7 @@ function KeyStep({
       <RadioCardGroup
         ariaLabel={i18n.t("connections.setupFlow.howToConnectAria", {
           defaultValue: "How to connect {{app}}",
-          app: entry.name,
+          app: bt(entry.name),
         })}
         className="mt-2"
         value={methodKey}
@@ -3865,9 +3868,9 @@ function KeyStep({
         options={capabilityMethods.map((candidate) => ({
           value: candidate.key,
           title:
-            candidate.label ??
+            candidate.label ? bt(candidate.label) :
             (candidate.auth === "oauth"
-              ? i18n.t("connections.setupFlow.signInWithApp", { defaultValue: "Sign in with {{app}}", app: entry.name })
+              ? i18n.t("connections.setupFlow.signInWithApp", { defaultValue: "Sign in with {{app}}", app: bt(entry.name) })
               : i18n.t("connections.setupFlow.useApiKey", { defaultValue: "Use an API key" })),
         }))}
       />
@@ -3998,7 +4001,7 @@ function KeyStep({
         ) : null}
         {method?.capabilityProfile && (
           <p className="text-sm text-muted-foreground">
-            {method.capabilityProfile.label}: {method.capabilityProfile.description}
+            {bt(method.capabilityProfile.label ?? "")}: {bt(method.capabilityProfile.description ?? "")}
           </p>
         )}
         {usingVercel && vercelReview && vercelConnectAvailability ? (
@@ -4078,11 +4081,11 @@ function KeyStep({
           fields.map((field) => (
             <div key={field.configPath}>
               <label className="text-sm font-medium text-foreground">
-                {credentialFieldLabel(entry.name, field.label, fields.length)}
+                {bt(credentialFieldLabel(entry.name, field.label, fields.length))}
               </label>
               <Input
                 type={field.type === "text" && field.secret === false ? "text" : "password"}
-                aria-label={credentialFieldLabel(entry.name, field.label, fields.length)}
+                aria-label={bt(credentialFieldLabel(entry.name, field.label, fields.length))}
                 autoComplete="off"
                 value={values[field.configPath] ?? ""}
                 onChange={(e) => onChange({ ...values, [field.configPath]: e.target.value })}
@@ -4090,7 +4093,7 @@ function KeyStep({
                 className="mt-2 h-11 font-mono"
               />
               {field.helperMd && <p className="mt-2 text-xs text-muted-foreground">
-                {field.helperMd}
+                {bt(field.helperMd)}
               </p>}
               {field.helpUrl && (
                 <a
@@ -4180,11 +4183,12 @@ function OAuthClientFields({
 }) {
   const { t } = useTranslation();
   const brand = useBrandName();
+  const bt = useBrandText();
   return (
     <div className="space-y-4 rounded-lg border border-border p-4">
       <div>
         <div className="text-sm font-medium text-foreground">
-          {required ? method.oauthClientSecretRequired ? t("connections.setupFlow.yourOauthApp", { defaultValue: "Your OAuth app" }) : t("connections.setupFlow.needsOwnOauthApp", { app: entry.name, defaultValue: "{{app}} needs its own OAuth app" }) : t("connections.setupFlow.useYourOwnOauthApp", { defaultValue: "Use your own OAuth app" })}
+          {required ? method.oauthClientSecretRequired ? t("connections.setupFlow.yourOauthApp", { defaultValue: "Your OAuth app" }) : t("connections.setupFlow.needsOwnOauthApp", { app: bt(entry.name), defaultValue: "{{app}} needs its own OAuth app" }) : t("connections.setupFlow.useYourOwnOauthApp", { defaultValue: "Use your own OAuth app" })}
         </div>
         {/*
           When these fields are required it is a provider limitation, not a step
@@ -4192,9 +4196,9 @@ function OAuthClientFields({
           exception it is rather than as this connector's normal path.
         */}
         <p className="mt-1 text-xs text-muted-foreground">
-          {method.oauthClientSecretRequired ? method.guidanceMd : required
-            ? `${entry.name} does not let ${brand} register itself automatically, so this connector needs an OAuth app you create. Add the callback URL below in ${entry.name}, then paste the client details back here.`
-            : `Register ${brand}'s callback URI in ${entry.name}, then enter the customer-owned client details.`}
+          {method.oauthClientSecretRequired ? bt(method.guidanceMd) : required
+            ? `${bt(entry.name)} does not let ${brand} register itself automatically, so this connector needs an OAuth app you create. Add the callback URL below in ${bt(entry.name)}, then paste the client details back here.`
+            : `Register ${brand}'s callback URI in ${bt(entry.name)}, then enter the customer-owned client details.`}
         </p>
         {method.consoleLinks?.register ? (
           <a
@@ -4203,7 +4207,7 @@ function OAuthClientFields({
             rel="noreferrer"
             className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-foreground underline underline-offset-2"
           >
-            Open {entry.name} app settings
+            Open {bt(entry.name)} app settings
             <ArrowUpRight className="h-3 w-3" />
           </a>
         ) : null}
@@ -4221,7 +4225,7 @@ function OAuthClientFields({
             <CopyValueButton value={callbackUrl} ariaLabel={t("connections.setupFlow.copyCallbackUrl", { defaultValue: "Copy callback URL" })} />
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
-            Add this exact URL to {entry.name} before continuing. It must match the authorization request.
+            Add this exact URL to {bt(entry.name)} before continuing. It must match the authorization request.
           </p>
         </div>
       ) : null}
@@ -4274,12 +4278,13 @@ function MethodConfigField({
   onChange: (value: string | boolean) => void;
 }) {
   const { t } = useTranslation();
+  const bt = useBrandText();
   if (field.type === "checkbox") {
     return (
       <div className="flex items-start justify-between gap-4 rounded-lg border border-border p-4">
         <div>
-          <div className="text-sm font-medium text-foreground">{field.label}</div>
-          {field.helperMd && <div className="mt-1 text-xs text-muted-foreground">{field.helperMd}</div>}
+          <div className="text-sm font-medium text-foreground">{bt(field.label)}</div>
+          {field.helperMd && <div className="mt-1 text-xs text-muted-foreground">{bt(field.helperMd)}</div>}
         </div>
         <ToggleSwitch checked={value === true} onCheckedChange={onChange} />
       </div>
@@ -4287,7 +4292,7 @@ function MethodConfigField({
   }
   return (
     <div>
-      <label className="text-sm font-medium text-foreground">{field.label}</label>
+      <label className="text-sm font-medium text-foreground">{bt(field.label)}</label>
       {field.type === "textarea" ? (
         <Textarea
           value={typeof value === "string" ? value : ""}
@@ -4302,20 +4307,20 @@ function MethodConfigField({
           className="mt-2 h-11 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
         >
           <option value="" disabled>{t("connections.setupFlow.selectAnOption", { defaultValue: "Select an option" })}</option>
-          {(field.options ?? []).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+          {(field.options ?? []).map((option) => <option key={option.value} value={option.value}>{bt(option.label)}</option>)}
         </select>
       ) : (
         <Input
           value={typeof value === "string" ? value : ""}
           onChange={(event) => onChange(event.target.value)}
           placeholder={field.placeholder}
-          aria-label={field.label}
+          aria-label={bt(field.label)}
           maxLength={field.validation?.maxLength}
           className="mt-2 h-11"
         />
       )}
-      {field.required && (typeof value !== "string" || !value.trim()) && <p className="mt-2 text-xs text-muted-foreground">{field.label} is required.</p>}
-      {field.helperMd && <p className="mt-2 text-xs text-muted-foreground">{field.helperMd}</p>}
+      {field.required && (typeof value !== "string" || !value.trim()) && <p className="mt-2 text-xs text-muted-foreground">{bt(field.label)} is required.</p>}
+      {field.helperMd && <p className="mt-2 text-xs text-muted-foreground">{bt(field.helperMd)}</p>}
     </div>
   );
 }

@@ -15,7 +15,7 @@ import { QuarantinedActionsReview } from "./SetupPanel";
 import { ActionTestDialog } from "./ActionTestDialog";
 import { ACTION_PAGE_SIZE } from "./constants";
 import { ProviderToolIcon } from "@/components/ProviderToolIcon";
-import { i18n, useTranslation } from "@/i18n";
+import { i18n, useBrandText, useTranslation } from "@/i18n";
 
 /** Action rows without a provider icon show none, as before. */
 function NoIcon() {
@@ -509,8 +509,9 @@ const ActionRow = memo(function ActionRow({
 }) {
   const rowRef = useRef<HTMLDivElement | null>(null);
   const { t } = useTranslation();
+  const bt = useBrandText();
   const [testOpen, setTestOpen] = useState(false);
-  const title = action.title ?? action.toolName;
+  const title = bt(action.title ?? action.toolName);
 
   useEffect(() => {
     if (focused) rowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -543,7 +544,7 @@ const ActionRow = memo(function ActionRow({
             </span>
           </div>
           {action.description ? (
-            <div className="truncate text-xs text-muted-foreground">{action.description}</div>
+            <div className="truncate text-xs text-muted-foreground">{bt(action.description)}</div>
           ) : null}
         </div>
         <div className="flex shrink-0 items-center gap-2">

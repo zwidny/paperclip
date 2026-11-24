@@ -51,7 +51,7 @@ import {
   nativeConnectorRequiresCustomerOAuthApp,
 } from "@paperclipai/shared";
 import { useNavigate } from "@/lib/router";
-import { useTranslation } from "../../i18n";
+import { useBrandText, useTranslation } from "../../i18n";
 import { useChatConnectorsEnabled, chatProviderVisible } from "@/hooks/useChatConnectorsEnabled";
 import { useMemoryConnectorsEnabled } from "@/hooks/useMemoryConnectorsEnabled";
 import { useConnectorAvailability } from "@/hooks/useConnectorAvailability";
@@ -1324,6 +1324,7 @@ export function ConnectorCard({
   searchQuery?: string;
 }) {
   const { t } = useTranslation();
+  const bt = useBrandText();
   // The user's toggle only applies while the default it overrode still holds, so a new search reopens the list.
   const [expandedOverride, setExpandedOverride] = useState<{ open: boolean; defaultExpanded: boolean } | null>(null);
   useEffect(() => {
@@ -1340,11 +1341,11 @@ export function ConnectorCard({
     return connection ? snapshot.accounts.map((account, index) => ({ connection, account, snapshot,
       name: account.alias || (snapshot.accounts.length > 1
         ? t("appsBrowse.accountNumbered", {
-            name: row.name,
+            name: bt(row.name),
             number: index + 1,
             defaultValue: "{{name}} account {{number}}",
           })
-        : t("appsBrowse.account", { name: row.name, defaultValue: "{{name}} account" })) })) : [];
+        : t("appsBrowse.account", { name: bt(row.name), defaultValue: "{{name}} account" })) })) : [];
   });
   const listedUpstreamAccounts = row.upstreamCatalogApp ? upstreamAccounts : [];
   const connectionCount = row.connections.length + listedUpstreamAccounts.length + row.chatEndpoints.length;
@@ -1377,7 +1378,7 @@ export function ConnectorCard({
         />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h2 className="text-sm font-semibold text-foreground">{row.name}</h2>
+            <h2 className="text-sm font-semibold text-foreground">{bt(row.name)}</h2>
             {row.aggregatorApp?.routes.map((route) => {
               const providerName = AGGREGATOR_NAMES[route.provider];
               const managedSnapshot = row.upstreamApps?.find(app => (app.provider ?? "composio") === route.provider && app.accounts.length > 0);
@@ -1386,7 +1387,7 @@ export function ConnectorCard({
                 action: managed
                   ? t("appsBrowse.action.manage", { defaultValue: "Manage" })
                   : t("appsBrowse.action.connect", { defaultValue: "Connect" }),
-                app: row.name,
+                app: bt(row.name),
                 provider: providerName,
                 defaultValue: "{{action}} {{app}} through {{provider}}, a third-party service",
               });
@@ -1405,7 +1406,7 @@ export function ConnectorCard({
                   ),
                   defaultValue: "Accounts managed in {{providers}}.",
                 })
-              : row.description}
+              : bt(row.description)}
           </p>
         </div>
 
@@ -1421,7 +1422,7 @@ export function ConnectorCard({
             else if (action.href) onNavigate(row.slug === "agentmail"
               ? `${action.href}&setupId=${createUuid()}` : action.href);
           }}
-          aria-label={t("appsBrowse.actionWithName", { action: action.label, name: row.name, defaultValue: "{{action}} {{name}}" })}
+          aria-label={t("appsBrowse.actionWithName", { action: action.label, name: bt(row.name), defaultValue: "{{action}} {{name}}" })}
         >
           {action.label}
         </Button>}
@@ -1463,8 +1464,8 @@ export function ConnectorCard({
                     onRequestRemove({
                       id: connection.id,
                       pool: Boolean(aiConnectionRouterPluginKey(connection)),
-                      accountName,
-                      providerName: row.name,
+                      accountName: bt(accountName),
+                      providerName: bt(row.name),
                       remainingConnectionCount: row.connections.filter(
                         (candidate) =>
                           candidate.id !== connection.id &&
@@ -1555,7 +1556,7 @@ export function ConnectorCard({
                           size="icon-sm"
                           aria-label={t("appsBrowse.manageChatConnection", {
                             agent: endpoint.assignedAgentName,
-                            app: row.name,
+                            app: bt(row.name),
                             defaultValue: "Manage {{agent}} {{app}} connection",
                           })}
                         >
@@ -1573,8 +1574,8 @@ export function ConnectorCard({
                             kind: "chat",
                             provider: endpoint.provider,
                             id: endpoint.id,
-                            accountName: `${endpoint.assignedAgentName} · ${row.name}`,
-                            providerName: row.name,
+                            accountName: `${endpoint.assignedAgentName} · ${bt(row.name)}`,
+                            providerName: bt(row.name),
                             remainingConnectionCount: 0,
                           })}
                         >
@@ -1624,13 +1625,14 @@ function ConnectionAccountRow({
   setupEnabled?: boolean;
 }) {
   const { t } = useTranslation();
+  const bt = useBrandText();
   const state = connectionState(connection, t);
   const actionHref = accountActionHref(row, connection);
-  const accountName = connectionDisplayNameForOwner(
+  const accountName = bt(connectionDisplayNameForOwner(
     connection,
     row.name,
     owner,
-  );
+  ));
   const account = aiDefaults?.accountForConnection(connection);
 
   return (

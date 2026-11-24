@@ -82,7 +82,7 @@ import {
   connectionOwnerProfile,
 } from "./connection-owner";
 import { describeError } from "@/api/errors";
-import { useTranslation } from "../../i18n";
+import { useBrandText, useTranslation } from "../../i18n";
 import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
 
 export { connectionAddress, connectionTransportLabel };
@@ -118,6 +118,7 @@ function StandardAppDetail({ renderActions, renderAgentSettings, renderConnectio
   const { selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const { t } = useTranslation();
+  const bt = useBrandText();
 
   const activeTab: AppTabKey | null = isAppTabKey(tab) ? tab : null;
   const needsCatalog = activeTab === "review" || activeTab === "permissions";
@@ -257,9 +258,10 @@ function StandardAppDetail({ renderActions, renderAgentSettings, renderConnectio
   const baseAppName = connection
     ? logoEntry ? appDefinitionName(logoEntry) : humanizeConnectionDisplayName(connection)
     : t("appDetail.appFallback", { defaultValue: "App" });
-  const appName = connection
+  const rawAppName = connection
     ? connectionDisplayNameForOwner(connection, baseAppName, owner)
     : t("appDetail.appFallback", { defaultValue: "App" });
+  const appName = bt(rawAppName);
   const successNoticeShownFor = useRef<string | null>(null);
 
   useEffect(() => {
@@ -612,6 +614,7 @@ function StandardAppDetail({ renderActions, renderAgentSettings, renderConnectio
       {workspaceGate.dialog}
       <AppDetailHeader
         appName={appName}
+        logoName={rawAppName}
         connection={connection}
         logoEntry={logoEntry}
         brandKey={brandKey}
@@ -623,12 +626,12 @@ function StandardAppDetail({ renderActions, renderAgentSettings, renderConnectio
         renamePending={rename.isPending}
         onNameDraftChange={setNameDraft}
         onRenameStart={() => {
-          setNameDraft(appName);
+          setNameDraft(rawAppName);
           setRenaming(true);
         }}
         onRenameCancel={() => setRenaming(false)}
         onRenameSubmit={(next) => {
-          if (next && next !== appName) rename.mutate(next);
+          if (next && next !== rawAppName) rename.mutate(next);
           else setRenaming(false);
         }}
       />
@@ -792,6 +795,7 @@ function StandardAppDetail({ renderActions, renderAgentSettings, renderConnectio
 
 export function AppDetailHeader({
   appName,
+  logoName,
   connection,
   logoEntry,
   brandKey,
@@ -808,6 +812,8 @@ export function AppDetailHeader({
   onRenameSubmit,
 }: {
   appName: string;
+  /** Raw app name for logo lookup and the letter tile. Defaults to `appName`. */
+  logoName?: string;
   connection: ToolConnection;
   logoEntry: AppGalleryDisplayEntry | null;
   brandKey: string | null;
@@ -829,7 +835,7 @@ export function AppDetailHeader({
     <header>
       <div className="flex items-center gap-3">
         <AppLogo
-          name={appName}
+          name={logoName ?? appName}
           brandKey={brandKey}
           logoUrl={appDefinitionLogoUrl(logoEntry)}
           darkLogoUrl={appDefinitionDarkLogoUrl(logoEntry)}

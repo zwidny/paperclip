@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import i18n, { type InitOptions, type TOptions } from "i18next";
 import {
   initReactI18next,
@@ -15,7 +16,7 @@ import {
   persistLocale,
   resolveInitialLocale,
 } from "./locale-preference";
-import { brandFor } from "./brand";
+import { brandFor, replaceBrandIn } from "./brand";
 
 export const initialLocale = resolveInitialLocale(
   supportedLocales,
@@ -109,6 +110,22 @@ export function useBrandName(): string {
 export function brandName(): string {
   return brandFor(i18n.language || DEFAULT_LOCALE);
 }
+
+/**
+ * Brand-aware text for copy that does not go through i18n, such as connector
+ * catalog strings from `@paperclipai/shared`. Use `useBrandText` in components
+ * so the text follows a language change.
+ */
+export function brandText(text: string): string {
+  return replaceBrandIn(text, brandName());
+}
+
+/** Same as `brandText`, subscribing to language changes for components. */
+export function useBrandText(): (text: string) => string {
+  const brand = useBrandName();
+  return useCallback((text: string) => replaceBrandIn(text, brand), [brand]);
+}
+
 
 export function t(key: string, options: TOptions = {}) {
   return i18n.t(key, options);

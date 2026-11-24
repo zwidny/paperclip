@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { changeLocale, t } from ".";
-import { brandFor, resolveBrand } from "./brand";
+import { brandFor, replaceBrandIn, resolveBrand } from "./brand";
 
 afterEach(async () => {
   // Never leave another test suite rendering in zh-CN.
@@ -27,6 +27,23 @@ describe("brand name", () => {
     expect(resolveBrand({ locale: "de", env: { VITE_BRAND_NAME: "Acme", VITE_BRAND_NAME_ZH: "阿克米" } })).toBe("Acme");
     // An explicit override wins over the test-mode default as well.
     expect(resolveBrand({ locale: "en", env: { VITE_BRAND_NAME: "Acme" }, testMode: true })).toBe("Acme");
+  });
+
+  it("renames display copy but never header or protocol names", () => {
+    expect(replaceBrandIn("Paperclip Cloud", "Gnzs")).toBe("Gnzs Cloud");
+    expect(replaceBrandIn("Paperclip's runner", "Gnzs")).toBe("Gnzs's runner");
+    expect(replaceBrandIn("Paperclip-managed", "Gnzs")).toBe("Gnzs-managed");
+    for (const untouched of [
+      "X-Paperclip-Tab-Visible",
+      "X-Paperclip-Route",
+      "PaperclipRunner",
+      "PaperclipLoading",
+      "enablePaperclipNotebook",
+      "paperclip.ing",
+      "PAPERCLIP_HOME",
+    ]) {
+      expect(replaceBrandIn(untouched, "Gnzs")).toBe(untouched);
+    }
   });
 
   it("substitutes {{brand}} in translated strings and never leaks the placeholder", async () => {

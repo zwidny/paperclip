@@ -51,3 +51,19 @@ export function brandFor(locale: string): string {
   const env = import.meta.env as unknown as Record<string, unknown>;
   return resolveBrand({ locale, env, testMode: env?.MODE === "test" });
 }
+
+/**
+ * Replaces a capitalized, whole-word product name in copy that does not go
+ * through i18n, such as connector catalog text from `@paperclipai/shared`.
+ *
+ * The lookarounds keep camelCase keys (`enablePaperclipNotebook`), lowercase
+ * paths or hosts (`paperclip.ing`, `/paperclip/instances/…`) and
+ * header/protocol names (`X-Paperclip-Route`) intact. A plain `\b` boundary
+ * would rewrite the header prefix, because the `-` in `X-Paperclip-` is a
+ * non-word character. `Paperclip's` becomes `Gnzs's`, matching the possessive
+ * form upstream uses for Latin names.
+ */
+export function replaceBrandIn(text: string, brand: string): string {
+  if (!text.includes("Paperclip")) return text;
+  return text.replace(/(?<![-\w])Paperclip(?!\w)/g, brand);
+}

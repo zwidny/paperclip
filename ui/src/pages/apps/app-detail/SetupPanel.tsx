@@ -8,7 +8,7 @@ import { ACTION_PAGE_SIZE } from "./constants";
 import { appDefinitionSlug } from "../app-definition-display";
 import type { AppDetailSectionProps } from "./types";
 import { googleSheetsConfigWithAllowlist, parseGoogleSheetIds } from "../google-sheets";
-import { useTranslation } from "../../../i18n";
+import { useBrandText, useTranslation } from "../../../i18n";
 
 export function SetupPanel({
   connection,
@@ -258,6 +258,7 @@ export function QuarantinedActionsReview({
   disabled: boolean;
   onSubmit: (enabledIds: string[]) => void;
 }) {
+  const bt = useBrandText();
   const [enabledIds, setEnabledIds] = useState<Set<string>>(new Set());
   const [visibleLimit, setVisibleLimit] = useState(ACTION_PAGE_SIZE);
   const count = entries.length;
@@ -295,13 +296,13 @@ export function QuarantinedActionsReview({
       <div className="divide-y divide-border">
         {entries.slice(0, visibleLimit).map((entry) => {
           const enabled = enabledIds.has(entry.id);
-          const label = entry.title ?? entry.toolName;
+          const label = bt(entry.title ?? entry.toolName);
           return (
             <div key={entry.id} className="flex items-center gap-3 py-3">
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-medium text-foreground">{label}</div>
                 {entry.description && (
-                  <div className="truncate text-xs text-muted-foreground">{entry.description}</div>
+                  <div className="truncate text-xs text-muted-foreground">{bt(entry.description)}</div>
                 )}
               </div>
               <ToggleSwitch

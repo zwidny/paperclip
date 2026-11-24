@@ -31,7 +31,7 @@ export function TaskListToolbar({ view, onViewChange, viewOptions = views, viewC
     <div data-canonical-toolbar="tasks" className="design-page-toolbar" role="toolbar" aria-label={t("tasks.toolbar.controls", { defaultValue: "Task list controls" })}>
       {viewControl ?? <DropdownMenu>
         <DropdownMenuTrigger asChild><Button variant="outline" className="design-toolbar-button design-view-trigger" aria-label={t("tasks.toolbar.currentView", { defaultValue: "Task view: {{view}}", view: viewLabel(viewOptions.find(option => option.value === view)!) })}>{viewLabel(viewOptions.find(option => option.value === view)!)}<ChevronDown aria-hidden /></Button></DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="task-list-options" aria-label={t("tasks.toolbar.views", { defaultValue: "Task views" })}>
+        <DropdownMenuContent collisionPadding={8} align="start" className="task-list-options" aria-label={t("tasks.toolbar.views", { defaultValue: "Task views" })}>
           <DropdownMenuLabel asChild><FlyoutHeader className="task-list-options-heading">{t("tasks.toolbar.viewsHeading", { defaultValue: "Views" })}</FlyoutHeader></DropdownMenuLabel>
           <DropdownMenuRadioGroup asChild value={view} onValueChange={value => onViewChange(value as TaskListView)}><FlyoutOptions className="task-list-options-items">
             {viewOptions.map(option => <DropdownMenuRadioItem className="task-list-options-item" key={option.value} value={option.value}>{viewLabel(option)}</DropdownMenuRadioItem>)}

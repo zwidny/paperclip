@@ -282,6 +282,7 @@ import { SourceTrustBadge } from "./SourceTrustBadge";
 import { CommentAttributionChip } from "./CommentAttributionChip";
 import { resolveCommentAttribution } from "../lib/comment-attribution";
 import { useBrandName, useTranslation, i18n as i18nInstance } from "../i18n";
+import { safeExternalHttpUrl } from "../lib/safe-url";
 
 interface IssueChatMessageContext {
   feedbackDataSharingPreference: FeedbackDataSharingPreference;
@@ -1975,11 +1976,7 @@ function IssueChatProviderActivity({
                 typeof entry === "object" && entry !== null
                   ? (entry as Record<string, unknown>)
                   : {};
-              const href =
-                typeof source.url === "string" &&
-                /^https?:\/\//.test(source.url)
-                  ? source.url
-                  : null;
+              const href = safeExternalHttpUrl(source.url);
               return (
                 <div key={String(source.sourceId ?? index)}>
                   {href ? (

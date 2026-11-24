@@ -226,10 +226,11 @@ export function PasteConfigTab({ companyId }: { companyId: string }) {
           authorization.cancel();
           setOAuthPhase("error");
           setOAuthError(
-            t("toolsPaste.manualClientRequired", {
-              defaultValue:
-                "This server requires OAuth client details from its provider settings. Continue in setup to add them.",
-            }),
+            result.auth.manualClientReason
+              ?? t("toolsPaste.manualClientRequired", {
+                defaultValue:
+                  "This server requires OAuth client details from its provider settings. Continue in setup to add them.",
+              }),
           );
           return;
         }

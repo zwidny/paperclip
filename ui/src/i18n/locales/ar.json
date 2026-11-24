@@ -182,7 +182,8 @@
       "customGatewayTitle": "Custom gateway connection",
       "customGatewayDescription": "Save the connection, then choose a model and test it with your agent.",
       "defaultAccount": "This will be your default {{source}} account.",
-      "waitingForCodeEllipsis": "Waiting for code…"
+      "waitingForCodeEllipsis": "Waiting for code…",
+      "noBrowserSignInGoBack": "This environment does not support browser sign-in. Go back to use an API key or choose another model."
     },
     "footer": {
       "back": "Back",
@@ -8044,7 +8045,9 @@
       "enableTitle": "Enable {{brand}}-managed sign-in",
       "enableDescription": "Confirm this server’s exact address before Cloud can return encrypted Google credentials to it.",
       "continueEnrollment": "Continue enrollment",
-      "enable": "Enable"
+      "enable": "Enable",
+      "unreachable": "Paperclip couldn’t reach Paperclip Cloud. Managed sign-in will be checked again shortly.",
+      "misconfigured": "Paperclip Cloud settings on this instance are incomplete. Ask your instance administrator to finish them."
     },
     "emptyTitle": "No connections yet.",
     "emptyPrefix": "Add one from",
@@ -10643,7 +10646,9 @@
     "keepPursuing": "Keep pursuing",
     "planBeforeActing": "Plan before acting",
     "answerWithoutChanges": "Answer without changes",
-    "privateExplanation": "Only you and people you share with can read this task"
+    "privateExplanation": "Only you and people you share with can read this task",
+    "planCommand": "Plan",
+    "planCommandDetail": "Plan before acting. Nothing changes until you accept the plan."
   },
   "taskChat": {
     "agentCouldNotStart": "{{agentName}} couldn’t start",
@@ -12466,7 +12471,8 @@
     "confirmRunStopped": "Confirm the previous run stopped",
     "agentNeedsHelp": "The agent needs your help",
     "taskArchived": "Task archived",
-    "unableToRetryRun": "Unable to retry run"
+    "unableToRetryRun": "Unable to retry run",
+    "reviewProviderBilling": "Review provider billing and usage"
   },
   "legacyIssues": {
     "boardLimit": "Some board columns are showing up to {{count}} tasks. Refine filters or search to reveal the rest.",
@@ -16331,7 +16337,9 @@
     "confirmRunStoppedResuming": "Starting your Retry…",
     "confirmRunStoppedConfirm": "Confirm it stopped",
     "setupFailureFix": "Couldn’t set up the task workspace. {{message}}. Fix the command in the project’s workspace settings, then retry.",
-    "respondToQuestion": "Respond to the pending question to continue."
+    "respondToQuestion": "Respond to the pending question to continue.",
+    "reviewAiAccount": "Review AI account",
+    "providerBilling": "Check your provider account’s billing and usage allowance, then retry."
   },
   "jsonSchemaForm": {
     "validation": {
@@ -16627,7 +16635,8 @@
     "title": "AI connection",
     "reconnectAccount": "Reconnect account",
     "notConnected": "Not connected",
-    "otherUsersUseOwn": "Other users’ tasks use their own {{provider}} connection."
+    "otherUsersUseOwn": "Other users’ tasks use their own {{provider}} connection.",
+    "incompatibleWithHarness": "Incompatible with this harness and model."
   },
   "artifactCard": {
     "document": "Document",
@@ -18215,7 +18224,13 @@
     "connection": "Connection",
     "loadingConnections": "Loading connections…",
     "reconnectAccount": "Reconnect account",
-    "retryConnections": "Retry connections"
+    "retryConnections": "Retry connections",
+    "useHarnessSignIn": "Use harness sign-in",
+    "incompatibleSuffix": " · Incompatible with this harness and model",
+    "noDefaultAccountPrefix": "You have no default account for this provider.",
+    "connectAnAccount": "Connect an account",
+    "connectOrChoose": " Connect an account or choose another connection.",
+    "orChooseAnother": " or choose another connection."
   },
   "artifactFileRow": {
     "previewData": "Preview data",
@@ -19136,7 +19151,11 @@
       "approvalRequested": "asked to use {{tool}} on",
       "sessionCreated": "opened an app session for",
       "sessionRejected": "was blocked from opening an app session for",
-      "discovery": "discovered app actions for"
+      "discovery": "discovered app actions for",
+      "callFailedTest": "could not test {{tool}} on",
+      "callFailed": "could not use {{tool}} on",
+      "callDeferredTest": "could not finish testing {{tool}} on",
+      "callDeferred": "could not finish using {{tool}} on"
     },
     "withService": "{{label}} for {{service}}",
     "document": "document",
@@ -20409,7 +20428,14 @@
         "problems_other": "{{count}} problems",
         "updates_one": "{{count}} update",
         "updates_other": "{{count}} updates"
-      }
+      },
+      "headingAgents": "Agents",
+      "headingProjects": "Projects",
+      "byAgents": "By agents",
+      "byProjects": "By projects",
+      "headingAssignedTo": "Assigned to",
+      "byAssigned": "By assigned",
+      "headingGroupBy": "Group by"
     },
     "taskCommitment": {
       "noTasksCreated": "No tasks were created."
@@ -21136,7 +21162,10 @@
       "yourIdentity": "Your identity",
       "zapierPasteDescription": "Paste the complete MCP URL Zapier gives you, including its token.",
       "actionSingular": "action",
-      "agentSingular": "agent"
+      "agentSingular": "agent",
+      "cloudUnreachable": "Paperclip couldn’t reach Paperclip Cloud to start {{app}} sign-in. Try again in a moment.",
+      "cloudMisconfigured": "{{app}} sign-in through Paperclip Cloud isn’t set up on this instance. Ask your instance administrator to finish the Paperclip Cloud settings.",
+      "cloudNotAvailable": "This instance is connected to {{brand}}, but {{app}} sign-in is not currently available. Try again shortly or contact your instance administrator."
     }
   },
   "tailscale": {
@@ -22976,7 +23005,17 @@
     "testConnection": "Test connection",
     "copyAria": "Copy",
     "copied": "Copied",
-    "copy": "Copy"
+    "copy": "Copy",
+    "updatesRoleShort": "It updates the existing role",
+    "createsRoleShort": "It creates the role",
+    "showsProgress": ", shows its progress here,",
+    "cliIntro": "{{roleAction}} with the AWS CLI{{progress}} and tells you the role ARN to paste below.",
+    "progressUnavailable": "Live progress isn’t available",
+    "progressUnavailableBody": "The prompt still works; your agent just won’t show its steps here.",
+    "tryAgain": "Try again",
+    "promptDescriptionWithLink": "Paste this into your own agent, such as Claude Code or Codex, on a computer signed in to the AWS account agents should use. It includes a short-lived link for this setup, so don’t share it.",
+    "preparingPrompt": "Preparing the prompt…",
+    "roleArnLabel": "Role ARN"
   },
   "automationProposal": {
     "noResponsibility": "No responsibility: the task is not filed under one.",

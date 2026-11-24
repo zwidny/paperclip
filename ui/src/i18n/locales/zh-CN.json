@@ -182,7 +182,8 @@
       "customGatewayTitle": "自定义网关连接",
       "customGatewayDescription": "保存连接，然后选择模型并用你的 Agent 测试。",
       "defaultAccount": "这将成为你的默认 {{source}} 账户。",
-      "waitingForCodeEllipsis": "等待验证码…"
+      "waitingForCodeEllipsis": "等待验证码…",
+      "noBrowserSignInGoBack": "此环境不支持浏览器登录。请返回并使用 API 密钥，或选择其他模型。"
     },
     "footer": {
       "back": "返回",
@@ -8044,7 +8045,9 @@
       "enableTitle": "启用 {{brand}} 托管的登录",
       "enableDescription": "请确认此服务器的确切地址，以便 Cloud 能将加密的 Google 凭据返回给它。",
       "continueEnrollment": "继续注册",
-      "enable": "启用"
+      "enable": "启用",
+      "unreachable": "无法连接到 Paperclip Cloud。托管登录稍后会重新检查。",
+      "misconfigured": "此实例的 Paperclip Cloud 设置不完整。请联系实例管理员完成配置。"
     },
     "emptyTitle": "还没有连接。",
     "emptyPrefix": "从",
@@ -10643,7 +10646,9 @@
     "keepPursuing": "继续推进",
     "planBeforeActing": "先计划后执行",
     "answerWithoutChanges": "只回答不做改动",
-    "privateExplanation": "只有你和你分享的人可以阅读此任务"
+    "privateExplanation": "只有你和你分享的人可以阅读此任务",
+    "planCommand": "计划",
+    "planCommandDetail": "先制定计划再执行。在你接受计划之前不会有任何改动。"
   },
   "taskChat": {
     "agentCouldNotStart": "{{agentName}} 无法启动",
@@ -12466,7 +12471,8 @@
     "confirmRunStopped": "确认之前的运行已停止",
     "agentNeedsHelp": "代理需要你的帮助",
     "taskArchived": "任务已归档",
-    "unableToRetryRun": "无法重试运行"
+    "unableToRetryRun": "无法重试运行",
+    "reviewProviderBilling": "检查供应商计费与用量"
   },
   "legacyIssues": {
     "boardLimit": "部分看板列最多显示 {{count}} 个任务。请细化筛选条件或搜索以显示其余内容。",
@@ -16331,7 +16337,9 @@
     "confirmRunStoppedResuming": "正在开始你的重试…",
     "confirmRunStoppedConfirm": "确认它已停止",
     "setupFailureFix": "无法设置任务工作区。{{message}}。请在项目的工作区设置中修正该命令，然后重试。",
-    "respondToQuestion": "回复待处理的问题以继续。"
+    "respondToQuestion": "回复待处理的问题以继续。",
+    "reviewAiAccount": "检查 AI 账户",
+    "providerBilling": "请检查供应商账户的计费与用量额度，然后重试。"
   },
   "jsonSchemaForm": {
     "validation": {
@@ -16627,7 +16635,8 @@
     "title": "AI 连接",
     "reconnectAccount": "重新连接账户",
     "notConnected": "未连接",
-    "otherUsersUseOwn": "其他用户的任务使用他们自己的 {{provider}} 连接。"
+    "otherUsersUseOwn": "其他用户的任务使用他们自己的 {{provider}} 连接。",
+    "incompatibleWithHarness": "与此 harness 和模型不兼容。"
   },
   "artifactCard": {
     "document": "文档",
@@ -18215,7 +18224,13 @@
     "connection": "连接",
     "loadingConnections": "正在加载连接…",
     "reconnectAccount": "重新连接账号",
-    "retryConnections": "重试连接"
+    "retryConnections": "重试连接",
+    "useHarnessSignIn": "使用 harness 登录",
+    "incompatibleSuffix": " · 与此 harness 和模型不兼容",
+    "noDefaultAccountPrefix": "你没有该提供方的默认账户。",
+    "connectAnAccount": "连接账户",
+    "connectOrChoose": " 连接账户或选择其他连接。",
+    "orChooseAnother": " 或选择其他连接。"
   },
   "artifactFileRow": {
     "previewData": "预览数据",
@@ -19136,7 +19151,11 @@
       "approvalRequested": "请求使用 {{tool}}：",
       "sessionCreated": "为以下对象打开了应用会话：",
       "sessionRejected": "被阻止为以下对象打开应用会话：",
-      "discovery": "发现了以下对象的应用操作："
+      "discovery": "发现了以下对象的应用操作：",
+      "callFailedTest": "无法测试 {{tool}}",
+      "callFailed": "无法使用 {{tool}}",
+      "callDeferredTest": "无法完成 {{tool}} 的测试",
+      "callDeferred": "无法完成 {{tool}} 的使用"
     },
     "withService": "{{label}}（{{service}}）",
     "document": "文档",
@@ -20409,7 +20428,14 @@
         "problems_other": "{{count}} 个问题",
         "updates_one": "{{count}} 条更新",
         "updates_other": "{{count}} 条更新"
-      }
+      },
+      "headingAgents": "智能体",
+      "headingProjects": "项目",
+      "byAgents": "按智能体",
+      "byProjects": "按项目",
+      "headingAssignedTo": "分派给",
+      "byAssigned": "按分派人",
+      "headingGroupBy": "分组方式"
     },
     "taskCommitment": {
       "noTasksCreated": "未创建任何任务。"
@@ -21136,7 +21162,10 @@
       "yourIdentity": "你的身份",
       "zapierPasteDescription": "粘贴 Zapier 提供的完整 MCP URL，包括其中的令牌。",
       "actionSingular": "操作",
-      "agentSingular": "代理"
+      "agentSingular": "代理",
+      "cloudUnreachable": "无法连接 Paperclip Cloud 以启动 {{app}} 登录。请稍后重试。",
+      "cloudMisconfigured": "此实例未配置通过 Paperclip Cloud 的 {{app}} 登录。请联系实例管理员完成 Paperclip Cloud 设置。",
+      "cloudNotAvailable": "此实例已连接到 {{brand}}，但 {{app}} 登录当前不可用。请稍后重试或联系实例管理员。"
     }
   },
   "tailscale": {
@@ -22976,7 +23005,17 @@
     "testConnection": "测试连接",
     "copyAria": "复制",
     "copied": "已复制",
-    "copy": "复制"
+    "copy": "复制",
+    "updatesRoleShort": "它会更新现有角色",
+    "createsRoleShort": "它会创建角色",
+    "showsProgress": "，并在此显示进度，",
+    "cliIntro": "{{roleAction}}{{progress}}，并告知要粘贴到下方的角色 ARN。",
+    "progressUnavailable": "无法获取实时进度",
+    "progressUnavailableBody": "提示词仍然可用，只是代理不会在此显示步骤。",
+    "tryAgain": "重试",
+    "promptDescriptionWithLink": "将此内容粘贴给你自己的代理（例如 Claude Code 或 Codex），在已登录代理应使用的 AWS 账户的电脑上执行。其中包含本次设置的临时链接，请勿分享。",
+    "preparingPrompt": "正在准备提示词…",
+    "roleArnLabel": "角色 ARN"
   },
   "automationProposal": {
     "noResponsibility": "未归入责任区：该任务没有归属的责任区。",

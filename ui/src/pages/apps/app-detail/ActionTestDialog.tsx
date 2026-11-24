@@ -47,7 +47,9 @@ import {
 import { cn, relativeTime } from "@/lib/utils";
 import { appTabHref } from "../app-tabs";
 import { t as translate, useBrandText, useTranslation } from "../../../i18n";
+import { actionLabel } from "./action-permissions";
 import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
+import { safeExternalHttpUrl } from "@/lib/safe-url";
 
 const fallbackT = translate as unknown as TFunction;
 
@@ -132,7 +134,7 @@ export function ActionTestDialog({
     ));
     return tool?.decision ?? "off";
   }, [entry.toolName, selectedAgent]);
-  const title = bt(entry.title ?? entry.toolName);
+  const title = bt(actionLabel(entry));
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -1083,7 +1085,7 @@ function PreviewRowCard({ row, index }: { row: Record<string, unknown>; index: n
   const { t } = useTranslation();
   const titleKey = ["title", "name", "label"].find((key) => typeof row[key] === "string" && row[key] !== "");
   const summaryKey = ["highlight", "description", "summary"].find((key) => typeof row[key] === "string" && row[key] !== "");
-  const url = typeof row.url === "string" && /^https?:\/\//i.test(row.url) ? row.url : null;
+  const url = safeExternalHttpUrl(row.url);
   const details = Object.entries(row)
     .filter(([key]) => key !== titleKey && key !== summaryKey && (key !== "url" || !url))
     .sort(([left], [right]) => {
@@ -1344,7 +1346,7 @@ function AskFirstResult({
       <dl className="mt-3 space-y-1.5 text-sm">
         <div className="flex gap-3">
           <dt className="w-16 shrink-0 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("appDetail.testDialog.actionLabel", { defaultValue: "Action" })}</dt>
-          <dd className="text-foreground">{bt(entry.title ?? entry.toolName)}</dd>
+          <dd className="text-foreground">{bt(actionLabel(entry))}</dd>
         </div>
         {where && (
           <div className="flex gap-3">
@@ -1405,7 +1407,7 @@ function OffExplanation({
 }) {
   const { t } = useTranslation();
   const bt = useBrandText();
-  const title = bt(entry.title ?? entry.toolName);
+  const title = bt(actionLabel(entry));
   const permHref = `${appTabHref(connectionId, "permissions")}?focus=${encodeURIComponent(entry.id)}`;
 
   // Other agents are intentionally not summarized up front. Selecting one

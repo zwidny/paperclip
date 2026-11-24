@@ -71,10 +71,13 @@ export function ExecutionBlockerNotice({ presentation, canRetry, onRetry, optimi
     // Saved-work recovery is what the task waits for, so name it over the
     // generic automatic-retry line while keeping the provider explanation.
     return <ProviderFailureNotice failure={presentation.providerFailure} className={className}
-      actions={canRetry && presentation.canRetry ? <Button variant="outline" size="sm" onClick={onRetry} data-testid="task-execution-retry">{t("common.retry", { defaultValue: "Retry" })}</Button> : undefined}>
+      actions={<>
+        {presentation.userAction === "provider_billing" && <Button variant="outline" size="sm" asChild><Link to="/apps">{t("executionBlocker.reviewAiAccount", { defaultValue: "Review AI account" })}</Link></Button>}
+        {canRetry && presentation.canRetry && <Button variant="outline" size="sm" onClick={onRetry} data-testid="task-execution-retry">{t("common.retry", { defaultValue: "Retry" })}</Button>}
+      </>}>
       {presentation.state === "retry_scheduled" && <p>{step ? `${step}. ${retryIn}` : t("executionBlocker.retryAutomatically", { defaultValue: "Paperclip will retry automatically." })}</p>}
-      {isBudgetWait(presentation) && <p data-testid="task-execution-waiting">{t("executionBlocker.budgetWait", { defaultValue: "It is waiting for the budget to allow new work. Raise the budget in Costs." })}</p>}
-    </ProviderFailureNotice>;
+      {presentation.userAction === "provider_billing" && <p>{t("executionBlocker.providerBilling", { defaultValue: "Check your provider account’s billing and usage allowance, then retry." })}</p>}
+      {isBudgetWait(presentation) && <p data-testid="task-execution-waiting">{t("executionBlocker.budgetWait", { defaultValue: "It is waiting for the budget to allow new work. Raise the budget in Costs." })}</p>}    </ProviderFailureNotice>;
   }
   if (step && presentation?.state === "working") return <div role="status" aria-label={t("executionBlocker.taskStatus", { defaultValue: "Task status" })}
     className={cn("text-sm text-muted-foreground", className)}>{`${step}…`}</div>;

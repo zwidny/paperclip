@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ToggleSwitch } from "@/components/ui/toggle-switch";
 import { ACTION_PAGE_SIZE } from "./constants";
+import { actionLabel } from "./action-permissions";
 import { appDefinitionSlug } from "../app-definition-display";
 import type { AppDetailSectionProps } from "./types";
 import { googleSheetsConfigWithAllowlist, parseGoogleSheetIds } from "../google-sheets";
@@ -296,7 +297,7 @@ export function QuarantinedActionsReview({
       <div className="divide-y divide-border">
         {entries.slice(0, visibleLimit).map((entry) => {
           const enabled = enabledIds.has(entry.id);
-          const label = bt(entry.title ?? entry.toolName);
+          const label = bt(actionLabel(entry));
           return (
             <div key={entry.id} className="flex items-center gap-3 py-3">
               <div className="min-w-0 flex-1">

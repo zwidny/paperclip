@@ -54,6 +54,7 @@ import {
 } from "../lib/workspace-routines";
 import { useUpdateIssueMutation } from "../hooks/useUpdateIssueMutation";
 import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
+import { safeExternalHttpUrl } from "@/lib/safe-url";
 
 type WorkspaceFormState = {
   name: string;
@@ -136,16 +137,6 @@ function LegacyWorkspaceTabRedirect({ workspaceId }: { workspaceId: string }) {
   }, [workspaceId]);
 
   return <Navigate to={executionWorkspaceTabPath(workspaceId, "issues")} replace />;
-}
-
-function isSafeExternalUrl(value: string | null | undefined) {
-  if (!value) return false;
-  try {
-    const parsed = new URL(value);
-    return parsed.protocol === "http:" || parsed.protocol === "https:";
-  } catch {
-    return false;
-  }
 }
 
 function readText(value: string | null | undefined) {
@@ -1693,7 +1684,7 @@ export function ExecutionWorkspaceDetail() {
                 {workspace.providerRef ? <MonoValue value={workspace.providerRef} copy /> : t("properties.none", { defaultValue: "None" })}
               </DetailRow>
               <DetailRow label={t("workspaceDetail.location.repoUrl", { defaultValue: "Repo URL" })}>
-                {workspace.repoUrl && isSafeExternalUrl(workspace.repoUrl) ? (
+                {workspace.repoUrl && safeExternalHttpUrl(workspace.repoUrl) ? (
                   <div className="inline-flex max-w-full items-start gap-2">
                     <a href={workspace.repoUrl} target="_blank" rel="noreferrer" className="inline-flex min-w-0 items-center gap-1 break-all hover:underline">
                       {workspace.repoUrl}

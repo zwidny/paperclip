@@ -1288,6 +1288,14 @@ function OnboardingWizardInner({
     (harness) => !disabledTypes.has(harness.id),
   );
 
+  const hasSavedSubscription = Boolean(savedSubscription || savedKeys.storedLogin.data ||
+    (credentialMode !== "api" && managedBindingForStep()));
+  /** Without browser login, show instructions for the selected execution environment. */
+  const connectStepHasNoSandbox =
+    credentialMode !== "api" && !canShowAdapterLogin && !authSignalUndecided;
+  const browserSignInUnavailable = connectStepHasNoSandbox && !hasSavedSubscription &&
+    localLogin.status !== "ready" && !(canUseLocalLogin && managedProvider);
+
   /**
    * Whether the connect step may advance.
    *
@@ -1307,8 +1315,8 @@ function OnboardingWizardInner({
    */
   const restoredApiCredential = restoredSetup?.companyId === createdCompanyId
     && agentHarnessType(restoredSetup.adapterType, restoredSetup.adapterConfig) === agentHarnessType(adapterType)
-    && !selectedSavedKey && (restoredSetup.adapterConfig.env as Record<string, unknown> | undefined)?.[activeApiKeyEnvKey];
-  const connectStepReady = Boolean(setupPrepared || createdAgentId) && sourceSelected && !adapterEnvLoading && !savedKeys.loading && runnerDiscoveryReady && connectionModelReady;
+    && !selectedSavedKey && (restoredSetup.adapterConfig.env as Record<string, unknown> | undefined)?.[apiKeyEnvKeyFor(adapterType)];
+  const connectStepReady = Boolean(setupPrepared || createdAgentId) && sourceSelected && !adapterEnvLoading && !savedKeys.loading && runnerDiscoveryReady && !browserSignInUnavailable && connectionModelReady;
 
   useEffect(() => {
     if (step !== 4 || !createdCompanyId || !agentName.trim() || !adapterRegistryLoaded
@@ -1458,10 +1466,6 @@ function OnboardingWizardInner({
   const loginSubmitsBrowserCode =
     adapterCaps.login?.panelMode === "submitted_browser_code";
 
-  /** Without browser login, show instructions for the selected execution environment. */
-  const connectStepHasNoSandbox =
-    credentialMode !== "api" && !canShowAdapterLogin && !authSignalUndecided;
-
   /*
     The sequence's derived state. Space and visibility are separate throughout:
     the credential link fades on the first beat but keeps its space until the
@@ -1469,18 +1473,14 @@ function OnboardingWizardInner({
     third — so the column slides once, when there is a reason for it to.
   */
   const connectCollapsed =
-    connectPhase !== "idle" && connectPhase !== "unwindRow" &&
-    (sourceSelected || (openAiCompatible && sourcePicked));
+    connectPhase !== "idle" && connectPhase !== "unwindRow" && sourceSelected;
   const connectProgress = sourceSelected && !setupPrepared && !createdAgentId && !setupError
     ? t("onboarding.footer.creatingAgent", { defaultValue: "Creating your agent…" })
     : adapterEnvLoading
       ? t("onboarding.footer.testingConnection", { defaultValue: "Testing connection…" })
       : loading
         ? t("onboarding.footer.connectingNow", { defaultValue: "Connecting…" })
-        : null;
-  const hasSavedSubscription = Boolean(savedSubscription || savedKeys.storedLogin.data ||
-    (credentialMode !== "api" && managedBindingForStep()));
-  const connectHasCard = credentialMode === "api" || connectStepNeedsLogin || connectStepHasNoSandbox || Boolean(connectProgress);
+        : null;  const connectHasCard = credentialMode === "api" || connectStepNeedsLogin || connectStepHasNoSandbox || Boolean(connectProgress);
   const connectCardLive =
     connectHasCard &&
     (connectPhase === "loading" ||
@@ -1693,6 +1693,7 @@ function OnboardingWizardInner({
 
   function handleConnectStepPrimary() {
     if (setupError) { setSetupError(false); setSetupAttempt(value => value + 1); setError(null); return; }
+    if (browserSignInUnavailable) return;
     if (retryLogin) {
       setConnectAuthUrl(null);
       setSubmitLoginCode(null);
@@ -3511,8 +3512,7 @@ function OnboardingWizardInner({
                     ) : hasSavedSubscription || localLogin.status === "ready" ? null : connectStepHasNoSandbox ? (
                       canUseLocalLogin && managedProvider ? (
                         <LocalProviderLoginInstructions adapterType={adapterType} login={{ ...localLogin, retry: () => { autoConnectStartedRef.current = false; setError(null); localLogin.retry(); } }} />
-                      ) : <p className="text-xs text-muted-foreground">{t("onboarding.connect.noBrowserSignIn", { defaultValue: "This environment does not support browser sign-in. Choose another sign-in environment or connect with an API key." })}</p>
-                    ) : null}
+                      ) : browserSignInUnavailable ? <p role="status" className="text-xs text-muted-foreground">{t("onboarding.connect.noBrowserSignInGoBack", { defaultValue: "This environment does not support browser sign-in. Go back to use an API key or choose another model." })}</p> : null                    ) : null}
                   </motion.div>
 
                   {sourceSelected && connectCardLive && connectCardMounted && !connectProgress && credentialMode === "api" && createdCompanyId && (adapterType === "codex_local" || adapterType === "claude_local") && (

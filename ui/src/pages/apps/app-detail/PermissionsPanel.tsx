@@ -16,6 +16,7 @@ import { ActionTestDialog } from "./ActionTestDialog";
 import { ACTION_PAGE_SIZE } from "./constants";
 import { ProviderToolIcon } from "@/components/ProviderToolIcon";
 import { i18n, useBrandText, useTranslation } from "@/i18n";
+import { actionLabel } from "./action-permissions";
 
 /** Action rows without a provider icon show none, as before. */
 function NoIcon() {
@@ -376,11 +377,11 @@ function FilterChip({ label, active, onClick }: { label: string; active: boolean
 
 
 function byName(a: ToolCatalogEntry, b: ToolCatalogEntry) {
-  return (a.title ?? a.toolName).localeCompare(b.title ?? b.toolName);
+  return actionLabel(a).localeCompare(actionLabel(b));
 }
 
 function matchesAction(entry: ToolCatalogEntry, needle: string) {
-  return !needle || (entry.title ?? entry.toolName).toLowerCase().includes(needle)
+  return !needle || actionLabel(entry).toLowerCase().includes(needle)
     || (entry.description ?? "").toLowerCase().includes(needle);
 }
 
@@ -511,7 +512,7 @@ const ActionRow = memo(function ActionRow({
   const { t } = useTranslation();
   const bt = useBrandText();
   const [testOpen, setTestOpen] = useState(false);
-  const title = bt(action.title ?? action.toolName);
+  const title = bt(actionLabel(action));
 
   useEffect(() => {
     if (focused) rowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });

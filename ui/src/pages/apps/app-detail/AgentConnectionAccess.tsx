@@ -4,6 +4,7 @@ import { AgentAvatar } from "@/components/AgentAvatar";
 import { Button } from "@/components/ui/button";
 import { describeError } from "@/api/errors";
 import { useTranslation } from "../../../i18n";
+import { actionLabel } from "./action-permissions";
 
 export function AgentConnectionAccess({ connectionId, profiles, policies, catalog, agents, canManage, onRemove }: {
   connectionId: string;
@@ -87,7 +88,7 @@ export function AgentConnectionAccess({ connectionId, profiles, policies, catalo
           {tools.map(tool => {
             const askFirst = approvalKeys.has(`${agentId}:${tool.id}`);
             return <li key={tool.id} className="flex items-center justify-between gap-4 text-sm">
-              <span className="min-w-0 break-all">{tool.title || tool.toolName}</span>
+              <span className="min-w-0 break-all">{actionLabel(tool)}</span>
               <span className="shrink-0 text-muted-foreground">{askFirst
                 ? t("appDetail.agentAccess.askFirst", { defaultValue: "Ask first" })
                 : t("appDetail.agentAccess.allowed", { defaultValue: "Allowed" })}</span>

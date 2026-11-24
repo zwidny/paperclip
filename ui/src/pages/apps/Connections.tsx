@@ -185,6 +185,9 @@ export function Connections() {
   const connectorEnrollmentQuery = useQuery({
     queryKey: ["cloud-connector", "enrollment"],
     queryFn: () => toolsApi.getCloudConnectorEnrollment(),
+    // An unanswered Cloud check is a successful response, so query retries do
+    // not run; check again on a timer until Cloud answers.
+    refetchInterval: (query) => query.state.data?.status === "unreachable" ? CLOUD_RECHECK_INTERVAL_MS : false,
   });
   const authorization = useAuthorizationWindow();
   const galleryView = useQueryView(galleryQuery);
@@ -638,6 +641,8 @@ export function Connections() {
   );
 }
 
+const CLOUD_RECHECK_INTERVAL_MS = 15_000;
+
 function CloudConnectorEnrollmentBanner({
   status,
   unavailable,
@@ -668,14 +673,24 @@ function CloudConnectorEnrollmentBanner({
       </div>
     );
   }
-  if (unavailable) {
+  // Neither state can be fixed by enrolling: Cloud did not answer, or the
+  // managed settings are incomplete and only an administrator can finish them.
+  if (unavailable || status?.status === "unreachable" || status?.status === "misconfigured") {
     return (
       <div className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3">
         <Cloud className="h-5 w-5 text-muted-foreground" />
         <div className="text-sm text-muted-foreground">
-          {t("connectionsPage.cloud.unavailable", {
-            defaultValue: "Paperclip Cloud enrollment status is unavailable.",
-          })}
+          {status?.status === "unreachable"
+            ? t("connectionsPage.cloud.unreachable", {
+                defaultValue: "Paperclip couldn’t reach Paperclip Cloud. Managed sign-in will be checked again shortly.",
+              })
+            : status?.status === "misconfigured"
+            ? t("connectionsPage.cloud.misconfigured", {
+                defaultValue: "Paperclip Cloud settings on this instance are incomplete. Ask your instance administrator to finish them.",
+              })
+            : t("connectionsPage.cloud.unavailable", {
+                defaultValue: "Paperclip Cloud enrollment status is unavailable.",
+              })}
         </div>
       </div>
     );

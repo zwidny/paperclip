@@ -11,6 +11,7 @@ import {
   bindingProblem,
   matchesAiRequirement,
   personalAiDefault,
+  isAiConnectionCompatibleForSelection,
   type AiConnectionBinding,
   type AiConnectionRequirement,
   type AiConnectionSummary,
@@ -24,6 +25,8 @@ export interface AiConnectionPickerProps {
   currentUserId: string;
   agentId: string;
   agentName: string;
+  adapterType?: string;
+  model?: string;
   loading?: boolean;
   error?: string;
   readOnly?: boolean;
@@ -46,16 +49,22 @@ export function AiConnectionPicker({
   onConnect,
   onReconnect,
   onRetry,
+  adapterType,
+  model,
 }: AiConnectionPickerProps) {
   const { t } = useTranslation();
   const compatible = connections.filter((connection) =>
-    matchesAiRequirement(connection, requirement),
+    matchesAiRequirement(connection, requirement)
+      && (!adapterType || isAiConnectionCompatibleForSelection(connection, adapterType, model)),
   );
   const personalDefault = personalAiDefault(
     connections,
     requirement,
     currentUserId,
   );
+  const defaultCompatible = !adapterType || isAiConnectionCompatibleForSelection(personalDefault ?? {
+    provider: requirement.provider, method: requirement.method ?? "api_key", mode: "responsible_user",
+  }, adapterType, model);
   const problem = value ? bindingProblem(
     value,
     requirement,
@@ -113,10 +122,10 @@ export function AiConnectionPicker({
             disabled={readOnly}
             selectedId={value?.mode === "responsible_user" ? "responsible_user" : value?.connectionId}
             choices={[
-              { id: "responsible_user", name: t("aiConnectionPicker.responsibleUserConnection", { defaultValue: "Responsible user’s connection" }), description: <>
+              { id: "responsible_user", name: t("aiConnectionPicker.responsibleUserConnection", { defaultValue: "Responsible user’s connection" }), disabled: !defaultCompatible, description: <>
                 <span className="block">{t("aiConnectionPicker.forYou", { defaultValue: "For you:" })} <span className={ANALYTICS_MASK_CLASS}>{personalDefault?.name ?? t("aiConnectionPicker.notConnected", { defaultValue: "Not connected" })}</span></span>
                 <span className="block">{t("aiConnectionPicker.otherUsersUseOwn", { defaultValue: "Other users’ tasks use their own {{provider}} connection.", provider: AI_PROVIDERS[requirement.provider].name })}</span>
-              </> },
+                {!defaultCompatible && <span className="block">{t("aiConnectionPicker.incompatibleWithHarness", { defaultValue: "Incompatible with this harness and model." })}</span>}              </> },
               ...compatible.filter((connection) => connection.ownership === "shared").map((connection) => ({
                 id: connection.id, name: connection.name,
                 disabled: Boolean(aiConnectionProblem(connection)),
@@ -124,8 +133,8 @@ export function AiConnectionPicker({
               })),
             ]}
             onSelect={(id) => {
-              if (id === "responsible_user") onChange({provider: requirement.provider, method: personalDefault?.method ?? requirement.method ?? ((requirement.provider === "openrouter" || requirement.provider === "github") ? "api_key" : "subscription"), mode: "responsible_user"});
-              else { const connection = compatible.find((item) => item.id === id)!; select("shared", connection); }
+              if (id === "responsible_user") { if (defaultCompatible) onChange({provider: requirement.provider, method: personalDefault?.method ?? requirement.method ?? ((requirement.provider === "openrouter" || requirement.provider === "github") ? "api_key" : "subscription"), mode: "responsible_user"}); }
+              else { const connection = compatible.find((item) => item.id === id); if (connection && !aiConnectionProblem(connection)) select("shared", connection); }
             }}
           />
           {problem && (

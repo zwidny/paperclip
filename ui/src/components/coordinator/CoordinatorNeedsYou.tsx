@@ -1,7 +1,7 @@
 import { QueryErrorState, useQueryView } from "@/components/QueryView";
 import { useCallback, useEffect, useMemo, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, ArrowUpRight, ChevronDown, FileText, Image as ImageIcon, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Check, ChevronDown, FileText, Image as ImageIcon, Loader2 } from "lucide-react";
 import { LayoutGroup, motion, useReducedMotion } from "motion/react";
 import { attentionCardType, type AttentionCloseMode, type AttentionItem, type AttentionPersonalView } from "@paperclipai/shared";
 import { accessApi } from "@/api/access";
@@ -32,8 +32,7 @@ import { DecisionCardFooter } from "@/components/DecisionCardFooter";
 import { useSidePanelTabs } from "@/components/side-panel";
 import { ToolbarSearch } from "@/components/ToolbarSearch";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { NativeSelect } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { parseCssTimeMs } from "@/components/task-chat/motion-tokens";
 import { i18n, useTranslation } from "../../i18n";
 import { timeAgo } from "@/lib/timeAgo";
@@ -49,6 +48,33 @@ import { cn } from "@/lib/utils";
 import { attentionVerbLabel } from "@/lib/attention-verb-label";
 
 type Group = "type" | "none" | "task" | "agent" | "project";
+
+function InboxFilter<T extends string>({ label, heading, value, options, onChange, defaultLabel }: {
+  label: string;
+  heading: string;
+  value: T;
+  options: readonly { value: T; label: string }[];
+  onChange: (value: T) => void;
+  defaultLabel?: string;
+}) {
+  const selected = options.find(option => option.value === value);
+  return <DropdownMenu>
+    <DropdownMenuTrigger asChild>
+      <Button variant="outline" size="sm" value={value} aria-label={selected ? `${label}, ${selected.label}` : label}>
+        <span className="max-w-(--sz-160px) truncate font-medium">{defaultLabel ?? selected?.label}</span>
+        <ChevronDown aria-hidden className="size-3.5 text-muted-foreground" />
+      </Button>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent align="start" collisionPadding={8} className="w-(--sz-260px)" aria-label={heading}>
+      <DropdownMenuLabel>{heading}</DropdownMenuLabel>
+      {options.map(option => <DropdownMenuItem key={option.value} aria-current={option.value === value || undefined}
+        className="items-start gap-2" onSelect={() => onChange(option.value)}>
+        <Check aria-hidden className={cn("mt-0.5 size-3.5 shrink-0", value !== option.value && "opacity-0")} />
+        <span className={cn("truncate", value === option.value && "font-medium")}>{option.label}</span>
+      </DropdownMenuItem>)}
+    </DropdownMenuContent>
+  </DropdownMenu>;
+}
 
 /** Rule 7: a card that cannot answer inline links to the exact control, named by its verb. */
 function openLabel(item: AttentionItem) {
@@ -382,7 +408,7 @@ export function CoordinatorNeedsYou() {
   if (!selectedCompanyId) return <p className="text-sm text-muted-foreground">{t("coordinator.needsYou.chooseCompany", { defaultValue: "Choose a company to see its decisions." })}</p>;
   // Decision history is a view of the main pane (PAP-770), not a side panel
   // that repeats Recent Decisions beside them.
-  if (historyOpen) return <section className="coordinator-needs-you mx-auto w-full max-w-4xl space-y-6" aria-label={t("coordinator.needsYou.decisionHistory", { defaultValue: "Decision history" })} data-coordinator-decision-history>
+  if (historyOpen) return <section className="coordinator-needs-you w-full space-y-6" aria-label={t("coordinator.needsYou.decisionHistory", { defaultValue: "Decision history" })} data-coordinator-decision-history>
     <Button variant="ghost" size="sm" onClick={closeHistory}><ArrowLeft className="size-4" />{t("nav.needsYou", { defaultValue: "Needs You" })}</Button>
     <DecisionHistoryPanel companyId={selectedCompanyId} agents={agentQuery.data ?? []} userLabelMap={userLabelMap} header={<h1 className="text-2xl font-medium">{t("coordinator.needsYou.decisionHistory", { defaultValue: "Decision history" })}</h1>} />
   </section>;
@@ -394,27 +420,36 @@ export function CoordinatorNeedsYou() {
   const sectionHeading = (section: NeedsYouSection) => <h2 className="text-base font-medium" data-needs-you-section={section}>
     {NEEDS_YOU_SECTIONS[section].title}
   </h2>;
-  return <LayoutGroup id="coordinator-decisions"><section className="coordinator-needs-you mx-auto w-full max-w-4xl space-y-6" aria-label={t("nav.needsYou", { defaultValue: "Needs You" })}>
+  return <LayoutGroup id="coordinator-decisions"><section className="coordinator-needs-you w-full space-y-6" aria-label={t("nav.needsYou", { defaultValue: "Needs You" })}>
     {archivedView ? <div className="flex items-center gap-2"><Button variant="ghost" size="icon-sm" aria-label={t("coordinator.needsYou.backToNeedsYou", { defaultValue: "Back to Needs You" })} onClick={() => setView("mine")}><ArrowLeft className="size-4" /></Button><h1 className="text-2xl font-medium">{t("coordinator.needsYou.archived", { defaultValue: "Archived" })}</h1></div> : null}
     {/* Assigned to you by default (PAP-775); the assignee filter widens to all
         assignees, one person, no owner yet or company alerts. Archived and
         Decision history sit in View. */}
-    <div role="toolbar" aria-label={t("decisionsToolbar.controls", { defaultValue: "Decisions controls" })} className="flex flex-wrap items-center gap-2">
-      <div className="min-w-44 flex-1"><ToolbarSearch query={query} onQueryChange={setQuery} label={t("decisionsToolbar.searchLabel", { defaultValue: "Search decisions" })} placeholder={t("coordinator.needsYou.searchPlaceholderShort", { defaultValue: "Search…" })} /></div>
-      <NativeSelect aria-label={t("coordinator.needsYou.filterByAgent", { defaultValue: "Filter decisions by agent" })} value={agentFilter} onChange={(event) => setAgentFilter(event.target.value)} className="w-auto"><option value="">{t("coordinator.needsYou.allAgents", { defaultValue: "All agents" })}</option>{(agentQuery.data ?? []).map((agent) => <option key={agent.id} value={agent.id}>{agent.name}</option>)}</NativeSelect>
-      <NativeSelect aria-label={t("coordinator.needsYou.filterByProject", { defaultValue: "Filter decisions by project" })} value={projectFilter} onChange={(event) => setProjectFilter(event.target.value)} className="w-auto"><option value="">{t("coordinator.needsYou.allProjects", { defaultValue: "All projects" })}</option>{projects.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</NativeSelect>
-      {assignee ? <NativeSelect aria-label={t("coordinator.needsYou.filterByAssignee", { defaultValue: "Filter decisions by assignee" })} data-attention-assignee={assignee} value={assignee} onChange={(event) => chooseAssignee(event.target.value as CoordinatorAssignee)} className="w-auto">
-        {assigneeOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
-        {assignee.startsWith("user:") && !assigneeOptions.some(option => option.value === assignee) ? <option value={assignee}>{t("coordinator.needsYou.someoneElse", { defaultValue: "Someone else" })}</option> : null}
-      </NativeSelect> : null}
-      <NativeSelect aria-label={t("coordinator.needsYou.groupDecisions", { defaultValue: "Group decisions" })} value={groupBy} onChange={(event) => setGroupBy(event.target.value as Group)} className="w-auto"><option value="type">{t("coordinator.needsYou.byType", { defaultValue: "By type" })}</option><option value="task">{t("coordinator.needsYou.byTask", { defaultValue: "By task" })}</option><option value="agent">{t("coordinator.needsYou.byAgent", { defaultValue: "By agent" })}</option><option value="project">{t("coordinator.needsYou.byProject", { defaultValue: "By project" })}</option><option value="none">{t("coordinator.needsYou.noGrouping", { defaultValue: "No grouping" })}</option></NativeSelect>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild><Button variant="ghost" size="sm" data-attention-view-menu>{t("coordinator.needsYou.viewMenu", { defaultValue: "View" })}<ChevronDown className="size-4" /></Button></DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={() => setView("archived")}>{t("coordinator.needsYou.archived", { defaultValue: "Archived" })}{viewCounts.archived ? ` · ${viewCounts.archived}` : ""}</DropdownMenuItem>
-          <DropdownMenuItem onSelect={showHistory}>{t("coordinator.needsYou.decisionHistory", { defaultValue: "Decision history" })}</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+    <div data-canonical-toolbar="inbox" className="design-page-toolbar" role="toolbar" aria-label={t("decisionsToolbar.controls", { defaultValue: "Decisions controls" })}>
+      <ToolbarSearch query={query} onQueryChange={setQuery} label={t("decisionsToolbar.searchLabel", { defaultValue: "Search decisions" })} placeholder={t("coordinator.needsYou.searchPlaceholderShort", { defaultValue: "Search…" })} />
+      <div className="design-toolbar-actions">
+        <InboxFilter label={t("coordinator.needsYou.filterByAgent", { defaultValue: "Filter decisions by agent" })} heading={t("coordinator.needsYou.headingAgents", { defaultValue: "Agents" })} value={agentFilter} onChange={setAgentFilter}
+          defaultLabel={agentFilter ? undefined : t("coordinator.needsYou.byAgents", { defaultValue: "By agents" })}
+          options={[{ value: "", label: t("coordinator.needsYou.allAgents", { defaultValue: "All agents" }) }, ...(agentQuery.data ?? []).map(agent => ({ value: agent.id, label: agent.name }))]} />
+        <InboxFilter label={t("coordinator.needsYou.filterByProject", { defaultValue: "Filter decisions by project" })} heading={t("coordinator.needsYou.headingProjects", { defaultValue: "Projects" })} value={projectFilter} onChange={setProjectFilter}
+          defaultLabel={projectFilter ? undefined : t("coordinator.needsYou.byProjects", { defaultValue: "By projects" })}
+          options={[{ value: "", label: t("coordinator.needsYou.allProjects", { defaultValue: "All projects" }) }, ...projects.map(([value, label]) => ({ value, label }))]} />
+        {assignee && <InboxFilter label={t("coordinator.needsYou.filterByAssignee", { defaultValue: "Filter decisions by assignee" })} heading={t("coordinator.needsYou.headingAssignedTo", { defaultValue: "Assigned to" })} value={assignee} onChange={chooseAssignee}
+          defaultLabel={assignee === "me" ? t("coordinator.needsYou.byAssigned", { defaultValue: "By assigned" }) : undefined}
+          options={assignee.startsWith("user:") && !assigneeOptions.some(option => option.value === assignee)
+            ? [...assigneeOptions, { value: assignee, label: t("coordinator.needsYou.someoneElse", { defaultValue: "Someone else" }) }] : assigneeOptions} />}
+        <InboxFilter<Group> label={t("coordinator.needsYou.groupDecisions", { defaultValue: "Group decisions" })} heading={t("coordinator.needsYou.headingGroupBy", { defaultValue: "Group by" })} value={groupBy} onChange={setGroupBy}
+          options={[{ value: "type", label: t("coordinator.needsYou.byType", { defaultValue: "By type" }) }, { value: "task", label: t("coordinator.needsYou.byTask", { defaultValue: "By task" }) }, { value: "agent", label: t("coordinator.needsYou.byAgent", { defaultValue: "By agent" }) },
+            { value: "project", label: t("coordinator.needsYou.byProject", { defaultValue: "By project" }) }, { value: "none", label: t("coordinator.needsYou.noGrouping", { defaultValue: "No grouping" })}]} />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild><Button variant="ghost" size="sm" data-attention-view-menu>{t("coordinator.needsYou.viewMenu", { defaultValue: "View" })}<ChevronDown className="size-4" /></Button></DropdownMenuTrigger>
+          <DropdownMenuContent align="end" collisionPadding={8} className="w-(--sz-260px)">
+            <DropdownMenuLabel>{t("coordinator.needsYou.viewMenu", { defaultValue: "View" })}</DropdownMenuLabel>
+            <DropdownMenuItem onSelect={() => setView("archived")}>{t("coordinator.needsYou.archived", { defaultValue: "Archived" })}{viewCounts.archived ? ` · ${viewCounts.archived}` : ""}</DropdownMenuItem>
+            <DropdownMenuItem onSelect={showHistory}>{t("coordinator.needsYou.decisionHistory", { defaultValue: "Decision history" })}</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
     {feed.data ? <p className="text-sm text-muted-foreground" data-needs-you-summary>
       {summarySections.map((section, index) => <span key={section}>

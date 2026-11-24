@@ -7001,7 +7001,9 @@
     "retryMissed": "已错过重试",
     "nextTryNow": "下次尝试：现在",
     "nextTryWithOffset": "下次尝试 {{offset}}",
-    "retriesUsedUp": "重试次数已用完"
+    "retriesUsedUp": "重试次数已用完",
+    "retryMissedWith": "重试已错过 {{offset}}",
+    "nextTry": "下次重试 {{offset}}"
   },
   "routineHistory": {
     "actor": {
@@ -11238,7 +11240,27 @@
       "workspaceFile": "已引用文件",
       "resource": "已添加资源"
     },
-    "andMore": "等"
+    "andMore": "等",
+    "family": {
+      "research": "搜索了网络",
+      "delegation": "与代理协作",
+      "artifact": "处理了产物",
+      "context": "管理了上下文",
+      "memory": "查阅了记忆",
+      "model_identity": "检查了模型设置",
+      "review": "在审查模式下工作",
+      "hook": "运行了钩子",
+      "verification": "运行了检查",
+      "workspace_change": "处理了文件",
+      "workspace_file": "引用了文件",
+      "resource": "添加了资源"
+    },
+    "ranHooks": "运行了钩子",
+    "autoReviewedActions": "自动审查了操作",
+    "checkFailed": "检查失败",
+    "skippedChecks": "跳过了检查",
+    "ranChecks": "运行了检查",
+    "switchedModels": "切换了模型"
   },
   "taskChatThread": {
     "afterFinalResponse": "（已在返回最终回复后）",
@@ -23545,5 +23567,27 @@
     "sourceSchedule": "计划",
     "sourceManual": "手动",
     "taskCreated": "已创建任务"
+  },
+  "issueUpdate": {
+    "reopened": "重新打开了任务",
+    "reopenedFrom": "从 {{from}} 重新打开了任务",
+    "reopenedTo": "重新打开了任务为 {{to}}",
+    "reopenedFromTo": "从 {{from}} 重新打开了任务为 {{to}}",
+    "statusFromTo": "将状态从 {{from}} 改为 {{to}}",
+    "statusTo": "将状态改为 {{to}}",
+    "priority": "将优先级设为 {{priority}}",
+    "reassigned": "重新分派了任务",
+    "unassigned": "取消了任务分派",
+    "titleChanged": "更改了标题",
+    "descriptionChanged": "更改了描述"
+  },
+  "schedule": {
+    "everyMinute": "每分钟",
+    "everyHour": "每小时的第 {{minute}} 分钟",
+    "everyDay": "每天 {{time}}",
+    "weekdays": "工作日 {{time}}",
+    "weekly": "每周{{day}} {{time}}",
+    "monthly": "每月 {{day}} 日 {{time}}",
+    "none": "未设置计划"
   }
 }

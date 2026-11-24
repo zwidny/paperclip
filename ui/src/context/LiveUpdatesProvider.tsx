@@ -1,7 +1,7 @@
 import { LiveTranscriptInterests, DISCONNECTED_TRANSCRIPT_STREAM } from "../lib/live-transcript-interests";
 import { resolveAgentAppearance, TASK_IDENTITY_CHANGED_FIELD, issueActivityChangesTaskIdentity } from "@paperclipai/shared";
 import type { TFunction } from "i18next";
-import { useTranslation } from "../i18n";
+import { t, useTranslation } from "../i18n";
 import { getPageVisibility, usePageVisibility } from "../lib/page-visibility";
 import { createLiveQueryRecovery } from "../lib/live-query-recovery";
 import { isLiveReconciledQuery } from "../lib/live-reconcile";
@@ -1178,20 +1178,32 @@ function describeIssueUpdate(
   if (details.reopened === true) {
     const from = readString(details.reopenedFrom) ?? readString(details.statusFrom);
     const to = readString(details.status);
-    changes.push(`reopened${from ? ` from ${statusLabel(from)}` : " the task"}${to ? ` to ${statusLabel(to)}` : ""}`);
+    changes.push(
+      from && to
+        ? t("issueUpdate.reopenedFromTo", { from: statusLabel(from), to: statusLabel(to), defaultValue: `reopened from ${statusLabel(from)} to ${statusLabel(to)}` })
+        : from
+          ? t("issueUpdate.reopenedFrom", { from: statusLabel(from), defaultValue: `reopened from ${statusLabel(from)}` })
+          : to
+            ? t("issueUpdate.reopenedTo", { to: statusLabel(to), defaultValue: `reopened to ${statusLabel(to)}` })
+            : t("issueUpdate.reopened", { defaultValue: "reopened the task" }),
+    );
   } else if (typeof details.status === "string") {
     changes.push(typeof details.statusFrom === "string"
-      ? `changed status from ${statusLabel(details.statusFrom)} to ${statusLabel(details.status)}`
-      : `changed status to ${statusLabel(details.status)}`);
+      ? t("issueUpdate.statusFromTo", {
+          from: statusLabel(details.statusFrom),
+          to: statusLabel(details.status),
+          defaultValue: `changed status from ${statusLabel(details.statusFrom)} to ${statusLabel(details.status)}`,
+        })
+      : t("issueUpdate.statusTo", { to: statusLabel(details.status), defaultValue: `changed status to ${statusLabel(details.status)}` }));
   }
-  if (typeof details.priority === "string") changes.push(`set priority to ${details.priority}`);
+  if (typeof details.priority === "string") changes.push(t("issueUpdate.priority", { priority: details.priority, defaultValue: `set priority to ${details.priority}` }));
   if (details.assignment === "reassigned" || typeof details.assigneeAgentId === "string" || typeof details.assigneeUserId === "string") {
-    changes.push("reassigned the task");
+    changes.push(t("issueUpdate.reassigned", { defaultValue: "reassigned the task" }));
   } else if (details.assignment === "unassigned" || details.assigneeAgentId === null || details.assigneeUserId === null) {
-    changes.push("unassigned the task");
+    changes.push(t("issueUpdate.unassigned", { defaultValue: "unassigned the task" }));
   }
-  if (details.titleChanged === true || typeof details.title === "string") changes.push("changed the title");
-  if (details.descriptionChanged === true || typeof details.description === "string") changes.push("changed the description");
+  if (details.titleChanged === true || typeof details.title === "string") changes.push(t("issueUpdate.titleChanged", { defaultValue: "changed the title" }));
+  if (details.descriptionChanged === true || typeof details.description === "string") changes.push(t("issueUpdate.descriptionChanged", { defaultValue: "changed the description" }));
   return changes.length > 0 ? changes.join(", ") : null;
 }
 

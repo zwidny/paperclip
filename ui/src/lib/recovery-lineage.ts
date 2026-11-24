@@ -1,5 +1,6 @@
 import type { IssueRecoveryAction, IssueScheduledRetry } from "@paperclipai/shared";
 import { formatMonitorOffset } from "./issue-monitor";
+import { t } from "../i18n";
 
 /**
  * Which bounded retry budget the server is currently spending on a recovery action.
@@ -229,15 +230,19 @@ export function formatRecoveryLineageSummary(lineage: RecoveryRetryLineage): str
   if (attempt) parts.push(attempt);
   const offset = formatRecoveryRetryOffset(lineage);
   if (lineage.liveRunId) {
-    parts.push("attempt running now");
+    parts.push(t("recoveryLineage.attemptRunning", { defaultValue: "attempt running now" }));
   } else if (lineage.retryExpired) {
     // Never "next try 5m ago": a due time in the past is a missed attempt, and phrasing it as
     // an upcoming one is exactly the false healthy state this helper exists to prevent.
-    parts.push(offset ? `retry missed ${offset}` : "retry missed");
+    parts.push(offset
+      ? t("recoveryLineage.retryMissedWith", { offset, defaultValue: `retry missed ${offset}` })
+      : t("recoveryLineage.retryMissed", { defaultValue: "retry missed" }));
   } else if (offset) {
-    parts.push(offset === "now" ? "next try now" : `next try ${offset}`);
+    parts.push(offset === "now"
+      ? t("recoveryLineage.nextTryNow", { defaultValue: "next try now" })
+      : t("recoveryLineage.nextTry", { offset, defaultValue: `next try ${offset}` }));
   } else if (lineage.exhausted) {
-    parts.push("retries used up");
+    parts.push(t("recoveryLineage.retriesUsedUp", { defaultValue: "retries used up" }));
   }
   return parts.length > 0 ? parts.join(" · ") : null;
 }

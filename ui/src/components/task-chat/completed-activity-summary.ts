@@ -90,43 +90,52 @@ export function completedActivitySummary(items: Activity[], t?: TFunction) {
           // A hook or reviewer that stopped an action is the headline of the
           // group; routine passes only describe a group with nothing else.
           if (p.tone === "blocked" || p.tone === "failed") add(p.completedLabel, p.icon, -1);
-          else quietGovernance.push({ label: item.family === "hook" ? "Ran hooks" : "Auto-reviewed actions", single: p.completedLabel, icon: p.icon, order });
+          else quietGovernance.push({
+            label: item.family === "hook"
+              ? translated(t, "ranHooks", "Ran hooks")
+              : translated(t, "autoReviewedActions", "Auto-reviewed actions"),
+            single: p.completedLabel,
+            icon: p.icon,
+            order,
+          });
           continue;
         }
         if (item.surface === "provider_activity" && item.family === "verification") {
           // A failed check stays visible even when the compact label truncates.
-          if (item.status === "failed") add("Check failed", p.icon, -1);
-          else if (item.details.find((entry) => entry.label === "Status")?.value === "not_run") add("Skipped checks", p.icon, order);
-          else add("Ran checks", p.icon, order);
+          if (item.status === "failed") add(translated(t, "checkFailed", "Check failed"), p.icon, -1);
+          else if (item.details.find((entry) => entry.label === "Status")?.value === "not_run") {
+            add(translated(t, "skippedChecks", "Skipped checks"), p.icon, order);
+          } else add(translated(t, "ranChecks", "Ran checks"), p.icon, order);
           continue;
         }
         if (item.surface === "provider_activity" && item.eventType === "model.route.changed") {
-          add("Switched models", p.icon, order);
+          add(translated(t, "switchedModels", "Switched models"), p.icon, order);
           continue;
         }
         const family =
           item.surface === "provider_activity" ? item.family : item.surface;
-        const label =
-          (
-            {
-              research: "Searched the web",
-              plan: "Worked on a plan",
-              delegation: "Worked with agents",
-              artifact: "Worked with artifacts",
-              context: "Managed context",
-              memory: "Checked memory",
-              model_identity: "Checked model settings",
-              review: "Worked in review mode",
-              hook: "Ran hooks",
-              safety: "Reviewed safety",
-              terminal: "Ran commands",
-              wait: "Waited",
-              verification: "Ran checks",
-              workspace_change: "Worked on files",
-              workspace_file: "Referenced files",
-              resource: "Added resources",
-            } as Record<string, string>
-          )[family] ?? translated(t, "usedTools", "Used tools");
+        const INLINE_FAMILY_LABELS: Record<string, string> = {
+          research: "Searched the web",
+          plan: "Worked on a plan",
+          delegation: "Worked with agents",
+          artifact: "Worked with artifacts",
+          context: "Managed context",
+          memory: "Checked memory",
+          model_identity: "Checked model settings",
+          review: "Worked in review mode",
+          hook: "Ran hooks",
+          safety: "Reviewed safety",
+          terminal: "Ran commands",
+          wait: "Waited",
+          verification: "Ran checks",
+          workspace_change: "Worked on files",
+          workspace_file: "Referenced files",
+          resource: "Added resources",
+        };
+        const inlineEnglish = INLINE_FAMILY_LABELS[family];
+        const label = inlineEnglish
+          ? translated(t, `family.${family}`, inlineEnglish)
+          : translated(t, "usedTools", "Used tools");
         add(label, p.icon, order);
       }
     }

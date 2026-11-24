@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { t } from "../i18n";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "@/i18n";
@@ -127,21 +128,21 @@ function describeSchedule(cron: string): string {
 
   switch (preset) {
     case "every_minute":
-      return "Every minute";
+      return t("schedule.everyMinute", { defaultValue: "Every minute" });
     case "every_hour":
-      return `Every hour at :${minute.padStart(2, "0")}`;
+      return t("schedule.everyHour", { minute: minute.padStart(2, "0"), defaultValue: `Every hour at :${minute.padStart(2, "0")}` });
     case "every_day":
-      return `Every day at ${timeStr}`;
+      return t("schedule.everyDay", { time: timeStr, defaultValue: `Every day at ${timeStr}` });
     case "weekdays":
-      return `Weekdays at ${timeStr}`;
+      return t("schedule.weekdays", { time: timeStr, defaultValue: `Weekdays at ${timeStr}` });
     case "weekly": {
       const day = DAYS_OF_WEEK.find((d) => d.value === dayOfWeek)?.label ?? dayOfWeek;
-      return `Every ${day} at ${timeStr}`;
+      return t("schedule.weekly", { day, time: timeStr, defaultValue: `Every ${day} at ${timeStr}` });
     }
     case "monthly":
-      return `Monthly on the ${dayOfMonth}${ordinalSuffix(Number(dayOfMonth))} at ${timeStr}`;
+      return t("schedule.monthly", { day: dayOfMonth, time: timeStr, defaultValue: `Monthly on the ${dayOfMonth}${ordinalSuffix(Number(dayOfMonth))} at ${timeStr}` });
     case "custom":
-      return cron || "No schedule set";
+      return cron || t("schedule.none", { defaultValue: "No schedule set" });
   }
 }
 

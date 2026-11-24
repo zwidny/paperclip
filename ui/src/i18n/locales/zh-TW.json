@@ -7001,7 +7001,9 @@
     "retryMissed": "已錯過重試",
     "nextTryNow": "下次嘗試：現在",
     "nextTryWithOffset": "下次嘗試 {{offset}}",
-    "retriesUsedUp": "重試次數已用完"
+    "retriesUsedUp": "重試次數已用完",
+    "retryMissedWith": "retry missed {{offset}}",
+    "nextTry": "next try {{offset}}"
   },
   "routineHistory": {
     "actor": {
@@ -11238,7 +11240,27 @@
       "workspaceFile": "已引用檔案",
       "resource": "已添加資源"
     },
-    "andMore": "等"
+    "andMore": "等",
+    "family": {
+      "research": "Searched the web",
+      "delegation": "Worked with agents",
+      "artifact": "Worked with artifacts",
+      "context": "Managed context",
+      "memory": "Checked memory",
+      "model_identity": "Checked model settings",
+      "review": "Worked in review mode",
+      "hook": "Ran hooks",
+      "verification": "Ran checks",
+      "workspace_change": "Worked on files",
+      "workspace_file": "Referenced files",
+      "resource": "Added resources"
+    },
+    "ranHooks": "Ran hooks",
+    "autoReviewedActions": "Auto-reviewed actions",
+    "checkFailed": "Check failed",
+    "skippedChecks": "Skipped checks",
+    "ranChecks": "Ran checks",
+    "switchedModels": "Switched models"
   },
   "taskChatThread": {
     "afterFinalResponse": "（已在返回最終回復后）",
@@ -23545,5 +23567,27 @@
     "sourceSchedule": "Schedule",
     "sourceManual": "Manual",
     "taskCreated": "Task created"
+  },
+  "issueUpdate": {
+    "reopened": "reopened the task",
+    "reopenedFrom": "reopened from {{from}}",
+    "reopenedTo": "reopened to {{to}}",
+    "reopenedFromTo": "reopened from {{from}} to {{to}}",
+    "statusFromTo": "changed status from {{from}} to {{to}}",
+    "statusTo": "changed status to {{to}}",
+    "priority": "set priority to {{priority}}",
+    "reassigned": "reassigned the task",
+    "unassigned": "unassigned the task",
+    "titleChanged": "changed the title",
+    "descriptionChanged": "changed the description"
+  },
+  "schedule": {
+    "everyMinute": "Every minute",
+    "everyHour": "Every hour at :{{minute}}",
+    "everyDay": "Every day at {{time}}",
+    "weekdays": "Weekdays at {{time}}",
+    "weekly": "Every {{day}} at {{time}}",
+    "monthly": "Monthly on day {{day}} at {{time}}",
+    "none": "No schedule set"
   }
 }

@@ -1,6 +1,7 @@
 import type { Agent } from "@paperclipai/shared";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { formatActivityVerb, formatIssueActivityAction } from "./activity-format";
+import { changeLocale } from "../i18n";
 
 describe("activity formatting", () => {
   const agentMap = new Map<string, Agent>([
@@ -160,5 +161,32 @@ describe("activity formatting", () => {
     expect(formatIssueActivityAction("issue.successful_run_handoff_escalated")).toBe(
       "Run finished without a next step - recovery escalated",
     );
+  });
+});
+
+describe("localized activity copy", () => {
+  afterEach(async () => {
+    await changeLocale("en");
+  });
+
+  it("renders Chinese verbs and actions after switching locale", async () => {
+    await changeLocale("zh-CN");
+    expect(formatActivityVerb("issue.created")).toBe("创建了");
+    expect(formatActivityVerb("issue.comment_added")).toBe("评论了");
+    expect(formatIssueActivityAction("issue.created")).toBe("创建了任务");
+    expect(formatIssueActivityAction("issue.comment_added")).toBe("添加了评论");
+  });
+
+  it("localizes priority values", async () => {
+    await changeLocale("zh-CN");
+    expect(
+      formatIssueActivityAction("issue.updated", { priority: "high", _previous: { priority: "low" } }),
+    ).toBe("将优先级从 低 更改为 高");
+  });
+
+  it("localizes status changes and keeps the entity suffix empty", async () => {
+    await changeLocale("zh-CN");
+    expect(formatIssueActivityAction("issue.updated", { status: "done", _previous: { status: "todo" } }))
+      .toBe("将状态从 待处理 更改为 已完成");
   });
 });

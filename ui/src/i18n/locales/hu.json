@@ -19113,7 +19113,10 @@
       "tool_connection_grant_added": "added credentials to",
       "tool_connection_grant_revoked": "revoked credentials from",
       "tool_connection_grant_delegated": "delegated credentials for",
-      "tool_connection_grant_delegation_revoked": "revoked credential delegation for"
+      "tool_connection_grant_delegation_revoked": "revoked credential delegation for",
+      "issue_retry_continued_from_saved_work": "continued from saved work on",
+      "issue_previous_run_files_waiting": "is still working to save the previous run's files on",
+      "issue_previous_run_files_lost": "continued from the last save on"
     },
     "issue": {
       "issue_created": "created the issue",
@@ -19178,7 +19181,10 @@
       "issue_thread_interaction_dismissed": "deferred the request",
       "issue_thread_interaction_expired": "expired the request",
       "issue_thread_interaction_item_verdicts_submitted": "submitted verdicts on the request",
-      "issue_stalled_review_decided": "recorded a review verdict"
+      "issue_stalled_review_decided": "recorded a review verdict",
+      "issue_retry_continued_from_saved_work": "Retry continued from saved work.",
+      "issue_previous_run_files_lost": "Could not save the previous run's unsaved files because they were already gone. This task continues from its last save.",
+      "issue_previous_run_files_waiting": "Still working to save the previous run's unsaved files. New runs start once they are saved. {{brand}} keeps trying on its own."
     },
     "stalledReview": {
       "approve": "approved the review",
@@ -19200,7 +19206,22 @@
       }
     },
     "agentFallback": "agent",
-    "taskFallback": "task"
+    "taskFallback": "task",
+    "boardLabel": "Board",
+    "youLabel": "You",
+    "userFallback": "user {{id}}",
+    "noneValue": "none",
+    "reviewPolicy": {
+      "anyone": "anyone",
+      "not_creator": "anyone else",
+      "human_only": "human only"
+    },
+    "priority": {
+      "critical": "Critical",
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    }
   },
   "codexReasoningEffort": {
     "minimal": "Minimal",

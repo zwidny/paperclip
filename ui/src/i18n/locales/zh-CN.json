@@ -19113,7 +19113,10 @@
       "tool_connection_grant_added": "添加了凭据到",
       "tool_connection_grant_revoked": "从以下对象撤销了凭据：",
       "tool_connection_grant_delegated": "委派了以下对象的凭据：",
-      "tool_connection_grant_delegation_revoked": "撤销了以下对象的凭据委派："
+      "tool_connection_grant_delegation_revoked": "撤销了以下对象的凭据委派：",
+      "issue_retry_continued_from_saved_work": "从已保存的成果继续",
+      "issue_previous_run_files_waiting": "仍在保存上一轮运行的文件",
+      "issue_previous_run_files_lost": "从上次保存继续"
     },
     "issue": {
       "issue_created": "创建了任务",
@@ -19178,7 +19181,10 @@
       "issue_thread_interaction_dismissed": "推迟了请求",
       "issue_thread_interaction_expired": "请求已过期",
       "issue_thread_interaction_item_verdicts_submitted": "提交了对请求的判定",
-      "issue_stalled_review_decided": "记录了审查结论"
+      "issue_stalled_review_decided": "记录了审查结论",
+      "issue_retry_continued_from_saved_work": "重试从已保存的成果继续。",
+      "issue_previous_run_files_lost": "无法保存上一轮运行中未保存的文件，因为它们已不存在。此任务从上次保存继续。",
+      "issue_previous_run_files_waiting": "仍在保存上一轮运行中未保存的文件。保存完成后才会开始新的运行。{{brand}} 会自行重试。"
     },
     "stalledReview": {
       "approve": "批准了审查",
@@ -19200,7 +19206,22 @@
       }
     },
     "agentFallback": "代理",
-    "taskFallback": "任务"
+    "taskFallback": "任务",
+    "boardLabel": "董事会",
+    "youLabel": "你",
+    "userFallback": "用户 {{id}}",
+    "noneValue": "无",
+    "reviewPolicy": {
+      "anyone": "任何人",
+      "not_creator": "除创建者外的任何人",
+      "human_only": "仅限人工"
+    },
+    "priority": {
+      "critical": "紧急",
+      "high": "高",
+      "medium": "中",
+      "low": "低"
+    }
   },
   "codexReasoningEffort": {
     "minimal": "最低",

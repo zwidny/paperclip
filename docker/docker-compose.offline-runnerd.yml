@@ -28,3 +28,16 @@ services:
       # needs an IPv4-only CDN host, name resolution fails inside RUN steps.
       # Host networking avoids that without touching the Docker daemon.
       network: host
+    # This variant targets hosts that cannot build the Runner in-image, which in
+    # practice means self-hosted and white-label deployments. Those should not
+    # call home: the announcement feed polls an upstream URL on a timer, and the
+    # server telemetry client defaults to enabled and posts install identity to
+    # telemetry.paperclip.ing.
+    #
+    # Every value is overridable, so an operator who wants either one back sets
+    # the variable in docker/.env or the shell. Pass a literal (not another
+    # ${...} default) to re-enable.
+    environment:
+      PAPERCLIP_ANNOUNCEMENTS_ENABLED: "${PAPERCLIP_ANNOUNCEMENTS_ENABLED:-false}"
+      PAPERCLIP_TELEMETRY_DISABLED: "${PAPERCLIP_TELEMETRY_DISABLED:-1}"
+      DO_NOT_TRACK: "${DO_NOT_TRACK:-1}"

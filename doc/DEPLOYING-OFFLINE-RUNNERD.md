@@ -88,6 +88,36 @@ host-local files and downloaded provider assets the clone never contains.
 - The `build` stage keeps `PAPERCLIP_TSC_EMIT_ONLY=1` for the server build, which
   keeps the tsc step near 2.5 GiB instead of more than 10 GiB.
 
+## No calls to the upstream service
+
+The variant targets self-hosted and white-label hosts, so it turns off the two
+paths that contact the upstream service on their own. Both live in
+`docker/docker-compose.offline-runnerd.yml` and are overridable from
+`docker/.env` or the shell:
+
+| Variable | Default here | What it stops |
+| --- | --- | --- |
+| `PAPERCLIP_ANNOUNCEMENTS_ENABLED` | `false` | The announcement feed, which polls `pages.paperclip.ing/announcements/v1/current.json` on a timer and shows upstream product announcements in the board |
+| `PAPERCLIP_TELEMETRY_DISABLED` | `1` | The server telemetry client, which otherwise defaults to enabled and posts the install id, version and workspace identity to `telemetry.paperclip.ing` |
+| `DO_NOT_TRACK` | `1` | The same telemetry client, via the standard opt-out |
+
+These stay on, and are not a leak:
+
+- Sentry, which only sends once a DSN is configured (this variant sets none).
+- Browser PostHog, which needs a token, a stack id and
+  `PAPERCLIP_POSTHOG_BROWSER_ENABLED=1`; the `/_ph` proxy route is not mounted
+  without them.
+- The feedback share upload, which only runs when a user clicks share.
+- GitHub, Slack, Teams, email and AI connection requests, which are the product's
+  job and only fire for connections the operator configured.
+
+To verify on a running host:
+
+```sh
+docker exec <server-container> sh -c 'tr "\0" "\n" < /proc/1/environ | grep -E "ANNOUNCE|TELEMETRY|DO_NOT_TRACK"'
+ss -tnp | grep -E "paperclip\.ing|posthog|amazonaws"   # expect no rows
+```
+
 ## Keeping the variant in sync with the stock Dockerfile
 
 When the stock `Dockerfile` changes, review these six deltas and re-apply them,

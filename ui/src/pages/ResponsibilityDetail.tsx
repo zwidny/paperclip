@@ -290,7 +290,7 @@ export function ResponsibilityDetail() {
           <div className="mx-auto flex max-w-xl flex-col items-start gap-3 py-10">
             <h1 className="text-xl font-semibold text-foreground">{t("responsibilities.otherOrg", { defaultValue: "This responsibility belongs to another organization" })}</h1>
             <Button asChild variant="outline">
-              <Link to="/responsibilities">Back to the dashboard</Link>
+              <Link to="/responsibilities">{t("responsibilities.backToDashboard", { defaultValue: "Back to the dashboard" })}</Link>
             </Button>
           </div>
         )

@@ -4812,7 +4812,8 @@
       "labelReadWrite": "Read & write",
       "labelIssueComment": "Issue comment",
       "labelPullRequestReviewComment": "Pull request review comment",
-      "labelOnlyOnThisAccount": "Only on this account"
+      "labelOnlyOnThisAccount": "Only on this account",
+      "promptDescription": "Paste this into your agent to configure your GitHub review bot."
     },
     "slack": {
       "openAppSettings": "Open Slack app Settings",
@@ -4867,7 +4868,8 @@
       "signingSecretWarningSuffix": ", NOT an app or bot token. The Signing Secret has no token prefix.",
       "reconnect": "Reconnect Slack app",
       "connect": "Connect Slack app",
-      "saveAppDetailsFailed": "Couldn't save the Slack app details. Try again before continuing."
+      "saveAppDetailsFailed": "Couldn't save the Slack app details. Try again before continuing.",
+      "promptDescription": "Paste this into your agent to configure your Slack bot."
     },
     "try": {
       "freshPhoton": "send a fresh message to your Photon number",
@@ -7186,7 +7188,8 @@
       "environmentError": "Could not resolve the sign-in environment.",
       "executionEnvironment": "Execution environment",
       "preparing": "Preparing sign-in…",
-      "signInEnvironment": "Sign-in environment"
+      "signInEnvironment": "Sign-in environment",
+      "copilotTokenNote": "Use a personal fine-grained token with Copilot Requests permission."
     },
     "field": {
       "adoptBody": "Saving validates access to the selected connection. Existing sessions keep their account or require an explicit reset before adoption.",
@@ -15056,7 +15059,9 @@
     "userIdLabel": "Arcade user ID",
     "userIdHelp": "Use the end-user ID configured for this gateway’s sign-in. This may differ from your email address.",
     "saveFailed": "Couldn’t save account sync. Try again.",
-    "saveAndSync": "Save and sync"
+    "saveAndSync": "Save and sync",
+    "descriptionBefore": "See apps available through ",
+    "descriptionAfter": ". Your gateway works without account sync."
   },
   "githubAppIdentity": {
     "copyMention": "Copy GitHub mention",
@@ -18692,7 +18697,8 @@
     "signOut": "Sign out",
     "signingOut": "Signing out...",
     "shareFeedback": "Share feedback",
-    "viewCommitOnGithub": "View commit {{commit}} on GitHub"
+    "viewCommitOnGithub": "View commit {{commit}} on GitHub",
+    "inviteDescription": "Invite people to your organization."
   },
   "sidebarShell": {
     "resizeAria": "Resize sidebar",
@@ -20248,7 +20254,8 @@
     "recents": "Recents",
     "loadingTasks": "Loading tasks…",
     "emptyRecents": "Your conversations and tasks will appear here.",
-    "searchTooltip": "Search tasks, agents, projects"
+    "searchTooltip": "Search tasks, agents, projects",
+    "globalSearchAria": "Global search"
   },
   "coordinatorWorkspace": {
     "title": "Coordinator workspace",
@@ -23276,5 +23283,17 @@
       "label": "Keep paused",
       "description": "Dismiss or keep the budget stop in place."
     }
+  },
+  "chatRead": {
+    "markFailed": "Couldn’t mark this chat read."
+  },
+  "authorizationWindow": {
+    "openSignInNewTab": "Open sign-in in a new tab"
+  },
+  "caseFields": {
+    "aria": "Case fields"
+  },
+  "routines": {
+    "descriptionPlaceholder": "What should the agent do each time? Type / for skills and routines, @ to mention, {{name}} to ask for a value."
   }
 }

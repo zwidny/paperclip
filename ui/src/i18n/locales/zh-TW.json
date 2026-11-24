@@ -4812,7 +4812,8 @@
       "labelReadWrite": "Read & write",
       "labelIssueComment": "Issue comment",
       "labelPullRequestReviewComment": "Pull request review comment",
-      "labelOnlyOnThisAccount": "Only on this account"
+      "labelOnlyOnThisAccount": "Only on this account",
+      "promptDescription": "Paste this into your agent to configure your GitHub review bot."
     },
     "slack": {
       "openAppSettings": "開啟 Slack 應用程式設定",
@@ -4867,7 +4868,8 @@
       "signingSecretWarningSuffix": "，而不是應用程式或機器人 token。Signing Secret 沒有 token 前綴。",
       "reconnect": "重新連線 Slack 應用程式",
       "connect": "連線 Slack 應用程式",
-      "saveAppDetailsFailed": "Couldn't save the Slack app details. Try again before continuing."
+      "saveAppDetailsFailed": "Couldn't save the Slack app details. Try again before continuing.",
+      "promptDescription": "Paste this into your agent to configure your Slack bot."
     },
     "try": {
       "freshPhoton": "傳送一則新訊息到你的 Photon 號碼",
@@ -7186,7 +7188,8 @@
       "environmentError": "無法確定登入環境。",
       "executionEnvironment": "執行環境",
       "preparing": "正在準備登入…",
-      "signInEnvironment": "登入環境"
+      "signInEnvironment": "登入環境",
+      "copilotTokenNote": "Use a personal fine-grained token with Copilot Requests permission."
     },
     "field": {
       "adoptBody": "儲存時會驗證對所選連線的存取權限。現有工作階段保留其帳號，或在採用前需要明確重設。",
@@ -15056,7 +15059,9 @@
     "userIdLabel": "Arcade 使用者 ID",
     "userIdHelp": "使用為此閘道登入設定的終端使用者 ID。這可能與你的電子郵件地址不同。",
     "saveFailed": "無法儲存帳戶同步。請重試。",
-    "saveAndSync": "儲存並同步"
+    "saveAndSync": "儲存並同步",
+    "descriptionBefore": "See apps available through ",
+    "descriptionAfter": ". Your gateway works without account sync."
   },
   "githubAppIdentity": {
     "copyMention": "複製 GitHub 提及",
@@ -18692,7 +18697,8 @@
     "signOut": "Sign out",
     "signingOut": "Signing out...",
     "shareFeedback": "Share feedback",
-    "viewCommitOnGithub": "在 GitHub 上檢視提交 {{commit}}"
+    "viewCommitOnGithub": "在 GitHub 上檢視提交 {{commit}}",
+    "inviteDescription": "Invite people to your organization."
   },
   "sidebarShell": {
     "resizeAria": "調整側邊欄寬度",
@@ -20248,7 +20254,8 @@
     "recents": "最近",
     "loadingTasks": "正在載入任務…",
     "emptyRecents": "您的對話和任務將顯示在這裡。",
-    "searchTooltip": "Search tasks, agents, projects"
+    "searchTooltip": "Search tasks, agents, projects",
+    "globalSearchAria": "Global search"
   },
   "coordinatorWorkspace": {
     "title": "Coordinator 工作區",
@@ -23276,5 +23283,17 @@
       "label": "Keep paused",
       "description": "Dismiss or keep the budget stop in place."
     }
+  },
+  "chatRead": {
+    "markFailed": "Couldn’t mark this chat read."
+  },
+  "authorizationWindow": {
+    "openSignInNewTab": "Open sign-in in a new tab"
+  },
+  "caseFields": {
+    "aria": "Case fields"
+  },
+  "routines": {
+    "descriptionPlaceholder": "What should the agent do each time? Type / for skills and routines, @ to mention, {{name}} to ask for a value."
   }
 }

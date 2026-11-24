@@ -4812,7 +4812,8 @@
       "labelReadWrite": "读取和写入",
       "labelIssueComment": "议题评论",
       "labelPullRequestReviewComment": "拉取请求审查评论",
-      "labelOnlyOnThisAccount": "仅此账户"
+      "labelOnlyOnThisAccount": "仅此账户",
+      "promptDescription": "将此内容粘贴给你的代理，以配置 GitHub 评审机器人。"
     },
     "slack": {
       "openAppSettings": "打开 Slack 应用设置",
@@ -4867,7 +4868,8 @@
       "signingSecretWarningSuffix": "，而不是应用或机器人 token。Signing Secret 没有 token 前缀。",
       "reconnect": "重新连接 Slack 应用",
       "connect": "连接 Slack 应用",
-      "saveAppDetailsFailed": "无法保存 Slack 应用详情。请重试后再继续。"
+      "saveAppDetailsFailed": "无法保存 Slack 应用详情。请重试后再继续。",
+      "promptDescription": "将此内容粘贴给你的代理，以配置 Slack 机器人。"
     },
     "try": {
       "freshPhoton": "向你的 Photon 号码发送一条新消息",
@@ -7186,7 +7188,8 @@
       "environmentError": "无法确定登录环境。",
       "executionEnvironment": "执行环境",
       "preparing": "正在准备登录…",
-      "signInEnvironment": "登录环境"
+      "signInEnvironment": "登录环境",
+      "copilotTokenNote": "请使用具有 Copilot Requests 权限的个人细粒度令牌。"
     },
     "field": {
       "adoptBody": "保存时会验证对所选连接的访问权限。现有会话保留其账号，或在采纳前需要显式重置。",
@@ -15056,7 +15059,9 @@
     "userIdLabel": "Arcade 用户 ID",
     "userIdHelp": "使用为此网关登录配置的最终用户 ID。这可能与你的电子邮件地址不同。",
     "saveFailed": "无法保存账户同步。请重试。",
-    "saveAndSync": "保存并同步"
+    "saveAndSync": "保存并同步",
+    "descriptionBefore": "查看可通过以下账号使用的应用：",
+    "descriptionAfter": "。你的网关无需账号同步即可工作。"
   },
   "githubAppIdentity": {
     "copyMention": "复制 GitHub 提及",
@@ -18692,7 +18697,8 @@
     "signOut": "退出登录",
     "signingOut": "正在退出...",
     "shareFeedback": "分享反馈",
-    "viewCommitOnGithub": "在 GitHub 上查看提交 {{commit}}"
+    "viewCommitOnGithub": "在 GitHub 上查看提交 {{commit}}",
+    "inviteDescription": "邀请成员加入你的组织。"
   },
   "sidebarShell": {
     "resizeAria": "调整侧边栏宽度",
@@ -20248,7 +20254,8 @@
     "recents": "最近",
     "loadingTasks": "正在加载任务…",
     "emptyRecents": "您的对话和任务将显示在这里。",
-    "searchTooltip": "搜索任务、Agent 和项目"
+    "searchTooltip": "搜索任务、Agent 和项目",
+    "globalSearchAria": "全局搜索"
   },
   "coordinatorWorkspace": {
     "title": "Coordinator 工作区",
@@ -23276,5 +23283,17 @@
       "label": "保持暂停",
       "description": "关闭或继续保持预算停止。"
     }
+  },
+  "chatRead": {
+    "markFailed": "无法将此聊天标记为已读。"
+  },
+  "authorizationWindow": {
+    "openSignInNewTab": "在新标签页打开登录"
+  },
+  "caseFields": {
+    "aria": "案件字段"
+  },
+  "routines": {
+    "descriptionPlaceholder": "代理每次应执行什么？输入 / 选择技能和例行任务，输入 @ 提及，输入 {{name}} 请求填入值。"
   }
 }

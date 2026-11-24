@@ -234,7 +234,7 @@ export function SidebarAccountMenu({
               {showInvite && inviteHref ? (
                 <MenuAction
                   label={t("sidebarAccountMenu.invite", { defaultValue: "Invite" })}
-                  description="Invite people to your organization."
+                  description={t("sidebarAccountMenu.inviteDescription", { defaultValue: "Invite people to your organization." })}
                   icon={UserPlus}
                   href={inviteHref}
                   topLevel={isCloud}

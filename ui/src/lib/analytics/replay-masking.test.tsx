@@ -139,7 +139,7 @@ const MASKED_SURFACES: Array<{ file: string; content: string }> = [
   { file: "components/voice/SpekoCallHistory.tsx", content: "{report.transcript.map(" },
   { file: "pages/CaseDetail.tsx", content: "{caseData.summary}" },
   { file: "pages/CaseDetail.tsx", content: "{files.map(" },
-  { file: "components/CaseFieldsPanel.tsx", content: "aria-label=\"Case fields\"" },
+  { file: "components/CaseFieldsPanel.tsx", content: "aria-label={t(\"caseFields.aria\"" },
   { file: "components/task-side-panel/TaskAttachmentPanel.tsx", content: "File is empty." },
   { file: "components/artifacts/ArtifactCard.tsx", content: "{preview}" },
   { file: "components/artifacts/RichArtifactCards.tsx", content: "<PatchLines text={body} />" },

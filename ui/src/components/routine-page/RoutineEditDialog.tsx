@@ -237,7 +237,7 @@ export function RoutineEditDialog({
               ariaLabel={t("routineEditDialog.instructions", { defaultValue: "Instructions" })}
               value={draft.description}
               onChange={(description) => patch({ description })}
-              placeholder="What should the agent do each time? Type / for skills and routines, @ to mention, {{name}} to ask for a value."
+              placeholder={t("routines.descriptionPlaceholder", { defaultValue: "What should the agent do each time? Type / for skills and routines, @ to mention, {{name}} to ask for a value." })}
               contentClassName="text-sm leading-6"
               mentions={mentions}
               submitKey="mod-enter"

@@ -2,9 +2,11 @@ import { useCallback, useRef, useState } from "react";
 import type { ToolOAuthStartResult } from "@paperclipai/shared";
 import { prepareOAuthNavigation, savePendingCloudHandoff } from "@/lib/oauthHandoff";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/i18n";
 
 /** Reserve during the click, before any request, and keep the connector page open. */
 export function useAuthorizationWindow() {
+  const { t } = useTranslation();
   const popup = useRef<Window | null>(null);
   const [fallbackUrl, setFallbackUrl] = useState<string | null>(null);
   const reserve = useCallback(() => {
@@ -40,7 +42,7 @@ export function useAuthorizationWindow() {
     } catch (error) { cancel(); throw error; }
   }, [cancel]);
   const fallback = fallbackUrl ? <Button variant="outline" asChild>
-    <a href={fallbackUrl} target="_blank" rel="noopener noreferrer">Open sign-in in a new tab</a>
+    <a href={fallbackUrl} target="_blank" rel="noopener noreferrer">{t("authorizationWindow.openSignInNewTab", { defaultValue: "Open sign-in in a new tab" })}</a>
   </Button> : null;
   return { reserve, open, cancel, fallback, windowRef: popup };
 }

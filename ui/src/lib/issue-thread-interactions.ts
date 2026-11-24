@@ -57,6 +57,7 @@ import type {
   SuggestTasksInteraction,
   SuggestTasksResultCreatedTask,
 } from "@paperclipai/shared";
+import { t } from "../i18n";
 
 export function isInteractionPreparingApproval(interaction: IssueThreadInteraction): boolean {
   return interaction.status === "pending"
@@ -366,7 +367,8 @@ export function buildAnsweredQuestionsDeliveryText(
       : prompt;
     return `- ${label}: ${values.join(", ") || "No answer"}`;
   });
-  return ["Answered questions", ...(lines.length > 0 ? ["", ...lines] : [])].join("\n");
+  const heading = t("issueInteraction.answeredQuestions", { defaultValue: "Answered questions" });
+  return [heading, ...(lines.length > 0 ? ["", ...lines] : [])].join("\n");
 }
 
 export function buildSuggestedTaskTree(

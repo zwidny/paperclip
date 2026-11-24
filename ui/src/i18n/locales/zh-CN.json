@@ -21159,7 +21159,8 @@
     "addContextPlaceholder": "为智能体补充背景信息…",
     "approvedSignInNeeded": "已批准 · 需要登录",
     "approvedSignInNeededBody": "你的批准已保存。重新连接应用即可继续。{{brand}} 会在执行前再次检查该账户和操作。",
-    "submitting": "正在提交…"
+    "submitting": "正在提交…",
+    "answeredQuestions": "已回答的问题"
   },
   "issueRecovery": {
     "containment": {

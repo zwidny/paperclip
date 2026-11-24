@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+import { changeLocale } from "../i18n";
 import { pendingRequestConfirmationInteraction } from "../fixtures/issueThreadInteractionFixtures";
 import {
   buildAnsweredQuestionsDeliveryText,
@@ -736,5 +737,24 @@ describe("interaction readiness polling", () => {
     expect(interactionReadinessRefetchInterval([pendingRequestConfirmationInteraction], 20_000)).toBe(20_000);
     expect(interactionReadinessRefetchInterval([{ ...preparing, status: "expired" }])).toBe(false);
     expect(interactionReadinessRefetchInterval(undefined)).toBe(false);
+  });
+
+  describe("localized heading", () => {
+    afterEach(async () => {
+      await changeLocale("en");
+    });
+
+    it("renders the heading in Chinese while keeping the answers as given", async () => {
+      await changeLocale("zh-CN");
+      const interaction = {
+        kind: "ask_user_questions",
+        payload: { questions: [{ id: "q1", prompt: "Which runtime?", options: [{ id: "o1", label: "Node.js" }] }] },
+        result: { answers: [{ questionId: "q1", optionIds: ["o1"] }] },
+      } as never;
+      const text = buildAnsweredQuestionsDeliveryText(interaction);
+      expect(text.startsWith("已回答的问题")).toBe(true);
+      expect(text).toContain("Node.js");
+      expect(text).not.toContain("Answered questions");
+    });
   });
 });

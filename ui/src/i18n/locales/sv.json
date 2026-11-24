@@ -21159,7 +21159,8 @@
     "addContextPlaceholder": "Add context for the agent…",
     "approvedSignInNeeded": "Approved · Sign-in needed",
     "approvedSignInNeededBody": "Your approval is saved. Reconnect the app to continue. {{brand}} will check the account and action again before it runs.",
-    "submitting": "Submitting…"
+    "submitting": "Submitting…",
+    "answeredQuestions": "Answered questions"
   },
   "issueRecovery": {
     "containment": {

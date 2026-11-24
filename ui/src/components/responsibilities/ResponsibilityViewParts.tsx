@@ -37,7 +37,7 @@ import { RESPONSIBILITY_HEALTH_LABEL } from "@/lib/responsibilities";
 import { WORK_ITEM_KIND_LABEL, type WorkItem } from "@/lib/responsibility-views";
 import { Link } from "@/lib/router";
 import { taskStatusIconProps } from "@/lib/task-status-presentation";
-import { cn } from "@/lib/utils";
+import { cn, intlLocale } from "@/lib/utils";
 import { healthStatusStyle } from "./ResponsibilityHealthBadge";
 import type { ResponsibilityPageActions } from "./ResponsibilityPageLayout";
 
@@ -310,7 +310,7 @@ function CardsSection({
   return (
     <section aria-labelledby={headingId} className="flex flex-col gap-2" data-card-list={kind}>
       <h2 id={headingId} className="flex items-baseline gap-2 text-sm font-semibold text-foreground">
-        {title} <span className="text-xs font-normal tabular-nums text-muted-foreground">{count.toLocaleString("en-US")}</span>
+        {title} <span className="text-xs font-normal tabular-nums text-muted-foreground">{count.toLocaleString(intlLocale())}</span>
       </h2>
       {count === 0 ? <p className="text-sm text-muted-foreground">{empty}</p> : (
         <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2" data-testid={`responsibility-${kind}-cards`}>{children}</ul>

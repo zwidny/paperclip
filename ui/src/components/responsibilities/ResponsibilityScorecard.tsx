@@ -7,7 +7,7 @@ import { skillRoute } from "@/lib/company-skill-routes";
 import { describeMetricReading, describeStale } from "@/lib/responsibilities";
 import { responsibilityWorkCounts, type WorkCount } from "@/lib/responsibility-views";
 import { Link } from "@/lib/router";
-import { cn } from "@/lib/utils";
+import { cn, intlLocale } from "@/lib/utils";
 import { MetricMeter } from "./MetricGlance";
 import { ResponsibilityHealthBadge, StaleFlag } from "./ResponsibilityHealthBadge";
 import { ProposalsNotice, ResponsibilityViewHeader } from "./ResponsibilityViewParts";
@@ -115,7 +115,7 @@ export function ResponsibilityScorecard({ responsibility, now, notices, onReview
           <CompactCount
             id="artifacts"
             label={t("responsibilities.scorecard.artifacts", { defaultValue: "Artifacts" })}
-            value={artifactsTotal >= RESPONSIBILITY_ARTIFACT_COUNT_LIMIT ? `${RESPONSIBILITY_ARTIFACT_COUNT_LIMIT.toLocaleString("en-US")}+` : artifactsTotal.toLocaleString("en-US")}
+            value={artifactsTotal >= RESPONSIBILITY_ARTIFACT_COUNT_LIMIT ? `${RESPONSIBILITY_ARTIFACT_COUNT_LIMIT.toLocaleString(intlLocale())}+` : artifactsTotal.toLocaleString(intlLocale())}
           >
             {newest ? (
               <>

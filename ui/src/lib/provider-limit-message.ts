@@ -1,6 +1,6 @@
-import { formatDateTime } from "./utils";
+import { formatDateTime, intlLocale } from "./utils";
+import { t } from "../i18n";
 
-const relativeTimeFormatter = new Intl.RelativeTimeFormat("en-US", { numeric: "always" });
 const relativeUnits = [
   [86_400_000, "day"], [3_600_000, "hour"], [60_000, "minute"], [1000, "second"],
 ] as const;
@@ -22,7 +22,9 @@ export function formatProviderLimitTime(timestamp: string, now = Date.now()): st
   if (!Number.isFinite(remainingMs)) return timestamp;
   const [unitMs, unit] = relativeUnits.find(([size]) => Math.abs(remainingMs) >= size) ?? relativeUnits[3];
   const amount = Math.round(remainingMs / unitMs);
-  const relative = amount === 0 ? "now" : relativeTimeFormatter.format(amount, unit);
+  const relative = amount === 0
+    ? t("relativeTime.now", { defaultValue: "now" })
+    : new Intl.RelativeTimeFormat(intlLocale(), { numeric: "always" }).format(amount, unit);
   return `${relative} (${formatDateTime(at, { includeTimeZone: true })})`;
 }
 

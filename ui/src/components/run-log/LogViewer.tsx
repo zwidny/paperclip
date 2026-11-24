@@ -16,7 +16,7 @@ import { ApiError } from "../../api/api-error";
 import { queryKeys } from "../../lib/queryKeys";
 import { toolsApi } from "../../api/tools";
 import { getUIAdapter, buildTranscript, onAdapterChange } from "../../adapters";
-import { cn } from "../../lib/utils";
+import { cn, intlLocale } from "../../lib/utils";
 import { ProviderLimitMessage } from "../ProviderLimitMessage";
 import { Button } from "@/components/ui/button";
 import { RunTranscriptView, type TranscriptMode } from "../transcript/RunTranscriptView";
@@ -553,9 +553,9 @@ export function LogViewer({ run, adapterType }: { run: HeartbeatRun; adapterType
                 : t("agentDetail.runs.loadMoreLog", { defaultValue: "Load more log" })}
             </Button>
             <span className="text-xs text-muted-foreground">
-              {t("agentDetail.runs.showingFirstKb", { kb: Math.round(logOffset / 1024).toLocaleString("en-US"), defaultValue: "Showing the first {{kb}} KB" })}
+              {t("agentDetail.runs.showingFirstKb", { kb: Math.round(logOffset / 1024).toLocaleString(intlLocale()), defaultValue: "Showing the first {{kb}} KB" })}
               {typeof run.logBytes === "number" && run.logBytes > 0
-                ? t("agentDetail.runs.ofTotalKb", { kb: Math.round(run.logBytes / 1024).toLocaleString("en-US"), defaultValue: " of {{kb}} KB" })
+                ? t("agentDetail.runs.ofTotalKb", { kb: Math.round(run.logBytes / 1024).toLocaleString(intlLocale()), defaultValue: " of {{kb}} KB" })
                 : ""}
             </span>
           </div>
@@ -621,7 +621,7 @@ export function LogViewer({ run, adapterType }: { run: HeartbeatRun; adapterType
               return (
                 <div key={`${evt.runId}:${evt.seq}`} className="flex gap-2">
                   <span className="text-neutral-400 dark:text-neutral-600 shrink-0 select-none w-16">
-                    {new Date(evt.createdAt).toLocaleTimeString("en-US", { hour12: false })}
+                    {new Date(evt.createdAt).toLocaleTimeString(intlLocale(), { hour12: false })}
                   </span>
                   <span className={cn("shrink-0 w-14", evt.stream ? (streamColors[evt.stream] ?? "text-neutral-500") : "text-neutral-500")}>
                     {evt.stream ? `[${evt.stream}]` : ""}

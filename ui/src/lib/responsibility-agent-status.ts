@@ -8,6 +8,7 @@ import {
   type ResponsibilityWithRollup,
 } from "@paperclipai/shared";
 import { describeMetricReading, groupByArea, RESPONSIBILITY_HEALTH_LABEL } from "./responsibilities";
+import { intlLocale } from "./utils";
 import { i18n } from "../i18n";
 
 /**
@@ -186,7 +187,7 @@ export function writtenAgo(writtenAt: string, now: Date): string {
     });
   }
   return i18n.t("responsibilities.words.onDate", {
-    date: new Date(writtenAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+    date: new Date(writtenAt).toLocaleDateString(intlLocale(), { month: "short", day: "numeric" }),
     defaultValue: "on {{date}}",
   });
 }

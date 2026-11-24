@@ -1,3 +1,5 @@
+import { intlLocale } from "../../../lib/utils";
+
 const DAY = 86_400_000;
 
 const startOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
@@ -6,10 +8,10 @@ const startOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(),
 export function updatedLabel(iso: string, now: Date = new Date()): string {
   const date = new Date(iso);
   const days = Math.round((startOfDay(now) - startOfDay(date)) / DAY);
-  if (days <= 0) return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  if (days <= 0) return date.toLocaleTimeString(intlLocale(), { hour: "numeric", minute: "2-digit" });
   if (days === 1) return "Yesterday";
-  if (days < 7) return date.toLocaleDateString("en-US", { weekday: "long" });
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  if (days < 7) return date.toLocaleDateString(intlLocale(), { weekday: "long" });
+  return date.toLocaleDateString(intlLocale(), { month: "short", day: "numeric" });
 }
 
 /** The panel row's form: "Today" · "Yesterday" · "2D ago" · "July 23". */
@@ -19,7 +21,7 @@ export function panelDateLabel(iso: string, now: Date = new Date()): string {
   if (days <= 0) return "Today";
   if (days === 1) return "Yesterday";
   if (days < 7) return `${days}D ago`;
-  return date.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+  return date.toLocaleDateString(intlLocale(), { month: "long", day: "numeric" });
 }
 
 export const countLabel = (count: number) => `${count} ${count === 1 ? "Artifact" : "Artifacts"}`;

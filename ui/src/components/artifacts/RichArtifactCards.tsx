@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/dialog";
 import { useTranslation } from "../../i18n";
 import { ANALYTICS_MASK_CLASS } from "@/lib/analytics/privacy";
-import { cn } from "@/lib/utils";
+import { cn, intlLocale } from "@/lib/utils";
 
 // Renderers contain UI labels only. All artifact-specific content is passed in.
 // Example values live exclusively in the individual stories' args.
@@ -145,12 +145,12 @@ function Diff({ additions, deletions, filesChanged }: DiffProps) {
     <div className="flex flex-wrap gap-2 font-mono text-xs">
       {additions != null && (
         <span className="text-(--status-task-icon-done)">
-          +{additions.toLocaleString("en-US")}
+          +{additions.toLocaleString(intlLocale())}
         </span>
       )}
       {deletions != null && (
         <span className="text-(--status-task-icon-blocked)">
-          −{deletions.toLocaleString("en-US")}
+          −{deletions.toLocaleString(intlLocale())}
         </span>
       )}
       {filesChanged != null && (

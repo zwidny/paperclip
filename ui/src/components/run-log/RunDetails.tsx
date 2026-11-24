@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { heartbeatsApi } from "../../api/heartbeats";
 import { redactCommandText as redactCommandSecretText } from "@paperclipai/adapter-utils";
-import { cn, relativeTime } from "../../lib/utils";
+import { cn, relativeTime, intlLocale } from "../../lib/utils";
 import { ChevronRight } from "lucide-react";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import { type HeartbeatRun, type WorkspaceOperation } from "@paperclipai/shared";
@@ -390,7 +390,7 @@ function WorkspaceOperationLogViewer({
               {chunks.map((chunk, index) => (
                 <div key={`${chunk.ts}-${index}`} className="flex gap-2">
                   <span className="shrink-0 text-neutral-500">
-                    {new Date(chunk.ts).toLocaleTimeString("en-US", { hour12: false })}
+                    {new Date(chunk.ts).toLocaleTimeString(intlLocale(), { hour12: false })}
                   </span>
                   <span
                     className={cn(

@@ -25,6 +25,7 @@ import {
 } from "@paperclipai/shared";
 import { ApiError } from "@/api/client";
 import { i18n } from "../i18n";
+import { intlLocale } from "./utils";
 
 /** Display order for status everywhere: what needs you first. */
 export const RESPONSIBILITY_HEALTH_ORDER: readonly ResponsibilityHealth[] = ["behind", "at_risk", "on_track", "not_measured"];
@@ -97,9 +98,9 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 function formatPlainNumber(value: number): string {
   const abs = Math.abs(value);
   if (abs >= 1_000_000) {
-    return value.toLocaleString("en-US", { notation: "compact", maximumFractionDigits: 1 });
+    return value.toLocaleString(intlLocale(), { notation: "compact", maximumFractionDigits: 1 });
   }
-  return value.toLocaleString("en-US", { maximumFractionDigits: 2 });
+  return value.toLocaleString(intlLocale(), { maximumFractionDigits: 2 });
 }
 
 /**
@@ -309,7 +310,7 @@ export function describeReadingAge(updatedAt: Date | string, now: Date): string 
     });
   }
   const date = new Date(updatedAt);
-  const formatted = date.toLocaleDateString("en-US", {
+  const formatted = date.toLocaleDateString(intlLocale(), {
     month: "short",
     day: "numeric",
     ...(date.getFullYear() !== now.getFullYear() ? { year: "numeric" as const } : {}),
@@ -937,7 +938,7 @@ export function describeNextDue(nextDueAt: string | null, now: Date): { label: s
   const [year, month, day] = nextDueAt.split("-").map(Number);
   if (!year || !month || !day) return null;
   const date = new Date(year, month - 1, day);
-  const label = date.toLocaleDateString("en-US", {
+  const label = date.toLocaleDateString(intlLocale(), {
     month: "short",
     day: "numeric",
     ...(year !== now.getFullYear() ? { year: "numeric" as const } : {}),

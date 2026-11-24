@@ -26,13 +26,13 @@ export function formatCents(cents: number, currency = "USD"): string {
   // Older finance writes accepted arbitrary three-character codes. Keep those
   // amounts readable without passing an invalid currency to Intl.
   if (!/^[a-z]{3}$/i.test(currency)) {
-    return `${currency} ${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return `${currency} ${(cents / 100).toLocaleString(intlLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
-  return (cents / 100).toLocaleString("en-US", { style: "currency", currency, minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return (cents / 100).toLocaleString(intlLocale(), { style: "currency", currency, minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 export function formatNumber(n: number, options?: Intl.NumberFormatOptions): string {
-  return n.toLocaleString("en-US", options);
+  return n.toLocaleString(intlLocale(), options);
 }
 
 /**
@@ -44,8 +44,8 @@ export function formatProjectBudget(budget: { amountCents: number; windowKind: s
   return budget.windowKind === "calendar_month_utc" ? `${amount}/mo` : amount;
 }
 
-/** Locale for Intl date formatting, following the active UI language. */
-function intlLocale(): string {
+/** Locale for Intl formatting (dates, numbers, currency), following the UI language. */
+export function intlLocale(): string {
   return i18n.language || "en-US";
 }
 
@@ -298,5 +298,5 @@ export function projectWorkspaceUrl(
 
 /** Preserve sub-cent inference charges instead of showing a misleading $0.00. */
 export function formatDetailedCents(cents: string | number): string {
-  return (Number(cents) / 100).toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 9 });
+  return (Number(cents) / 100).toLocaleString(intlLocale(), { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 9 });
 }

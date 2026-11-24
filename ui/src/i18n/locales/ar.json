@@ -23067,6 +23067,7 @@
     "secondsAgo": "{{value}}s ago",
     "minutesAgo": "{{value}}m ago",
     "hoursAgo": "{{value}}h ago",
-    "daysAgo": "{{value}}d ago"
+    "daysAgo": "{{value}}d ago",
+    "now": "now"
   }
 }

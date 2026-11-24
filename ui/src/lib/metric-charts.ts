@@ -9,6 +9,7 @@ import {
   type ResponsibilityMetricView,
 } from "@paperclipai/shared";
 import { formatMetricRange, formatMetricValue } from "./responsibilities";
+import { intlLocale } from "./utils";
 
 /**
  * Geometry and words for the small charts a responsibility's metrics are
@@ -180,7 +181,7 @@ export function formatMetricViewValue(metric: Pick<ResponsibilityMetricView, "ki
 
 /** "Nov 9": a short date for an axis or a table. */
 export function formatChartDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return new Date(iso).toLocaleDateString(intlLocale(), { month: "short", day: "numeric" });
 }
 
 /** What the metric aims for, in words: "target at least 20", "target at most 2 days", "range 12–24 months", "the bar is yes"; null without one. */

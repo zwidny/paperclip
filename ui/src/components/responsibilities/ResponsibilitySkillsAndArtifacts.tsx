@@ -11,7 +11,7 @@ import { useArtifactsV1Enabled } from "@/hooks/useArtifactsV1Enabled";
 import { skillRoute } from "@/lib/company-skill-routes";
 import { i18n } from "@/i18n";
 import { Link } from "@/lib/router";
-import { issueUrl } from "@/lib/utils";
+import { issueUrl, intlLocale } from "@/lib/utils";
 
 function SectionHeading({ id, title, count, question, action }: { id: string; title: string; count: number; question: string; action?: ReactNode }) {
   return (
@@ -113,8 +113,8 @@ export function ResponsibilitySkills({
 /** "Showing the newest 50 of 312", or "of 1,000 or more" once the count stops. */
 export function artifactsTruncationNote(shown: number, total: number): string {
   const of = total >= RESPONSIBILITY_ARTIFACT_COUNT_LIMIT
-    ? i18n.t("responsibilities.skills.orMore", { count: RESPONSIBILITY_ARTIFACT_COUNT_LIMIT.toLocaleString("en-US"), defaultValue: "{{count}} or more" })
-    : total.toLocaleString("en-US");
+    ? i18n.t("responsibilities.skills.orMore", { count: RESPONSIBILITY_ARTIFACT_COUNT_LIMIT.toLocaleString(intlLocale()), defaultValue: "{{count}} or more" })
+    : total.toLocaleString(intlLocale());
   return i18n.t("responsibilities.skills.artifactsShown", { shown, of, defaultValue: "Showing the newest {{shown}} of {{of}}." });
 }
 

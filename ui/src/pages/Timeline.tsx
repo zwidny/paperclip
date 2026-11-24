@@ -29,7 +29,7 @@ import {
   zoomScaleForLevel,
 } from "@/components/timeline/WorkTimelineChart";
 import { formatDuration, TIMELINE_COLORS } from "@/lib/timeline/layout";
-import { cn } from "@/lib/utils";
+import { cn, intlLocale } from "@/lib/utils";
 import { useLocation } from "@/lib/router";
 import { useStreamlinedUiEnabled } from "@/hooks/useStreamlinedUiEnabled";
 import { useTranslation } from "../i18n";
@@ -141,11 +141,11 @@ function rangeError(range: DateRangeState, t: TFunction): string | null {
 }
 
 function formatInteger(value: number): string {
-  return new Intl.NumberFormat("en-US").format(value);
+  return new Intl.NumberFormat(intlLocale()).format(value);
 }
 
 function formatCompactInteger(value: number): string {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat(intlLocale(), {
     notation: "compact",
     maximumFractionDigits: 1,
   }).format(value);

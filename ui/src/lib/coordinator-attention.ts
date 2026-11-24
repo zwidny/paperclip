@@ -1,6 +1,7 @@
 import { attentionReceiptText, type AttentionItem, type AttentionPersonalView, type DecisionHistoryItem, type DecisionHistoryOutcomeFilter, type DecisionHistoryScope } from "@paperclipai/shared";
 import { queryKeys } from "./queryKeys";
 import { isInlineResolvable } from "./attention";
+import { t } from "../i18n";
 
 /**
  * The pending feed for one person and one view (PAP-749 plan §1). The key
@@ -104,14 +105,32 @@ export const DEFAULT_DECISION_HISTORY_SCOPE: DecisionHistoryScope = "mine";
  * @dotta"; PAP-749 plan §3, PAP-767). A decision adds the option chosen and an
  * item review its verdict counts. Everything else keeps the server's label.
  */
+/**
+ * The recorded outcome in the reader's language.
+ *
+ * The server sends the English label it built from `resultOutcome`/`outcome`, so
+ * it doubles as the defaultValue: an outcome this build does not know still reads
+ * as the server's own wording rather than a bare key.
+ */
+export function decisionHistoryOutcomeLabel(
+  item: Pick<DecisionHistoryItem, "sourceKind" | "outcome" | "resultOutcome" | "label">,
+): string {
+  const namespace = item.sourceKind === "approval" ? "decisionHistory.approval" : "decisionHistory.interaction";
+  return t(`${namespace}.${item.resultOutcome ?? item.outcome}`, { defaultValue: item.label });
+}
+
 export function decisionHistoryHeadline(item: DecisionHistoryItem, userLabelMap?: ReadonlyMap<string, string> | null) {
-  const actorLabel = item.resolvedByUserId ? userLabelMap?.get(item.resolvedByUserId) ?? "someone" : null;
+  const actorLabel = item.resolvedByUserId
+    ? userLabelMap?.get(item.resolvedByUserId) ?? t("decisionHistory.someone", { defaultValue: "someone" })
+    : null;
   if (item.action && actorLabel) {
     const line = attentionReceiptText({ outcome: item.action.outcome, actorLabel });
     return item.action.detail ? `${line}: ${item.action.detail}` : line;
   }
-  if (item.resultOutcome === "withdrawn" && actorLabel) return `Withdrawn by @${actorLabel}`;
-  return item.label;
+  if (item.resultOutcome === "withdrawn" && actorLabel) {
+    return t("decisionHistory.withdrawnBy", { actor: actorLabel, defaultValue: `Withdrawn by @${actorLabel}` });
+  }
+  return decisionHistoryOutcomeLabel(item);
 }
 
 /** The task line of a history entry; an approval with no task names itself instead. */

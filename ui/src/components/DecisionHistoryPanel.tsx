@@ -68,11 +68,11 @@ export function DecisionHistoryPanel({
     <ToolbarSearch query={search} onQueryChange={setSearch} label={t("coordinator.needsYou.searchHistoryLabel", { defaultValue: "Search decision history" })} placeholder={t("coordinator.needsYou.searchPlaceholder", { defaultValue: "Search decisions or task IDs…" })} />
     <div className="grid grid-cols-2 gap-2">
       <NativeSelect aria-label={t("coordinator.needsYou.historyScope", { defaultValue: "Whose decision history" })} value={scope} onChange={(event) => setScope(event.target.value as DecisionHistoryScope)} className="col-span-2">
-        {DECISION_HISTORY_SCOPE_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+        {DECISION_HISTORY_SCOPE_OPTIONS.map((option) => <option key={option.value} value={option.value}>{t(`decisionHistory.scope.${option.value}`, { defaultValue: option.label })}</option>)}
       </NativeSelect>
       <NativeSelect aria-label={t("coordinator.needsYou.filterOutcomes", { defaultValue: "Filter decision outcomes" })} value={outcome} onChange={(event) => setOutcome(event.target.value)}>
         <option value="">{t("coordinator.needsYou.allOutcomes", { defaultValue: "All outcomes" })}</option>
-        {DECISION_HISTORY_OUTCOME_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+        {DECISION_HISTORY_OUTCOME_OPTIONS.map((option) => <option key={option.value} value={option.value}>{t(`decisionHistory.filter.${option.value}`, { defaultValue: option.label })}</option>)}
         <option value={HANDLED_FOR_ME}>{t("coordinator.needsYou.handledForMe", { defaultValue: "Handled for me" })}</option>
       </NativeSelect>
       <NativeSelect aria-label={t("coordinator.needsYou.sortHistory", { defaultValue: "Sort decision history" })} value={sort} onChange={(event) => setSort(event.target.value as typeof sort)}><option value="newest">{t("attention.sort.newest", { defaultValue: "Newest first" })}</option><option value="oldest">{t("attention.sort.oldest", { defaultValue: "Oldest first" })}</option></NativeSelect>

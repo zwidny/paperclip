@@ -16644,7 +16644,44 @@
     "unknown": "未知",
     "viewTask": "查看任务",
     "model": "模型",
-    "thStatus": "状态"
+    "thStatus": "状态",
+    "interaction": {
+      "accepted": "已批准",
+      "rejected": "已请求修改",
+      "answered": "已回答",
+      "cancelled": "已取消",
+      "expired": "已过期",
+      "failed": "失败",
+      "stale_target": "已被取代",
+      "superseded_by_newer_request": "已被取代",
+      "superseded_by_comment": "已在任务中回答",
+      "withdrawn": "已撤回",
+      "withdrawn_by_user": "由用户撤回",
+      "skipped": "已跳过",
+      "issue_closed": "任务关闭时结束"
+    },
+    "approval": {
+      "approved": "已批准",
+      "rejected": "已拒绝",
+      "revision_requested": "已请求修订",
+      "cancelled": "已取消"
+    },
+    "withdrawnBy": "由 @{{actor}} 撤回",
+    "someone": "某人",
+    "filter": {
+      "accepted": "已批准",
+      "answered": "已回答",
+      "rejected": "已请求修改",
+      "decided": "已决定",
+      "withdrawn": "已撤回",
+      "expired": "已过期",
+      "issue_closed": "任务关闭时结束",
+      "cancelled": "已取消"
+    },
+    "scope": {
+      "mine": "我处理或为我处理的",
+      "all": "所有人"
+    }
   },
   "envVarEditor": {
     "defaultHint": "将 KEY 设置为进程预期的环境变量名称，例如 GH_TOKEN。选择一个密钥以在运行开始时解析存储的值。PAPERCLIP_* 变量会自动注入。",

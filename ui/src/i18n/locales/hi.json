@@ -16644,7 +16644,44 @@
     "unknown": "Unknown",
     "viewTask": "View task",
     "model": "Model",
-    "thStatus": "Status"
+    "thStatus": "Status",
+    "interaction": {
+      "accepted": "Approved",
+      "rejected": "Changes requested",
+      "answered": "Answers recorded",
+      "cancelled": "Cancelled",
+      "expired": "Expired",
+      "failed": "Failed",
+      "stale_target": "Superseded",
+      "superseded_by_newer_request": "Superseded",
+      "superseded_by_comment": "Answered in task",
+      "withdrawn": "Withdrawn",
+      "withdrawn_by_user": "Withdrawn by user",
+      "skipped": "Skipped",
+      "issue_closed": "Closed with task"
+    },
+    "approval": {
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "revision_requested": "Revision requested",
+      "cancelled": "Cancelled"
+    },
+    "withdrawnBy": "Withdrawn by @{{actor}}",
+    "someone": "someone",
+    "filter": {
+      "accepted": "Approved",
+      "answered": "Answered",
+      "rejected": "Changes requested",
+      "decided": "Decided",
+      "withdrawn": "Withdrawn",
+      "expired": "Expired",
+      "issue_closed": "Closed with task",
+      "cancelled": "Cancelled"
+    },
+    "scope": {
+      "mine": "Handled by me or for me",
+      "all": "Everyone"
+    }
   },
   "envVarEditor": {
     "defaultHint": "Set the KEY to the env var name the process expects, for example GH_TOKEN. Choose a secret to resolve a stored value at run start. PAPERCLIP_* variables are injected automatically.",

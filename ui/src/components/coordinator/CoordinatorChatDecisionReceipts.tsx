@@ -8,6 +8,7 @@ import { useCoordinatorWorkspaceEnabled } from "@/hooks/useCoordinatorWorkspaceE
 import { CoordinatorRelativeTime } from "./CoordinatorRelativeTime";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/i18n";
+import { decisionHistoryOutcomeLabel } from "@/lib/coordinator-attention";
 
 export function useCoordinatorChatDecisionReceipts(issueId: string | null, conversationMode: boolean | undefined) {
   const { enabled, userId } = useCoordinatorWorkspaceEnabled();
@@ -40,7 +41,7 @@ export function CoordinatorChatDecisionReceipt({ receipt }: { receipt: DecisionH
   return <Link to={receipt.href} className="coordinator-decision-receipt" data-testid="coordinator-chat-decision-receipt">
     <Icon className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
     <span className="min-w-0 flex-1">
-      <span className="block truncate text-sm font-medium">{receipt.label}</span>
+      <span className="block truncate text-sm font-medium">{decisionHistoryOutcomeLabel(receipt)}</span>
       <span className="block truncate text-xs text-muted-foreground"><span className="font-mono">{receipt.issueIdentifier ?? receipt.issueId}</span> · {receipt.title}</span>
     </span>
     <CoordinatorRelativeTime value={receipt.resolvedAt} className="shrink-0 text-xs text-muted-foreground" />

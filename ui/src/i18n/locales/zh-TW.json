@@ -16681,7 +16681,8 @@
     "scope": {
       "mine": "Handled by me or for me",
       "all": "Everyone"
-    }
+    },
+    "viewDecisionInTask": "View decision in task"
   },
   "envVarEditor": {
     "defaultHint": "將 KEY 設定為程序預期的環境變數名稱，例如 GH_TOKEN。選擇一個密鑰以在執行開始時解析儲存的值。PAPERCLIP_* 變數會自動注入。",

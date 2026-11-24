@@ -16681,7 +16681,8 @@
     "scope": {
       "mine": "我处理或为我处理的",
       "all": "所有人"
-    }
+    },
+    "viewDecisionInTask": "查看任务中的决策"
   },
   "envVarEditor": {
     "defaultHint": "将 KEY 设置为进程预期的环境变量名称，例如 GH_TOKEN。选择一个密钥以在运行开始时解析存储的值。PAPERCLIP_* 变量会自动注入。",

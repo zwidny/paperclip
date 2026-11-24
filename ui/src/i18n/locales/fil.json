@@ -16681,7 +16681,8 @@
     "scope": {
       "mine": "Handled by me or for me",
       "all": "Everyone"
-    }
+    },
+    "viewDecisionInTask": "View decision in task"
   },
   "envVarEditor": {
     "defaultHint": "Set the KEY to the env var name the process expects, for example GH_TOKEN. Choose a secret to resolve a stored value at run start. PAPERCLIP_* variables are injected automatically.",

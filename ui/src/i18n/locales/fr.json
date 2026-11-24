@@ -23359,5 +23359,9 @@
     "questionsExpiredMany": "Questions expired",
     "questionsAskedOne": "Asked 1 question",
     "questionsAskedMany": "Asked {{count}} questions"
+  },
+  "interactionReason": {
+    "superseded_by_comment": "superseded by comment",
+    "superseded_by_newer_interaction": "superseded by newer interaction"
   }
 }

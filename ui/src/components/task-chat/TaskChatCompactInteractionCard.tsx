@@ -433,17 +433,17 @@ function planReviewReceiptSummary(interaction: IssueThreadInteraction, reason: s
   return null;
 }
 
-function receiptReason(interaction: IssueThreadInteraction): string | null {
+function receiptReason(interaction: IssueThreadInteraction, t: TFunction): string | null {
   const result = interaction.result;
   if (!result) return null;
   if ("reason" in result && typeof result.reason === "string")
     return result.reason;
   if (interaction.kind === "ask_user_questions") {
-    return (
-      interaction.result?.cancellationReason ??
-      interaction.result?.expirationReason?.replaceAll("_", " ") ??
-      null
-    );
+    // Both fields carry a code ("superseded_by_newer_interaction"); the humanized
+    // form stays the defaultValue so an unknown code still reads sensibly.
+    const code = interaction.result?.cancellationReason ?? interaction.result?.expirationReason;
+    if (!code) return null;
+    return t(`interactionReason.${code}`, { defaultValue: code.replaceAll("_", " ") });
   }
   return null;
 }
@@ -458,7 +458,7 @@ function ReceiptDisclosure({
   compact?: boolean;
 }) {
   const { t } = useTranslation();
-  const reason = receiptReason(interaction);
+  const reason = receiptReason(interaction, t);
   const answerReason =
     reason ??
     (interaction.kind === "suggest_tasks"

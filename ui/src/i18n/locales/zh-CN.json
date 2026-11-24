@@ -23359,5 +23359,9 @@
     "questionsExpiredMany": "问题已失效",
     "questionsAskedOne": "提问了 1 个问题",
     "questionsAskedMany": "提问了 {{count}} 个问题"
+  },
+  "interactionReason": {
+    "superseded_by_comment": "被后续评论取代",
+    "superseded_by_newer_interaction": "被更新的交互取代"
   }
 }

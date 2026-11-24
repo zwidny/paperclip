@@ -23071,5 +23071,25 @@
     "now": "现在",
     "weeksAgo": "{{value}} 周前",
     "monthsAgo": "{{value}} 个月前"
+  },
+  "responsibility": {
+    "dueToday": "今天到期",
+    "dueTomorrow": "明天到期",
+    "dueInDays": "{{days}} 天后到期",
+    "oneDayLate": "逾期 1 天",
+    "daysLate": "逾期 {{days}} 天",
+    "progress": "已完成 {{done}} / {{total}} 个{{unit}}",
+    "taskSingular": "任务",
+    "taskPlural": "任务",
+    "notRunYet": "尚未运行",
+    "paused": "已暂停",
+    "lastSuccessfulRun": "上次成功运行 {{when}}",
+    "failedWhen": "失败于 {{when}}",
+    "runningStarted": "运行中，开始于 {{when}}",
+    "queuedWhen": "已排队 {{when}}",
+    "runSucceeded": "成功",
+    "runFailed": "失败",
+    "runCancelled": "已取消",
+    "runTimedOut": "已超时"
   }
 }

@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import type { ResponsibilityTaskSummary } from "@paperclipai/shared";
+import { changeLocale } from "../i18n";
 import { ago, projectDueStat, projectProgressLabel, routineStat, runStat, splitTasksForTable } from "./responsibility-one-screen-v2";
 
 const NOW = new Date(2026, 10, 13, 12, 0, 0);
@@ -77,5 +78,29 @@ describe("splitTasksForTable", () => {
     const split = splitTasksForTable([task("a", "in_progress"), task("b", "done"), task("c", "blocked"), task("d", "cancelled"), task("e", "done")]);
     expect(split.open.map((entry) => entry.id)).toEqual(["a", "c"]);
     expect(split.done.map((entry) => entry.id)).toEqual(["b", "e"]);
+  });
+});
+
+describe("localized wording", () => {
+  afterEach(async () => {
+    await changeLocale("en");
+  });
+
+  it("uses the zh-CN responsibility strings", async () => {
+    await changeLocale("zh-CN");
+    expect(ago(before(10_000), NOW)).toBe("刚刚");
+    expect(projectDueStat({ targetDate: "2026-11-16" }, NOW)).toBe("3 天后到期");
+    expect(projectDueStat({ targetDate: "2026-11-14" }, NOW)).toBe("明天到期");
+    expect(projectDueStat({ targetDate: "2026-11-12" }, NOW)).toBe("逾期 1 天");
+    expect(projectProgressLabel({ done: 4, total: 10 })).toBe("已完成 4 / 10 个任务");
+    expect(projectProgressLabel({ done: 0, total: 1 })).toBe("已完成 0 / 1 个任务");
+    expect(routineStat({ status: "paused", lastRun: null }, NOW)).toBe("已暂停");
+    expect(routineStat({ status: "active", lastRun: null }, NOW)).toBe("尚未运行");
+    expect(routineStat({ status: "active", lastRun: { outcome: "succeeded", at: before(8 * HOUR) } }, NOW)).toBe("上次成功运行 8 小时前");
+    expect(routineStat({ status: "active", lastRun: { outcome: "failed", at: before(2 * DAY) } }, NOW)).toBe("失败于 2 天前");
+    const ended = { status: "timed_out", createdAt: before(DAY).toISOString(), startedAt: before(DAY).toISOString(), finishedAt: before(2 * HOUR).toISOString() };
+    expect(runStat(ended, NOW)).toBe("已超时 2 小时前");
+    expect(runStat({ ...ended, status: "queued", startedAt: null, finishedAt: null }, NOW)).toBe("已排队 1 天前");
+    expect(runStat({ ...ended, status: "running", finishedAt: null }, NOW)).toBe("运行中，开始于 1 天前");
   });
 });

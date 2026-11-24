@@ -4,39 +4,35 @@ import type {
   ResponsibilityRoutineSummary,
   ResponsibilityTaskSummary,
 } from "@paperclipai/shared";
+import { t } from "../i18n";
 import { isTerminalTaskStatus, localDateKey } from "./responsibilities";
+import { timeAgo } from "./timeAgo";
 
 /**
  * The one fact each row of the "One screen v2" responsibility tables shows
  * (experimental, `enableResponsibilities`), in plain words.
  */
 
-const MINUTE = 60_000;
-const HOUR = 60 * MINUTE;
-const DAY = 24 * HOUR;
-const WEEK = 7 * DAY;
-const MONTH = 30 * DAY;
+const DAY = 24 * 60 * 60 * 1000;
 
-/** "just now", "5m ago", "8h ago", "2d ago", "3w ago", "2mo ago", against `now`. */
+/** Kept for callers that pass an explicit `now`; delegates to the shared helper. */
 export function ago(at: Date | string, now: Date): string {
-  const elapsed = Math.max(0, now.getTime() - new Date(at).getTime());
-  if (elapsed < MINUTE) return "just now";
-  if (elapsed < HOUR) return `${Math.floor(elapsed / MINUTE)}m ago`;
-  if (elapsed < DAY) return `${Math.floor(elapsed / HOUR)}h ago`;
-  if (elapsed < WEEK) return `${Math.floor(elapsed / DAY)}d ago`;
-  if (elapsed < MONTH) return `${Math.floor(elapsed / WEEK)}w ago`;
-  return `${Math.floor(elapsed / MONTH)}mo ago`;
+  return timeAgo(at, now.getTime());
 }
 
 /** "Paused", "Not run yet", "Last successful run 8h ago", "Failed 2d ago", "Running, started 3h ago". */
 export function routineStat(routine: Pick<ResponsibilityRoutineSummary, "status" | "lastRun">, now: Date): string {
-  if (routine.status === "paused") return "Paused";
+  if (routine.status === "paused") return t("responsibility.paused", { defaultValue: "Paused" });
   const run = routine.lastRun;
-  if (!run) return "Not run yet";
+  if (!run) return t("responsibility.notRunYet", { defaultValue: "Not run yet" });
   const when = ago(run.at, now);
-  if (run.outcome === "succeeded") return `Last successful run ${when}`;
-  if (run.outcome === "failed") return `Failed ${when}`;
-  return `Running, started ${when}`;
+  if (run.outcome === "succeeded") {
+    return t("responsibility.lastSuccessfulRun", { when, defaultValue: `Last successful run ${when}` });
+  }
+  if (run.outcome === "failed") {
+    return t("responsibility.failedWhen", { when, defaultValue: `Failed ${when}` });
+  }
+  return t("responsibility.runningStarted", { when, defaultValue: `Running, started ${when}` });
 }
 
 /** Whole calendar days from today (local) to a `YYYY-MM-DD` date; negative once it has passed. */
@@ -52,15 +48,27 @@ export function projectDueStat(project: Pick<ResponsibilityProjectSummary, "targ
   if (!project.targetDate) return null;
   const days = daysUntil(project.targetDate, now);
   if (days === null) return null;
-  if (days === 0) return "Due today";
-  if (days === 1) return "Due tomorrow";
-  if (days > 1) return `Due in ${days} days`;
-  return days === -1 ? "1 day late" : `${-days} days late`;
+  if (days === 0) return t("responsibility.dueToday", { defaultValue: "Due today" });
+  if (days === 1) return t("responsibility.dueTomorrow", { defaultValue: "Due tomorrow" });
+  if (days > 1) {
+    return t("responsibility.dueInDays", { days, defaultValue: `Due in ${days} days` });
+  }
+  return days === -1
+    ? t("responsibility.oneDayLate", { defaultValue: "1 day late" })
+    : t("responsibility.daysLate", { days: -days, defaultValue: `${-days} days late` });
 }
 
 /** "4 of 10 tasks done", for the progress meter's words. */
 export function projectProgressLabel(progress: NonNullable<ResponsibilityProjectSummary["progress"]>): string {
-  return `${progress.done} of ${progress.total} ${progress.total === 1 ? "task" : "tasks"} done`;
+  const unit = progress.total === 1
+    ? t("responsibility.taskSingular", { defaultValue: "task" })
+    : t("responsibility.taskPlural", { defaultValue: "tasks" });
+  return t("responsibility.progress", {
+    done: progress.done,
+    total: progress.total,
+    unit,
+    defaultValue: `${progress.done} of ${progress.total} ${unit} done`,
+  });
 }
 
 /** Open tasks in the order given, and the done ones the table can reveal (cancelled ones are not shown). */
@@ -74,17 +82,27 @@ export function splitTasksForTable(tasks: readonly ResponsibilityTaskSummary[]):
   };
 }
 
-const RUN_ENDED: Record<string, string> = {
-  succeeded: "Succeeded",
-  failed: "Failed",
-  cancelled: "Cancelled",
-  timed_out: "Timed out",
+const RUN_ENDED_KEYS: Record<string, { key: string; english: string }> = {
+  succeeded: { key: "responsibility.runSucceeded", english: "Succeeded" },
+  failed: { key: "responsibility.runFailed", english: "Failed" },
+  cancelled: { key: "responsibility.runCancelled", english: "Cancelled" },
+  timed_out: { key: "responsibility.runTimedOut", english: "Timed out" },
 };
 
 /** "Succeeded 1d ago", "Failed 2d ago", "Running, started 3m ago", "Queued 3m ago". */
 export function runStat(run: Pick<ResponsibilityRecentRun, "status" | "createdAt" | "startedAt" | "finishedAt">, now: Date): string {
-  if (run.status === "running") return `Running, started ${ago(run.startedAt ?? run.createdAt, now)}`;
-  if (run.status === "queued") return `Queued ${ago(run.createdAt, now)}`;
-  const word = RUN_ENDED[run.status] ?? `${run.status.charAt(0).toUpperCase()}${run.status.slice(1).replace(/_/g, " ")}`;
-  return `${word} ${ago(run.finishedAt ?? run.startedAt ?? run.createdAt, now)}`;
+  if (run.status === "running") {
+    const when = ago(run.startedAt ?? run.createdAt, now);
+    return t("responsibility.runningStarted", { when, defaultValue: `Running, started ${when}` });
+  }
+  if (run.status === "queued") {
+    const when = ago(run.createdAt, now);
+    return t("responsibility.queuedWhen", { when, defaultValue: `Queued ${when}` });
+  }
+  const entry = RUN_ENDED_KEYS[run.status];
+  const word = entry
+    ? t(entry.key, { defaultValue: entry.english })
+    : `${run.status.charAt(0).toUpperCase()}${run.status.slice(1).replace(/_/g, " ")}`;
+  const when = ago(run.finishedAt ?? run.startedAt ?? run.createdAt, now);
+  return `${word} ${when}`;
 }

@@ -6,8 +6,7 @@ const DAY = 24 * HOUR;
 const WEEK = 7 * DAY;
 const MONTH = 30 * DAY;
 
-export function timeAgo(date: Date | string): string {
-  const now = Date.now();
+export function timeAgo(date: Date | string, now: number = Date.now()): string {
   const then = new Date(date).getTime();
   const seconds = Math.round((now - then) / 1000);
 

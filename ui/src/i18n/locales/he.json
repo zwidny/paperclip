@@ -23071,5 +23071,25 @@
     "now": "now",
     "weeksAgo": "{{value}}w ago",
     "monthsAgo": "{{value}}mo ago"
+  },
+  "responsibility": {
+    "dueToday": "Due today",
+    "dueTomorrow": "Due tomorrow",
+    "dueInDays": "Due in {{days}} days",
+    "oneDayLate": "1 day late",
+    "daysLate": "{{days}} days late",
+    "progress": "{{done}} of {{total}} {{unit}} done",
+    "taskSingular": "task",
+    "taskPlural": "tasks",
+    "notRunYet": "Not run yet",
+    "paused": "Paused",
+    "lastSuccessfulRun": "Last successful run {{when}}",
+    "failedWhen": "Failed {{when}}",
+    "runningStarted": "Running, started {{when}}",
+    "queuedWhen": "Queued {{when}}",
+    "runSucceeded": "Succeeded",
+    "runFailed": "Failed",
+    "runCancelled": "Cancelled",
+    "runTimedOut": "Timed out"
   }
 }

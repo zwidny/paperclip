@@ -6,6 +6,10 @@
  * only showing a response after the turn settles.
  */
 import { brandName, i18n } from "../../i18n";
+
+/** Shorthand for the module-scope translation call used by the summary builders. */
+const tr = (key: string, options: Record<string, unknown> = {}): string =>
+  String(i18n.t(`phaseSummary.${key}`, options as never));
 import { foldApprovedAutoReviews } from "./fold-auto-reviews";
 import { isFatalProviderError, isStatusNotice, isStatusNoticePayload, statusNoticeCategory } from "./status-notice-presentation";
 import type { TranscriptEntry } from "@/adapters";
@@ -1833,13 +1837,15 @@ function phaseSummary(
     if (count)
       phrases.push({ text: count === 1 ? singular : plural(count), count });
   };
-  add("read", "Read a file", (count) => `Read ${count} files`);
-  add("edit", "Edited a file", (count) => `Edited ${count} files`);
-  add("terminal", "Ran a command", (count) => `Ran ${count} commands`);
+  add("read", tr("readOne", { defaultValue: "Read a file" }) as string, (count) => tr("readMany", { count, defaultValue: `Read ${count} files` }) as string);
+  add("edit", tr("editOne", { defaultValue: "Edited a file" }) as string, (count) => tr("editMany", { count, defaultValue: `Edited ${count} files` }) as string);
+  add("terminal", tr("terminalOne", { defaultValue: "Ran a command" }) as string, (count) => tr("terminalMany", { count, defaultValue: `Ran ${count} commands` }) as string);
   const searched = (counts.get("grep") ?? 0) + (counts.get("search") ?? 0);
   if (searched)
     phrases.push({
-      text: searched === 1 ? "Searched once" : `Searched ${searched} times`,
+      text: searched === 1
+        ? (tr("searchedOne", { defaultValue: "Searched once" }) as string)
+        : (tr("searchedMany", { count: searched, defaultValue: `Searched ${searched} times` }) as string),
       count: searched,
     });
   const known = new Set(["read", "edit", "terminal", "grep", "search"]);
@@ -1850,7 +1856,9 @@ function phaseSummary(
     ) + generic;
   if (other)
     phrases.push({
-      text: other === 1 ? "Used a tool" : `Used ${other} tools`,
+      text: other === 1
+        ? (tr("toolOne", { defaultValue: "Used a tool" }) as string)
+        : (tr("toolMany", { count: other, defaultValue: `Used ${other} tools` }) as string),
       count: other,
     });
   const providerCount = (family: TaskChatProviderActivityItem["family"]) =>
@@ -1864,58 +1872,58 @@ function phaseSummary(
     if (count)
       phrases.push({ text: count === 1 ? singular : plural(count), count });
   };
-  addProvider("plan", "Updated the plan", (count) => `Updated ${count} plans`);
+  addProvider("plan", tr("planOne", { defaultValue: "Updated the plan" }) as string, (count) => tr("planMany", { count, defaultValue: `Updated ${count} plans` }) as string);
   addProvider(
     "research",
-    "Searched once",
-    (count) => `Searched ${count} times`,
+    tr("searchedOne", { defaultValue: "Searched once" }) as string,
+    (count) => tr("searchedMany", { count, defaultValue: `Searched ${count} times` }) as string,
   );
   addProvider(
     "delegation",
-    "Used a subagent",
-    (count) => `Used ${count} subagents`,
+    tr("delegationOne", { defaultValue: "Used a subagent" }) as string,
+    (count) => tr("delegationMany", { count, defaultValue: `Used ${count} subagents` }) as string,
   );
   addProvider(
     "model_identity",
-    "Updated the model",
-    (count) => `Updated the model ${count} times`,
+    tr("modelOne", { defaultValue: "Updated the model" }) as string,
+    (count) => tr("modelMany", { count, defaultValue: `Updated the model ${count} times` }) as string,
   );
   addProvider(
     "context",
-    "Compacted context",
-    (count) => `Compacted context ${count} times`,
+    tr("contextOne", { defaultValue: "Compacted context" }) as string,
+    (count) => tr("contextMany", { count, defaultValue: `Compacted context ${count} times` }) as string,
   );
   addProvider(
     "artifact",
-    "Handled an artifact",
-    (count) => `Handled ${count} artifacts`,
+    tr("artifactOne", { defaultValue: "Handled an artifact" }) as string,
+    (count) => tr("artifactMany", { count, defaultValue: `Handled ${count} artifacts` }) as string,
   );
   addProvider(
     "review",
-    "Changed review mode",
-    (count) => `Changed review mode ${count} times`,
+    tr("reviewOne", { defaultValue: "Changed review mode" }) as string,
+    (count) => tr("reviewMany", { count, defaultValue: `Changed review mode ${count} times` }) as string,
   );
-  addProvider("hook", "Ran a hook", (count) => `Ran ${count} hooks`);
+  addProvider("hook", tr("hookOne", { defaultValue: "Ran a hook" }) as string, (count) => tr("hookMany", { count, defaultValue: `Ran ${count} hooks` }) as string);
   addProvider(
     "memory",
-    "Referenced memory",
-    (count) => `Referenced memory ${count} times`,
+    tr("memoryOne", { defaultValue: "Referenced memory" }) as string,
+    (count) => tr("memoryMany", { count, defaultValue: `Referenced memory ${count} times` }) as string,
   );
   addProvider(
     "safety",
-    "Ran a safety review",
-    (count) => `Ran ${count} safety reviews`,
+    tr("safetyOne", { defaultValue: "Ran a safety review" }) as string,
+    (count) => tr("safetyMany", { count, defaultValue: `Ran ${count} safety reviews` }) as string,
   );
   addProvider(
     "terminal",
-    "Sent terminal input",
-    (count) => `Sent terminal input ${count} times`,
+    tr("terminalOne", { defaultValue: "Sent terminal input" }) as string,
+    (count) => tr("terminalMany", { count, defaultValue: `Sent terminal input ${count} times` }) as string,
   );
-  addProvider("wait", "Waited", (count) => `Waited ${count} times`);
+  addProvider("wait", tr("waitOne", { defaultValue: "Waited" }) as string, (count) => tr("waitMany", { count, defaultValue: `Waited ${count} times` }) as string);
   addProvider(
     "provider_notice",
-    "Received a provider notice",
-    (count) => `Received ${count} provider notices`,
+    tr("providerNoticeOne", { defaultValue: "Received a provider notice" }) as string,
+    (count) => tr("providerNoticeMany", { count, defaultValue: `Received ${count} provider notices` }) as string,
   );
   // A canonical tool-execution row can be the only tool representation for a
   // provider. Avoid double-counting when the adapter also produced native
@@ -1929,41 +1937,54 @@ function phaseSummary(
       let text: string;
       switch (key) {
         case "command":
-          text = count === 1 ? "Ran a command" : `Ran ${count} commands`;
+          text = count === 1
+            ? (tr("terminalOne", { defaultValue: "Ran a command" }) as string)
+            : (tr("terminalMany", { count, defaultValue: `Ran ${count} commands` }) as string);
           break;
         case "read":
-          text = count === 1 ? "Read a file" : `Read ${count} files`;
+          text = count === 1
+            ? (tr("readOne", { defaultValue: "Read a file" }) as string)
+            : (tr("readMany", { count, defaultValue: `Read ${count} files` }) as string);
           break;
         case "search":
-          text = count === 1 ? "Searched once" : `Searched ${count} times`;
+          text = count === 1
+            ? (tr("searchedOne", { defaultValue: "Searched once" }) as string)
+            : (tr("searchedMany", { count, defaultValue: `Searched ${count} times` }) as string);
           break;
         case "file_change":
-          text = count === 1 ? "Edited a file" : `Edited ${count} files`;
+          text = count === 1
+            ? (tr("editOne", { defaultValue: "Edited a file" }) as string)
+            : (tr("editMany", { count, defaultValue: `Edited ${count} files` }) as string);
           break;
         case "delegation":
-          text = count === 1 ? "Used a subagent" : `Used ${count} subagents`;
+          text = count === 1
+            ? (tr("delegationOne", { defaultValue: "Used a subagent" }) as string)
+            : (tr("delegationMany", { count, defaultValue: `Used ${count} subagents` }) as string);
           break;
         case "wait":
-          text = count === 1 ? "Waited" : `Waited ${count} times`;
+          text = count === 1
+            ? (tr("waitOne", { defaultValue: "Waited" }) as string)
+            : (tr("waitMany", { count, defaultValue: `Waited ${count} times` }) as string);
           break;
         case "tool_search":
-          text =
-            count === 1
-              ? "Searched available tools"
-              : `Searched available tools ${count} times`;
+          text = count === 1
+            ? (tr("toolSearchOne", { defaultValue: "Searched available tools" }) as string)
+            : (tr("toolSearchMany", { count, defaultValue: `Searched available tools ${count} times` }) as string);
           break;
         case "paperclip_read":
-          text =
-            count === 1
-              ? `Read from ${brandName()}`
-              : `Read from ${brandName()} ${count} times`;
+          text = count === 1
+            ? (tr("brandReadOne", { brand: brandName(), defaultValue: `Read from ${brandName()}` }) as string)
+            : (tr("brandReadMany", { brand: brandName(), count, defaultValue: `Read from ${brandName()} ${count} times` }) as string);
           break;
         case "task_operation":
-          text =
-            count === 1 ? `Used ${brandName()}` : `Used ${brandName()} ${count} times`;
+          text = count === 1
+            ? (tr("brandOpOne", { brand: brandName(), defaultValue: `Used ${brandName()}` }) as string)
+            : (tr("brandOpMany", { brand: brandName(), count, defaultValue: `Used ${brandName()} ${count} times` }) as string);
           break;
         default:
-          text = count === 1 ? "Used a tool" : `Used ${count} tools`;
+          text = count === 1
+            ? (tr("toolOne", { defaultValue: "Used a tool" }) as string)
+            : (tr("toolMany", { count, defaultValue: `Used ${count} tools` }) as string);
       }
       phrases.push({
         text,
@@ -1975,8 +1996,8 @@ function phaseSummary(
     phrases.push({
       text:
         workspaceFiles === 1
-          ? "Changed a file"
-          : `Changed ${workspaceFiles} files`,
+          ? (tr("fileChangedOne", { defaultValue: "Changed a file" }) as string)
+          : (tr("fileChangedMany", { count: workspaceFiles, defaultValue: `Changed ${workspaceFiles} files` }) as string),
       count: workspaceFiles,
     });
   if (phrases.length > 0) {
@@ -1991,7 +2012,10 @@ function phaseSummary(
           : phrase.text.charAt(0).toLowerCase() + phrase.text.slice(1),
       )
       .join(", ");
-    return `${summary}${hidden > 0 ? `, +${hidden} more` : ""}`;
+    const more = hidden > 0
+      ? `, ${tr("more", { count: hidden, defaultValue: `+${hidden} more` }) as string}`
+      : "";
+    return `${summary}${more}`;
   }
   const protocolCount = items.filter((item) => item.kind === "protocol").length;
   if (protocolCount > 0)

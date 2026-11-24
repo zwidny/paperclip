@@ -943,13 +943,17 @@ export function AgentDetail() {
         <AgentActionButtons
           agent={currentAgent}
           companyId={resolvedCompanyId}
-          assignLabel="New task"
+          assignLabel={t("nav.newTaskAction", { defaultValue: "New task" })}
           size="default"
           assignIcon={Paperclip}
           showChat
           showStatus={false}
           workActionsInMenu
-          menuItems={[{ label: "Agent history", icon: HistoryIcon, onSelect: () => setHistoryOpen(true) }]}
+          menuItems={[{
+            label: t("agentDetail.history.menuItem", { defaultValue: "Agent history" }),
+            icon: HistoryIcon,
+            onSelect: () => setHistoryOpen(true),
+          }]}
           actionsDisabled={agentAction.isPending || (activeView === "advanced" && configSaving)}
           workActionsDisabled={hasInvalidOrgChain}
           workActionsDisabledReason={t("agentDetail.header.workActionsDisabledReason", {

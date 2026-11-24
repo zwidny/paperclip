@@ -5338,7 +5338,8 @@
       "restoreTitle": "恢复此版本？",
       "restoreVersion": "恢复版本",
       "restoring": "正在恢复…",
-      "title": "Agent 历史"
+      "title": "智能体历史",
+      "menuItem": "智能体历史"
     },
     "manageConnectors": "管理连接器",
     "noConnectors": "尚未允许任何连接器。",

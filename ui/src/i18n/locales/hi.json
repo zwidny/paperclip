@@ -5338,7 +5338,8 @@
       "restoreTitle": "Restore this version?",
       "restoreVersion": "Restore version",
       "restoring": "Restoring…",
-      "title": "Agent history"
+      "title": "Agent history",
+      "menuItem": "Agent history"
     },
     "manageConnectors": "Manage connectors",
     "noConnectors": "No connectors are allowed yet.",

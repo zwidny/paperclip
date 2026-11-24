@@ -127,10 +127,14 @@ export function buildMonitorSurfaceCopy(
 
   if (derived.source === "scheduled-retry" && scheduledRetryReason === "environment_provider_wait") {
     return {
-      bannerTitle: "Waiting for the sandbox provider",
-      stripTitle: "Waiting for the sandbox provider",
-      bannerMeta: ["The sandbox provider is unavailable. Work continues automatically when it is back."],
-      stripMeta: ["Work continues automatically when the sandbox provider is back."],
+      bannerTitle: monitorCopy(t, "monitorBanner.waitingSandboxTitle", { defaultValue: "Waiting for the sandbox provider" }),
+      stripTitle: monitorCopy(t, "monitorBanner.waitingSandboxTitle", { defaultValue: "Waiting for the sandbox provider" }),
+      bannerMeta: [monitorCopy(t, "monitorBanner.sandboxUnavailableBanner", {
+        defaultValue: "The sandbox provider is unavailable. Work continues automatically when it is back.",
+      })],
+      stripMeta: [monitorCopy(t, "monitorBanner.sandboxUnavailableStrip", {
+        defaultValue: "Work continues automatically when the sandbox provider is back.",
+      })],
       tone: "info",
       workspaceWait: true,
     };
@@ -469,12 +473,12 @@ export function IssueMonitorComposerStrip({
       {!copy.automaticChecksPaused ? (
         <p className="mt-1.5 text-xs text-muted-foreground">
           {copy.pullRequestReview && copy.executionWait
-            ? "Review on GitHub while the current run finishes saving its work."
+            ? t("monitorBanner.reviewWhileSaving", { defaultValue: "Review on GitHub while the current run finishes saving its work." })
             : copy.pullRequestReview
-            ? "Review on GitHub, then check status to have the agent verify the result."
+            ? t("monitorBanner.reviewThenVerify", { defaultValue: "Review on GitHub, then check status to have the agent verify the result." })
             : copy.workspaceWait || copy.executionWait
-            ? "You can keep sending instructions while the agent waits."
-            : "Sending a reply wakes the agent now — before the scheduled check."}
+            ? t("monitorBanner.keepSendingWhileWaiting", { defaultValue: "You can keep sending instructions while the agent waits." })
+            : t("monitorBanner.replyWakesAgent", { defaultValue: "Sending a reply wakes the agent now — before the scheduled check." })}
         </p>
       ) : null}
       {checkError ? <p role="alert" className="text-sm text-destructive">{checkError}</p> : null}

@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { useTranslation } from "../i18n";
+import { i18n, useTranslation } from "../i18n";
 
 /* ------------------------------------------------------------------ */
 /*  Canonical verb table — one verb per action, used on every card.    */
@@ -37,6 +37,10 @@ function humanize(value: unknown): string {
 
 /** One verb per action. Pinned context (Tier 0) swaps a couple of verbs to
  *  emphasize that user action is needed. */
+/** Module-scope translation for the verb table (no hook available here). */
+const tv = (key: string, options: Record<string, unknown> = {}): string =>
+  String(i18n.t(`feedVerb.${key}`, options as never));
+
 function formatVerb(
   action: string,
   details: Record<string, unknown> | null | undefined,
@@ -44,86 +48,94 @@ function formatVerb(
 ): string {
   switch (action) {
     case "issue.created":
-      return "opened";
+      return tv("issue_created", { defaultValue: "opened" });
     case "issue.updated": {
       const status = details?.status;
-      if (status === "in_review" && details?.externalConversationState === "waiting") return "moved to idle";
-      if (typeof status === "string") return `moved to ${humanize(status)}`;
+      if (status === "in_review" && details?.externalConversationState === "waiting") return tv("issue_moved_to_idle", { defaultValue: "moved to idle" });
+      if (typeof status === "string") {
+        return tv("issue_moved_to", { status: humanize(status), defaultValue: `moved to ${humanize(status)}` });
+      }
       const priority = details?.priority;
-      if (typeof priority === "string") return `set priority to ${humanize(priority)} on`;
-      return "updated";
+      if (typeof priority === "string") {
+        return tv("issue_priority_set", { priority: humanize(priority), defaultValue: `set priority to ${humanize(priority)} on` });
+      }
+      return tv("issue_updated", { defaultValue: "updated" });
     }
     case "issue.document_created":
-      return "wrote doc on";
+      return tv("issue_document_created", { defaultValue: "wrote doc on" });
     case "issue.document_updated":
-      return "edited doc on";
+      return tv("issue_document_updated", { defaultValue: "edited doc on" });
     case "issue.document_deleted":
-      return "deleted doc from";
+      return tv("issue_document_deleted", { defaultValue: "deleted doc from" });
     case "issue.work_product_created":
-      return "delivered work on";
+      return tv("issue_work_product_created", { defaultValue: "delivered work on" });
     case "issue.work_product_updated":
-      return "updated work on";
+      return tv("issue_work_product_updated", { defaultValue: "updated work on" });
     case "issue.work_product_deleted":
-      return "removed work from";
+      return tv("issue_work_product_deleted", { defaultValue: "removed work from" });
     case "issue.checked_out":
-      return "picked up";
+      return tv("issue_checked_out", { defaultValue: "picked up" });
     case "issue.released":
-      return "released";
+      return tv("issue_released", { defaultValue: "released" });
     case "issue.commented":
     case "issue.comment_added":
-      return "commented on";
+      return tv("issue_commented", { defaultValue: "commented on" });
     case "issue.attachment_added":
-      return "attached a file to";
+      return tv("issue_attachment_added", { defaultValue: "attached a file to" });
     case "issue.attachment_removed":
-      return "removed attachment from";
+      return tv("issue_attachment_removed", { defaultValue: "removed attachment from" });
     case "issue.deleted":
-      return "deleted";
+      return tv("issue_deleted", { defaultValue: "deleted" });
 
     case "approval.created":
-      return context === "pinned" ? "needs approval on" : "requested approval on";
+      return context === "pinned"
+        ? tv("approval_created_pinned", { defaultValue: "needs approval on" })
+        : tv("approval_created", { defaultValue: "requested approval on" });
     case "approval.approved":
-      return "approved";
+      return tv("approval_approved", { defaultValue: "approved" });
     case "approval.rejected":
-      return "rejected";
+      return tv("approval_rejected", { defaultValue: "rejected" });
     case "approval.revision_requested":
-      return "requested changes on";
+      return tv("approval_revision_requested", { defaultValue: "requested changes on" });
 
     case "agent.created":
-      return context === "pinned" ? "wants to hire" : "hired";
+      return context === "pinned"
+        ? tv("agent_created_pinned", { defaultValue: "wants to hire" })
+        : tv("agent_created", { defaultValue: "hired" });
     case "agent.paused":
-      return "paused";
+      return tv("agent_paused", { defaultValue: "paused" });
     case "agent.resumed":
-      return "resumed";
+      return tv("agent_resumed", { defaultValue: "resumed" });
     case "agent.updated":
-      return "updated";
+      return tv("agent_updated", { defaultValue: "updated" });
     case "agent.terminated":
-      return "terminated";
+      return tv("agent_terminated", { defaultValue: "terminated" });
 
     case "heartbeat.invoked":
-      return "started a run on";
+      return tv("heartbeat_invoked", { defaultValue: "started a run on" });
     case "heartbeat.cancelled":
-      return "cancelled a run on";
+      return tv("heartbeat_cancelled", { defaultValue: "cancelled a run on" });
 
     case "project.created":
-      return "created project";
+      return tv("project_created", { defaultValue: "created project" });
     case "project.updated":
-      return "updated project";
+      return tv("project_updated", { defaultValue: "updated project" });
     case "project.deleted":
-      return "deleted project";
+      return tv("project_deleted", { defaultValue: "deleted project" });
     case "goal.created":
-      return "created goal";
+      return tv("goal_created", { defaultValue: "created goal" });
     case "goal.updated":
-      return "updated goal";
+      return tv("goal_updated", { defaultValue: "updated goal" });
     case "goal.deleted":
-      return "deleted goal";
+      return tv("goal_deleted", { defaultValue: "deleted goal" });
     case "company.created":
-      return "created organization";
+      return tv("company_created", { defaultValue: "created organization" });
     case "company.updated":
-      return "updated organization";
+      return tv("company_updated", { defaultValue: "updated organization" });
     case "company.archived":
-      return "archived organization";
+      return tv("company_archived", { defaultValue: "archived organization" });
     case "company.budget_updated":
-      return "updated organization budget";
+      return tv("company_budget_updated", { defaultValue: "updated organization budget" });
 
     default:
       return action.replace(/[._]/g, " ");

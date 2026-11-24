@@ -31,6 +31,7 @@ import {
   setPluginAppDefinitions,
   type AppDefinition,
 } from "@paperclipai/shared";
+import { brandText } from "../brand.js";
 import { logger } from "../middleware/logger.js";
 import { inferToolRisk } from "./tool-risk-inference.js";
 
@@ -86,7 +87,7 @@ export function legacyToolsAppDefinition(row: {
       auth: "none",
       ownershipModes: ["customer"],
       whenToUse: `Give agents the tools of the ${name} plugin.`,
-      guidanceMd: `The ${name} plugin runs these tools on this Paperclip instance. Choose which agents can use them.`,
+      guidanceMd: brandText(`The ${name} plugin runs these tools on this Paperclip instance. Choose which agents can use them.`),
       riskTier: "S2",
       tools: {
         kind: "static",

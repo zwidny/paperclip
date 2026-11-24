@@ -1,4 +1,5 @@
 import { ENVIRONMENT_PROVIDER_WAIT_KEY, ENVIRONMENT_PROVIDER_WAIT_RETRY_REASON, environmentProviderWaitMessage } from "./environment-provider-wait.js";
+import { brandText } from "../brand.js";
 import { STORAGE_UNAVAILABLE_WAIT_RETRY_REASON } from "../storage/storage-unavailable.js";
 import { AGENT_DIRECTORY_WAIT_RETRY_REASON, INTERRUPTED_PREPARATION_RETRY_REASON } from "./execution-recovery-attempt.js";
 import { boundSetupCommandFailure, readSetupCommandFailure } from "./workspace-setup-command-failure.js";
@@ -159,13 +160,13 @@ const unpricedUsageWait = (reason: SQL, message: SQL) =>
 // Persisted wait messages can contain diagnostics. Ordinary task views expose
 // only these stable categories, never arbitrary payloads or source identifiers.
 const retryWaitMessages: Record<string, string> = {
-  workspace_repair_required: "Retry is waiting for Paperclip to recover the saved files. Your message is saved.",
+  workspace_repair_required: brandText("Retry is waiting for Paperclip to recover the saved files. Your message is saved."),
   remote_cleanup: "Retry is waiting for the previous environment to stop. Your message is saved.",
   local_cleanup: "Retry is waiting for the previous execution to finish cleanup. Your message is saved.",
   cleanup_pending: "Retry is waiting for the previous execution to finish cleanup. Your message is saved.",
   execution_settling: "Retry is waiting for the previous execution to stop. Your message is saved.",
   controller_settling: "Retry is waiting for the previous execution to finish recovery. Your message is saved.",
-  process_identity_missing: "Retry is waiting for Paperclip to verify that the previous execution stopped. Your message is saved.",
+  process_identity_missing: brandText("Retry is waiting for Paperclip to verify that the previous execution stopped. Your message is saved."),
   process_running: "Retry is waiting for the previous execution to stop. Your message is saved.",
   execution_active: "Retry is waiting for the current run to finish. Your message is saved.",
   decision_pending: "Retry is waiting for a pending approval or question to be resolved. Your message is saved.",
@@ -173,19 +174,19 @@ const retryWaitMessages: Record<string, string> = {
   // Admission records an unpriced-usage refusal as budget.blocked; the
   // projection shows it as the accounting matter it is.
   [UNPRICED_USAGE_WAIT]: "Retry is waiting because recorded usage has no price. Check Costs, or allow unpriced usage in the budget policy. Your message is saved.",
-  finalizing_saved_result: "Paperclip is finishing the saved result before Retry can continue.",
+  finalizing_saved_result: brandText("Paperclip is finishing the saved result before Retry can continue."),
   // Another click cannot release a copyback owner that stopped without reporting.
   // Retry starts a new recovery generation; the agent does not repeat its work.
   saved_work_recovery_failed: "Saving the agent's files failed. Retry to try again; the agent will not repeat its work.",
-  saved_work_recovery_refused: "Paperclip refused to recover the saved files because a safety check on them cannot pass. "
-    + "Retry checks the saved files again. The agent's result is saved, and the agent will not repeat its work.",
-  workspace_owner_stop_required: "Retry is waiting until Paperclip confirms that the previous server stopped saving files. The agent's result and your Retry are saved.",
+  saved_work_recovery_refused: brandText("Paperclip refused to recover the saved files because a safety check on them cannot pass. "
+    + "Retry checks the saved files again. The agent's result is saved, and the agent will not repeat its work."),
+  workspace_owner_stop_required: brandText("Retry is waiting until Paperclip confirms that the previous server stopped saving files. The agent's result and your Retry are saved."),
   cleanup_quarantined: NATIVE_CLEANUP_SETTLING_MESSAGE,
   cancelled_by_operator: "This attempt was stopped. Send a new message to continue from saved work.",
   // A new click replaces a Retry declined for its requester's access with a
   // fresh attempt under the clicker's access, so Retry stays available.
   retry_authority_denied: "Retry could not start with the requesting user's access. Press Retry to start it with yours.",
-  previous_execution_unverified: "Retry can't continue because Paperclip can't confirm that the previous attempt stopped before it started work. Your message is saved.",
+  previous_execution_unverified: brandText("Retry can't continue because Paperclip can't confirm that the previous attempt stopped before it started work. Your message is saved."),
   // An edited saved message can never be replayed; only new input continues.
   retry_source_changed: "Retry cannot continue because its saved message changed. Send a new message to continue from saved work.",
 };
@@ -375,8 +376,8 @@ function projectTaskInterruptionState(issue: ProjectionIssue, input: ProjectionS
     const settling = recoveryRunning || Boolean(retryAt && now - retryAt < NATIVE_RESUME_DISPATCH_GRACE_MS);
     return { ...base, state: settling ? "working" : "failed", canRetry: false,
       retryWait: { reason: "governed_wait_settlement", message: settling
-        ? "Your work is saved. Paperclip is finishing shutdown."
-        : "Paperclip couldn’t confirm shutdown. Your work is saved; continuation is paused." } };
+        ? brandText("Your work is saved. Paperclip is finishing shutdown.")
+        : brandText("Paperclip couldn’t confirm shutdown. Your work is saved; continuation is paused.") } };
   }
   if (retryAt && retryAt > now) return { ...base, state: "retry_scheduled",
     nextRetryAt: new Date(retryAt).toISOString(), canRetry: !preparationPending && !nativeResumeAt && run.status !== "scheduled_retry",
@@ -396,7 +397,7 @@ function projectTaskInterruptionState(issue: ProjectionIssue, input: ProjectionS
   if (retryWait?.sourceRunId === run.id && retryWait.executionWaitReason === "process_identity_missing"
       && input.unidentifiedLaunchConfirmable)
     return { ...base, responsibility: "user", state: "waiting_for_user", canRetry: false, userAction: "confirm_run_stopped",
-      retryWait: { reason: "process_identity_missing", message: UNIDENTIFIED_RUNNER_STOP_MESSAGE } };
+      retryWait: { reason: "process_identity_missing", message: brandText(UNIDENTIFIED_RUNNER_STOP_MESSAGE) } };
   if (retryWait?.sourceRunId === run.id && retryWait.executionWaitReason) {
     const reason = Object.hasOwn(retryWaitMessages, retryWait.executionWaitReason) ? retryWait.executionWaitReason : "execution_recovery";
     // Keep the latest input receipt so message submission can settle independently.

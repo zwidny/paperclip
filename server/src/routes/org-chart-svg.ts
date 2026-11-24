@@ -4,6 +4,8 @@
  * Pure SVG output — no browser/Playwright needed. PNG via sharp.
  */
 
+import { brandText } from "../brand.js";
+
 export interface OrgNode {
   id: string;
   name: string;
@@ -750,7 +752,7 @@ export function renderOrgChartSvg(orgTree: OrgNode[], style: OrgChartStyle = "wa
   <rect width="100%" height="100%" fill="${theme.bgColor}" rx="6"/>
   ${theme.bgExtras(TARGET_W, TARGET_H)}
   <g transform="translate(${logoX}, ${logoY})" color="${theme.watermarkColor}">
-    ${PAPERCLIP_LOGO_SVG}
+    ${brandText(PAPERCLIP_LOGO_SVG)}
   </g>
   ${overlayNameSvg}
   ${overlayStatsSvg}

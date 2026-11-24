@@ -13,6 +13,7 @@ import {
   type Db,
 } from "@paperclipai/db";
 import type { ExecutionProjection } from "@paperclipai/shared";
+import { brandText } from "../brand.js";
 import { EXECUTION_CONTROL_DEADLINE_MS } from "./execution-control-deadline.js";
 import { executionFailureRetryCount } from "./execution-recovery-attempt.js";
 import { retryIdempotentDatabaseOperation } from "../database-retry.js";
@@ -406,7 +407,7 @@ export function projectExecution(
     // the task continues through that record.
     if (recoveryAction.evidence.continuationDelivery === "coalesced") {
       projection.cause = null;
-      projection.nextAction = "Paperclip continues the task in a fresh run from its saved work.";
+      projection.nextAction = brandText("Paperclip continues the task in a fresh run from its saved work.");
       return set("queued", "Continuing automatically");
     }
     const reconciliation = recoveryAction.evidence.executionReconciliation;
@@ -436,7 +437,7 @@ export function projectExecution(
     projection.nextAction = deliveredRunId
       ? null
       : recoveryAction.evidence.freshContinuationSettlement
-        ? "Paperclip continues the task in a fresh run from its saved work."
+        ? brandText("Paperclip continues the task in a fresh run from its saved work.")
         : "The previous execution is reconciled. Its continuation is queued for delivery.";
     return set(
       deliveredRunId ? "completed" : "queued",
@@ -463,7 +464,7 @@ export function projectExecution(
   if (run.status === "scheduled_retry" && run.scheduledRetryReason === "ai_connection_pool_wait"
       && run.contextSnapshot?.wakeReason === "provider_limit_retry") {
     const recheckAt = run.scheduledRetryAt ? ` at ${new Date(run.scheduledRetryAt).toISOString()}` : " when its scheduled check is due";
-    projection.nextAction = `Paperclip will recheck the agent's provider usage limit${recheckAt} before starting work. The provider may still refuse it. To continue sooner, restore the provider allowance or change the agent's AI connection, then start a manual run.`;
+    projection.nextAction = brandText(`Paperclip will recheck the agent's provider usage limit${recheckAt} before starting work. The provider may still refuse it. To continue sooner, restore the provider allowance or change the agent's AI connection, then start a manual run.`);
     return set("retry_scheduled", "Waiting for provider usage");
   }
   if (run.status === "scheduled_retry" && run.scheduledRetryReason === "agent_directory_busy") {
@@ -485,7 +486,7 @@ export function projectExecution(
   )) {
     projection.recoveryOwner = "agent";
     if (coordinator?.failureCode === "native_governed_wait_settlement_pending") {
-      projection.nextAction = "The work and waiting state are saved. Paperclip is confirming shutdown before continuing.";
+      projection.nextAction = brandText("The work and waiting state are saved. Paperclip is confirming shutdown before continuing.");
       return set("finishing", "Finishing shutdown");
     }
     return set(

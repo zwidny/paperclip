@@ -20,6 +20,34 @@ const TEMPLATE = `<!doctype html>
 </head>`;
 
 describe("ui branding", () => {
+  it("rewrites the baked-in document title and startup copy to the configured name", () => {
+    const html = `<!doctype html>
+<head>
+    <meta name="apple-mobile-web-app-title" content="Paperclip" />
+    <title>Paperclip</title>
+</head>
+<body>
+    <h1 id="paperclip-startup-title">Paperclip couldn’t start</h1>
+    <script>title.textContent = "Paperclip is taking longer to load";</script>
+</body>`;
+
+    const branded = applyUiBranding(html, { BRAND_NAME: "Gnzs" });
+
+    expect(branded).toContain("<title>Gnzs</title>");
+    expect(branded).toContain('content="Gnzs"');
+    expect(branded).toContain("Gnzs couldn’t start");
+    expect(branded).toContain("Gnzs is taking longer to load");
+    // Lowercase ids and markers must survive.
+    expect(branded).toContain('id="paperclip-startup-title"');
+    expect(branded).not.toContain("<title>Paperclip</title>");
+  });
+
+  it("leaves the title alone when the brand is the upstream name", () => {
+    const html = '<title>Paperclip</title>';
+    expect(applyUiBranding(html, { NODE_ENV: "test" })).toContain("<title>Paperclip</title>");
+  });
+
+
   it("detects worktree mode from PAPERCLIP_IN_WORKTREE", () => {
     expect(isWorktreeUiBrandingEnabled({ PAPERCLIP_IN_WORKTREE: "true" })).toBe(true);
     expect(isWorktreeUiBrandingEnabled({ PAPERCLIP_IN_WORKTREE: "1" })).toBe(true);

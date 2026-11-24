@@ -1,3 +1,5 @@
+import { brandText } from "./brand.js";
+
 const FAVICON_BLOCK_START = "<!-- PAPERCLIP_FAVICON_START -->";
 const FAVICON_BLOCK_END = "<!-- PAPERCLIP_FAVICON_END -->";
 const RUNTIME_BRANDING_BLOCK_START = "<!-- PAPERCLIP_RUNTIME_BRANDING_START -->";
@@ -219,8 +221,12 @@ function replaceMarkedBlock(html: string, startMarker: string, endMarker: string
 }
 
 export function applyUiBranding(html: string, env: NodeJS.ProcessEnv = process.env): string {
+  // The document title, the Apple web-app title and the startup-failure copy are
+  // baked into index.html at build time. Rewrite them here so the first paint
+  // already carries the configured name instead of flashing the upstream one.
+  const branded = brandText(html, env);
   const branding = getWorktreeUiBranding(env);
-  const withFavicon = replaceMarkedBlock(html, FAVICON_BLOCK_START, FAVICON_BLOCK_END, renderFaviconLinks(branding));
+  const withFavicon = replaceMarkedBlock(branded, FAVICON_BLOCK_START, FAVICON_BLOCK_END, renderFaviconLinks(branding));
   return replaceMarkedBlock(
     withFavicon,
     RUNTIME_BRANDING_BLOCK_START,

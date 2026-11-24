@@ -9,8 +9,8 @@ const TEST_BRAND = "Paperclip";
 const DEFAULT_BRAND = "Gnzs";
 
 /** Read one environment value at call time, so a deployment can change it. */
-function envValue(name: string): string | undefined {
-  const raw = process.env[name];
+function envValue(name: string, env: NodeJS.ProcessEnv): string | undefined {
+  const raw = env[name];
   return typeof raw === "string" && raw.trim() ? raw.trim() : undefined;
 }
 
@@ -20,10 +20,10 @@ function envValue(name: string): string | undefined {
  * The env is read on every call, never cached at module scope: a deployment
  * sets `BRAND_NAME` and every later message follows it.
  */
-export function brandName(): string {
-  const explicit = envValue("BRAND_NAME");
+export function brandName(env: NodeJS.ProcessEnv = process.env): string {
+  const explicit = envValue("BRAND_NAME", env);
   if (explicit) return explicit;
-  const testMode = process.env.NODE_ENV === "test" || Boolean(process.env.VITEST);
+  const testMode = env.NODE_ENV === "test" || Boolean(env.VITEST);
   return testMode ? TEST_BRAND : DEFAULT_BRAND;
 }
 
@@ -37,7 +37,7 @@ export function brandName(): string {
  * plain `\b` word boundary would rewrite the header prefix too, because the
  * `-` in `X-Paperclip-` is a non-word character.
  */
-export function brandText(text: string): string {
+export function brandText(text: string, env: NodeJS.ProcessEnv = process.env): string {
   if (!text.includes("Paperclip")) return text;
-  return text.replace(/(?<![-\w])Paperclip(?!\w)/g, brandName());
+  return text.replace(/(?<![-\w])Paperclip(?!\w)/g, brandName(env));
 }

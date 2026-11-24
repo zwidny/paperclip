@@ -2,6 +2,7 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { deriveAgentUrlKey, deriveProjectUrlKey, normalizeProjectUrlKey, hasNonAsciiContent } from "@paperclipai/shared";
 import type { BillingType, FinanceDirection, FinanceEventKind } from "@paperclipai/shared";
+import { i18n, t } from "../i18n";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -43,8 +44,13 @@ export function formatProjectBudget(budget: { amountCents: number; windowKind: s
   return budget.windowKind === "calendar_month_utc" ? `${amount}/mo` : amount;
 }
 
+/** Locale for Intl date formatting, following the active UI language. */
+function intlLocale(): string {
+  return i18n.language || "en-US";
+}
+
 export function formatDate(date: Date | string): string {
-  return new Date(date).toLocaleDateString("en-US", {
+  return new Date(date).toLocaleDateString(intlLocale(), {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -55,7 +61,7 @@ export function formatDateTime(
   date: Date | string,
   options: { includeSeconds?: boolean; includeYear?: boolean; includeTimeZone?: boolean } = {},
 ): string {
-  return new Date(date).toLocaleString("en-US", {
+  return new Date(date).toLocaleString(intlLocale(), {
     month: "short",
     day: "numeric",
     ...(options.includeYear === false ? {} : { year: "numeric" as const }),
@@ -67,7 +73,7 @@ export function formatDateTime(
 }
 
 export function formatShortDate(date: Date | string): string {
-  return new Date(date).toLocaleString("en-US", {
+  return new Date(date).toLocaleString(intlLocale(), {
     month: "short",
     day: "numeric",
   });
@@ -77,13 +83,19 @@ export function relativeTime(date: Date | string): string {
   const now = Date.now();
   const then = new Date(date).getTime();
   const diffSec = Math.round((now - then) / 1000);
-  if (diffSec < 60) return "just now";
+  if (diffSec < 60) return t("relativeTime.justNow", { defaultValue: "just now" });
   const diffMin = Math.round(diffSec / 60);
-  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffMin < 60) {
+    return t("relativeTime.minutesAgo", { value: diffMin, defaultValue: `${diffMin}m ago` });
+  }
   const diffHr = Math.round(diffMin / 60);
-  if (diffHr < 24) return `${diffHr}h ago`;
+  if (diffHr < 24) {
+    return t("relativeTime.hoursAgo", { value: diffHr, defaultValue: `${diffHr}h ago` });
+  }
   const diffDay = Math.round(diffHr / 24);
-  if (diffDay < 30) return `${diffDay}d ago`;
+  if (diffDay < 30) {
+    return t("relativeTime.daysAgo", { value: diffDay, defaultValue: `${diffDay}d ago` });
+  }
   return formatDate(date);
 }
 

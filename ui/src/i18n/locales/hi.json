@@ -23061,5 +23061,12 @@
   },
   "brand": {
     "name": "{{brand}}"
+  },
+  "relativeTime": {
+    "justNow": "just now",
+    "secondsAgo": "{{value}}s ago",
+    "minutesAgo": "{{value}}m ago",
+    "hoursAgo": "{{value}}h ago",
+    "daysAgo": "{{value}}d ago"
   }
 }

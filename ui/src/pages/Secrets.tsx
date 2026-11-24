@@ -112,7 +112,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { cn } from "../lib/utils";
+import { cn, relativeTime } from "../lib/utils";
 import { copyTextToClipboard } from "../lib/clipboard";
 import { useCopyAction } from "../lib/use-copy-action";
 import { PageTabBar } from "../components/PageTabBar";
@@ -311,21 +311,17 @@ function providerVaultFormFromConfig(config: CompanySecretProviderConfig): Provi
   };
 }
 
+/**
+ * Secrets row timestamps. Uses the shared, localized `relativeTime` so this page
+ * does not keep a second English-only copy; a future timestamp still shows as an
+ * absolute date, and a missing or invalid value shows a dash.
+ */
 function formatRelative(value: Date | string | null | undefined): string {
   if (!value) return "—";
   const date = typeof value === "string" ? new Date(value) : value;
   if (Number.isNaN(date.getTime())) return "—";
-  const diff = Date.now() - date.getTime();
-  if (diff < 0) return date.toLocaleString();
-  const seconds = Math.floor(diff / 1000);
-  if (seconds < 60) return `${seconds}s ago`;
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 48) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 30) return `${days}d ago`;
-  return date.toLocaleDateString();
+  if (date.getTime() > Date.now()) return date.toLocaleString();
+  return relativeTime(date);
 }
 
 function statusTextTone(status: SecretStatus) {

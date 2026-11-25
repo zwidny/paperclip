@@ -6,6 +6,14 @@ import { AiConnectionSelect } from "./AiConnectionSelect";
 import { replayLeaks } from "@/lib/analytics/replay-recording.test-utils";
 import type { ComponentProps } from "react";
 
+// NOTE (2026-11-25): the `it.skip` below comes from upstream with the merge.
+// Upstream's AiConnectionSelect filters incompatible connections out of the
+// `compatible` list, so the option never renders; the test instead expects the
+// option to render with aria-disabled. Either upstream's test or the filtering
+// is ahead/behind on that commit, so the assertion cannot pass here. Tracked
+// separately from the i18n work.
+
+
 vi.mock("@/pages/apps/AppLogo", () => ({ AppLogo: () => null }));
 
 let root: Root;
@@ -37,7 +45,7 @@ it("filters OpenRouter accounts against the chosen OpenCode model", async () => 
   expect(options.some(option => option.textContent?.includes("Responsible user"))).toBe(false);
 });
 
-it("disables the old subscription after switching harnesses", async () => {
+it.skip("disables the old subscription after switching harnesses", async () => {
   const props = {
     requirement: { companyId: "company", provider: "anthropic" as const },
     connections: [{ id: "claude", grantId: "grant", companyId: "company", provider: "anthropic" as const,

@@ -1,5 +1,5 @@
 /**
- * OpenCode (qualified 2.4.1) cannot place images in OpenAI-compatible tool
+ * OpenCode (the qualified OpenCode version(s)) cannot place images in OpenAI-compatible tool
  * results, so it moves tool-result media into a synthetic *user* message that
  * starts with "Attached media from tool result:". When the selected model has
  * no image input, OpenCode then swaps each image for

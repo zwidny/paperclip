@@ -14,6 +14,7 @@ import { nativeToolContractFingerprintForTarget, rebindNativeSessionCheckpoint }
 import { prepareNativeHeartbeatRun } from "./prepare-native-run.js";
 import { nativeRuntimeContextFixture } from "./runtime-context.test-fixture.js";
 import { nativeSha256 } from "./canonical.js";
+import { QUALIFIED_OPENCODE_RUNNER_VERSION } from "./provider-profile.js";
 
 const remoteBoundary = vi.hoisted(() => ({
   backend: vi.fn((_execution: unknown, _options: { codexTransportFactory?: (context: unknown) => unknown }) => ({})),
@@ -112,7 +113,7 @@ describeEmbeddedPostgres("legacy harness continuation without provider-home file
           opencodeProxy: "dist/cli/opencode-app-server-proxy.cjs", acpxSidecar: "dist/cli/acpx-runtime-sidecar.cjs" }).map(([key, path]) => [key, { path, sha256: digest }]));
         const payload = { compatibility: { opencode: 1, acpx: 1 }, contractDigest: digest, target: { platform: "linux", architecture: "x64" },
           runnerSourceRevision: "a".repeat(40), pins: { nodeMinimum: "24.11.0", codex: QUALIFIED_ACPX_PROFILES.codex.agentRuntimeVersion,
-            opencode: "2.4.1", acpx: QUALIFIED_ACPX_VERSION, grok: QUALIFIED_ACPX_PROFILES.grok.agentRuntimeVersion,
+            opencode: QUALIFIED_OPENCODE_RUNNER_VERSION, acpx: QUALIFIED_ACPX_VERSION, grok: QUALIFIED_ACPX_PROFILES.grok.agentRuntimeVersion,
             claudeAcp: QUALIFIED_ACPX_PROFILES.claude.agentServerVersion, codexAcp: QUALIFIED_ACPX_PROFILES.codex.agentServerVersion },
           acpxProfileDigests: Object.fromEntries(["grok", "claude", "codex"].map(agent => [agent, QUALIFIED_ACPX_PROFILES[agent as "grok" | "claude" | "codex"].commandDigest])),
           distDigest: digest, artifacts, bridgeDigest: `sha256:${createHash("sha256").update(`${digest}\n${digest}\n${digest}`).digest("hex")}` };

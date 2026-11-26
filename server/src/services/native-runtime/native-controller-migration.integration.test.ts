@@ -16,6 +16,7 @@ import { currentNativeControllerIdentity } from "./native-restart-recovery.js";
 import { createNativeControllerRecovery, resolveNativeControllerRecovery } from "./native-controller-recovery.js";
 import { resolveRemoteProviderPackAuthority } from "./remote-provider-pack-authority.js";
 import { canonicalProviderPackJson } from "./remote-provider-pack-verification.js";
+import { QUALIFIED_OPENCODE_RUNNER_VERSION } from "./provider-profile.js";
 import { createReusableLeaseHandoff } from "../environment-lease-handoff.js";
 import { remoteTerminationReceipt } from "../remote-execution-termination.js";
 import { nativeSha256 } from "./canonical.js";
@@ -72,7 +73,7 @@ describeEmbeddedPostgres.each(["volume_free_owner", "eligibility_unreadable", "a
       environmentLeaseId: f.native.environmentLeaseId, remoteCwd: "/remote/workspace", providerDigest: nativeSha256(execution.provider) };
     const payload = {
       runnerSourceRevision: "a".repeat(40), target: { platform: "linux", architecture: "x64" },
-      pins: { opencode: "2.4.1" }, artifacts: {
+      pins: { opencode: QUALIFIED_OPENCODE_RUNNER_VERSION }, artifacts: {
         nodeCommand: { path: "node", sha256: `sha256:${"1".repeat(64)}` },
         opencodeCommand: { path: "opencode", sha256: `sha256:${"2".repeat(64)}` },
       },

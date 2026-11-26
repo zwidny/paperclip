@@ -14,6 +14,7 @@ import { nativeHarnessBackupOwner, persistNativeHarnessBackup, restoreDurableNat
   verifyDurableNativeHarnessBackup } from "./native-harness-backup-storage.js";
 import { removeNativeHarnessBackup } from "./native-harness-backup-cleanup.js";
 import { canonicalProviderPackJson } from "./remote-provider-pack-verification.js";
+import { QUALIFIED_OPENCODE_RUNNER_VERSION } from "./provider-profile.js";
 
 vi.mock("node:fs/promises", async importOriginal => {
   const original = await importOriginal<typeof import("node:fs/promises")>();
@@ -86,7 +87,7 @@ describeEmbeddedPostgres("durable native backup download deadlines", () => {
       return [name, { path: name, sha256: `sha256:${createHash("sha256").update(bytes).digest("hex")}` }];
     })));
     const payload = { runnerSourceRevision: "a".repeat(40), target: { platform: "linux", architecture: "x64" },
-      pins: { opencode: "2.4.1" }, artifacts: { ...artifacts, opencodeCommand: artifacts.opencodeExecutable } };
+      pins: { opencode: QUALIFIED_OPENCODE_RUNNER_VERSION }, artifacts: { ...artifacts, opencodeCommand: artifacts.opencodeExecutable } };
     const packManifest = { schema: "paperclip-runner/remote-provider-pack/v1", payload,
       digest: `sha256:${createHash("sha256").update(canonicalProviderPackJson(payload)).digest("hex")}` };
     const launchRoot = `/home/daytona/.paperclip-runtime/paperclip-runner/provider-artifacts/${packManifest.digest.slice(7)}`;

@@ -10,6 +10,7 @@ import { gzipSync, zstdCompressSync } from "node:zlib";
 import tar from "tar-stream";
 import { afterEach, expect, it, vi } from "vitest";
 import { canonicalProviderPackJson } from "./remote-provider-pack-verification.js";
+import { QUALIFIED_OPENCODE_RUNNER_VERSION } from "./provider-profile.js";
 import { uploadVerifiedProviderPack } from "./provider-pack-upload.js";
 import * as archiveOwner from "./provider-pack-archive.js";
 import { resolveProviderPackUploadSource } from "./retained-provider-pack-source.js";
@@ -48,7 +49,7 @@ async function fixture(options: { wrongCode?: boolean; unsafeOverlay?: boolean; 
     const pack = path.join(root, name);
     await fs.mkdir(path.join(pack, "bin"), { recursive: true });
     const artifact = { path: "bin/tool", sha256: `sha256:${hash(tool)}` };
-    const payload = { pins: { opencode: "2.4.1" }, target: { platform: "linux", architecture: "x64" }, runnerSourceRevision: source,
+    const payload = { pins: { opencode: QUALIFIED_OPENCODE_RUNNER_VERSION }, target: { platform: "linux", architecture: "x64" }, runnerSourceRevision: source,
       ...(options.runnerImage ? { runnerInputsDigest: runnerInputs } : {}),
       contractDigest: `sha256:${hash(tool)}`, artifacts: { nodeCommand: artifact, opencodeCommand: artifact, opencodeProxy: artifact } };
     const manifest = { schema: "paperclip-runner/remote-provider-pack/v1", payload, digest: `sha256:${hash(canonicalProviderPackJson(payload))}` };

@@ -1,4 +1,5 @@
 import { describeRunnerdMuseDriver } from "../drivers/muse/runnerd-muse-driver.js";
+import { SELECTED_OPENCODE_VERSION } from "../drivers/opencode/runtime.js";
 import { createCodexTaskEnvelope } from "../contracts/codex.js";
 import { ACPX_CAPABILITY_PROFILES } from "../drivers/acpx/capability-profiles.js";
 import { QUALIFIED_ACPX_VERSION } from "../drivers/acpx/generated-profiles.js";
@@ -84,7 +85,7 @@ function transportDriverIdentity(input: NativeExecutionInput): {
       return {
         kind: "opencode_server",
         displayName: "OpenCode server",
-        version: "2.4.1",
+        version: SELECTED_OPENCODE_VERSION,
       };
     case "claude_managed":
       return {

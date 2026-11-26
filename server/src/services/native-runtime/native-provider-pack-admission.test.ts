@@ -5,13 +5,14 @@ import { agents, companies, createDb, heartbeatRuns, issues, nativeRunFinalizati
 import type { NativeSession } from "../../vendor/paperclip-runner/index.js";
 import { startEmbeddedPostgresTestDatabase } from "../../__tests__/helpers/embedded-postgres.js";
 import { canonicalProviderPackJson, type ProviderPackIdentity } from "./remote-provider-pack-verification.js";
+import { QUALIFIED_OPENCODE_RUNNER_VERSION } from "./provider-profile.js";
 import { admittedNativeProviderPack, nativeProviderPackAdmissionPending, prepareNativeProviderPackAdmission, recordNativeProviderPackAdmission,
   rememberAdmittedNativeProviderPack, rememberRecoveredNativeProviderPack } from "./native-provider-pack-admission.js";
 
 const hash = (value: string) => `sha256:${createHash("sha256").update(value).digest("hex")}`;
 function manifest(revision = "a".repeat(40)): ProviderPackIdentity {
   const artifact = { path: "/private/provider-path", sha256: hash(revision) };
-  const payload = { runnerSourceRevision: revision, pins: { opencode: "2.4.1" },
+  const payload = { runnerSourceRevision: revision, pins: { opencode: QUALIFIED_OPENCODE_RUNNER_VERSION },
     target: { platform: "linux", architecture: "x64" },
     artifacts: { nodeCommand: artifact, opencodeCommand: artifact, opencodeProxy: artifact } };
   return { schema: "paperclip-runner/remote-provider-pack/v1", payload, digest: hash(canonicalProviderPackJson(payload)) };

@@ -115,7 +115,7 @@ import * as issueServiceModule from "../issues.js";
 import * as runEventWriter from "../heartbeat-run-events.js";
 import { NativePermissionDeclinedError } from "./native-permission-decline.js";
 import { NativeExecutionContext } from "./native-execution-context.js";
-import { resolvePaperclipRunnerNativeProviderInput } from "./provider-profile.js";
+import { QUALIFIED_OPENCODE_RUNNER_VERSION, resolvePaperclipRunnerNativeProviderInput } from "./provider-profile.js";
 import {
   createNativeHarnessBackupStamp,
   verifyNativeHarnessBackupStamp,
@@ -2988,7 +2988,7 @@ describe("remote provider pack manifest", () => {
       compatibility: { opencode: 1, acpx: 1 }, contractDigest: digest,
       target: { platform: "linux", architecture }, runnerSourceRevision: "a".repeat(40),
       pins: { nodeMinimum: "24.11.0", codex: QUALIFIED_ACPX_PROFILES.codex.agentRuntimeVersion,
-        opencode: "2.4.1", acpx: "0.22.0", grok: QUALIFIED_ACPX_PROFILES.grok.agentRuntimeVersion,
+        opencode: QUALIFIED_OPENCODE_RUNNER_VERSION, acpx: "0.22.0", grok: QUALIFIED_ACPX_PROFILES.grok.agentRuntimeVersion,
         claudeAcp: QUALIFIED_ACPX_PROFILES.claude.agentServerVersion, codexAcp: QUALIFIED_ACPX_PROFILES.codex.agentServerVersion },
       acpxProfileDigests: Object.fromEntries(["grok", "claude", "codex"].map(agent =>
         [agent, QUALIFIED_ACPX_PROFILES[agent as "grok" | "claude" | "codex"].commandDigest])),
@@ -3358,7 +3358,7 @@ describe("remote provider pack manifest", () => {
             durableSessionCapabilities: ["unlimited_runtime", "connection_lease_renewal"], prpTransportModes: ["listen_ws"],
             providerPacks: [{ root: "/opt/paperclip-runner/provider-pack", manifest: admitted, immutable: true }],
           }) };
-          if (request.args[0] === "-e" || request.args[0] === "--version") return { exitCode: 0, timedOut: false, stderr: "", stdout: request.args[0] === "--version" ? "2.4.1" : "" };
+          if (request.args[0] === "-e" || request.args[0] === "--version") return { exitCode: 0, timedOut: false, stderr: "", stdout: request.args[0] === "--version" ? QUALIFIED_OPENCODE_RUNNER_VERSION : "" };
           const script = request.args[1];
           const stdout = script.includes("base64") ? Buffer.from(JSON.stringify({ ...identity, lifecycle: "running" })).toString("base64")
             : script.includes("cat --") ? `nonce\n123\n2026-09-19T10:00:00.000Z\n${identity.runnerInstanceId}\nlinux:abcd-1234:100\n` : "";
@@ -3543,7 +3543,7 @@ describe("remote provider pack manifest", () => {
       pins: {
         nodeMinimum: "24.11.0",
         codex: "0.170.0",
-        opencode: "2.4.1",
+        opencode: QUALIFIED_OPENCODE_RUNNER_VERSION,
         acpx: "0.22.0",
         claudeAcp: "0.73.0",
         codexAcp: "1.6.2",
@@ -3603,7 +3603,7 @@ describe("remote provider pack manifest", () => {
       );
     await writeManifest();
     expect(readRemoteProviderPackManifest(root).payload.pins.opencode).toBe(
-      "2.4.1",
+      QUALIFIED_OPENCODE_RUNNER_VERSION,
     );
     // Both execution and setup Test consume this same normal installer. Reuse
     // the complete controller fixture here instead of inventing a thin pack.
@@ -3624,7 +3624,7 @@ describe("remote provider pack manifest", () => {
         const valid = mode === "staged" || mode === "preinstalled" && packRoot === "/opt/paperclip-runner/provider-pack"
           || transferred && mode !== "failed-final";
         return { pid: null, startedAt: null, exitCode: verification && !valid ? 1 : 0, timedOut: false, signal: null,
-          stdout: command.args?.[0] === "--version" ? "2.4.1\n"
+          stdout: command.args?.[0] === "--version" ? `${QUALIFIED_OPENCODE_RUNNER_VERSION}\n`
             : command.args?.some(value => value.includes("for candidate in")) ? "/opt/paperclip-runner/provider-pack\n" : "",
           stderr: verification && !valid ? "manifest mismatch" : "" };
       });
@@ -8505,7 +8505,7 @@ describe("native startup cancellation fence", () => {
       productionLock: "pnpm-lock.yaml", opencodeCommand: "node_modules/.bin/opencode", opencodeExecutable: "node_modules/opencode-ai/bin/opencode.exe",
       opencodeProxy: "dist/cli/opencode-app-server-proxy.cjs", acpxSidecar: "dist/cli/acpx-runtime-sidecar.cjs" }).map(([name, path]) => [name, { path, sha256: sha }]));
     const payload = { compatibility: { opencode: 1, acpx: 1 }, contractDigest: sha, target: { platform: "linux", architecture: "x64" }, runnerSourceRevision: "a".repeat(40),
-      pins: { nodeMinimum: "24.11.0", codex: QUALIFIED_ACPX_PROFILES.codex.agentRuntimeVersion, opencode: "2.4.1", acpx: "0.22.0",
+      pins: { nodeMinimum: "24.11.0", codex: QUALIFIED_ACPX_PROFILES.codex.agentRuntimeVersion, opencode: QUALIFIED_OPENCODE_RUNNER_VERSION, acpx: "0.22.0",
         grok: QUALIFIED_ACPX_PROFILES.grok.agentRuntimeVersion, claudeAcp: QUALIFIED_ACPX_PROFILES.claude.agentServerVersion, codexAcp: QUALIFIED_ACPX_PROFILES.codex.agentServerVersion },
       acpxProfileDigests: Object.fromEntries(["grok", "claude", "codex"].map(agent => [agent, QUALIFIED_ACPX_PROFILES[agent as "grok" | "claude" | "codex"].commandDigest])),
       artifacts, distDigest: sha, bridgeDigest: "sha256:" + createHash("sha256").update(sha + "\n" + sha + "\n" + sha).digest("hex") };
@@ -10845,7 +10845,7 @@ describe("native session execution lease fencing", () => {
     const session = { identity: () => identity } as never;
     const artifact = { path: "/fixture/provider", sha256: "sha256:" + "a".repeat(64) };
     const payload = { runnerSourceRevision: "b".repeat(40), target: { platform: "linux", architecture: "x64" },
-      pins: { opencode: "2.4.1" }, artifacts: { nodeCommand: artifact, opencodeCommand: artifact, opencodeProxy: artifact } };
+      pins: { opencode: QUALIFIED_OPENCODE_RUNNER_VERSION }, artifacts: { nodeCommand: artifact, opencodeCommand: artifact, opencodeProxy: artifact } };
     expect(rememberAdmittedNativeProviderPack(session, { identity, runnerInstanceId: "actual-runner", environmentLeaseId: "runner-scope",
       manifest: { schema: "paperclip-runner/remote-provider-pack/v1", payload,
         digest: "sha256:" + createHash("sha256").update(canonicalProviderPackJson(payload)).digest("hex") } })).toBe(true);
@@ -18856,7 +18856,7 @@ describe("runnerd provider runtime wiring", () => {
       const payload = { compatibility: { opencode: 1, acpx: 1 }, contractDigest: digest,
         target: { platform: "linux", architecture: "x64" }, runnerSourceRevision: "a".repeat(40),
         pins: { nodeMinimum: "24.11.0", codex: QUALIFIED_ACPX_PROFILES.codex.agentRuntimeVersion,
-          opencode: "2.4.1", acpx: "0.22.0", grok: QUALIFIED_ACPX_PROFILES.grok.agentRuntimeVersion,
+          opencode: QUALIFIED_OPENCODE_RUNNER_VERSION, acpx: "0.22.0", grok: QUALIFIED_ACPX_PROFILES.grok.agentRuntimeVersion,
           claudeAcp: QUALIFIED_ACPX_PROFILES.claude.agentServerVersion, codexAcp: QUALIFIED_ACPX_PROFILES.codex.agentServerVersion },
         acpxProfileDigests: Object.fromEntries(["grok", "claude", "codex"].map(agent =>
           [agent, QUALIFIED_ACPX_PROFILES[agent as "grok" | "claude" | "codex"].commandDigest])),
@@ -18971,7 +18971,7 @@ describe("runnerd provider runtime wiring", () => {
       const payload = { compatibility: { opencode: 1, acpx: 1 }, contractDigest: digest,
         target: { platform: "linux", architecture: "x64" }, runnerSourceRevision: "a".repeat(40),
         pins: { nodeMinimum: "24.11.0", codex: QUALIFIED_ACPX_PROFILES.codex.agentRuntimeVersion,
-          opencode: "2.4.1", acpx: "0.22.0", grok: QUALIFIED_ACPX_PROFILES.grok.agentRuntimeVersion,
+          opencode: QUALIFIED_OPENCODE_RUNNER_VERSION, acpx: "0.22.0", grok: QUALIFIED_ACPX_PROFILES.grok.agentRuntimeVersion,
           claudeAcp: QUALIFIED_ACPX_PROFILES.claude.agentServerVersion, codexAcp: QUALIFIED_ACPX_PROFILES.codex.agentServerVersion },
         acpxProfileDigests: Object.fromEntries(["grok", "claude", "codex"].map(agent =>
           [agent, QUALIFIED_ACPX_PROFILES[agent as "grok" | "claude" | "codex"].commandDigest])),

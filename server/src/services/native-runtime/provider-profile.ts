@@ -29,7 +29,45 @@ import {
 } from "@paperclipai/adapter-claude-local/server";
 import { parseNativeCursorCloudConfig, type NativeCursorCloudConfig } from "../../vendor/paperclip-runner/index.js";
 
-export const QUALIFIED_OPENCODE_RUNNER_VERSION = "2.4.1" as const;
+/**
+ * OpenCode v1 (`opencode-ai`) and v2 (`@opencode/cli`) expose incompatible
+ * server APIs. The Paperclip Runner driver is written against the v1 API, so
+ * v1 remains the default; v2 is kept installed and selectable behind
+ * `PAPERCLIP_OPENCODE_RUNTIME=v2` until the driver is ported. See
+ * `doc/DEPLOYING-OFFLINE-RUNNERD.md`.
+ */
+export type PaperclipOpenCodeRuntime = "v1" | "v2";
+
+export const OPENCODE_RUNTIME_PACKAGES = {
+  v1: { packageName: "opencode-ai", version: "1.18.34" },
+  v2: { packageName: "@opencode/cli", version: "2.4.1" },
+} as const satisfies Record<
+  PaperclipOpenCodeRuntime,
+  { packageName: string; version: string }
+>;
+
+export function resolvePaperclipOpenCodeRuntime(
+  env: NodeJS.ProcessEnv = process.env,
+): PaperclipOpenCodeRuntime {
+  return env.PAPERCLIP_OPENCODE_RUNTIME === "v2" ? "v2" : "v1";
+}
+
+export function resolvePaperclipOpenCodeRuntimePackage(
+  env: NodeJS.ProcessEnv = process.env,
+): (typeof OPENCODE_RUNTIME_PACKAGES)[PaperclipOpenCodeRuntime] {
+  return OPENCODE_RUNTIME_PACKAGES[resolvePaperclipOpenCodeRuntime(env)];
+}
+
+/** npm install spec for the selected runtime, e.g. `opencode-ai@1.18.34`. */
+export function resolvePaperclipOpenCodeRuntimeInstallSpec(
+  env: NodeJS.ProcessEnv = process.env,
+): string {
+  const runtime = resolvePaperclipOpenCodeRuntimePackage(env);
+  return `${runtime.packageName}@${runtime.version}`;
+}
+
+/** Version of the runtime selected at module load, for display and defaults. */
+export const QUALIFIED_OPENCODE_RUNNER_VERSION = resolvePaperclipOpenCodeRuntimePackage().version;
 export const DEFAULT_OPENCODE_RUNNER_MODEL =
   "openrouter/deepseek/deepseek-v4-flash-0731" as const;
 export const CLAUDE_MANAGED_BETA_VERSION = "managed-agents-2026-04-01" as const;

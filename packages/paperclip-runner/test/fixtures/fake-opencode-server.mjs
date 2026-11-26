@@ -359,7 +359,11 @@ const server = createServer(async (request, response) => {
   if (request.headers.authorization !== expectedAuth)
     return json(response, 401, { error: "unauthorized" });
   if (request.url === "/global/health")
-    return json(response, 200, { healthy: true, version: "2.4.1" });
+    return json(response, 200, {
+      healthy: true,
+      version:
+        process.env.PAPERCLIP_OPENCODE_RUNTIME === "v2" ? "2.4.1" : "1.18.34",
+    });
   if (request.url === "/event") {
     eventConnections += 1;
     response.writeHead(200, {

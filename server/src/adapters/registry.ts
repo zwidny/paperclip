@@ -147,7 +147,8 @@ import {
   DEFAULT_OPENCODE_RUNNER_MODEL,
   PaperclipRunnerProviderProfileError,
   DEFAULT_ACPX_RUNNER_MODELS,
-  QUALIFIED_OPENCODE_RUNNER_VERSION,
+  resolvePaperclipOpenCodeRuntimeInstallSpec,
+  resolvePaperclipOpenCodeRuntimePackage,
   resolvePaperclipRunnerProviderProfile,
 } from "../services/native-runtime/provider-profile.js";
 
@@ -642,7 +643,7 @@ const paperclipRunnerAdapter: ServerAdapterModule = {
       ? buildNpmRuntimeCommandSpec(
           config,
           "opencode",
-          `@opencode/cli@${QUALIFIED_OPENCODE_RUNNER_VERSION}`,
+          resolvePaperclipOpenCodeRuntimeInstallSpec(),
         )
       : buildNpmRuntimeCommandSpec(config, "codex", "@openai/codex@0.170.0"),
   agentConfigurationDoc:
@@ -656,7 +657,7 @@ const paperclipRunnerAdapter: ServerAdapterModule = {
         default: "codex",
         options: [
           { value: "codex", label: "Codex" },
-          { value: "opencode", label: `OpenCode ${QUALIFIED_OPENCODE_RUNNER_VERSION}` },
+          { value: "opencode", label: `OpenCode ${resolvePaperclipOpenCodeRuntimePackage().version}` },
           { value: "claude_managed", label: "Claude Managed" },
           { value: "aws_agentcore", label: "AWS AgentCore" },
           { value: "acpx", label: "ACP agents" },

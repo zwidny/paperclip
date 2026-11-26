@@ -13,6 +13,7 @@ import { createStorageService } from "../../storage/service.js";
 import { nativeHarnessBackupOwner, persistNativeHarnessBackup, restoreDurableNativeHarnessBackup } from "./native-harness-backup-storage.js";
 import { removeNativeHarnessBackup } from "./native-harness-backup-cleanup.js";
 import { canonicalProviderPackJson } from "./remote-provider-pack-verification.js";
+import { QUALIFIED_OPENCODE_RUNNER_VERSION } from "./provider-profile.js";
 
 // Durable harness backups against an S3 endpoint that throttles requests.
 describeEmbeddedPostgres("durable native provider backups under an object-storage request-rate limit", () => {
@@ -55,7 +56,7 @@ describeEmbeddedPostgres("durable native provider backups under an object-storag
       return [name, { path: name, sha256: `sha256:${createHash("sha256").update(bytes).digest("hex")}` }];
     })));
     const payload = { runnerSourceRevision: "a".repeat(40), target: { platform: "linux", architecture: "x64" },
-      pins: { opencode: "2.4.1" }, artifacts: { ...artifacts, opencodeCommand: artifacts.opencodeExecutable } };
+      pins: { opencode: QUALIFIED_OPENCODE_RUNNER_VERSION }, artifacts: { ...artifacts, opencodeCommand: artifacts.opencodeExecutable } };
     const manifest = { schema: "paperclip-runner/remote-provider-pack/v1", payload,
       digest: `sha256:${createHash("sha256").update(canonicalProviderPackJson(payload)).digest("hex")}` };
     const launchRoot = `/home/daytona/.paperclip-runtime/paperclip-runner/provider-artifacts/${manifest.digest.slice(7)}`;

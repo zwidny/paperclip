@@ -1,3 +1,4 @@
+import { SELECTED_OPENCODE_VERSION } from "../drivers/opencode/runtime.js";
 import { QUALIFIED_ACPX_PROFILES, resolveQualifiedAcpxProfile } from "../drivers/acpx/qualified-profiles.js";
 import { mkdtempSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -281,7 +282,7 @@ describe("native backend factory", () => {
     await expect(backend.descriptor()).resolves.toMatchObject({
       kind: "runner",
       name: "opencode_server",
-      version: "2.4.1",
+      version: SELECTED_OPENCODE_VERSION,
       capabilities: {
         steering: false,
         resume: true,
@@ -749,7 +750,7 @@ describe("native backend factory", () => {
     await expect(backend.descriptor()).resolves.toMatchObject({
       kind: "runner",
       name: "opencode_server",
-      version: "2.4.1",
+      version: SELECTED_OPENCODE_VERSION,
       capabilities: {
         resume: true,
         interruption: true,

@@ -1,3 +1,4 @@
+import { SELECTED_OPENCODE_VERSION } from "../drivers/opencode/runtime.js";
 import { resolveQualifiedAcpxProfile } from "../drivers/acpx/qualified-profiles.js";
 import { describe, expect, it, onTestFinished, vi } from "vitest";
 import { createHash } from "node:crypto";
@@ -940,7 +941,7 @@ describe("Capability live runnerd and Codex session", () => {
     expect(session.snapshot().config).toMatchObject({
       provider: "opencode",
       driver: "opencode_server",
-      providerVersion: "2.4.1",
+      providerVersion: SELECTED_OPENCODE_VERSION,
       requestedModel: "openrouter/deepseek/deepseek-v4-flash-0731",
     });
     await service.shutdown(session.id);

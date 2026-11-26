@@ -1,5 +1,6 @@
 import { parseAcpxCandidateAdmission } from "../drivers/acpx/candidate-admission.js";
 import { ACPX_CAPABILITY_PROFILES } from "../drivers/acpx/capability-profiles.js";
+import { SELECTED_OPENCODE_VERSION } from "../drivers/opencode/runtime.js";
 import { resolvePiThinkingLevel } from "../drivers/acpx/pi-thinking.js";
 import { normalizeProviderNotice } from "../drivers/provider-notices.js";
 import { liveRunResultFeedback } from "./run-result-feedback.js";
@@ -977,7 +978,7 @@ export class CapabilityLiveSessionService {
               ? "aws_agentcore_harness_api"
           : input.provider === "acpx" ? "acpx_runtime" : "codex_app_server",
         providerVersion: input.provider === "opencode"
-          ? "2.4.1"
+          ? SELECTED_OPENCODE_VERSION
           : input.provider === "claude_managed"
             ? input.managedProfile!.agentVersion
             : input.provider === "aws_agentcore"

@@ -10,6 +10,7 @@ import type {
   PersistedHarnessSession,
 } from "../contracts/harness-driver.js";
 import { OpenCodeServerDriver } from "../drivers/opencode/opencode-server-driver.js";
+import { SELECTED_OPENCODE_VERSION } from "../drivers/opencode/runtime.js";
 import { parseNativeRuntimeContext } from "../contracts/runtime-context.js";
 import {
   openCodeProxyCompletionContract,
@@ -355,7 +356,7 @@ async function handle(message: RpcMessage): Promise<void> {
     case "initialize":
       result = {
         user: { sessionId: "opencode" },
-        serverInfo: { name: "opencode", version: "2.4.1" },
+        serverInfo: { name: "opencode", version: SELECTED_OPENCODE_VERSION },
       };
       break;
     case "thread/start":

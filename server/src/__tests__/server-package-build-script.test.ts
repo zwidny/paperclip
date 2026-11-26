@@ -159,11 +159,14 @@ describe("server package build script", () => {
       .toBeGreaterThan(steps.indexOf("pnpm run build:typescript"));
   });
 
-  it("ships the pinned OpenCode dependency resolved by the vendored Runner", () => {
+  it("ships both pinned OpenCode dependencies resolved by the vendored Runner", () => {
     const server = JSON.parse(readFileSync(packageJsonPath, "utf8"));
     const runner = JSON.parse(readFileSync(new URL(
       "../../../packages/paperclip-runner/package.json", import.meta.url,
     ), "utf8"));
+    // OpenCode v1 is the default runtime; v2 is kept installed behind the switch.
+    expect(server.dependencies["opencode-ai"]).toBe("1.18.34");
+    expect(server.dependencies["opencode-ai"]).toBe(runner.dependencies["opencode-ai"]);
     // createRequire resolution is dynamic and is not covered by the import scan.
     expect(server.dependencies["@opencode/cli"]).toBe("2.4.1");
     expect(server.dependencies["@opencode/cli"]).toBe(runner.dependencies["@opencode/cli"]);

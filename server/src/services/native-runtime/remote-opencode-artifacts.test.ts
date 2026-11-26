@@ -24,6 +24,7 @@ import {
   canonicalProviderPackJson,
   type ProviderPackIdentity,
 } from "./remote-provider-pack-verification.js";
+import { QUALIFIED_OPENCODE_RUNNER_VERSION } from "./provider-profile.js";
 import type { NativeProviderArtifactReceipt } from "./native-provider-artifacts.js";
 
 const exec = promisify(execFile),
@@ -59,7 +60,7 @@ async function fixture() {
   const payload = {
     artifacts,
     target: { platform: "linux", architecture: "x64" },
-    pins: { opencode: "2.4.1" },
+    pins: { opencode: QUALIFIED_OPENCODE_RUNNER_VERSION },
     runnerSourceRevision: "a".repeat(40),
   };
   const manifest = {

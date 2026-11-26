@@ -36,6 +36,7 @@ import { localIntegrityBoundaryGolden } from "../../../test-support/local-integr
 import type { PrpEvent } from "../../protocol/replay-contract.js";
 import {
   OpenCodeServerDriver,
+  QUALIFIED_OPENCODE_VERSION,
   openCodeServerDriverInternals,
 } from "./opencode-server-driver.js";
 
@@ -704,7 +705,7 @@ describe("OpenCodeServerDriver", () => {
           headers: { "Content-Type": "application/json" },
         });
       if (url.pathname === "/global/health")
-        return json({ healthy: true, version: "2.4.1" });
+        return json({ healthy: true, version: QUALIFIED_OPENCODE_VERSION });
       if (url.pathname === "/event") {
         return new Response(
           new ReadableStream<Uint8Array>({
@@ -1509,7 +1510,7 @@ describe("OpenCodeServerDriver", () => {
       output: 2,
       costUsd: 0.001,
       provider: "openrouter",
-      driverVersion: "2.4.1",
+      driverVersion: QUALIFIED_OPENCODE_VERSION,
     });
     await session.interrupt?.({ turnId: turn.turnId });
     const snapshot = await session.snapshot();

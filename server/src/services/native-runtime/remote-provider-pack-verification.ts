@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { posix } from "node:path";
 import type { CommandManagedRuntimeRunner } from "@paperclipai/adapter-utils/command-managed-runtime";
 import { runRemoteProviderVerification } from "./remote-provider-pack.js";
+import { resolvePaperclipOpenCodeRuntimePackage } from "./provider-profile.js";
 
 export function canonicalProviderPackJson(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonicalProviderPackJson).join(",")}]`;
@@ -177,6 +178,9 @@ export async function verifyRemoteProviderPack<T extends ProviderPackIdentity>({
     canonicalProviderPackJson(manifest),
     "utf8",
   ).toString("base64");
+  // The pack ships the runtime selected by PAPERCLIP_OPENCODE_RUNTIME, so the
+  // package-version check must look at that runtime's package name.
+  const openCodePackageName = resolvePaperclipOpenCodeRuntimePackage().packageName;
   const verifyScript = [
     ...(sealKey ? [PROVIDER_PACK_IDENTITY_FUNCTION, "let identityBefore=null;try{identityBefore=packIdentity(process.argv[1])}catch{}"] : []),
     "const fs=require('node:fs')",
@@ -204,7 +208,7 @@ export async function verifyRemoteProviderPack<T extends ProviderPackIdentity>({
     "if(version[0]<minimum[0]||(version[0]===minimum[0]&&(version[1]<minimum[1]||(version[1]===minimum[1]&&version[2]<minimum[2]))))fail('node_version','Node version incompatible')",
     "if(process.platform!==manifest.payload.target.platform||process.arch!==manifest.payload.target.architecture)fail('target','provider pack target mismatch')",
     "const packageVersion=(pkg)=>{try{return JSON.parse(fs.readFileSync(path.join(root,'node_modules',...pkg.split('/'),'package.json'),'utf8')).version}catch{return null}}",
-    "const expectedPackages={acpx:manifest.payload.pins.acpx,'@agentclientprotocol/claude-agent-acp':manifest.payload.pins.claudeAcp,'@agentclientprotocol/codex-acp':manifest.payload.pins.codexAcp,'@opencode/cli':manifest.payload.pins.opencode}",
+    `const expectedPackages={acpx:manifest.payload.pins.acpx,'@agentclientprotocol/claude-agent-acp':manifest.payload.pins.claudeAcp,'@agentclientprotocol/codex-acp':manifest.payload.pins.codexAcp,${JSON.stringify(openCodePackageName)}:manifest.payload.pins.opencode}`,
     "for(const [pkg,version] of Object.entries(expectedPackages))if(packageVersion(pkg)!==version)fail('package_version:'+pkg,pkg+' version mismatch')",
     "if(provenance)process.stdout.write('\\npaperclip-pack-manifest='+Buffer.from(canonical(manifest)).toString('base64')+'\\n')",
     // Seal only when no entry changed while it was being hashed.

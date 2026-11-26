@@ -24,6 +24,11 @@ import { pipeline } from "node:stream/promises";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 
 import { parseOpenCodeReasoningMode, type OpenCodeReasoningMode } from "./reasoning-mode.js";
+import {
+  openCodeRuntimeDescription,
+  SELECTED_OPENCODE_VERSION,
+  type OpenCodeRuntimeVariant,
+} from "./runtime.js";
 import { attributeUnsupportedToolMedia } from "./tool-media-attribution.js";
 import { createUpstreamServedTap, type UpstreamServed } from "./upstream-served.js";
 import { openCodeProviderFailure } from "./provider-failure.js";
@@ -103,35 +108,48 @@ import {
 } from "../runtime-context-materializer.js";
 
 export const OPENCODE_SERVER_DRIVER_KIND = "opencode_server" as const;
-export const QUALIFIED_OPENCODE_VERSION = "2.4.1" as const;
+/**
+ * Version of the OpenCode runtime selected for this process (v1 by default,
+ * v2 with `PAPERCLIP_OPENCODE_RUNTIME=v2`). The descriptor and the health
+ * check below both compare against this exact version, so a v1 process must
+ * never accept a v2 health payload (or the reverse).
+ */
+export const QUALIFIED_OPENCODE_VERSION: string = SELECTED_OPENCODE_VERSION;
 export const QUALIFIED_OPENCODE_MODEL =
   "openrouter/deepseek/deepseek-v4-flash-0731" as const;
 
-/** Resolve a declared, pinned native dependency without PATH or install fallback. */
+/**
+ * Resolve the executable of the selected runtime's pinned platform package
+ * without PATH or install fallback.
+ */
 export function resolvePinnedOpenCodeCommand(
   issuer: string | URL = import.meta.url,
-  target: { platform?: string; architecture?: string } = {},
+  target: {
+    platform?: string;
+    architecture?: string;
+    runtime?: OpenCodeRuntimeVariant;
+  } = {},
 ): string {
   try {
     const platform = target.platform ?? process.platform;
     const architecture = target.architecture ?? process.arch;
-    const packageNames: Record<string, string[]> = {
-      "linux-x64": ["@opencode/cli-linux-x64-baseline", "@opencode/cli-linux-x64"],
-      "darwin-arm64": ["@opencode/cli-darwin-arm64"],
-      "darwin-x64": ["@opencode/cli-darwin-x64-baseline", "@opencode/cli-darwin-x64"],
-    };
-    const candidates = packageNames[`${platform}-${architecture}`];
+    const runtime = openCodeRuntimeDescription(target.runtime);
+    const candidates = runtime.platformPackages[`${platform}-${architecture}`];
     if (!candidates) {
       throw new Error("OpenCode native target is not qualified");
     }
-    const manifestPath = realpathSync(createRequire(issuer).resolve("@opencode/cli/package.json"));
+    const manifestPath = realpathSync(
+      createRequire(issuer).resolve(`${runtime.packageName}/package.json`),
+    );
     const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
-    if (manifest.name !== "@opencode/cli" || manifest.version !== QUALIFIED_OPENCODE_VERSION) {
-      throw new Error(`OpenCode package version mismatch: expected @opencode/cli@${QUALIFIED_OPENCODE_VERSION}`);
+    if (manifest.name !== runtime.packageName || manifest.version !== runtime.version) {
+      throw new Error(
+        `OpenCode package version mismatch: expected ${runtime.packageName}@${runtime.version}`,
+      );
     }
     const dependencyRequire = createRequire(manifestPath);
     for (const name of candidates) {
-      if (manifest.optionalDependencies?.[name] !== QUALIFIED_OPENCODE_VERSION) {
+      if (manifest.optionalDependencies?.[name] !== runtime.version) {
         throw new Error("OpenCode platform dependency does not match its qualified version");
       }
       let platformManifest: string;
@@ -144,13 +162,13 @@ export function resolvePinnedOpenCodeCommand(
         throw error;
       }
       const metadata = JSON.parse(readFileSync(platformManifest, "utf8"));
-      if (metadata.name !== name || metadata.version !== QUALIFIED_OPENCODE_VERSION
+      if (metadata.name !== name || metadata.version !== runtime.version
         || !Array.isArray(metadata.os) || !metadata.os.includes(platform)
         || !Array.isArray(metadata.cpu) || !metadata.cpu.includes(architecture)) {
         throw new Error("OpenCode installed platform artifact identity mismatch");
       }
       const root = dirname(platformManifest);
-      const executable = realpathSync(resolve(root, "bin/opencode"));
+      const executable = resolvePlatformExecutable(root, runtime.executableNames);
       const inside = relative(root, executable);
       if (!inside || inside === ".." || inside.startsWith(`..${sep}`) || isAbsolute(inside)) {
         throw new Error("OpenCode executable escapes its qualified platform package");
@@ -168,6 +186,42 @@ export function resolvePinnedOpenCodeCommand(
       { cause: error },
     );
   }
+}
+
+/**
+ * Real path of the first executable name the platform package actually ships.
+ * A missing candidate falls through; an existing but invalid one is returned
+ * so the caller's containment/file/executable checks fail closed on it.
+ */
+function resolvePlatformExecutable(
+  root: string,
+  executableNames: readonly string[],
+): string {
+  let missing: unknown;
+  for (const name of executableNames) {
+    try {
+      return realpathSync(resolve(root, name));
+    } catch (error) {
+      if (["MODULE_NOT_FOUND", "ENOENT"].includes((error as NodeJS.ErrnoException).code ?? "")) {
+        missing = error;
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw new Error(
+    `OpenCode executable is missing from its qualified platform package (${executableNames.join(", ")})`,
+    { cause: missing },
+  );
+}
+
+/** Version mismatch message for a health payload, or null when it matches. */
+export function qualifiedOpenCodeVersionMismatch(version: string): string | null {
+  if (!/^\d+\.\d+\.\d+$/.test(version))
+    return "OpenCode health response omitted a semantic version";
+  if (compareVersion(version, QUALIFIED_OPENCODE_VERSION) !== 0)
+    return `OpenCode ${version} is not the question-conformance-qualified ${QUALIFIED_OPENCODE_VERSION}`;
+  return null;
 }
 
 type DynamicToolHandler = (call: {
@@ -2992,17 +3046,8 @@ async function startRuntime(input: {
       input.trace,
     );
     const version = text(record(health).version);
-    if (!/^\d+\.\d+\.\d+$/.test(version))
-      throw new Error("OpenCode health response omitted a semantic version");
-    const qualifiedComparison = compareVersion(
-      version,
-      QUALIFIED_OPENCODE_VERSION,
-    );
-    if (qualifiedComparison !== 0) {
-      throw new Error(
-        `OpenCode ${version} is not the question-conformance-qualified ${QUALIFIED_OPENCODE_VERSION}`,
-      );
-    }
+    const versionMismatch = qualifiedOpenCodeVersionMismatch(version);
+    if (versionMismatch) throw new Error(versionMismatch);
     return {
       baseUrl,
       authHeader,
@@ -3714,7 +3759,11 @@ async function openCodeEventStreamFailure(
   return { kind: "stream_error" };
 }
 
-export const openCodeServerDriverInternals = { parseSse, openCodeEventStreamFailure };
+export const openCodeServerDriverInternals = {
+  parseSse,
+  openCodeEventStreamFailure,
+  qualifiedOpenCodeVersionMismatch,
+};
 
 class AsyncQueue<T> implements AsyncIterable<T> {
   #items: T[] = [];

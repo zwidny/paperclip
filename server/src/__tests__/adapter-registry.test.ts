@@ -409,7 +409,7 @@ describe("server adapter registry", () => {
     const expectedGeminiInstall = `if ! command -v 'gemini' >/dev/null 2>&1; then ${buildSandboxNpmInstallCommand("@google/gemini-cli")}; fi`;
     const expectedOpenCodeInstall = `if ! command -v 'opencode' >/dev/null 2>&1; then ${buildSandboxNpmInstallCommand("@opencode/cli")}; fi`;
     const expectedRunnerCodexInstall = `if ! command -v 'codex' >/dev/null 2>&1; then ${buildSandboxNpmInstallCommand("@openai/codex@0.170.0")}; fi`;
-    const expectedRunnerOpenCodeInstall = `if ! command -v 'opencode' >/dev/null 2>&1; then ${buildSandboxNpmInstallCommand("@opencode/cli@2.4.1")}; fi`;
+    const expectedRunnerOpenCodeInstall = `if ! command -v 'opencode' >/dev/null 2>&1; then ${buildSandboxNpmInstallCommand("opencode-ai@1.18.34")}; fi`;
 
     expect(findActiveServerAdapter("claude_local")?.getRuntimeCommandSpec?.({})).toEqual({
       command: "claude",
@@ -446,6 +446,22 @@ describe("server adapter registry", () => {
       detectCommand: null,
       installCommand: null,
     });
+  });
+
+  it("selects the OpenCode v2 install spec when PAPERCLIP_OPENCODE_RUNTIME=v2", () => {
+    const prior = process.env.PAPERCLIP_OPENCODE_RUNTIME;
+    process.env.PAPERCLIP_OPENCODE_RUNTIME = "v2";
+    try {
+      const expected = `if ! command -v 'opencode' >/dev/null 2>&1; then ${buildSandboxNpmInstallCommand("@opencode/cli@2.4.1")}; fi`;
+      expect(findActiveServerAdapter("paperclip_runner")?.getRuntimeCommandSpec?.({ provider: "opencode" })).toEqual({
+        command: "opencode",
+        detectCommand: "opencode",
+        installCommand: expected,
+      });
+    } finally {
+      if (prior === undefined) delete process.env.PAPERCLIP_OPENCODE_RUNTIME;
+      else process.env.PAPERCLIP_OPENCODE_RUNTIME = prior;
+    }
   });
 
   it("switches active adapter behavior back to the builtin when an override is paused", async () => {

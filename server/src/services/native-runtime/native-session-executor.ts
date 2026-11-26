@@ -104,6 +104,7 @@ import { agents } from "@paperclipai/db";
 import { isCloudManagedInstance } from "../cloud-instance.js";
 import { dotRunnerBroker } from "../dot-runner-broker.js";
 import { CURSOR_DISTRIBUTION_PINS, KIMI_DISTRIBUTION_CLOSURE_SHA256, QUALIFIED_ACPX_PROFILES, QUALIFIED_ACPX_VERSION } from "../../vendor/paperclip-runner/index.js";
+import { resolvePaperclipOpenCodeRuntimePackage } from "./provider-profile.js";
 import { isProviderMode } from "../../vendor/paperclip-runner/index.js";
 import { codexUsageBaselineForNextRun } from "../../vendor/paperclip-runner/index.js";
 import { PROVIDER_PACK_COMPATIBILITY, bundledRemoteProviderPackManifestPath, runnerBinaryTarget } from "../../vendor/paperclip-runner/index.js";
@@ -14393,7 +14394,8 @@ const REMOTE_PROVIDER_PACK_SCHEMA = "paperclip-runner/remote-provider-pack/v1";
 const REMOTE_PROVIDER_PACK_PINS = {
   nodeMinimum: "24.11.0",
   codex: QUALIFIED_ACPX_PROFILES.codex.agentRuntimeVersion,
-  opencode: "2.4.1",
+  // Follows PAPERCLIP_OPENCODE_RUNTIME, like QUALIFIED_OPENCODE_RUNNER_VERSION.
+  opencode: resolvePaperclipOpenCodeRuntimePackage().version,
   acpx: QUALIFIED_ACPX_VERSION,
   claudeAcp: QUALIFIED_ACPX_PROFILES.claude.agentServerVersion,
   codexAcp: QUALIFIED_ACPX_PROFILES.codex.agentServerVersion,

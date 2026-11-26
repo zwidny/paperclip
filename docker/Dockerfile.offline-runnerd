@@ -224,11 +224,15 @@ WORKDIR /app
 # NODE_OPTIONS is cleared for the npm step: the image-wide ipv4first order turns
 # this registry into a 404 (see the pnpm bootstrap above). apt gets the optional
 # IPv6 force for the same network.
+# OpenCode v1 and v2 are both installed, and v1 runs last so the `opencode` bin
+# points at v1 by default. v2's server API is not compatible with the Runner's
+# opencode-server driver yet; see doc/DEPLOYING-OFFLINE-RUNNERD.md.
 RUN echo "cli-tools-epoch: ${CLI_TOOLS_CACHE_EPOCH}" \
   && if [ "$APT_FORCE_IPV6" = "true" ]; then \
        printf 'Acquire::ForceIPv6 "true";\n' > /etc/apt/apt.conf.d/99force-ipv6; \
      fi \
   && NODE_OPTIONS="" npm install --global --omit=dev @anthropic-ai/claude-code@latest @openai/codex@latest @opencode/cli@2.4.1 @google/gemini-cli@latest @moonshot-ai/kimi-code@latest \
+  && NODE_OPTIONS="" npm install --global --omit=dev opencode-ai@1.18.34 \
   && apt-get update \
   && apt-get install -y --no-install-recommends openssh-client jq \
   && rm -rf /var/lib/apt/lists/* \

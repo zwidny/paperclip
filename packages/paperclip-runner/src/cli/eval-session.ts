@@ -17,6 +17,7 @@ import {
 } from "../contracts/runtime-context.js";
 import { projectCapabilityDevtools } from "../devtools/index.js";
 import { resolveQualifiedAcpxProfile } from "../drivers/acpx/qualified-profiles.js";
+import { SELECTED_OPENCODE_VERSION } from "../drivers/opencode/runtime.js";
 import { PAPERCLIP_RUNNER_BUILD_METADATA } from "../evals/build-metadata.js";
 import { projectCapabilityIssueThread } from "../issue-thread/live-projection.js";
 import {
@@ -205,9 +206,9 @@ export function evalSessionProviderVersion(
   request: EvalSessionRequest,
 ): string | null {
   if (request.provider === "opencode") {
-    const version = request.opencodeVersion ?? "2.4.1";
-    if (version !== "2.4.1") {
-      throw new Error(`OpenCode evals require exact version 2.4.1; received ${version}`);
+    const version = request.opencodeVersion ?? SELECTED_OPENCODE_VERSION;
+    if (version !== SELECTED_OPENCODE_VERSION) {
+      throw new Error(`OpenCode evals require exact version ${SELECTED_OPENCODE_VERSION}; received ${version}`);
     }
     return version;
   }

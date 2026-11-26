@@ -8,13 +8,14 @@ import { readFileSync } from "node:fs";
 import type { CommandManagedRuntimeRunner } from "@paperclipai/adapter-utils/command-managed-runtime";
 import { describe, expect, it, vi } from "vitest";
 import { canonicalProviderPackJson, clearSealedProviderPacksForTest, PROVIDER_PACK_IDENTITY_FUNCTION, verifyRemoteProviderPack, type ProviderPackIdentity } from "./remote-provider-pack-verification.js";
+import { QUALIFIED_OPENCODE_RUNNER_VERSION } from "./provider-profile.js";
 
 const sha = (text: string) => `sha256:${createHash("sha256").update(text).digest("hex")}`;
 const manifest = (revision: string): ProviderPackIdentity => {
   const payload = {
     compatibility: { opencode: 1, acpx: 1 },
     contractDigest: sha("contracts"),
-    pins: { opencode: "2.4.1", nodeMinimum: "24.11.0" },
+    pins: { opencode: QUALIFIED_OPENCODE_RUNNER_VERSION, nodeMinimum: "24.11.0" },
     target: { platform: "linux", architecture: "x64" },
     runnerSourceRevision: revision.repeat(40),
     artifacts: Object.fromEntries(Object.entries({
@@ -151,7 +152,7 @@ describe("installed provider pack compatibility", () => {
     const expected = manifest("b");
     const report = (installed: unknown) => vi.fn(async (request: Parameters<CommandManagedRuntimeRunner["execute"]>[0]) => ({
       exitCode: 0, signal: null, pid: null, startedAt: null, timedOut: false, stderr: "",
-      stdout: request.args?.[0] === "--version" ? "2.4.1\n"
+      stdout: request.args?.[0] === "--version" ? `${QUALIFIED_OPENCODE_RUNNER_VERSION}\n`
         : `\npaperclip-pack-manifest=${Buffer.from(JSON.stringify(installed)).toString("base64")}\n` }));
     const input = { cwd: "/workspace", packRoot: "/opt/paperclip-runner/provider-pack", manifest: expected, acceptProvenance: true };
     const otherBuild = manifest("b");

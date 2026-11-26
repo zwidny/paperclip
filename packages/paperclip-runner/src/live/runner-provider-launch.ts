@@ -7,6 +7,7 @@ import { validatePreparedLaunchWorkingDirectory } from "../drivers/codex/codex-b
 import { usesPreconfiguredHome } from "../drivers/preconfigured-home.js";
 import { resolveQualifiedAcpxProfile } from "../drivers/acpx/qualified-profiles.js";
 import { resolveAcpxProviderMode } from "../drivers/acpx/provider-mode.js";
+import { SELECTED_OPENCODE_VERSION } from "../drivers/opencode/runtime.js";
 import type { DurableRecoveryIdentity } from "../contracts/durable-recovery.js";
 import type { NativeRuntimeContextSnapshot } from "../contracts/runtime-context.js";
 import type { CapabilityRunnerdCodexTransportOptions } from "./runnerd-codex-transport.js";
@@ -376,7 +377,7 @@ export function createRunnerProviderLaunch(
                       ? "opencode_server"
                       : "codex_app_server",
                   providerVersion:
-                    provider === "opencode" ? "2.4.1" : "codex-app-server-v1",
+                    provider === "opencode" ? SELECTED_OPENCODE_VERSION : "codex-app-server-v1",
                   command:
                     provider === "opencode"
                       ? providerNodeCommand

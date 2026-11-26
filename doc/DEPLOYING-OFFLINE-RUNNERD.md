@@ -106,6 +106,22 @@ host-local files and downloaded provider assets the clone never contains.
 - The `build` stage keeps `PAPERCLIP_TSC_EMIT_ONLY=1` for the server build, which
   keeps the tsc step near 2.5 GiB instead of more than 10 GiB.
 
+## OpenCode v1 and v2
+
+The CLI tool layer installs both OpenCode runtimes and installs
+`opencode-ai@1.18.34` last, so the container's `opencode` bin points at v1 by
+default. The server picks the runtime from `PAPERCLIP_OPENCODE_RUNTIME`:
+
+| Value | Package | Notes |
+| --- | --- | --- |
+| unset or `v1` | `opencode-ai@1.18.34` | Default. The Runner's `opencode-server` driver is written against this server API. |
+| `v2` | `@opencode/cli@2.4.1` | Kept installed for evaluation; not compatible with the driver yet. |
+
+v2's server API differs from what the driver expects: routes move under `/api`,
+list responses are `{data, cursor}`, events are `{id, type, data}`, and Basic auth
+uses the literal username `opencode`. Upstream also reports the 401 as issue
+#45856. Do not switch the default until the driver speaks the v2 API.
+
 ## No calls to the upstream service
 
 The variant targets self-hosted and white-label hosts, so it turns off the two

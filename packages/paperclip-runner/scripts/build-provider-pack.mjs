@@ -303,7 +303,7 @@ try {
     pins: {
       nodeMinimum: minimumNodeVersion.join("."),
       codex: profiles.profiles.codex.agentRuntimeVersion,
-      opencode: "1.18.34",
+      opencode: "2.4.1",
       acpx: profiles.acpxVersion,
       grok: profiles.profiles.grok.agentRuntimeVersion,
       claudeAcp: profiles.profiles.claude.agentServerVersion,

@@ -48,7 +48,7 @@ async function fixture(options: { wrongCode?: boolean; unsafeOverlay?: boolean; 
     const pack = path.join(root, name);
     await fs.mkdir(path.join(pack, "bin"), { recursive: true });
     const artifact = { path: "bin/tool", sha256: `sha256:${hash(tool)}` };
-    const payload = { pins: { opencode: "1.18.34" }, target: { platform: "linux", architecture: "x64" }, runnerSourceRevision: source,
+    const payload = { pins: { opencode: "2.4.1" }, target: { platform: "linux", architecture: "x64" }, runnerSourceRevision: source,
       ...(options.runnerImage ? { runnerInputsDigest: runnerInputs } : {}),
       contractDigest: `sha256:${hash(tool)}`, artifacts: { nodeCommand: artifact, opencodeCommand: artifact, opencodeProxy: artifact } };
     const manifest = { schema: "paperclip-runner/remote-provider-pack/v1", payload, digest: `sha256:${hash(canonicalProviderPackJson(payload))}` };

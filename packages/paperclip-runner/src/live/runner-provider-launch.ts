@@ -376,7 +376,7 @@ export function createRunnerProviderLaunch(
                       ? "opencode_server"
                       : "codex_app_server",
                   providerVersion:
-                    provider === "opencode" ? "1.18.34" : "codex-app-server-v1",
+                    provider === "opencode" ? "2.4.1" : "codex-app-server-v1",
                   command:
                     provider === "opencode"
                       ? providerNodeCommand

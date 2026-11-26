@@ -13,7 +13,7 @@ const binding = { companyId: "company", agentId: "agent", workspaceId: "workspac
 const runnerArtifact = () => ({ version: "0.0.0", digest: "sha256:" + "c".repeat(64) });
 const manifest = (revision: string) => {
   const payload = { runnerSourceRevision: revision.repeat(40), target: { platform: "linux", architecture: "x64" },
-    pins: { opencode: "1.18.34" }, artifacts: { nodeCommand: { path: "node", sha256: "sha256:" + "1".repeat(64) },
+    pins: { opencode: "2.4.1" }, artifacts: { nodeCommand: { path: "node", sha256: "sha256:" + "1".repeat(64) },
       opencodeCommand: { path: "opencode", sha256: "sha256:" + "2".repeat(64) } } };
   return { schema: "paperclip-runner/remote-provider-pack/v1", payload,
     digest: "sha256:" + createHash("sha256").update(canonicalProviderPackJson(payload)).digest("hex") };

@@ -84,7 +84,7 @@ function transportDriverIdentity(input: NativeExecutionInput): {
       return {
         kind: "opencode_server",
         displayName: "OpenCode server",
-        version: "1.18.34",
+        version: "2.4.1",
       };
     case "claude_managed":
       return {

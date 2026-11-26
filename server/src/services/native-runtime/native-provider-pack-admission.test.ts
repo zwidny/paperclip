@@ -11,7 +11,7 @@ import { admittedNativeProviderPack, nativeProviderPackAdmissionPending, prepare
 const hash = (value: string) => `sha256:${createHash("sha256").update(value).digest("hex")}`;
 function manifest(revision = "a".repeat(40)): ProviderPackIdentity {
   const artifact = { path: "/private/provider-path", sha256: hash(revision) };
-  const payload = { runnerSourceRevision: revision, pins: { opencode: "1.18.34" },
+  const payload = { runnerSourceRevision: revision, pins: { opencode: "2.4.1" },
     target: { platform: "linux", architecture: "x64" },
     artifacts: { nodeCommand: artifact, opencodeCommand: artifact, opencodeProxy: artifact } };
   return { schema: "paperclip-runner/remote-provider-pack/v1", payload, digest: hash(canonicalProviderPackJson(payload)) };

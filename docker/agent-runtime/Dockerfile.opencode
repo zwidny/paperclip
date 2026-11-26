@@ -3,7 +3,7 @@ ARG BASE_TAG=dev
 FROM paperclipai/agent-runtime-base:${BASE_TAG}
 
 USER root
-# opencode-ai npm package; binary on PATH is `opencode`.
+# @opencode/cli@2.4.1 npm package; binary on PATH is `opencode`.
 RUN npm install -g opencode-ai@latest \
     && { chown -R 1000:1000 /usr/lib/node_modules || true; }
 

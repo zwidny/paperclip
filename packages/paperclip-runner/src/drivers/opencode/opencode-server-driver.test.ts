@@ -704,7 +704,7 @@ describe("OpenCodeServerDriver", () => {
           headers: { "Content-Type": "application/json" },
         });
       if (url.pathname === "/global/health")
-        return json({ healthy: true, version: "1.18.34" });
+        return json({ healthy: true, version: "2.4.1" });
       if (url.pathname === "/event") {
         return new Response(
           new ReadableStream<Uint8Array>({
@@ -1012,7 +1012,7 @@ describe("OpenCodeServerDriver", () => {
   });
 
   it("forwards an unreadable tool-result image as a tool outcome, not as a user message", async () => {
-    // Shape OpenCode 1.18.34 sends through @ai-sdk/openai-compatible after a
+    // Shape OpenCode 2.4.1 sends through @ai-sdk/openai-compatible after a
     // text-only model reads a screenshot (chat-eval run 42704461144).
     const received: unknown[] = [];
     const upstream = createHttpServer((request, response) => {
@@ -1509,7 +1509,7 @@ describe("OpenCodeServerDriver", () => {
       output: 2,
       costUsd: 0.001,
       provider: "openrouter",
-      driverVersion: "1.18.34",
+      driverVersion: "2.4.1",
     });
     await session.interrupt?.({ turnId: turn.turnId });
     const snapshot = await session.snapshot();

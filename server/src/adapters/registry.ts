@@ -642,7 +642,7 @@ const paperclipRunnerAdapter: ServerAdapterModule = {
       ? buildNpmRuntimeCommandSpec(
           config,
           "opencode",
-          `opencode-ai@${QUALIFIED_OPENCODE_RUNNER_VERSION}`,
+          `@opencode/cli@${QUALIFIED_OPENCODE_RUNNER_VERSION}`,
         )
       : buildNpmRuntimeCommandSpec(config, "codex", "@openai/codex@0.170.0"),
   agentConfigurationDoc:
@@ -986,7 +986,7 @@ const openCodeLocalAdapter: ServerAdapterModule = {
   supportsInstructionsBundle: true,
   instructionsPathKey: "instructionsFilePath",
   requiresMaterializedRuntimeSkills: true,
-  getRuntimeCommandSpec: (config) => buildNpmRuntimeCommandSpec(config, "opencode", "opencode-ai"),
+  getRuntimeCommandSpec: (config) => buildNpmRuntimeCommandSpec(config, "opencode", "@opencode/cli"),
   agentConfigurationDoc: openCodeAgentConfigurationDoc,
 };
 

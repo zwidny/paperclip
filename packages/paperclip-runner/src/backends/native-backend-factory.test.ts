@@ -281,7 +281,7 @@ describe("native backend factory", () => {
     await expect(backend.descriptor()).resolves.toMatchObject({
       kind: "runner",
       name: "opencode_server",
-      version: "1.18.34",
+      version: "2.4.1",
       capabilities: {
         steering: false,
         resume: true,
@@ -749,7 +749,7 @@ describe("native backend factory", () => {
     await expect(backend.descriptor()).resolves.toMatchObject({
       kind: "runner",
       name: "opencode_server",
-      version: "1.18.34",
+      version: "2.4.1",
       capabilities: {
         resume: true,
         interruption: true,

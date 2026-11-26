@@ -103,7 +103,7 @@ import {
 } from "../runtime-context-materializer.js";
 
 export const OPENCODE_SERVER_DRIVER_KIND = "opencode_server" as const;
-export const QUALIFIED_OPENCODE_VERSION = "1.18.34" as const;
+export const QUALIFIED_OPENCODE_VERSION = "2.4.1" as const;
 export const QUALIFIED_OPENCODE_MODEL =
   "openrouter/deepseek/deepseek-v4-flash-0731" as const;
 
@@ -116,18 +116,18 @@ export function resolvePinnedOpenCodeCommand(
     const platform = target.platform ?? process.platform;
     const architecture = target.architecture ?? process.arch;
     const packageNames: Record<string, string[]> = {
-      "linux-x64": ["opencode-linux-x64-baseline"],
-      "darwin-arm64": ["opencode-darwin-arm64"],
-      "darwin-x64": ["opencode-darwin-x64-baseline"],
+      "linux-x64": ["@opencode/cli-linux-x64-baseline", "@opencode/cli-linux-x64"],
+      "darwin-arm64": ["@opencode/cli-darwin-arm64"],
+      "darwin-x64": ["@opencode/cli-darwin-x64-baseline", "@opencode/cli-darwin-x64"],
     };
     const candidates = packageNames[`${platform}-${architecture}`];
     if (!candidates) {
       throw new Error("OpenCode native target is not qualified");
     }
-    const manifestPath = realpathSync(createRequire(issuer).resolve("opencode-ai/package.json"));
+    const manifestPath = realpathSync(createRequire(issuer).resolve("@opencode/cli/package.json"));
     const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
-    if (manifest.name !== "opencode-ai" || manifest.version !== QUALIFIED_OPENCODE_VERSION) {
-      throw new Error(`OpenCode package version mismatch: expected opencode-ai@${QUALIFIED_OPENCODE_VERSION}`);
+    if (manifest.name !== "@opencode/cli" || manifest.version !== QUALIFIED_OPENCODE_VERSION) {
+      throw new Error(`OpenCode package version mismatch: expected @opencode/cli@${QUALIFIED_OPENCODE_VERSION}`);
     }
     const dependencyRequire = createRequire(manifestPath);
     for (const name of candidates) {

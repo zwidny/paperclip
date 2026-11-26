@@ -1,7 +1,7 @@
 export const type = "opencode_local";
 export const label = "OpenCode";
 
-// Use OpenCode's official installer instead of `npm install -g opencode-ai`.
+// Use OpenCode's official installer instead of `npm install -g @opencode/cli`.
 // The npm package reifies four large Linux x64 prebuilt-binary subpackages
 // (linux-x64, linux-x64-musl, linux-x64-baseline, linux-x64-baseline-musl) in
 // parallel even though only one matches the sandbox; on bandwidth-constrained
@@ -20,7 +20,7 @@ export const label = "OpenCode";
 // the install script. We accept this because:
 //   1. The install runs inside an isolated, ephemeral sandbox — blast radius
 //      is bounded to that sandbox's secrets and disk.
-//   2. The prior `npm install -g opencode-ai` is also unverified code
+//   2. The prior `npm install -g @opencode/cli` is also unverified code
 //      execution from a third-party registry; this is not strictly worse.
 //   3. OpenCode does not publish per-release SHA-256 checksums in a stable
 //      location, and pinning a version + hash here would require manual

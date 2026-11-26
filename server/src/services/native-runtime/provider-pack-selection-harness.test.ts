@@ -23,9 +23,9 @@ const sha = (value: string | Buffer) => `sha256:${createHash("sha256").update(va
 async function writePack(root: string, revision: string, large: Buffer, distSuffix = "") {
   const files: Record<string, string | Buffer> = {
     "node_modules/node/bin/node": `#!/bin/sh\nexec '${process.execPath}' "$@"\n`,
-    "node_modules/.bin/opencode": "#!/bin/sh\necho 1.18.34\n",
+    "node_modules/.bin/opencode": "#!/bin/sh\necho 2.4.1\n",
     "node_modules/opencode-ai/bin/opencode.exe": large,
-    "node_modules/opencode-ai/package.json": JSON.stringify({ version: "1.18.34" }),
+    "node_modules/opencode-ai/package.json": JSON.stringify({ version: "2.4.1" }),
     "node_modules/acpx/package.json": JSON.stringify({ version: QUALIFIED_ACPX_VERSION }),
     "node_modules/@agentclientprotocol/claude-agent-acp/package.json": JSON.stringify({ version: QUALIFIED_ACPX_PROFILES.claude.agentServerVersion }),
     "node_modules/@agentclientprotocol/codex-acp/package.json": JSON.stringify({ version: QUALIFIED_ACPX_PROFILES.codex.agentServerVersion }),
@@ -44,7 +44,7 @@ async function writePack(root: string, revision: string, large: Buffer, distSuff
   const proxy = artifact("dist/cli/opencode-app-server-proxy.cjs"), sidecar = artifact("dist/cli/acpx-runtime-sidecar.cjs");
   const distDigest = sha256DirectoryTree(join(root, "dist"));
   const payload = {
-    pins: { nodeMinimum: "24.11.0", codex: QUALIFIED_ACPX_PROFILES.codex.agentRuntimeVersion, opencode: "1.18.34", acpx: QUALIFIED_ACPX_VERSION,
+    pins: { nodeMinimum: "24.11.0", codex: QUALIFIED_ACPX_PROFILES.codex.agentRuntimeVersion, opencode: "2.4.1", acpx: QUALIFIED_ACPX_VERSION,
       claudeAcp: QUALIFIED_ACPX_PROFILES.claude.agentServerVersion, codexAcp: QUALIFIED_ACPX_PROFILES.codex.agentServerVersion,
       grok: QUALIFIED_ACPX_PROFILES.grok.agentRuntimeVersion },
     target: { platform: process.platform, architecture: process.arch },

@@ -35,14 +35,14 @@ async function fixture(options = {}) {
       join(packageRoot, "package.json"),
       JSON.stringify({
         name: "opencode-ai",
-        version: options.packageVersion ?? "1.18.34",
+        version: options.packageVersion ?? "2.4.1",
       }),
     ),
     writeFile(
       join(baselineRoot, "package.json"),
       JSON.stringify({
         name: "opencode-linux-x64-baseline",
-        version: options.baselineVersion ?? "1.18.34",
+        version: options.baselineVersion ?? "2.4.1",
       }),
     ),
     writeFile(join(packageRoot, "bin", "opencode.exe"), "sentinel\n"),
@@ -50,11 +50,11 @@ async function fixture(options = {}) {
   const source = join(baselineRoot, "bin", "opencode");
   if (options.symlinkSource) {
     const realSource = join(root, "real-opencode");
-    await writeFile(realSource, "#!/bin/sh\necho 1.18.34\n");
+    await writeFile(realSource, "#!/bin/sh\necho 2.4.1\n");
     await chmod(realSource, 0o755);
     await symlink(realSource, source);
   } else {
-    await writeFile(source, "#!/bin/sh\necho 1.18.34\n");
+    await writeFile(source, "#!/bin/sh\necho 2.4.1\n");
     await chmod(source, 0o755);
   }
   return packageRoot;
@@ -67,7 +67,7 @@ test("materializes the pinned baseline executable with a verified version", asyn
     platform: "linux",
     architecture: "x64",
   });
-  assert.equal(result.version, "1.18.34");
+  assert.equal(result.version, "2.4.1");
   assert.match(result.sourceDigest, /^[0-9a-f]{64}$/);
 });
 

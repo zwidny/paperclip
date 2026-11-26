@@ -72,7 +72,7 @@ describeEmbeddedPostgres.each(["volume_free_owner", "eligibility_unreadable", "a
       environmentLeaseId: f.native.environmentLeaseId, remoteCwd: "/remote/workspace", providerDigest: nativeSha256(execution.provider) };
     const payload = {
       runnerSourceRevision: "a".repeat(40), target: { platform: "linux", architecture: "x64" },
-      pins: { opencode: "1.18.34" }, artifacts: {
+      pins: { opencode: "2.4.1" }, artifacts: {
         nodeCommand: { path: "node", sha256: `sha256:${"1".repeat(64)}` },
         opencodeCommand: { path: "opencode", sha256: `sha256:${"2".repeat(64)}` },
       },

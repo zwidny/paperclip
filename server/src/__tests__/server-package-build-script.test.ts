@@ -165,8 +165,8 @@ describe("server package build script", () => {
       "../../../packages/paperclip-runner/package.json", import.meta.url,
     ), "utf8"));
     // createRequire resolution is dynamic and is not covered by the import scan.
-    expect(server.dependencies["opencode-ai"]).toBe("1.18.34");
-    expect(server.dependencies["opencode-ai"]).toBe(runner.dependencies["opencode-ai"]);
+    expect(server.dependencies["@opencode/cli"]).toBe("2.4.1");
+    expect(server.dependencies["@opencode/cli"]).toBe(runner.dependencies["@opencode/cli"]);
   });
 
   it("loads runner source when the source server starts before workspace builds", () => {

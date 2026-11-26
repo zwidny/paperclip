@@ -14393,7 +14393,7 @@ const REMOTE_PROVIDER_PACK_SCHEMA = "paperclip-runner/remote-provider-pack/v1";
 const REMOTE_PROVIDER_PACK_PINS = {
   nodeMinimum: "24.11.0",
   codex: QUALIFIED_ACPX_PROFILES.codex.agentRuntimeVersion,
-  opencode: "1.18.34",
+  opencode: "2.4.1",
   acpx: QUALIFIED_ACPX_VERSION,
   claudeAcp: QUALIFIED_ACPX_PROFILES.claude.agentServerVersion,
   codexAcp: QUALIFIED_ACPX_PROFILES.codex.agentServerVersion,

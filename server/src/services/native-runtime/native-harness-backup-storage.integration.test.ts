@@ -184,7 +184,7 @@ describeEmbeddedPostgres("durable native provider backups", () => {
       return [name, { path: name, sha256: `sha256:${createHash("sha256").update(bytes).digest("hex")}` }];
     })));
     const payload = { runnerSourceRevision: "a".repeat(40), target: { platform: "linux", architecture: "x64" },
-      pins: { opencode: "1.18.34" }, artifacts: { ...artifacts, opencodeCommand: artifacts.opencodeExecutable } };
+      pins: { opencode: "2.4.1" }, artifacts: { ...artifacts, opencodeCommand: artifacts.opencodeExecutable } };
     const manifest = { schema: "paperclip-runner/remote-provider-pack/v1", payload,
       digest: `sha256:${createHash("sha256").update(canonicalProviderPackJson(payload)).digest("hex")}` };
     const launchRoot = `/home/daytona/.paperclip-runtime/paperclip-runner/provider-artifacts/${manifest.digest.slice(7)}`;

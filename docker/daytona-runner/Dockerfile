@@ -85,7 +85,7 @@ ENV PATH=${PAPERCLIP_RUNNER_PROVIDER_PACK_ROOT}/node_modules/.bin:/usr/local/sha
 
 # Share the pack's latest stable Codex, Claude and OpenCode with every adapter.
 # Never add a second CLI version to work around a runner compatibility pin.
-RUN npm uninstall -g @anthropic-ai/claude-code @openai/codex opencode-ai \
+RUN npm uninstall -g @anthropic-ai/claude-code @openai/codex @opencode/cli \
     && npm install -g \
       @xai-official/grok@1.0.89 \
       @google/gemini-cli@0.68.0 \
@@ -177,7 +177,7 @@ RUN /bin/sh -lc 'set -eu; \
     done; \
     test "$(codex --version)" = "codex-cli 0.170.0"; \
     test "$(claude --version)" = "2.1.328 (Claude Code)"; \
-    test "$(opencode --version)" = "1.18.34"; \
+    test "$(opencode --version)" = "2.4.1"; \
     test "$(acpx --version)" = "0.22.0"; \
     test "$(claude-agent-acp --version)" = "0.73.0"; \
     test "$(codex-acp --version)" = "@agentclientprotocol/codex-acp 1.6.2"'

@@ -355,7 +355,7 @@ async function handle(message: RpcMessage): Promise<void> {
     case "initialize":
       result = {
         user: { sessionId: "opencode" },
-        serverInfo: { name: "opencode", version: "1.18.34" },
+        serverInfo: { name: "opencode", version: "2.4.1" },
       };
       break;
     case "thread/start":

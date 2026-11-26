@@ -29,7 +29,7 @@ import {
 } from "@paperclipai/adapter-claude-local/server";
 import { parseNativeCursorCloudConfig, type NativeCursorCloudConfig } from "../../vendor/paperclip-runner/index.js";
 
-export const QUALIFIED_OPENCODE_RUNNER_VERSION = "1.18.34" as const;
+export const QUALIFIED_OPENCODE_RUNNER_VERSION = "2.4.1" as const;
 export const DEFAULT_OPENCODE_RUNNER_MODEL =
   "openrouter/deepseek/deepseek-v4-flash-0731" as const;
 export const CLAUDE_MANAGED_BETA_VERSION = "managed-agents-2026-04-01" as const;

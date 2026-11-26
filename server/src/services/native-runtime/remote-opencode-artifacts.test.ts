@@ -59,7 +59,7 @@ async function fixture() {
   const payload = {
     artifacts,
     target: { platform: "linux", architecture: "x64" },
-    pins: { opencode: "1.18.34" },
+    pins: { opencode: "2.4.1" },
     runnerSourceRevision: "a".repeat(40),
   };
   const manifest = {

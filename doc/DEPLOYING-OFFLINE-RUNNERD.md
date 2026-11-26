@@ -85,14 +85,24 @@ host-local files and downloaded provider assets the clone never contains.
 - The npm registry must be reachable at a usable speed. The offline Dockerfile
   sets `npm_config_registry` to a mirror; adjust it if a different mirror is
   faster.
-- The mirror must also serve **corepack's** pnpm tarball. corepack ignores
-  `npm_config_registry`, so the Dockerfile sets `COREPACK_NPM_REGISTRY` (build arg,
-  default `https://registry.npmmirror.com`) as well. Without it, a host whose
-  IPv6 route to `registry.npmjs.org` times out fails the build at
-  `pnpm --filter @paperclipai/paperclip-runner build` with
-  `ConnectTimeoutError ... 2606:4700::...`. The same ENV adds
-  `NODE_OPTIONS=--dns-result-order=ipv4first` so DNS prefers IPv4 throughout the
-  image.
+- The mirror must also serve **pnpm itself**. Do not rely on corepack here: it
+  ignores `npm_config_registry`, and a mirror can answer its tarball lookup
+  (`/pnpm/<version>`) with 404 while npm installs the same package fine. The
+  Dockerfile installs pnpm with npm in its own layer, removes the corepack shim
+  first (npm aborts with `EEXIST` otherwise), and keeps it a separate layer so
+  the apt layer stays cacheable.
+- DNS order and the IPv4 path matter. The image-wide
+  `NODE_OPTIONS=--dns-result-order=ipv4first` exists for a host whose IPv6 route
+  to `registry.npmjs.org` times out, but on a host that routes IPv4 through a
+  transparent proxy the opposite is true: the proxy answers `GET /pnpm` and
+  `dists/<suite>/Release` with 404/000 while IPv6 reaches the origin. The
+  Dockerfile therefore clears `NODE_OPTIONS` for every npm/pnpm step that reaches
+  the network, and offers an opt-in `APT_FORCE_IPV6` build arg (default `false`)
+  that writes `Acquire::ForceIPv6 "true"` before apt. The compose override sets
+  it to `"true"` for such hosts. Symptom if it is missing: apt fails with
+  `dists/<suite>/Release does not have a Release file [IP: <proxy address>]`, and
+  npm fails with `404 Not Found - GET .../pnpm` or
+  `UNABLE_TO_VERIFY_LEAF_SIGNATURE` (the proxy serves an incomplete chain).
 - The `build` stage keeps `PAPERCLIP_TSC_EMIT_ONLY=1` for the server build, which
   keeps the tsc step near 2.5 GiB instead of more than 10 GiB.
 

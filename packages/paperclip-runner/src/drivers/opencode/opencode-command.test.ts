@@ -48,11 +48,13 @@ const RUNTIME_PLATFORMS = {
     ["darwin", "arm64", "opencode-darwin-arm64"],
     ["darwin", "x64", "opencode-darwin-x64-baseline"],
     ["linux", "x64", "opencode-linux-x64-baseline"],
+    ["linux", "arm64", "opencode-linux-arm64"],
   ],
   v2: [
     ["darwin", "arm64", "@opencode/cli-darwin-arm64"],
     ["darwin", "x64", "@opencode/cli-darwin-x64-baseline"],
     ["linux", "x64", "@opencode/cli-linux-x64-baseline"],
+    ["linux", "arm64", "@opencode/cli-linux-arm64"],
   ],
 } as const;
 
@@ -69,6 +71,13 @@ it.each(["v1", "v2"] as const)("resolves the %s platform binary in every install
 it("resolves the bin/opencode layout that @opencode/cli platform packages ship", async () => {
   const install = await installed("v2", "source", "linux", "x64", "@opencode/cli-linux-x64-baseline", "bin/opencode");
   expect(resolvePinnedOpenCodeCommand(install.issuer, { platform: "linux", architecture: "x64", runtime: "v2" })).toBe(install.executable);
+});
+
+it.each(["v1", "v2"] as const)("resolves the linux arm64 platform binary of %s", async runtime => {
+  const name = runtime === "v1" ? "opencode-linux-arm64" : "@opencode/cli-linux-arm64";
+  const install = await installed(runtime, "source", "linux", "arm64", name, "bin/opencode");
+  expect(resolvePinnedOpenCodeCommand(install.issuer, { platform: "linux", architecture: "arm64", runtime })).toBe(install.executable);
+  expect(install.executable.endsWith(`${name}/bin/opencode`)).toBe(true);
 });
 
 it.each(["v1", "v2"] as const)("rejects missing or mismatched qualified %s dependencies", async runtime => {

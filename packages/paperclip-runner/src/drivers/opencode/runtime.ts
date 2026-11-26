@@ -29,7 +29,12 @@ export interface OpenCodeRuntimeDescription {
    * v1 only ever ships `bin/opencode`.
    */
   readonly executableNames: readonly string[];
-  /** Platform package candidates keyed by `${platform}-${architecture}`. */
+  /**
+   * Platform package candidates keyed by `${platform}-${architecture}`.
+   *
+   * Only glibc artifacts are pinned here; musl variants are not qualified. Linux
+   * arm64 has no `-baseline` variant for either runtime.
+   */
   readonly platformPackages: Readonly<Record<string, readonly string[]>>;
 }
 
@@ -41,6 +46,7 @@ const OPENCODE_RUNTIMES = {
     executableNames: ["bin/opencode"],
     platformPackages: {
       "linux-x64": ["opencode-linux-x64-baseline"],
+      "linux-arm64": ["opencode-linux-arm64"],
       "darwin-arm64": ["opencode-darwin-arm64"],
       "darwin-x64": ["opencode-darwin-x64-baseline"],
     },
@@ -55,6 +61,7 @@ const OPENCODE_RUNTIMES = {
         "@opencode/cli-linux-x64-baseline",
         "@opencode/cli-linux-x64",
       ],
+      "linux-arm64": ["@opencode/cli-linux-arm64"],
       "darwin-arm64": ["@opencode/cli-darwin-arm64"],
       "darwin-x64": [
         "@opencode/cli-darwin-x64-baseline",

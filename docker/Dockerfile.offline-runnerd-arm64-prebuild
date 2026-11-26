@@ -1,0 +1,397 @@
+# syntax=docker/dockerfile:1.20
+# Local variant of the stock Dockerfile for hosts that cannot compile the Runner
+# inside the image. It drops the runner-artifacts-* stages and stages a prebuilt
+# vendor-bin/paperclip-runnerd instead. Pair it with
+# docker/docker-compose.offline-runnerd.yml and the host-local Runner
+# package.json (docker/runner-package.t207.json).
+#
+# Read doc/DEPLOYING-OFFLINE-RUNNERD.md before editing: when the stock Dockerfile
+# changes, the deltas listed there have to be re-applied and
+# `docker build --check -f docker/Dockerfile.offline-runnerd .` re-run.
+#
+# Last reconciled against the stock Dockerfile at commit 01c1e708e9.
+FROM node:24-trixie-slim AS base
+# The npm registry default is unusably slow on the first host this variant was
+# built for (9.7s per request against registry.npmjs.org, 1.7s against the
+# mirror), and that link is sensitive to concurrency. Adjust if your mirror
+# differs.
+# corepack resolves the pnpm tarball from its own registry and ignores
+# npm_config_registry. On hosts whose IPv6 route to registry.npmjs.org times out
+# (observed: ConnectTimeoutError on 2606:4700::...), that download fails the
+# build. Point corepack at the mirror too, and prefer IPv4 for DNS so neither
+# the mirror nor any later fetch stalls on a dead IPv6 path.
+ARG COREPACK_NPM_REGISTRY=https://registry.npmmirror.com
+ENV npm_config_registry=https://registry.npmmirror.com \
+    COREPACK_NPM_REGISTRY=${COREPACK_NPM_REGISTRY} \
+    NODE_OPTIONS=--dns-result-order=ipv4first \
+    npm_config_fetch_retries=5 \
+    npm_config_fetch_retry_maxtimeout=120000 \
+    npm_config_network_concurrency=4
+ARG USER_UID=1000
+ARG USER_GID=1000
+# Some hosts route IPv4 through a transparent proxy that answers the Debian
+# archive with 404/000 while IPv6 reaches it directly (observed on a
+# self-hosted host: deb.debian.org resolved to a proxy address whose
+# `dists/trixie/Release` is 404). Settings this to "true" forces apt onto IPv6
+# for this build. Off by default so an ordinary build keeps the default order.
+ARG APT_FORCE_IPV6=false
+RUN if [ "$APT_FORCE_IPV6" = "true" ]; then \
+      printf 'Acquire::ForceIPv6 "true";\n' > /etc/apt/apt.conf.d/99force-ipv6; \
+    fi \
+  && apt-get update \
+  && apt-get install -y --no-install-recommends ca-certificates gosu curl gh git wget ripgrep python3 tini \
+  && rm -rf /var/lib/apt/lists/* \
+  && corepack enable
+
+# Install pnpm with npm instead of letting the `corepack enable` shim download
+# it on first use. That on-demand download fails on the mirror path: npmmirror
+# answers corepack's tarball lookup (`/pnpm/<version>`) with 404, and
+# registry.npmjs.org fails certificate verification inside this build network.
+# npm resolves the same mirror fine, and a real global install replaces the
+# corepack shim, so `pnpm` never falls back to an on-demand corepack download.
+# Keep this a separate layer so the apt layer above stays cacheable on hosts
+# whose apt mirror is only reachable through a stale image.
+ARG PNPM_VERSION=9.15.4
+# Clear NODE_OPTIONS for this install. The image-wide
+# `--dns-result-order=ipv4first` exists for hosts whose IPv6 route to
+# registry.npmjs.org times out, but on this registry the IPv6 edge is the only
+# one that serves the package: the IPv4 edge answers `GET /pnpm` with 404, and
+# an IPv4-only name order turns a working mirror into a failed build. Letting
+# the default order pick IPv6 fixes it without disabling certificate checks.
+RUN rm -f /usr/local/bin/pnpm /usr/local/bin/pnpx \
+  && NODE_OPTIONS="" npm install -g "pnpm@${PNPM_VERSION}" \
+  && pnpm --version
+
+# Modify the existing node user/group to have the specified UID/GID to match host user
+RUN usermod -u $USER_UID --non-unique node \
+  && groupmod -g $USER_GID --non-unique node \
+  && usermod -g $USER_GID -d /paperclip node
+
+
+# The tailscale stage downloads a bundle from a CDN host that resolved to AAAA
+# only for the build container, so the RUN failed with curl exit 6. The binary
+# serves tailnet/mesh access, which this deployment does not use, and
+# docker-entrypoint.sh never references tailscaled.
+FROM base AS runner-lockfile
+WORKDIR /runner-lockfile
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml .npmrc ./
+COPY packages/paperclip-eval-kernel/package.json packages/paperclip-eval-kernel/
+COPY packages/paperclip-runner/package.json packages/paperclip-runner/
+COPY patches/ patches/
+RUN pnpm install --frozen-lockfile --lockfile-only --offline --ignore-scripts --filter '@paperclipai/paperclip-runner...' > /tmp/runner-lockfile.log 2>&1 \
+  || { cat /tmp/runner-lockfile.log >&2; \
+    if grep -Eq 'ERR_PNPM_OUTDATED_LOCKFILE|ERR_PNPM_LOCKFILE_CONFIG_MISMATCH' /tmp/runner-lockfile.log; then \
+      echo "ERROR: pnpm-lock.yaml is behind the manifests the Runner is installed from: package.json, pnpm-workspace.yaml, patches, packages/paperclip-runner/package.json or packages/paperclip-eval-kernel/package.json. The image build installs the Runner with a frozen lockfile, so it stops here. Run this command in the checkout, then build again: pnpm install --resolution-only --ignore-scripts --no-frozen-lockfile" >&2; \
+    else \
+      echo "ERROR: pnpm could not check pnpm-lock.yaml against the manifests the Runner is installed from. Its output is above." >&2; \
+    fi; \
+    exit 1; }
+
+FROM runner-lockfile AS deps
+WORKDIR /app
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml .npmrc ./
+COPY cli/package.json cli/
+COPY server/package.json server/
+COPY ui/package.json ui/
+COPY packages/shared/package.json packages/shared/
+COPY packages/db/package.json packages/db/
+COPY packages/adapter-utils/package.json packages/adapter-utils/
+COPY packages/google-sheets-mcp-server/package.json packages/google-sheets-mcp-server/
+COPY packages/kv-demo-mcp-server/package.json packages/kv-demo-mcp-server/
+COPY packages/mcp-server/package.json packages/mcp-server/
+COPY packages/paperclip-eval-kernel/package.json packages/paperclip-eval-kernel/
+COPY packages/paperclip-runner/package.json packages/paperclip-runner/
+COPY packages/skills-catalog/package.json packages/skills-catalog/
+COPY packages/tailscale-https-broker/package.json packages/tailscale-https-broker/
+COPY packages/teams-catalog/package.json packages/teams-catalog/
+COPY packages/adapters/claude-local/package.json packages/adapters/claude-local/
+COPY packages/adapters/codex-local/package.json packages/adapters/codex-local/
+COPY packages/adapters/cursor-cloud/package.json packages/adapters/cursor-cloud/
+COPY packages/adapters/cursor-local/package.json packages/adapters/cursor-local/
+COPY packages/adapters/gemini-local/package.json packages/adapters/gemini-local/
+COPY packages/adapters/grok-local/package.json packages/adapters/grok-local/
+COPY packages/adapters/kimi-local/package.json packages/adapters/kimi-local/
+COPY packages/adapters/hermes/package.json packages/adapters/hermes/
+COPY packages/adapters/hermes-gateway/package.json packages/adapters/hermes-gateway/
+COPY packages/adapters/openclaw-gateway/package.json packages/adapters/openclaw-gateway/
+COPY packages/adapters/opencode-local/package.json packages/adapters/opencode-local/
+COPY packages/adapters/pi-local/package.json packages/adapters/pi-local/
+COPY packages/plugins/sdk/package.json packages/plugins/sdk/
+COPY --parents packages/plugins/sandbox-providers/./*/package.json packages/plugins/sandbox-providers/
+COPY packages/plugins/paperclip-plugin-fake-sandbox/package.json packages/plugins/paperclip-plugin-fake-sandbox/
+COPY packages/plugins/plugin-llm-wiki/package.json packages/plugins/plugin-llm-wiki/
+COPY packages/plugins/plugin-workspace-diff/package.json packages/plugins/plugin-workspace-diff/
+COPY patches/ patches/
+COPY scripts/link-plugin-dev-sdk.mjs scripts/
+COPY packages/paperclip-runner/scripts/install-copilot-assets.mjs packages/paperclip-runner/scripts/materialize-copilot-binary.mjs packages/paperclip-runner/scripts/copilot-inner-distribution.mjs packages/paperclip-runner/scripts/
+COPY packages/paperclip-runner/src/drivers/acpx/copilot-installation.ts packages/paperclip-runner/src/drivers/acpx/
+COPY server/scripts/install-copilot-assets.mjs server/scripts/
+COPY server/src/services/copilot-connection-probe.ts server/src/services/
+
+# CI owns repository lock updates. Resolve manifest changes in the image's
+# private build tree, then install from that exact generated lock. NODE_OPTIONS
+# is cleared for the same reason as the pnpm bootstrap above: this registry
+# serves the packages over its IPv6 edge, and forcing IPv4 turns it into a 404.
+RUN NODE_OPTIONS="" pnpm install --resolution-only --ignore-scripts --no-frozen-lockfile && NODE_OPTIONS="" pnpm install --frozen-lockfile
+
+# Runner image (`--target runner-artifacts`).
+#
+# The stages below build the Runner once, from its own inputs only, as a plain
+# file tree: the daemon, the Runner package's build output with its build
+# stamp, the remote provider pack with its transport archives, and the few
+# source files a sandbox image reads. The tree is the image
+# ghcr.io/paperclipai/paperclip-runner, named `inputs-<digest>` after its
+# inputs. doc/runner-image-contract.md is the contract;
+# scripts/runner-image-layout.mjs and scripts/runner-image-identity.mjs
+# enforce it.
+#
+# These stages are independent of every stage above. They install with a
+# filtered, frozen lockfile and never read the server, the UI or the `deps`
+# stage, so a change outside the Runner's inputs leaves them cached.
+#
+# Consumers must only read `runner-artifacts`, with `COPY --from` or a bind
+# mount, or `runner-artifacts-slim`, the same tree without the pack's transport
+# archives. A build can then replace the stage with an image built earlier:
+#   --build-context runner-artifacts=docker-image://ghcr.io/paperclipai/paperclip-runner@sha256:<digest>
+#
+# The image identity is a digest of this whole file and of every file under
+# the paths `runner-artifacts-context` copies. A test
+# (runner-image-identity.test.ts) holds the three rules that make that enough:
+# every base image of these stages is pinned by digest, only
+# `runner-artifacts-context` reads the build context, and it copies only paths
+# in RUNNER_IMAGE_CONTEXT_INPUTS (scripts/runner-image-identity.mjs).
+
+# The Runner's inputs, exactly as the build context supplies them (after
+# .dockerignore). Later stages copy from here, so each one is keyed by the
+# content of the paths it reads and by nothing else in the repository.
+
+FROM deps AS build
+WORKDIR /app
+# arm64-only variant: take the JS build output from the amd64 image instead of
+# running vite/tsc under QEMU (the rollup chunk step deadlocks there). The
+# target-arch node_modules still comes from `deps`, so native modules match.
+# Build with:
+#   docker buildx build --platform linux/arm64 \
+#     --build-context prebuilt=/tmp/oc-arm64/app-full \
+#     -f docker/Dockerfile.offline-runnerd-arm64-prebuild ...
+COPY --chown=node:node --from=prebuilt / /app/
+ARG PAPERCLIP_BUILD_COMMIT=""
+RUN test -f server/dist/index.js \
+  && test -f server/dist-runtime/index.mjs \
+  && test -d ui/dist \
+  && test -x packages/paperclip-runner/dist/bin/paperclip-runnerd
+
+FROM base AS runner-provider-pack
+# No runner image stage exists, so there is no remote provider pack. Keep the
+# directories so the production stage's COPY targets still resolve.
+RUN mkdir -p /provider-pack /provider-pack-large /provider-pack-transport
+
+FROM base AS production
+ARG USER_UID=1000
+ARG USER_GID=1000
+# Refreshes the tool layer below when it changes (CI stamps an ISO week, so
+# the @latest CLI tools advance weekly). Without it the cached layer would
+# freeze the tools until an unrelated cache bust.
+ARG CLI_TOOLS_CACHE_EPOCH=""
+ARG APT_FORCE_IPV6=false
+# buildx sets this per target platform. arm64 needs a different v1 install path
+# (see the CLI layer below).
+ARG TARGETARCH
+WORKDIR /app
+# Tool and OS layer BEFORE the app copy: it references nothing from /app, and
+# the app copy changes on every commit — ordered the other way around, this
+# (the single most expensive layer: four CLI toolchains + apt, per arch) can
+# never hit the layer cache and rebuilds on every build.
+# NODE_OPTIONS is cleared for the npm step: the image-wide ipv4first order turns
+# this registry into a 404 (see the pnpm bootstrap above). apt gets the optional
+# IPv6 force for the same network.
+# OpenCode v1 and v2 are both installed, and v1 runs last so the `opencode` bin
+# points at v1 by default. v2's server API is not compatible with the Runner's
+# opencode-server driver yet; see doc/DEPLOYING-OFFLINE-RUNNERD.md.
+# The second install needs the shim removed first: npm refuses to replace an
+# `opencode` bin that the first install already linked (EEXIST) instead of
+# overwriting it, so the v1 install would otherwise fail the build.
+# On linux/arm64, `opencode-ai`'s postinstall aborts with EBADPLATFORM: it picks
+# the linux-arm64-musl platform artifact on a glibc image. Install the root
+# package and the correct platform package with --ignore-scripts, then link the
+# real platform binary into PATH. The driver resolves the platform package by
+# path, so the link only matters for a manual `opencode` inside the image.
+RUN echo "cli-tools-epoch: ${CLI_TOOLS_CACHE_EPOCH}" \
+  && if [ "$APT_FORCE_IPV6" = "true" ]; then \
+       printf 'Acquire::ForceIPv6 "true";\n' > /etc/apt/apt.conf.d/99force-ipv6; \
+     fi \
+  && NODE_OPTIONS="" npm install --global --omit=dev @anthropic-ai/claude-code@latest @openai/codex@latest @opencode/cli@2.4.1 @google/gemini-cli@latest @moonshot-ai/kimi-code@latest \
+  && rm -f /usr/local/bin/opencode /usr/local/bin/opencode.exe \
+  && if [ "$TARGETARCH" = "arm64" ]; then \
+       NODE_OPTIONS="" npm install --global --omit=dev --ignore-scripts opencode-ai@1.18.34 \
+       && NODE_OPTIONS="" npm install --global --omit=dev --ignore-scripts opencode-linux-arm64@1.18.34 \
+       && rm -f /usr/local/bin/opencode /usr/local/bin/opencode.exe \
+       && ln -sf /usr/local/lib/node_modules/opencode-linux-arm64/bin/opencode /usr/local/bin/opencode; \
+     else \
+       NODE_OPTIONS="" npm install --global --omit=dev opencode-ai@1.18.34; \
+     fi \
+  && apt-get update \
+  && apt-get install -y --no-install-recommends openssh-client jq \
+  && rm -rf /var/lib/apt/lists/* \
+  && mkdir -p /paperclip \
+  && chown node:node /paperclip
+
+
+COPY scripts/docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Installed dependencies are ~2.9 GB of /app and change only with the lockfile.
+# Copied from the deps stage as their own layer, a commit that leaves the
+# lockfile alone does not push or pull them again. The build stage writes
+# nothing under the root node_modules, so the rest of /app is copied without it.
+COPY --chown=node:node --from=deps /app/node_modules /app/node_modules
+COPY --chown=node:node --exclude=node_modules --from=build /app /app
+
+# Large provider binaries first, linked so the layer does not depend on the
+# per-commit /app layer above; then the small per-commit remainder of the pack.
+COPY --link --chown=0:0 --from=runner-provider-pack /provider-pack-large/ /opt/paperclip-runner/provider-pack/
+COPY --chown=0:0 --from=runner-provider-pack /provider-pack /opt/paperclip-runner/provider-pack
+COPY --from=runner-provider-pack /provider-pack-transport/ /opt/paperclip-runner/
+# Managed deployments can remap node's UID at startup. This immutable pack
+# contains public code and integrity metadata, never credentials; it must remain
+# readable afterward. The Runner build grants a+rX, and every copy up to this
+# COPY preserves modes.
+# Keep it root-owned and verify access as an unrelated unprivileged UID.
+RUN if [ -f /opt/paperclip-runner/provider-pack/provider-pack.json ]; then \
+    gosu 65534:65534 node -e 'const fs = require("node:fs"); const path = require("node:path"); const root = "/opt/paperclip-runner/provider-pack"; const manifest = JSON.parse(fs.readFileSync(path.join(root, "provider-pack.json"), "utf8")); for (const artifact of Object.values(manifest.payload.artifacts)) fs.readFileSync(path.join(root, artifact.path)); fs.accessSync(path.join(root, manifest.payload.artifacts.nodeCommand.path), fs.constants.X_OK);'; \
+  fi
+ENV PAPERCLIP_RUNNER_REMOTE_PROVIDER_PACK_PATH=/opt/paperclip-runner/provider-pack
+
+# Declare per-build metadata after the stable RUN layers. Docker includes
+# in-scope ARG values in a RUN's environment even when its command does not
+# mention them; declaring these earlier invalidates the weekly tool cache.
+# The build stage still receives the commit before writing dist/build-info.json.
+# Empty for local builds, preserving the server's normal version fallbacks.
+ARG PAPERCLIP_BUILD_VERSION=""
+ARG PAPERCLIP_BUILD_COMMIT=""
+ENV NODE_ENV=production \
+  HOME=/paperclip \
+  HOST=0.0.0.0 \
+  PORT=3100 \
+  SERVE_UI=true \
+  PAPERCLIP_HOME=/paperclip \
+  PAPERCLIP_INSTANCE_ID=default \
+  PAPERCLIP_BUILD_VERSION=${PAPERCLIP_BUILD_VERSION} \
+  PAPERCLIP_BUILD_COMMIT=${PAPERCLIP_BUILD_COMMIT} \
+  USER_UID=${USER_UID} \
+  USER_GID=${USER_GID} \
+  PAPERCLIP_CONFIG=/paperclip/instances/default/config.json \
+  PAPERCLIP_DEPLOYMENT_MODE=authenticated \
+  PAPERCLIP_DEPLOYMENT_EXPOSURE=private \
+  OPENCODE_ALLOW_ALL_MODELS=true \
+  GEMINI_SANDBOX=false
+
+EXPOSE 3100
+
+# tini, not node, is PID 1. The entrypoint ends in `exec`, so without an init
+# node inherits PID 1 and never wait()s the orphans the kernel re-parents onto
+# it -- agent runs spawn git/claude/esbuild/sh descendants that outlive their
+# leader, so they pile up as permanent zombies (~79/h measured) until the
+# cgroup pid limit is exhausted and *every* fork() in the container fails.
+# tini reaps adopted orphans and forwards signals, so the exec chain below and
+# graceful shutdown are unchanged. Mirrors docker/agent-runtime/Dockerfile.base.
+ENTRYPOINT ["/usr/bin/tini", "-s", "--", "docker-entrypoint.sh"]
+CMD ["node", "server/dist-runtime/index.mjs"]
+
+# Cloud image variant (build with `--target cloud`): the production image
+# plus built bundled sandbox-provider plugins. Managed instances receive a
+# `plugins.autoInstall` key list through PAPERCLIP_MANAGED_CONFIG and
+# install those plugins from the bundled catalog at boot
+# (server/src/services/bundled-plugins.ts), which requires each plugin's
+# dist/ to exist in the image — the default image ships only their source,
+# so auto-install logs "bundle not present" and skips. The plugins are
+# built in this separate target so the default (self-hosted) image stays
+# lean; CI pins the default build to `--target production`. Both targets
+# inherit the build-owned remote provider pack from the standard image.
+#
+# The sandbox providers are intentionally excluded from the pnpm workspace
+# (see pnpm-workspace.yaml), so each installs standalone exactly as its
+# README prescribes. Installing in a `build`-based stage (not `production`)
+# keeps devDependencies available for tsc: `production` sets
+# NODE_ENV=production, which would make pnpm skip them.
+#
+# CLOUD_BUNDLED_PLUGINS is the space-separated list of sandbox-provider
+# directory names to build into the variant. Only what managed deployments
+# actually auto-install belongs here — every entry adds its node_modules
+# to the image. Growing the list is a one-line workflow change.
+FROM build AS cloud-plugins
+ARG CLOUD_BUNDLED_PLUGINS="daytona"
+RUN set -eu; \
+  export NODE_OPTIONS=""; \
+  for name in $CLOUD_BUNDLED_PLUGINS; do \
+    dir="packages/plugins/sandbox-providers/$name"; \
+    test -d "$dir" || { echo "ERROR: unknown sandbox provider '$name'" >&2; exit 1; }; \
+    pnpm -C "$dir" install --ignore-workspace --no-lockfile; \
+    pnpm -C "$dir" build; \
+    test -f "$dir/dist/manifest.js" || { echo "ERROR: $dir is missing dist/manifest.js after build" >&2; exit 1; }; \
+  done
+
+# The hosted image variant ships selected optional peer packages
+# pre-installed. A managed tenant then needs no separate install step.
+# The self-hosted image stays on the opt-in contract: it never runs this
+# stage, so a package like `@sentry/node` stays a true optional peer
+# dependency. A self-hosted operator installs it by hand (see
+# doc/observability.md).
+#
+# CLOUD_BUNDLED_SERVER_DEPS names the optional peer packages to install.
+# The value is a space-separated list, the same shape as
+# CLOUD_BUNDLED_PLUGINS above. The stage reads each package's version
+# from the `peerDependencies` block of `server/package.json` at build
+# time, so the version has one committed home.
+#
+# The stage fails the build in three cases:
+# - the argument is empty
+# - server/package.json declares no version for a named package
+# - the named package is not an optional peer
+#
+# This check keeps the argument limited to packages the server already
+# treats as optional.
+#
+# The install happens in its own isolated directory, not inside
+# `server`'s own workspace install. The self-hosted target above never
+# gains these packages this way. The directory sits under `/app`, not
+# `server/`, and `--ignore-workspace` below excludes it from the pnpm
+# workspace. From that directory, pnpm still finds the `packageManager`
+# pin in the repo's own `package.json` by walking up — the same pnpm
+# version the rest of the build uses.
+#
+# The install writes no lock file (`--no-lockfile`, the same flag the
+# `cloud-plugins` stage above uses). Two builds of the same commit can
+# therefore install different transitive versions of a named package.
+# Three facts make this an accepted trade-off:
+# - the `cloud-plugins` stage above already has the same property, with
+#   the same flag
+# - the direct version of each named package comes from one exact,
+#   single-sourced place: the `peerDependencies` block of
+#   `server/package.json`
+# - an automated check asserts the installed direct version after every
+#   build, so a transitive drift that breaks the package still fails the
+#   build
+FROM build AS cloud-server-deps
+WORKDIR /app/.cloud-server-deps
+ARG CLOUD_BUNDLED_SERVER_DEPS="@sentry/node"
+RUN set -eu; \
+  export NODE_OPTIONS=""; \
+  test -n "$CLOUD_BUNDLED_SERVER_DEPS" || { echo "ERROR: CLOUD_BUNDLED_SERVER_DEPS is empty; name at least one optional peer package to install" >&2; exit 1; }; \
+  echo '{"name":"paperclip-cloud-server-deps","private":true}' > package.json; \
+  specifiers=""; \
+  for name in $CLOUD_BUNDLED_SERVER_DEPS; do \
+    version="$(node -e "const pkg=require('/app/server/package.json'); const name=process.argv[1]; const version=(pkg.peerDependencies||{})[name]; if(!version){console.error('ERROR: server/package.json declares no peerDependencies version for '+JSON.stringify(name));process.exit(1);} const meta=(pkg.peerDependenciesMeta||{})[name]; if(!meta||meta.optional!==true){console.error('ERROR: '+JSON.stringify(name)+' is not declared as an optional peer dependency in server/package.json; CLOUD_BUNDLED_SERVER_DEPS may name only optional peer packages');process.exit(1);} process.stdout.write(version);" "$name")"; \
+    test -n "$version" || { echo "ERROR: could not resolve a version for '$name'" >&2; exit 1; }; \
+    specifiers="$specifiers ${name}@${version}"; \
+  done; \
+  test -n "$specifiers" || { echo "ERROR: CLOUD_BUNDLED_SERVER_DEPS names no package" >&2; exit 1; }; \
+  pnpm add --ignore-workspace --no-lockfile $specifiers
+
+FROM production AS cloud
+COPY --chown=node:node --from=cloud-plugins /app/packages/plugins/sandbox-providers /app/packages/plugins/sandbox-providers
+# Land the isolated install inside the server's own `node_modules`, the
+# directory Node's module resolution walks up to from `/app/server` for
+# both a CommonJS `require.resolve` and an ECMAScript `import` — an entry
+# on `NODE_PATH` would satisfy only the first and silently fail the second.
+COPY --chown=node:node --from=cloud-server-deps /app/.cloud-server-deps/node_modules /app/server/node_modules

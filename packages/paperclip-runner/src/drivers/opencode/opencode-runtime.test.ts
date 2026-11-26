@@ -37,6 +37,7 @@ describe("OpenCode runtime selection", () => {
       executableNames: ["bin/opencode"],
       platformPackages: {
         "linux-x64": ["opencode-linux-x64-baseline"],
+        "linux-arm64": ["opencode-linux-arm64"],
         "darwin-arm64": ["opencode-darwin-arm64"],
         "darwin-x64": ["opencode-darwin-x64-baseline"],
       },
@@ -47,6 +48,7 @@ describe("OpenCode runtime selection", () => {
       executableNames: ["bin/opencode.exe", "bin/opencode"],
       platformPackages: {
         "linux-x64": ["@opencode/cli-linux-x64-baseline", "@opencode/cli-linux-x64"],
+        "linux-arm64": ["@opencode/cli-linux-arm64"],
         "darwin-arm64": ["@opencode/cli-darwin-arm64"],
         "darwin-x64": ["@opencode/cli-darwin-x64-baseline", "@opencode/cli-darwin-x64"],
       },

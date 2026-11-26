@@ -116,3 +116,6 @@ docs/deploy_207.md
 *.scip
 CLAUDE.md
 README_1030.md
+
+# Prebuilt runner daemon staged by scripts/deploy-offline-runnerd.sh
+/vendor-bin/

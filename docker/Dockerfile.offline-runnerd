@@ -29,10 +29,38 @@ ENV npm_config_registry=https://registry.npmmirror.com \
     npm_config_network_concurrency=4
 ARG USER_UID=1000
 ARG USER_GID=1000
-RUN apt-get update \
+# Some hosts route IPv4 through a transparent proxy that answers the Debian
+# archive with 404/000 while IPv6 reaches it directly (observed on a
+# self-hosted host: deb.debian.org resolved to a proxy address whose
+# `dists/trixie/Release` is 404). Settings this to "true" forces apt onto IPv6
+# for this build. Off by default so an ordinary build keeps the default order.
+ARG APT_FORCE_IPV6=false
+RUN if [ "$APT_FORCE_IPV6" = "true" ]; then \
+      printf 'Acquire::ForceIPv6 "true";\n' > /etc/apt/apt.conf.d/99force-ipv6; \
+    fi \
+  && apt-get update \
   && apt-get install -y --no-install-recommends ca-certificates gosu curl gh git wget ripgrep python3 tini \
   && rm -rf /var/lib/apt/lists/* \
   && corepack enable
+
+# Install pnpm with npm instead of letting the `corepack enable` shim download
+# it on first use. That on-demand download fails on the mirror path: npmmirror
+# answers corepack's tarball lookup (`/pnpm/<version>`) with 404, and
+# registry.npmjs.org fails certificate verification inside this build network.
+# npm resolves the same mirror fine, and a real global install replaces the
+# corepack shim, so `pnpm` never falls back to an on-demand corepack download.
+# Keep this a separate layer so the apt layer above stays cacheable on hosts
+# whose apt mirror is only reachable through a stale image.
+ARG PNPM_VERSION=9.15.4
+# Clear NODE_OPTIONS for this install. The image-wide
+# `--dns-result-order=ipv4first` exists for hosts whose IPv6 route to
+# registry.npmjs.org times out, but on this registry the IPv6 edge is the only
+# one that serves the package: the IPv4 edge answers `GET /pnpm` with 404, and
+# an IPv4-only name order turns a working mirror into a failed build. Letting
+# the default order pick IPv6 fixes it without disabling certificate checks.
+RUN rm -f /usr/local/bin/pnpm /usr/local/bin/pnpx \
+  && NODE_OPTIONS="" npm install -g "pnpm@${PNPM_VERSION}" \
+  && pnpm --version
 
 # Modify the existing node user/group to have the specified UID/GID to match host user
 RUN usermod -u $USER_UID --non-unique node \
@@ -101,8 +129,10 @@ COPY server/scripts/install-copilot-assets.mjs server/scripts/
 COPY server/src/services/copilot-connection-probe.ts server/src/services/
 
 # CI owns repository lock updates. Resolve manifest changes in the image's
-# private build tree, then install from that exact generated lock.
-RUN pnpm install --resolution-only --ignore-scripts --no-frozen-lockfile && pnpm install --frozen-lockfile
+# private build tree, then install from that exact generated lock. NODE_OPTIONS
+# is cleared for the same reason as the pnpm bootstrap above: this registry
+# serves the packages over its IPv6 edge, and forcing IPv4 turns it into a 404.
+RUN NODE_OPTIONS="" pnpm install --resolution-only --ignore-scripts --no-frozen-lockfile && NODE_OPTIONS="" pnpm install --frozen-lockfile
 
 # Runner image (`--target runner-artifacts`).
 #
@@ -185,13 +215,20 @@ ARG USER_GID=1000
 # the @latest CLI tools advance weekly). Without it the cached layer would
 # freeze the tools until an unrelated cache bust.
 ARG CLI_TOOLS_CACHE_EPOCH=""
+ARG APT_FORCE_IPV6=false
 WORKDIR /app
 # Tool and OS layer BEFORE the app copy: it references nothing from /app, and
 # the app copy changes on every commit — ordered the other way around, this
 # (the single most expensive layer: four CLI toolchains + apt, per arch) can
 # never hit the layer cache and rebuilds on every build.
+# NODE_OPTIONS is cleared for the npm step: the image-wide ipv4first order turns
+# this registry into a 404 (see the pnpm bootstrap above). apt gets the optional
+# IPv6 force for the same network.
 RUN echo "cli-tools-epoch: ${CLI_TOOLS_CACHE_EPOCH}" \
-  && npm install --global --omit=dev @anthropic-ai/claude-code@latest @openai/codex@latest @opencode/cli@2.4.1 @google/gemini-cli@latest @moonshot-ai/kimi-code@latest \
+  && if [ "$APT_FORCE_IPV6" = "true" ]; then \
+       printf 'Acquire::ForceIPv6 "true";\n' > /etc/apt/apt.conf.d/99force-ipv6; \
+     fi \
+  && NODE_OPTIONS="" npm install --global --omit=dev @anthropic-ai/claude-code@latest @openai/codex@latest @opencode/cli@2.4.1 @google/gemini-cli@latest @moonshot-ai/kimi-code@latest \
   && apt-get update \
   && apt-get install -y --no-install-recommends openssh-client jq \
   && rm -rf /var/lib/apt/lists/* \

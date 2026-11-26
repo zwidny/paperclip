@@ -28,6 +28,13 @@ services:
       # needs an IPv4-only CDN host, name resolution fails inside RUN steps.
       # Host networking avoids that without touching the Docker daemon.
       network: host
+      # The offline hosts this variant targets can have an IPv4 path that a
+      # transparent proxy answers with 404/000 (observed: deb archives and npm
+      # metadata), while IPv6 reaches the same hosts directly. Forces apt onto
+      # IPv6 and, together with the Dockerfile clearing NODE_OPTIONS for npm,
+      # keeps mirror installs working on those hosts.
+      args:
+        APT_FORCE_IPV6: "true"
     # This variant targets hosts that cannot build the Runner in-image, which in
     # practice means self-hosted and white-label deployments. Those should not
     # call home: the announcement feed polls an upstream URL on a timer, and the

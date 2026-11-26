@@ -18221,6 +18221,7 @@
     "noDefaultAccount": "You have no default account for this provider. Connect an account or choose another connection.",
     "connectionUnavailable": "This connection is unavailable. Choose another connection.",
     "incompatibleHarness": "This connection does not support the selected harness. Choose a compatible connection.",
+    "incompatibleHarnessLabel": "{{label}} · Incompatible with this harness and model",
     "connection": "Connection",
     "loadingConnections": "Loading connections…",
     "reconnectAccount": "Reconnect account",

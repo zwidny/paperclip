@@ -145,9 +145,9 @@ export function AiConnectionSelect({
           {onUseHarnessAuth && <SelectItem value="harness_auth">Use harness sign-in</SelectItem>}
           {incompatible && selected && (
             <SelectItem value={selected.id} disabled>
-              <ConnectionLabel connection={selected} label={t("aiConnectionSelect.incompatibleHarness", {
+              <ConnectionLabel connection={selected} label={t("aiConnectionSelect.incompatibleHarnessLabel", {
                 label: aiConnectionDisplayLabel(selected),
-                defaultValue: `${aiConnectionDisplayLabel(selected)} · Incompatible with this harness and model`,
+                defaultValue: "{{label}} · Incompatible with this harness and model",
               })} wrap />
             </SelectItem>
           )}

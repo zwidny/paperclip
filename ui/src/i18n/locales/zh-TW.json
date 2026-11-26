@@ -18221,6 +18221,7 @@
     "noDefaultAccount": "你沒有此提供者的預設帳號。請連結一個帳號或選擇其他連線。",
     "connectionUnavailable": "此連線無法使用。請選擇其他連線。",
     "incompatibleHarness": "此連線不支援所選的 harness。請選擇相容的連線。",
+    "incompatibleHarnessLabel": "{{label}} · Incompatible with this harness and model",
     "connection": "Connection",
     "loadingConnections": "Loading connections…",
     "reconnectAccount": "Reconnect account",

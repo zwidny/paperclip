@@ -18221,6 +18221,7 @@
     "noDefaultAccount": "你没有此提供商的默认账号。请连接一个账号或选择其他连接。",
     "connectionUnavailable": "此连接不可用。请选择其他连接。",
     "incompatibleHarness": "此连接不支持所选的 harness。请选择兼容的连接。",
+    "incompatibleHarnessLabel": "{{label}} · 与此 harness 和模型不兼容",
     "connection": "连接",
     "loadingConnections": "正在加载连接…",
     "reconnectAccount": "重新连接账号",

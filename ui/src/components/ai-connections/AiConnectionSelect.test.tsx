@@ -3,15 +3,18 @@ import { flushSync } from "react-dom";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { AiConnectionSelect } from "./AiConnectionSelect";
+import { changeLocale } from "@/i18n";
 import { replayLeaks } from "@/lib/analytics/replay-recording.test-utils";
 import type { ComponentProps } from "react";
 
 // NOTE (2026-11-26): the incompatible selected connection is not filtered out;
 // AiConnectionSelect renders it as a disabled option (AiConnectionSelect.tsx
-// `incompatible && selected`). Its visible text is the plain
-// `aiConnectionSelect.incompatibleHarness` locale sentence rather than the
-// default label that embeds the connection name, so the scenarios below locate
-// that option by `aria-disabled` instead of by its (name-carrying) label.
+// `incompatible && selected`). Its label comes from the dedicated
+// `aiConnectionSelect.incompatibleHarnessLabel` key, which interpolates the
+// connection name; `aiConnectionSelect.incompatibleHarness` is the alert
+// sentence rendered under the select. The scenarios below locate the option by
+// `aria-disabled` (stable behaviour) and assert the name is present, so a shared
+// key with two sentences would fail again.
 
 
 vi.mock("@/pages/apps/AppLogo", () => ({ AppLogo: () => null }));
@@ -25,11 +28,11 @@ beforeEach(() => {
 });
 afterEach(() => { flushSync(() => root.unmount()); container.remove(); });
 
-async function openConnections(props: Partial<ComponentProps<typeof AiConnectionSelect>> = {}) {
+async function openConnections(props: Partial<ComponentProps<typeof AiConnectionSelect>> = {}, triggerLabel = "Connection") {
   flushSync(() => root.render(<AiConnectionSelect requirement={{ companyId: "company", provider: "openrouter" }}
     connections={[]} currentUserId="user" agentId="agent" agentName="Nova" adapterType="opencode_local"
     onChange={vi.fn()} onConnect={vi.fn()} {...props} />));
-  const trigger = container.querySelector<HTMLElement>('[role="combobox"][aria-label="Connection"]')!;
+  const trigger = container.querySelector<HTMLElement>(`[role="combobox"][aria-label="${triggerLabel}"]`)!;
   flushSync(() => trigger.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true })));
   await new Promise(resolve => setTimeout(resolve, 0));
   flushSync(() => {});
@@ -59,9 +62,34 @@ it("disables the old subscription after switching harnesses", async () => {
   // so it stays in the list as the only disabled option instead of vanishing.
   const oldAccount = options.find(option => option.getAttribute("aria-disabled") === "true");
   expect(oldAccount).toBeDefined();
-  expect(oldAccount?.textContent).toContain("does not support the selected harness");
+  expect(oldAccount?.textContent).toContain("Claude subscription");
+  expect(oldAccount?.textContent).toContain("Incompatible with this harness and model");
+  expect(oldAccount?.textContent).not.toContain("does not support the selected harness");
   flushSync(() => oldAccount!.click());
   expect(props.onChange).not.toHaveBeenCalled();
+});
+
+it("keeps the connection name on the incompatible option in Chinese", async () => {
+  const props = {
+    requirement: { companyId: "company", provider: "anthropic" as const },
+    connections: [{ id: "claude", grantId: "grant", companyId: "company", provider: "anthropic" as const,
+      method: "subscription" as const, name: "Claude subscription", ownership: "shared" as const, status: "connected" as const }],
+    value: { mode: "shared" as const, provider: "anthropic" as const, method: "subscription" as const, connectionId: "claude", grantId: "grant" },
+    currentUserId: "user", agentId: "agent", agentName: "Nova", onChange: vi.fn(), onConnect: vi.fn(),
+  };
+  await changeLocale("zh-CN");
+  try {
+    const options = await openConnections({ ...props, adapterType: "opencode_local" }, "连接");
+    const oldAccount = options.find(option => option.getAttribute("aria-disabled") === "true");
+    expect(oldAccount).toBeDefined();
+    // Regression: before the key split this option rendered the alert sentence,
+    // so the stored zh-CN value dropped the connection name entirely.
+    expect(oldAccount?.textContent).toContain("Claude subscription");
+    expect(oldAccount?.textContent).toContain("与此 harness 和模型不兼容");
+    expect(oldAccount?.textContent).not.toContain("请选择兼容的连接");
+  } finally {
+    await changeLocale("en");
+  }
 });
 
 it.each(["anthropic", "openai", "google", "openrouter"] as const)("offers %s API accounts for Pi before a model is chosen", async provider => {

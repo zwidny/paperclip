@@ -12,10 +12,11 @@ import { replayLeaks } from "@/lib/analytics/replay-recording.test-utils";
 
 // NOTE (2026-11-26): the incompatible saved connection is not filtered out;
 // AiConnectionSelect renders it as a disabled option and AiConnectionField adds
-// the "does not support the current harness" alert. The option's visible text is
-// the plain `aiConnectionSelect.incompatibleHarness` locale sentence instead of
-// the default label that embeds the connection name, so this test locates it by
-// `aria-disabled` rather than by "My Claude".
+// the "does not support the current harness" alert. The option label comes from
+// `aiConnectionSelect.incompatibleHarnessLabel`, which interpolates the
+// connection name; the alert uses `aiConnectionSelect.incompatibleHarness`. This
+// test locates the option by `aria-disabled` (stable behaviour) and asserts the
+// name is present, so the two sentences cannot share one key again.
 
 
 const mocks = vi.hoisted(() => ({ list: vi.fn(), setDefault: vi.fn() }));
@@ -91,7 +92,8 @@ it("disables a saved Claude subscription after the harness changes to Codex", as
   await settle();
   const option = [...document.querySelectorAll<HTMLElement>('[role="option"]')].find(item => item.getAttribute("aria-disabled") === "true");
   expect(option).toBeDefined();
-  expect(option?.textContent).toContain("does not support the selected harness");
+  expect(option?.textContent).toContain("My Claude");
+  expect(option?.textContent).toContain("Incompatible with this harness and model");
   // The field also surfaces that the saved binding is incompatible before saving.
   expect(container.textContent).toContain("does not support the current harness");
   flushSync(() => option!.click());

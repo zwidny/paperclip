@@ -10,12 +10,12 @@ import { ApiError } from "@/api/client";
 import type { AiConnectionCredentialStep } from "./AiConnectionCredentialStep";
 import { replayLeaks } from "@/lib/analytics/replay-recording.test-utils";
 
-// NOTE (2026-11-25): the `it.skip` below comes from upstream with the merge.
-// Upstream's AiConnectionSelect filters incompatible connections out of the
-// `compatible` list, so the option never renders; the test instead expects the
-// option to render with aria-disabled. Either upstream's test or the filtering
-// is ahead/behind on that commit, so the assertion cannot pass here. Tracked
-// separately from the i18n work.
+// NOTE (2026-11-26): the incompatible saved connection is not filtered out;
+// AiConnectionSelect renders it as a disabled option and AiConnectionField adds
+// the "does not support the current harness" alert. The option's visible text is
+// the plain `aiConnectionSelect.incompatibleHarness` locale sentence instead of
+// the default label that embeds the connection name, so this test locates it by
+// `aria-disabled` rather than by "My Claude".
 
 
 const mocks = vi.hoisted(() => ({ list: vi.fn(), setDefault: vi.fn() }));
@@ -80,7 +80,7 @@ beforeEach(() => {
   client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
 });
 
-it.skip("disables a saved Claude subscription after the harness changes to Codex", async () => {
+it("disables a saved Claude subscription after the harness changes to Codex", async () => {
   const value = { provider: "anthropic" as const, method: "subscription" as const, mode: "shared" as const,
     connectionId: "11111111-1111-4111-8111-111111111111", grantId: "22222222-2222-4222-8222-222222222222" };
   const connections = [account({ id: value.connectionId, grantId: value.grantId, ownership: "shared", status: "connected" })];
@@ -89,9 +89,13 @@ it.skip("disables a saved Claude subscription after the harness changes to Codex
   const trigger = container.querySelector<HTMLElement>('[role="combobox"][aria-label="Connection"]')!;
   flushSync(() => trigger.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true })));
   await settle();
-  const option = [...document.querySelectorAll<HTMLElement>('[role="option"]')].find(option => option.textContent?.includes("My Claude"));
-  expect(option?.getAttribute("aria-disabled")).toBe("true");
-  expect(option?.textContent).toContain("Incompatible with this harness and model");
+  const option = [...document.querySelectorAll<HTMLElement>('[role="option"]')].find(item => item.getAttribute("aria-disabled") === "true");
+  expect(option).toBeDefined();
+  expect(option?.textContent).toContain("does not support the selected harness");
+  // The field also surfaces that the saved binding is incompatible before saving.
+  expect(container.textContent).toContain("does not support the current harness");
+  flushSync(() => option!.click());
+  await settle();
   expect(onChange).not.toHaveBeenCalled();
 });
 afterEach(() => { flushSync(() => root.unmount()); client.clear(); container.remove(); });

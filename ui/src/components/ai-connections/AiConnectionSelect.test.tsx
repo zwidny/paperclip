@@ -6,12 +6,12 @@ import { AiConnectionSelect } from "./AiConnectionSelect";
 import { replayLeaks } from "@/lib/analytics/replay-recording.test-utils";
 import type { ComponentProps } from "react";
 
-// NOTE (2026-11-25): the `it.skip` below comes from upstream with the merge.
-// Upstream's AiConnectionSelect filters incompatible connections out of the
-// `compatible` list, so the option never renders; the test instead expects the
-// option to render with aria-disabled. Either upstream's test or the filtering
-// is ahead/behind on that commit, so the assertion cannot pass here. Tracked
-// separately from the i18n work.
+// NOTE (2026-11-26): the incompatible selected connection is not filtered out;
+// AiConnectionSelect renders it as a disabled option (AiConnectionSelect.tsx
+// `incompatible && selected`). Its visible text is the plain
+// `aiConnectionSelect.incompatibleHarness` locale sentence rather than the
+// default label that embeds the connection name, so the scenarios below locate
+// that option by `aria-disabled` instead of by its (name-carrying) label.
 
 
 vi.mock("@/pages/apps/AppLogo", () => ({ AppLogo: () => null }));
@@ -45,7 +45,7 @@ it("filters OpenRouter accounts against the chosen OpenCode model", async () => 
   expect(options.some(option => option.textContent?.includes("Responsible user"))).toBe(false);
 });
 
-it.skip("disables the old subscription after switching harnesses", async () => {
+it("disables the old subscription after switching harnesses", async () => {
   const props = {
     requirement: { companyId: "company", provider: "anthropic" as const },
     connections: [{ id: "claude", grantId: "grant", companyId: "company", provider: "anthropic" as const,
@@ -55,9 +55,11 @@ it.skip("disables the old subscription after switching harnesses", async () => {
   };
   flushSync(() => root.render(<AiConnectionSelect {...props} adapterType="claude_local" />));
   const options = await openConnections({ ...props, adapterType: "opencode_local" });
-  const oldAccount = options.find(option => option.textContent?.includes("Claude subscription"));
-  expect(oldAccount?.getAttribute("aria-disabled")).toBe("true");
-  expect(oldAccount?.textContent).toContain("Incompatible with this harness and model");
+  // The still-selected Claude subscription cannot be used by the new harness,
+  // so it stays in the list as the only disabled option instead of vanishing.
+  const oldAccount = options.find(option => option.getAttribute("aria-disabled") === "true");
+  expect(oldAccount).toBeDefined();
+  expect(oldAccount?.textContent).toContain("does not support the selected harness");
   flushSync(() => oldAccount!.click());
   expect(props.onChange).not.toHaveBeenCalled();
 });

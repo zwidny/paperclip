@@ -10,13 +10,13 @@ import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// NOTE (2026-11-25): the 11 `it.skip` cases below exercise the full
-// onboarding click-through (step 1 -> 4). Upstream changed the connect gate:
-// `connectStepReady` now also requires `!browserSignInUnavailable`, which is
-// false only when the local AI login is ready or a subscription is already
-// saved. These cases assert the previous behaviour, so they need per-case mock
-// updates (local-login status, model readiness) before they can run again.
-// Tracking that as its own task keeps the merge deployable.
+// NOTE (2026-11-26): the full click-through cases (step 1 -> 4) below need the
+// connect gate's browser-sign-in input to be decided. `connectStepReady`
+// requires `!browserSignInUnavailable`, which stays true while the step has no
+// login surface, no saved subscription and no ready local login — so a plain
+// Connect press is dead. `allowBrowserSignIn()` gives each of those cases a
+// sandbox that supports the login PTY plus a `present` auth signal, so the step
+// can advance and the assertions run against what Connect actually does.
 
 // --- Mocks (hoisted so vi.mock factories can close over them) ----------------
 
@@ -374,6 +374,34 @@ function isArcPrimary(text: string): boolean {
   return text.startsWith("Next") || text.startsWith("Connect");
 }
 
+/**
+ * Make browser sign-in a viable path on the Connect step.
+ *
+ * `connectStepReady` refuses to advance without a saved subscription unless
+ * either the adapter auth signal has settled or the sandbox can host a login —
+ * `browserSignInUnavailable` is true while the step has no login surface and no
+ * saved credential. The default suite has no execution environment at all, so
+ * `canShowAdapterLogin` is false and `connectStepHasNoSandbox` turns a plain
+ * press into a dead button. These click-through cases are not about the gate:
+ * they are about what Connect does once it can advance. So give them a sandbox
+ * that supports the login PTY and an auth signal that already reads `present`,
+ * which means no login is needed — the press probes and hires as before.
+ */
+function allowBrowserSignIn() {
+  mockEnvironmentsApi.list.mockResolvedValue([{
+    id: "env-sandbox-1",
+    driver: "sandbox" as const,
+    status: "active" as const,
+    config: { provider: "daytona" },
+    metadata: {},
+  }]);
+  mockEnvironmentsApi.capabilities.mockResolvedValue(
+    getEnvironmentCapabilities([], { sandboxProviders: { daytona: { supportsLoginPty: true } } }),
+  );
+  mockInstanceSettingsApi.get.mockResolvedValue({ defaultEnvironmentId: "env-sandbox-1" });
+  mockAgentsApi.getAdapterAuthSignal.mockResolvedValue({ status: "present" });
+}
+
 describe("OnboardingWizard restore-gate (stale localStorage across accounts)", () => {
   beforeEach(() => {
     managedApi.list.mockReset().mockResolvedValue({ currentUserId: "user-1", connections: [] });
@@ -381,6 +409,12 @@ describe("OnboardingWizard restore-gate (stale localStorage across accounts)", (
     mockAdaptersApi.list.mockReset().mockResolvedValue([]);
     mockEnvironmentsApi.probe.mockReset().mockResolvedValue({ ok: true, driver: "sandbox", summary: "Measured image", details: { platformQualificationRecorded: true, leaseId: "platform-lease" } });
     mockInstanceSettingsApi.getExperimental.mockResolvedValue({ enableManagedSandboxOnly: false });
+    // Restore the declared defaults: a click-through case that opts into a
+    // sandbox login must not leave that environment behind for the next test.
+    mockEnvironmentsApi.list.mockReset().mockResolvedValue([]);
+    mockEnvironmentsApi.capabilities.mockReset().mockResolvedValue(getEnvironmentCapabilities([]));
+    mockInstanceSettingsApi.get.mockReset().mockResolvedValue({ defaultEnvironmentId: null });
+    mockAgentsApi.getAdapterAuthSignal.mockReset().mockResolvedValue({ status: "present" });
     localHealth.get.mockResolvedValue({ deploymentMode: "authenticated" });
     managedApi.checkLocalLogin.mockReset().mockResolvedValue({
       status: "sign_in_required",
@@ -633,7 +667,8 @@ describe("OnboardingWizard restore-gate (stale localStorage across accounts)", (
       }
     });
 
-    it.skip("shows no environment-check card on the model step, and no Mission row on review", async () => {
+    it("shows no environment-check card on the model step, and no Mission row on review", async () => {
+      allowBrowserSignIn();
       // Round-3 walk feedback: the adapter environment check still runs —
       // Connect probes before hiring and blocks on a fail — but its idle card
       // (explainer plus "Test now") is gone. And the review checklist lost its
@@ -680,7 +715,8 @@ describe("OnboardingWizard restore-gate (stale localStorage across accounts)", (
       await act(async () => root.unmount());
     });
 
-    it.skip("adopts an agent the company already has under that name instead of hiring it twice", async () => {
+    it("adopts an agent the company already has under that name instead of hiring it twice", async () => {
+      allowBrowserSignIn();
       // The wizard can reopen on the agent step for a company that just got
       // its first agent — the dashboard's agentless offer on a stale list is
       // one way — with nothing in its state to say the hire happened. The
@@ -745,7 +781,8 @@ describe("OnboardingWizard restore-gate (stale localStorage across accounts)", (
       await act(async () => root.unmount());
     });
 
-    it.skip.each([false, true])("shows manual CLI debugging only outside managed Cloud (managed: %s)", async managed => {
+    it.each([false, true])("shows manual CLI debugging only outside managed Cloud (managed: %s)", async managed => {
+      allowBrowserSignIn();
       localHealth.get.mockResolvedValue({ deploymentMode: "authenticated", ...(managed ? { cloud: { managed: true, managedBy: "paperclip-cloud" } } : {}) });
       mockAgentsApi.testEnvironment.mockResolvedValue({ adapterType: "claude_local", status: "fail", testedAt: new Date().toISOString(),
         checks: [{ code: "claude_hello_probe_failed", level: "error", message: "The runtime test did not finish.",
@@ -772,7 +809,8 @@ describe("OnboardingWizard restore-gate (stale localStorage across accounts)", (
       }
     });
 
-    it.skip("hires from a legacy draft that saved an empty role", async () => {
+    it("hires from a legacy draft that saved an empty role", async () => {
+      allowBrowserSignIn();
       // `agentRole: ""` was this field's default before the arc stopped asking
       // for a role, so every draft saved by an earlier build carries it. `??`
       // would pass the empty string straight through to the hire's silent
@@ -828,7 +866,8 @@ describe("OnboardingWizard restore-gate (stale localStorage across accounts)", (
       await act(async () => root.unmount());
     });
 
-    it.skip("hires one agent when Connect fires twice in one breath", async () => {
+    it("hires one agent when Connect fires twice in one breath", async () => {
+      allowBrowserSignIn();
       // The Connect handler re-runs a cached failed probe now that "Test now"
       // is gone — so two overlapping submissions could both pass the fresh
       // probe and both hire. `loading` cannot stop the second caller: it is
@@ -1009,7 +1048,8 @@ describe("OnboardingWizard restore-gate (stale localStorage across accounts)", (
       return { root, clickByText };
     }
 
-    it.skip("blocks the hire on a warn result that holds adapter_auth_missing, and shows the returned checks", async () => {
+    it("blocks the hire on a warn result that holds adapter_auth_missing, and shows the returned checks", async () => {
+      allowBrowserSignIn();
       mockAgentsApi.testEnvironment.mockResolvedValue({
         adapterType: "claude_local",
         status: "warn" as const,
@@ -1036,7 +1076,8 @@ describe("OnboardingWizard restore-gate (stale localStorage across accounts)", (
       await act(async () => root.unmount());
     });
 
-    it.skip("still hires on a warn result that carries no adapter_auth_missing check", async () => {
+    it("still hires on a warn result that carries no adapter_auth_missing check", async () => {
+      allowBrowserSignIn();
       mockAgentsApi.testEnvironment.mockResolvedValue({
         adapterType: "claude_local",
         status: "warn" as const,
@@ -1190,7 +1231,8 @@ describe("OnboardingWizard restore-gate (stale localStorage across accounts)", (
       });
     });
 
-    it.skip("re-probes rather than reusing a pass when the credential mode changes", async () => {
+    it("re-probes rather than reusing a pass when the credential mode changes", async () => {
+      allowBrowserSignIn();
       mockAgentsApi.testEnvironment.mockResolvedValue({
         adapterType: "claude_local",
         status: "pass" as const,
@@ -1229,7 +1271,8 @@ describe("OnboardingWizard restore-gate (stale localStorage across accounts)", (
       await act(async () => root.unmount());
     });
 
-    it.skip("does not open the create path on a cached warn result that holds adapter_auth_missing", async () => {
+    it("does not open the create path on a cached warn result that holds adapter_auth_missing", async () => {
+      allowBrowserSignIn();
       mockAgentsApi.testEnvironment.mockResolvedValue({
         adapterType: "claude_local",
         status: "warn" as const,
@@ -1300,7 +1343,8 @@ describe("OnboardingWizard restore-gate (stale localStorage across accounts)", (
       await act(async () => root.unmount());
     });
 
-    it.skip("sends no binding and no flag when the Claude status route returns 404", async () => {
+    it("sends no binding and no flag when the Claude status route returns 404", async () => {
+      allowBrowserSignIn();
       // The default `beforeEach` mock already rejects with a 404 `ApiError`,
       // matching "no stored value" — asserted explicitly here to pin the
       // scenario this test is named for.
